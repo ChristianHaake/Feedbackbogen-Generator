@@ -20,7 +20,7 @@ export function renderLayout(): HTMLElement {
     el(
       'div',
       { class: 'actions' },
-      toolbarButton('save', strings.toolbar.save, 'save'),
+      toolbarButton('save', strings.toolbar.save, 'save', { 'aria-keyshortcuts': 'Alt+S' }),
       toolbarButton('file', strings.toolbar.load, 'load'),
       el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
       toolbarButton('download', strings.toolbar.exportJson, 'export-json'),
@@ -47,8 +47,8 @@ export function renderLayout(): HTMLElement {
   return app;
 }
 
-function toolbarButton(iconId: string, label: string, id?: string) {
-  const btn = el('button', { class: 'btn', type: 'button', id: id || undefined });
+function toolbarButton(iconId: string, label: string, id?: string, extra: Record<string, string> = {}) {
+  const btn = el('button', { class: 'btn', type: 'button', id: id || undefined, ...extra });
   btn.append(icon(`icon-${iconId}`), el('span', { class: 'btn-label', text: label }));
   return btn;
 }

@@ -1,0 +1,36 @@
+{
+  "name": "bewertungsbaukasten",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite --open",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "lint": "eslint --ext .ts,.tsx,.js,.jsx src",
+    "format": "prettier --write .",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "docx": "^8.5.0",
+    "jszip": "^3.10.1",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
+    "xlsx": "^0.18.5",
+    "yaml": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/jszip": "^3.4.1",
+    "@types/node": "^22.7.4",
+    "@vitest/coverage-v8": "^2.0.5",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.6",
+    "vitest": "^2.0.5"
+  }
+}
+

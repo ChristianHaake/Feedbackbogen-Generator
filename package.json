@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "docx": "^8.5.0",
+    "glob": "^11.0.3",
     "jspdf": "^3.0.2",
     "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",
+    "rimraf": "^6.0.1",
     "xlsx": "^0.18.5",
     "yaml": "^2.4.2"
   },
@@ -26,7 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "@vitest/coverage-v8": "^3.2.4",
-    "eslint": "^8.57.0",
+    "eslint": "^9.35.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.3.3",

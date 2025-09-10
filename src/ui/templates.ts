@@ -20,8 +20,8 @@ export function renderLayout(): HTMLElement {
     el(
       'div',
       { class: 'actions' },
-      toolbarButton('save', strings.toolbar.save),
-      toolbarButton('load', strings.toolbar.load),
+      toolbarButton('save', strings.toolbar.save, 'save'),
+      toolbarButton('file', strings.toolbar.load, 'load'),
       el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
       toolbarButton('download', strings.toolbar.exportJson, 'export-json'),
       toolbarButton('upload', strings.toolbar.importJson, 'import-json'),
@@ -174,4 +174,3 @@ export function renderScalesPanel(
     container.append(row);
   });
 }
-

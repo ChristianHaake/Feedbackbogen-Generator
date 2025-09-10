@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
 import path from 'node:path';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+// __dirname replacement for ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Minimal plugin to serve/copy /content alongside /public
 function contentPlugin() {
@@ -60,4 +64,3 @@ export default defineConfig({
     }
   }
 });
-

@@ -1,11 +1,3 @@
-@font-face {
-  font-family: 'Inter';
-  src: url('./fonts/Inter-Variable.woff2') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --bg: #0b0d12;
   --panel: #121620;
@@ -21,7 +13,7 @@
 html, body, #app { height: 100%; }
 body {
   margin: 0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
   background: radial-gradient(1200px 600px at 10% 0%, rgba(30,136,229,0.2), transparent 40%),
               radial-gradient(1000px 500px at 90% 20%, rgba(76,175,80,0.15), transparent 40%),
@@ -102,4 +94,3 @@ label { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
-

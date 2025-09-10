@@ -16,20 +16,34 @@ export function renderLayout(): HTMLElement {
   const header = el(
     'header',
     { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
-    el('div', { class: 'left' }, el('img', { src: './favicon.svg', alt: '', width: '24', height: '24' }), el('strong', { class: 'title', text: strings.appTitle })),
-    el(
-      'div',
-      { class: 'actions' },
-      toolbarButton('save', strings.toolbar.save, 'save', { 'aria-keyshortcuts': 'Alt+S' }),
-      toolbarButton('file', strings.toolbar.load, 'load'),
-      el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
-      toolbarButton('download', strings.toolbar.exportJson, 'export-json'),
-      toolbarButton('upload', strings.toolbar.importJson, 'import-json'),
-      el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
-      toolbarButton('pdf', strings.toolbar.exportPdf, 'export-pdf'),
-      toolbarButton('doc', strings.toolbar.exportDocx, 'export-docx'),
-      toolbarButton('xlsx', strings.toolbar.exportXlsx, 'export-xlsx'),
-      toolbarButton('odp', strings.toolbar.exportOdp, 'export-odp')
+    el('div', { class: 'toolbar-inner' },
+      el('div', { class: 'left' },
+        el('img', { src: './favicon.svg', alt: '', width: '24', height: '24' }),
+        el('div', { class: 'title-wrap' },
+          el('strong', { class: 'title', text: strings.appTitle }),
+          el('div', { class: 'subtitle', text: 'Baukasten für zukunftsorientierte Prüfungsformate – Auswahl, Skalen & Export' })
+        )
+      ),
+      el(
+        'div',
+        { class: 'actions' },
+        toolbarButton('save', strings.toolbar.save, 'save', { 'aria-keyshortcuts': 'Alt+S' }),
+        toolbarButton('file', strings.toolbar.load, 'load'),
+        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
+        toolbarButton('download', strings.toolbar.exportJson, 'export-json'),
+        toolbarButton('upload', strings.toolbar.importJson, 'import-json'),
+        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
+        el('div', { class: 'export-controls' },
+          el('label', { for: 'export-format', class: 'sr-only', text: strings.toolbar.exportFormat }),
+          el('select', { id: 'export-format', 'aria-label': strings.toolbar.exportFormat },
+            el('option', { value: 'pdf', text: 'PDF' }),
+            el('option', { value: 'docx', text: 'DOCX' }),
+            el('option', { value: 'xlsx', text: 'XLSX' }),
+            el('option', { value: 'odp', text: 'ODP' })
+          ),
+          toolbarButton('pdf', strings.toolbar.exportNow, 'export-now', { 'aria-keyshortcuts': 'Alt+E' })
+        )
+      )
     )
   );
 
@@ -64,10 +78,27 @@ export function renderCategories(container: HTMLElement, categories: Category[],
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
-    c.items.forEach((it) => {
-      const row = el('div', { class: 'item-row' }, el('div', { class: 'item-text' }, el('div', { class: 'item-label', text: it.label }), it.description ? el('div', { class: 'item-desc', text: it.description }) : null), el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, it.id))));
-      panel.append(row);
-    });
+    if (c.description) panel.append(el('p', { class: 'category-desc', text: c.description }));
+    if (Array.isArray(c.groups)) {
+      const grid = el('div', { class: 'group-grid' });
+      c.groups.forEach((g) => {
+        const card = el('div', { class: 'group-card' }, el('h3', { class: 'group-title', text: g.title }));
+        g.items.forEach((it) => {
+          const row = el('div', { class: 'item-row' },
+            el('div', { class: 'item-text' }, el('div', { class: 'item-label', text: it.label }), it.description ? el('div', { class: 'item-desc', text: it.description }) : null),
+            el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, it.id)))
+          );
+          card.append(row);
+        });
+        grid.append(card);
+      });
+      panel.append(grid);
+    } else if (Array.isArray(c.items)) {
+      c.items.forEach((it) => {
+        const row = el('div', { class: 'item-row' }, el('div', { class: 'item-text' }, el('div', { class: 'item-label', text: it.label }), it.description ? el('div', { class: 'item-desc', text: it.description }) : null), el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, it.id))));
+        panel.append(row);
+      });
+    }
     header.addEventListener('click', () => {
       const expanded = header.getAttribute('aria-expanded') === 'true';
       const next = !expanded;

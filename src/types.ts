@@ -7,7 +7,13 @@ export type Item = {
 export type Category = {
   id: string;
   title: string;
-  items: Item[];
+  description?: string;
+  items?: Item[];
+  groups?: {
+    id: string;
+    title: string;
+    items: Item[];
+  }[];
 };
 
 export type ScaleBase = {
@@ -66,4 +72,3 @@ export type ExportRow = {
   description?: string;
   scaleLabel: string;
 };
-

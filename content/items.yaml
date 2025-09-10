@@ -1,53 +1,114 @@
 version: 1
 categories:
   - id: allgemeine
-    title: Allgemeine Bewertungskriterien
+    title: Allgemein
+    description: Legen Sie die allgemeinen Anforderungen fest, welche die Lernenden stets übergreifend zu beachten haben.
     items:
       - id: abgabe
-        label: Abgabe termingerecht
-        description: Liegt die Leistung fristgerecht vor?
+        label: Rechtzeitige Abgabe
+      - id: dateinamen
+        label: Verwendung der vereinbarten Dateinamen und -pfade
+      - id: regeln
+        label: Berücksichtigung der vereinbarten Regeln und Vorgaben
       - id: vollstaendigkeit
-        label: Vollständigkeit
-        description: Sind alle geforderten Teile vorhanden?
+        label: Vollständigkeit der geforderten Unterlagen
+      - id: quellenangaben
+        label: Quellenangaben vorhanden
+
   - id: produktebene
     title: Produktebene
+    description: Produktspezifische Anforderungen gemäß Prüfungsformat.
     items:
-      - id: funktion
-        label: Funktionalität
-        description: Erfüllt das Produkt seine Aufgabe?
-      - id: gestaltung
-        label: Gestaltung
-        description: Ist die Gestaltung ansprechend und konsistent?
+      - id: produktspez_anforderungen
+        label: Produktspezifische Kriterien (formatabhängig)
+      - id: zielerreichung
+        label: Zielerreichung im Kontext des Formats
+
   - id: sachebene
     title: Sachebene
+    description: Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.
     items:
       - id: tiefe
-        label: Inhaltliche Tiefe
-        description: Wie tiefgehend ist die Auseinandersetzung?
+        label: Tiefe und Umfang der fachlichen Auseinandersetzung
       - id: komplexitaet
-        label: Komplexität
-        description: Angemessene Komplexität und Schwierigkeitsgrad?
-  - id: variable
-    title: Variable Ergänzungsebene
-    items:
+        label: Komplexität des Inhalts
+      - id: eigeninitiative
+        label: Eigeninitiative durch eigenständige Recherche und zusätzliche Perspektiven
+      - id: selbststaendigkeit
+        label: Selbstständigkeit in der Auseinandersetzung mit dem Inhalt
+
+  - id: variabel
+    title: Präsentation / Darstellung / Reflexion (abhängig vom Produkt)
+    description: Parameter für Bewertung der Darstellung/Präsentation/Reflexion.
+    groups:
       - id: praesentation
-        label: Präsentation
-        description: Verständliche Darstellung der Ergebnisse?
+        title: Präsentation
+        items:
+          - id: koerpersprache
+            label: Körpersprache und Blickkontakt
+          - id: aktivierend
+            label: Aktivierende Elemente
+          - id: sprachlicher_ausdruck
+            label: Sprachlicher Ausdruck
+          - id: eigeninitiative_praes
+            label: Eigeninitiative
+          - id: kreativitaet
+            label: Kreativität
+          - id: adressatenaufbereitung
+            label: Adressatengerechte Aufbereitung
+      - id: darstellung
+        title: Darstellung
+        items:
+          - id: gestaltung
+            label: Gestaltung (ansprechendes Layout, visuelle Attraktivität)
+          - id: farb_schrift
+            label: Einheitliches Farb- und Schriftkonzept
+          - id: optische_konsistenz
+            label: Optische Konsistenz
+          - id: thematisches_design
+            label: Thematisch passendes und unterstützendes Design
       - id: reflexion
-        label: Reflexion
-        description: Nachvollziehbare Reflexion über Vorgehen/Ergebnis?
+        title: Reflexion
+        items:
+          - id: tiefe_reflexion
+            label: Tiefe und Differenziertheit der Prozessreflexion
+          - id: analyse_schwierigkeiten
+            label: Identifikation/Analyse von Schwierigkeiten
+          - id: loesungsvorschlaege
+            label: Konkrete, nachvollziehbare Lösungsvorschläge
+
   - id: peer
-    title: Peer-Feedback/Reflexion
+    title: Optional: Peer-Feedback / Reflexion
+    description: Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.
     items:
-      - id: peer_feedback
-        label: Peer-Feedback
-        description: Rückmeldungen von Peers einbezogen?
+      - id: erfolg_arbeitsphase
+        label: Erfolg der Arbeitsphase
+      - id: mitarbeit_gruppe
+        label: Mitarbeit im Gruppenprozess
+      - id: aktivierende_elemente
+        label: Aktivierende Elemente (z. B. Interaktionsmethoden)
+      - id: adressaten_praesentation
+        label: Adressatengerechte Präsentation
+      - id: persoenlicher_wissenszuwachs
+        label: Persönlicher Wissenszuwachs
+      - id: wissenszuwachs_zuhoerer
+        label: Wissenszuwachs des Zuhörers
+
   - id: prozess
     title: Prozessdokumentation
     items:
-      - id: dokumentation
-        label: Dokumentation
-        description: Prozess nachvollziehbar dokumentiert?
+      - id: planungsunterlagen
+        label: Planungsunterlagen / Prozessdokumentation
+      - id: nachvollziehbarkeit
+        label: Nachvollziehbarkeit und Verständlichkeit
+      - id: ki_angaben
+        label: KI-Einsatz – Angabe/Beschreibung verwendeter Prompts und Tools
+      - id: ki_nachvollziehbar
+        label: KI-Einsatz nachvollziehbar erklärt
+      - id: ki_reflexion
+        label: KI-Einsatz kritisch reflektiert (Nutzen/Risiken)
+      - id: eigenes_potential
+        label: Persönliches Entwicklungspotential
 
 scales:
   - id: verbal_5
@@ -65,4 +126,3 @@ scales:
     colors: ["#2e7d32","#fbc02d","#c62828"]
   - id: prozent
     kind: percent
-

@@ -121,24 +121,31 @@ async function bootstrap() {
       announce(strings.messages.imported);
     }
   });
-  (document.getElementById('export-pdf') as HTMLButtonElement)?.addEventListener('click', async () => {
-    const { exportPDF } = await import('./export/export-pdf');
-    exportPDF(exportRows());
-  });
-  (document.getElementById('export-docx') as HTMLButtonElement)?.addEventListener('click', async () => {
-    const { exportDOCX } = await import('./export/export-docx');
-    exportDOCX(exportRows());
-  });
-  (document.getElementById('export-xlsx') as HTMLButtonElement)?.addEventListener('click', async () => {
-    const { exportXLSX } = await import('./export/export-xlsx');
-    exportXLSX(exportRows());
-  });
-  (document.getElementById('export-odp') as HTMLButtonElement)?.addEventListener('click', async () => {
-    const { exportODP } = await import('./export/export-odp');
-    exportODP(exportRows());
+  const exportNowBtn = document.getElementById('export-now') as HTMLButtonElement | null;
+  const exportFormatSel = document.getElementById('export-format') as HTMLSelectElement | null;
+  if (exportFormatSel) exportFormatSel.value = 'pdf';
+  exportNowBtn?.addEventListener('click', async () => {
+    const fmt = exportFormatSel?.value || 'pdf';
+    const rows = exportRows();
+    if (fmt === 'pdf') {
+      const { exportPDF } = await import('./export/export-pdf');
+      exportPDF(rows);
+    } else if (fmt === 'docx') {
+      const { exportDOCX } = await import('./export/export-docx');
+      exportDOCX(rows);
+    } else if (fmt === 'xlsx') {
+      const { exportXLSX } = await import('./export/export-xlsx');
+      exportXLSX(rows);
+    } else if (fmt === 'odp') {
+      const { exportODP } = await import('./export/export-odp');
+      exportODP(rows);
+    }
   });
 
-  setupKeyboardShortcuts(persist, () => announce(strings.messages.exported));
+  setupKeyboardShortcuts(persist, async () => {
+    announce(strings.messages.exported);
+    (document.getElementById('export-now') as HTMLButtonElement)?.click();
+  });
 }
 
 bootstrap();

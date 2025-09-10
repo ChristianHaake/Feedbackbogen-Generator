@@ -8,7 +8,9 @@ export const strings = {
     exportPdf: 'Export PDF',
     exportDocx: 'Export DOCX',
     exportXlsx: 'Export XLSX',
-    exportOdp: 'Export ODP'
+    exportOdp: 'Export ODP',
+    exportNow: 'Exportieren',
+    exportFormat: 'Format'
   },
   keyboard: {
     save: 'Alt+S: Speichern',
@@ -41,4 +43,3 @@ export const strings = {
     removed: 'Kriterium entfernt.'
   }
 } as const;
-

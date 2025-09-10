@@ -37,13 +37,26 @@ export function validateYAML(obj: any): obj is YAMLData {
   const categoryIds = new Set<string>();
   const itemIds = new Set<string>();
   for (const c of obj.categories) {
-    if (typeof c.id !== 'string' || typeof c.title !== 'string' || !Array.isArray(c.items)) return false;
+    if (typeof c.id !== 'string' || typeof c.title !== 'string') return false;
     if (categoryIds.has(c.id)) return false;
     categoryIds.add(c.id);
-    for (const it of c.items) {
-      if (typeof it.id !== 'string' || typeof it.label !== 'string') return false;
-      if (itemIds.has(it.id)) return false;
-      itemIds.add(it.id);
+    if (Array.isArray(c.items)) {
+      for (const it of c.items) {
+        if (typeof it.id !== 'string' || typeof it.label !== 'string') return false;
+        if (itemIds.has(it.id)) return false;
+        itemIds.add(it.id);
+      }
+    } else if (Array.isArray(c.groups)) {
+      for (const g of c.groups) {
+        if (typeof g.id !== 'string' || typeof g.title !== 'string' || !Array.isArray(g.items)) return false;
+        for (const it of g.items) {
+          if (typeof it.id !== 'string' || typeof it.label !== 'string') return false;
+          if (itemIds.has(it.id)) return false;
+          itemIds.add(it.id);
+        }
+      }
+    } else {
+      return false; // needs items or groups
     }
   }
   const scaleIds = new Set<string>();

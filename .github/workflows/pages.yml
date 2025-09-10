@@ -21,7 +21,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Build
         run: npm run build
       - name: Upload artifact
@@ -39,4 +39,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

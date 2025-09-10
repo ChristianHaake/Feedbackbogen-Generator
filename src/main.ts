@@ -5,10 +5,6 @@ import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, findItemById, scaleById } from './yaml';
 import { saveConfig, loadConfig, exportConfigJSON, importConfigJSON } from './storage';
 import type { AppConfigV1, SelectedItemRef, ExportRow } from './types';
-import { exportPDF } from './export/export-pdf';
-import { exportDOCX } from './export/export-docx';
-import { exportXLSX } from './export/export-xlsx';
-import { exportODP } from './export/export-odp';
 
 async function bootstrap() {
   focusVisiblePolyfill();
@@ -125,13 +121,24 @@ async function bootstrap() {
       announce(strings.messages.imported);
     }
   });
-  (document.getElementById('export-pdf') as HTMLButtonElement)?.addEventListener('click', () => exportPDF(exportRows()));
-  (document.getElementById('export-docx') as HTMLButtonElement)?.addEventListener('click', () => exportDOCX(exportRows()));
-  (document.getElementById('export-xlsx') as HTMLButtonElement)?.addEventListener('click', () => exportXLSX(exportRows()));
-  (document.getElementById('export-odp') as HTMLButtonElement)?.addEventListener('click', () => exportODP(exportRows()));
+  (document.getElementById('export-pdf') as HTMLButtonElement)?.addEventListener('click', async () => {
+    const { exportPDF } = await import('./export/export-pdf');
+    exportPDF(exportRows());
+  });
+  (document.getElementById('export-docx') as HTMLButtonElement)?.addEventListener('click', async () => {
+    const { exportDOCX } = await import('./export/export-docx');
+    exportDOCX(exportRows());
+  });
+  (document.getElementById('export-xlsx') as HTMLButtonElement)?.addEventListener('click', async () => {
+    const { exportXLSX } = await import('./export/export-xlsx');
+    exportXLSX(exportRows());
+  });
+  (document.getElementById('export-odp') as HTMLButtonElement)?.addEventListener('click', async () => {
+    const { exportODP } = await import('./export/export-odp');
+    exportODP(exportRows());
+  });
 
   setupKeyboardShortcuts(persist, () => announce(strings.messages.exported));
 }
 
 bootstrap();
-

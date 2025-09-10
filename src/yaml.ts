@@ -34,14 +34,23 @@ export const DEMO_YAML: YAMLData = {
 export function validateYAML(obj: any): obj is YAMLData {
   if (!obj || obj.version !== 1) return false;
   if (!Array.isArray(obj.categories) || !Array.isArray(obj.scales)) return false;
+  const categoryIds = new Set<string>();
+  const itemIds = new Set<string>();
   for (const c of obj.categories) {
     if (typeof c.id !== 'string' || typeof c.title !== 'string' || !Array.isArray(c.items)) return false;
+    if (categoryIds.has(c.id)) return false;
+    categoryIds.add(c.id);
     for (const it of c.items) {
       if (typeof it.id !== 'string' || typeof it.label !== 'string') return false;
+      if (itemIds.has(it.id)) return false;
+      itemIds.add(it.id);
     }
   }
+  const scaleIds = new Set<string>();
   for (const s of obj.scales) {
     if (typeof s.id !== 'string' || typeof s.kind !== 'string') return false;
+    if (scaleIds.has(s.id)) return false;
+    scaleIds.add(s.id);
     switch (s.kind) {
       case 'verbal':
         if (!Array.isArray((s as any).labels)) return false;
@@ -91,4 +100,3 @@ export function findItemById(categories: Category[], id: string) {
 export function scaleById(scales: Scale[], id: string) {
   return scales.find((s) => s.id === id) || null;
 }
-

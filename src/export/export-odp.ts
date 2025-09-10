@@ -6,7 +6,7 @@ export async function exportODP(rows: ExportRow[]) {
   const zip = new JSZip();
 
   // The mimetype file must be stored with no compression at top-level
-  zip.file('mimetype', 'application/vnd.oasis.opendocument.presentation', { compression: 'STORE' as any });
+  zip.file('mimetype', 'application/vnd.oasis.opendocument.presentation', { compression: 'STORE' });
 
   const manifest = `<?xml version="1.0" encoding="UTF-8"?>
   <manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0">
@@ -103,4 +103,3 @@ function escapeXml(s: string) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&apos;');
 }
-

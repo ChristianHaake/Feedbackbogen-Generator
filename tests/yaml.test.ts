@@ -10,5 +10,19 @@ describe('YAML validation', () => {
     const invalid: any = { version: 2 };
     expect(validateYAML(invalid)).toBe(false);
   });
-});
 
+  it('rejects duplicate ids', () => {
+    const dup: any = {
+      version: 1,
+      categories: [
+        { id: 'a', title: 'A', items: [{ id: 'x', label: 'X' }] },
+        { id: 'a', title: 'B', items: [{ id: 'y', label: 'Y' }] }
+      ],
+      scales: [
+        { id: 's', kind: 'percent' },
+        { id: 's', kind: 'percent' }
+      ]
+    };
+    expect(validateYAML(dup)).toBe(false);
+  });
+});

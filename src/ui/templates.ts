@@ -37,7 +37,7 @@ export function renderLayout(): HTMLElement {
     'main',
     { class: 'columns' },
     el('section', { class: 'col col-left' }, el('h2', { text: strings.columns.categories }), el('div', { id: 'categories', class: 'accordion' })),
-    el('section', { class: 'col col-middle' }, el('h2', { text: strings.columns.selected }), el('ol', { id: 'selected', class: 'selected', role: 'listbox' })),
+    el('section', { class: 'col col-middle' }, el('h2', { text: strings.columns.selected }), el('ol', { id: 'selected', class: 'selected', role: 'list' })),
     el('section', { class: 'col col-right' }, el('h2', { text: strings.columns.scales }), el('div', { id: 'scales-panel', class: 'scales' }))
   );
 
@@ -63,14 +63,17 @@ export function renderCategories(container: HTMLElement, categories: Category[],
       el('span', { class: 'acc-title', text: c.title })
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
+    (panel as HTMLDivElement).hidden = true;
     c.items.forEach((it) => {
       const row = el('div', { class: 'item-row' }, el('div', { class: 'item-text' }, el('div', { class: 'item-label', text: it.label }), it.description ? el('div', { class: 'item-desc', text: it.description }) : null), el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, it.id))));
       panel.append(row);
     });
     header.addEventListener('click', () => {
       const expanded = header.getAttribute('aria-expanded') === 'true';
-      header.setAttribute('aria-expanded', String(!expanded));
-      panel.classList.toggle('open', !expanded);
+      const next = !expanded;
+      header.setAttribute('aria-expanded', String(next));
+      panel.classList.toggle('open', next);
+      (panel as HTMLDivElement).hidden = !next;
     });
     container.append(header, panel);
   });
@@ -95,7 +98,7 @@ export function renderSelected(
     if (!cat) return;
     const item = cat.items.find((i) => i.id === ref.itemId);
     if (!item) return;
-    const li = el('li', { class: 'selected-row', draggable: 'true', role: 'option', tabindex: '0', 'aria-label': item.label });
+    const li = el('li', { class: 'selected-row', draggable: 'true', role: 'listitem', tabindex: '0', 'aria-label': item.label });
     li.dataset.index = String(index);
     const handle = el('span', { class: 'drag-handle', title: strings.labels.reorder, 'aria-hidden': 'true' }, icon('icon-reorder'));
     const text = el('span', { class: 'selected-text' }, item.label);

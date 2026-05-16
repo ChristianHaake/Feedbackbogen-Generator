@@ -1,26 +1,44 @@
-import type { AppConfigV1 } from './types';
+import type { AppConfigV1, AppConfigV2, HeaderData } from './types';
 
-const KEY = 'bbk:config:v1';
+const KEY_V2 = 'bbk:config:v2';
+const KEY_V1 = 'bbk:config:v1';
 
-export function saveConfig(config: AppConfigV1) {
-  localStorage.setItem(KEY, JSON.stringify(config));
+export const EMPTY_HEADER: HeaderData = { learner: '', topic: '', date: '', feedback: '' };
+
+export function saveConfig(config: AppConfigV2) {
+  localStorage.setItem(KEY_V2, JSON.stringify(config));
 }
 
-export function loadConfig(): AppConfigV1 | null {
-  const raw = localStorage.getItem(KEY);
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw);
-    if (parsed && parsed.version === 1 && Array.isArray(parsed.selectedItems) && parsed.scaleByItem) {
-      return parsed as AppConfigV1;
-    }
-  } catch {
-    /* ignore */
+export function loadConfig(): AppConfigV2 | null {
+  const raw = localStorage.getItem(KEY_V2);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed?.version === 2) return parsed as AppConfigV2;
+    } catch { /* ignore */ }
+  }
+  // Migrate from V1
+  const rawV1 = localStorage.getItem(KEY_V1);
+  if (rawV1) {
+    try {
+      const v1 = JSON.parse(rawV1) as AppConfigV1;
+      if (v1?.version === 1 && Array.isArray(v1.selectedItems)) {
+        return {
+          version: 2,
+          selectedItems: v1.selectedItems,
+          scaleByItem: v1.scaleByItem ?? {},
+          weightByItem: {},
+          defaultScaleId: v1.defaultScaleId,
+          header: EMPTY_HEADER,
+          customItems: []
+        };
+      }
+    } catch { /* ignore */ }
   }
   return null;
 }
 
-export function exportConfigJSON(config: AppConfigV1) {
+export function exportConfigJSON(config: AppConfigV2) {
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -29,7 +47,7 @@ export function exportConfigJSON(config: AppConfigV1) {
   URL.revokeObjectURL(a.href);
 }
 
-export async function importConfigJSON(): Promise<AppConfigV1 | null> {
+export async function importConfigJSON(): Promise<AppConfigV2 | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -40,13 +58,23 @@ export async function importConfigJSON(): Promise<AppConfigV1 | null> {
       const text = await file.text();
       try {
         const cfg = JSON.parse(text);
-        if (cfg && cfg.version === 1) resolve(cfg as AppConfigV1);
-        else resolve(null);
-      } catch {
-        resolve(null);
-      }
+        if (cfg?.version === 2) {
+          resolve(cfg as AppConfigV2);
+        } else if (cfg?.version === 1 && Array.isArray(cfg.selectedItems)) {
+          resolve({
+            version: 2,
+            selectedItems: cfg.selectedItems,
+            scaleByItem: cfg.scaleByItem ?? {},
+            weightByItem: {},
+            defaultScaleId: cfg.defaultScaleId,
+            header: EMPTY_HEADER,
+            customItems: []
+          });
+        } else {
+          resolve(null);
+        }
+      } catch { resolve(null); }
     };
     input.click();
   });
 }
-

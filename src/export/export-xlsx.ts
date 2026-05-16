@@ -2,8 +2,8 @@ import * as XLSX from 'xlsx';
 import type { ExportRow } from '@/types';
 
 export function exportXLSX(rows: ExportRow[]) {
-  const header = ['Kategorie', 'Kriterium', 'Beschreibung', 'Skala', 'Punkte', 'Notizen'];
-  const data = rows.map((r) => [r.category, r.item, r.description || '', r.scaleLabel, '', '']);
+  const header = ['Kategorie', 'Kriterium', 'Beschreibung', 'Gewicht', 'Skala', 'Bewertung', 'Notizen'];
+  const data = rows.map((r) => [r.category, r.item, r.description ?? '', r.weight, r.scaleLabel, '', '']);
   const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Bewertungsbogen');
@@ -15,4 +15,3 @@ export function exportXLSX(rows: ExportRow[]) {
   a.click();
   URL.revokeObjectURL(a.href);
 }
-

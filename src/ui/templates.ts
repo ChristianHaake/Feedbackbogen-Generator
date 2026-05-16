@@ -1,18 +1,24 @@
-import type { Category, Scale, SelectedItemRef } from '@/types';
+import type { Category, Scale, SelectedItemRef, CustomItem, HeaderData, ExportRow } from '@/types';
 import { el, icon } from './components';
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
+import { findItemInCategory } from '@/yaml';
 
 export type RenderHandlers = {
   onAdd: (categoryId: string, itemId: string) => void;
   onRemove: (itemId: string) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
   onScaleChange: (itemId: string, scaleId: string) => void;
+  onWeightChange: (itemId: string, weight: number) => void;
   onDefaultScaleChange: (scaleId: string) => void;
+  onAddCustomItem: (categoryId: string, label: string) => void;
+  onRemoveCustomItem: (itemId: string) => void;
+  onHeaderChange: (field: keyof HeaderData, value: string) => void;
 };
 
 export function renderLayout(): HTMLElement {
   const app = el('div', { id: 'app-root', class: 'app' });
+
   const header = el(
     'header',
     { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
@@ -24,9 +30,7 @@ export function renderLayout(): HTMLElement {
           el('div', { class: 'subtitle', text: 'Baukasten für zukunftsorientierte Prüfungsformate – Auswahl, Skalen & Export' })
         )
       ),
-      el(
-        'div',
-        { class: 'actions' },
+      el('div', { class: 'actions' },
         toolbarButton('save', strings.toolbar.save, 'save', { 'aria-keyshortcuts': 'Alt+S' }),
         toolbarButton('file', strings.toolbar.load, 'load'),
         el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
@@ -36,39 +40,99 @@ export function renderLayout(): HTMLElement {
         el('div', { class: 'export-controls' },
           el('label', { for: 'export-format', class: 'sr-only', text: strings.toolbar.exportFormat }),
           el('select', { id: 'export-format', 'aria-label': strings.toolbar.exportFormat },
-            el('option', { value: 'pdf', text: 'PDF' }),
+            el('option', { value: 'pdf', text: 'Bewertungsbogen (PDF)' }),
+            el('option', { value: 'pdf-checklist', text: 'Checkliste (PDF)' }),
             el('option', { value: 'docx', text: 'DOCX' }),
             el('option', { value: 'xlsx', text: 'XLSX' }),
             el('option', { value: 'odp', text: 'ODP' })
           ),
           toolbarButton('pdf', strings.toolbar.exportNow, 'export-now', { 'aria-keyshortcuts': 'Alt+E' })
-        )
+        ),
+        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
+        toolbarToggleButton('eye', strings.toolbar.togglePreview, 'toggle-preview')
       )
     )
   );
 
-  const main = el(
-    'main',
-    { class: 'columns' },
+  const kopfdatenBar = el('div', { class: 'kopfdaten-bar' },
+    el('div', { class: 'kopfdaten-inner' },
+      el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })
+    )
+  );
+
+  const main = el('main', { class: 'columns' },
     el('section', { class: 'col col-left' }, el('h2', { text: strings.columns.categories }), el('div', { id: 'categories', class: 'accordion' })),
     el('section', { class: 'col col-middle' }, el('h2', { text: strings.columns.selected }), el('ol', { id: 'selected', class: 'selected', role: 'list' })),
     el('section', { class: 'col col-right' }, el('h2', { text: strings.columns.scales }), el('div', { id: 'scales-panel', class: 'scales' }))
   );
 
+  const previewSection = el('section', { id: 'preview-section', class: 'preview-section' });
+  (previewSection as HTMLElement).hidden = true;
+  previewSection.append(
+    el('div', { class: 'preview-inner' },
+      el('h2', { text: strings.labels.preview }),
+      el('div', { id: 'preview-content' })
+    )
+  );
+
+  const printView = el('div', { id: 'print-view', 'aria-hidden': 'true' });
+
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, main, live);
+  app.append(header, kopfdatenBar, main, previewSection, printView, live);
   return app;
 }
 
 function toolbarButton(iconId: string, label: string, id?: string, extra: Record<string, string> = {}) {
-  const btn = el('button', { class: 'btn', type: 'button', id: id || undefined, ...extra });
+  const btn = el('button', { class: 'btn', type: 'button', ...(id ? { id } : {}), ...extra });
   btn.append(icon(`icon-${iconId}`), el('span', { class: 'btn-label', text: label }));
   return btn;
 }
 
-export function renderCategories(container: HTMLElement, categories: Category[], handlers: RenderHandlers) {
+function toolbarToggleButton(iconId: string, label: string, id: string) {
+  const btn = el('button', { class: 'btn btn-toggle', type: 'button', id, 'aria-pressed': 'false' });
+  btn.append(icon(`icon-${iconId}`), el('span', { class: 'btn-label', text: label }));
+  return btn;
+}
+
+export function renderKopfdaten(
+  container: HTMLElement,
+  header: HeaderData,
+  onChange: (field: keyof HeaderData, value: string) => void
+) {
   container.innerHTML = '';
+
+  const fields: { key: keyof HeaderData; label: string; type: string }[] = [
+    { key: 'learner', label: strings.kopfdaten.learner, type: 'text' },
+    { key: 'topic', label: strings.kopfdaten.topic, type: 'text' },
+    { key: 'date', label: strings.kopfdaten.date, type: 'date' }
+  ];
+
+  fields.forEach(({ key, label, type }) => {
+    const inputId = `kd-${key}`;
+    const input = el('input', { type, id: inputId, class: 'kd-input', value: header[key], placeholder: label }) as HTMLInputElement;
+    input.addEventListener('input', () => onChange(key, input.value));
+    const lbl = el('label', { for: inputId, class: 'kd-label', text: label });
+    const wrap = el('div', { class: 'kd-field' }, lbl, input);
+    container.append(wrap);
+  });
+
+  // Feedback textarea
+  const fbInput = el('textarea', { id: 'kd-feedback', class: 'kd-textarea', placeholder: strings.kopfdaten.feedback, rows: '2' }) as HTMLTextAreaElement;
+  fbInput.value = header.feedback;
+  fbInput.addEventListener('input', () => onChange('feedback', fbInput.value));
+  const fbLabel = el('label', { for: 'kd-feedback', class: 'kd-label', text: strings.kopfdaten.feedback });
+  container.append(el('div', { class: 'kd-field kd-field-wide' }, fbLabel, fbInput));
+}
+
+export function renderCategories(
+  container: HTMLElement,
+  categories: Category[],
+  customItems: CustomItem[],
+  handlers: RenderHandlers
+) {
+  container.innerHTML = '';
+
   categories.forEach((c) => {
     const buttonId = `acc-${c.id}`;
     const header = el(
@@ -78,27 +142,68 @@ export function renderCategories(container: HTMLElement, categories: Category[],
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
+
     if (c.description) panel.append(el('p', { class: 'category-desc', text: c.description }));
+
+    // YAML items or groups
     if (Array.isArray(c.groups)) {
       const grid = el('div', { class: 'group-grid' });
       c.groups.forEach((g) => {
         const card = el('div', { class: 'group-card' }, el('h3', { class: 'group-title', text: g.title }));
         g.items.forEach((it) => {
-          const row = el('div', { class: 'item-row' },
-            el('div', { class: 'item-text' }, el('div', { class: 'item-label', text: it.label }), it.description ? el('div', { class: 'item-desc', text: it.description }) : null),
-            el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, it.id)))
-          );
-          card.append(row);
+          card.append(itemRow(it.label, it.description, () => handlers.onAdd(c.id, it.id)));
         });
         grid.append(card);
       });
       panel.append(grid);
     } else if (Array.isArray(c.items)) {
       c.items.forEach((it) => {
-        const row = el('div', { class: 'item-row' }, el('div', { class: 'item-text' }, el('div', { class: 'item-label', text: it.label }), it.description ? el('div', { class: 'item-desc', text: it.description }) : null), el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, it.id))));
-        panel.append(row);
+        panel.append(itemRow(it.label, it.description, () => handlers.onAdd(c.id, it.id)));
       });
     }
+
+    // Custom items for this category
+    const catCustomItems = customItems.filter((ci) => ci.categoryId === c.id);
+    if (catCustomItems.length > 0) {
+      const customSection = el('div', { class: 'custom-items-section' });
+      catCustomItems.forEach((ci) => {
+        const removeBtn = el('button', { class: 'btn btn-small danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
+        removeBtn.addEventListener('click', () => handlers.onRemoveCustomItem(ci.id));
+        const row = el('div', { class: 'item-row custom-item-row' },
+          el('div', { class: 'item-text' }, el('div', { class: 'item-label custom-tag', text: ci.label })),
+          el('div', { class: 'item-actions' },
+            addButton(() => handlers.onAdd(c.id, ci.id)),
+            removeBtn
+          )
+        );
+        customSection.append(row);
+      });
+      panel.append(customSection);
+    }
+
+    // Add custom item input
+    const customInput = el('input', {
+      type: 'text',
+      class: 'custom-item-input',
+      'data-cat': c.id,
+      placeholder: strings.labels.customItemPlaceholder,
+      'aria-label': strings.labels.addCustomItem
+    }) as HTMLInputElement;
+    const addCustomBtn = el('button', { class: 'btn btn-small', type: 'button', 'aria-label': strings.labels.addCustomItem });
+    addCustomBtn.append(icon('icon-plus'), el('span', { class: 'btn-label', text: '+' }));
+    addCustomBtn.addEventListener('click', () => {
+      handlers.onAddCustomItem(c.id, customInput.value);
+      customInput.value = '';
+    });
+    customInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handlers.onAddCustomItem(c.id, customInput.value);
+        customInput.value = '';
+      }
+    });
+    panel.append(el('div', { class: 'add-custom-row' }, customInput, addCustomBtn));
+
     header.addEventListener('click', () => {
       const expanded = header.getAttribute('aria-expanded') === 'true';
       const next = !expanded;
@@ -106,8 +211,19 @@ export function renderCategories(container: HTMLElement, categories: Category[],
       panel.classList.toggle('open', next);
       (panel as HTMLDivElement).hidden = !next;
     });
+
     container.append(header, panel);
   });
+}
+
+function itemRow(label: string, description: string | undefined, onAdd: () => void) {
+  return el('div', { class: 'item-row' },
+    el('div', { class: 'item-text' },
+      el('div', { class: 'item-label', text: label }),
+      description ? el('div', { class: 'item-desc', text: description }) : null
+    ),
+    el('div', { class: 'item-actions' }, addButton(onAdd))
+  );
 }
 
 function addButton(onClick: () => void) {
@@ -124,17 +240,21 @@ export function renderSelected(
   handlers: RenderHandlers
 ) {
   container.innerHTML = '';
+
   selected.forEach((ref, index) => {
     const cat = categories.find((c) => c.id === ref.categoryId);
     if (!cat) return;
-    const item = cat.items.find((i) => i.id === ref.itemId);
+    const item = findItemInCategory(cat, ref.itemId);
     if (!item) return;
+
     const li = el('li', { class: 'selected-row', draggable: 'true', role: 'listitem', tabindex: '0', 'aria-label': item.label });
     li.dataset.index = String(index);
+
     const handle = el('span', { class: 'drag-handle', title: strings.labels.reorder, 'aria-hidden': 'true' }, icon('icon-reorder'));
     const text = el('span', { class: 'selected-text' }, item.label);
     const removeBtn = el('button', { class: 'btn btn-small danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
     removeBtn.addEventListener('click', () => handlers.onRemove(ref.itemId));
+
     li.append(handle, text, removeBtn);
 
     // Drag-and-drop
@@ -151,24 +271,15 @@ export function renderSelected(
     li.addEventListener('drop', (e) => {
       e.preventDefault();
       const from = Number((e.dataTransfer as DataTransfer).getData('text/plain'));
-      const to = Number(li.dataset.index || '0');
+      const to = Number(li.dataset.index ?? '0');
       if (!Number.isNaN(from) && !Number.isNaN(to) && from !== to) handlers.onReorder(from, to);
     });
 
     // Keyboard reordering
     li.addEventListener('keydown', (e) => {
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        e.preventDefault();
-        handlers.onRemove(ref.itemId);
-      }
-      if (e.key === 'ArrowUp' && index > 0) {
-        e.preventDefault();
-        handlers.onReorder(index, index - 1);
-      }
-      if (e.key === 'ArrowDown' && index < selected.length - 1) {
-        e.preventDefault();
-        handlers.onReorder(index, index + 1);
-      }
+      if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); handlers.onRemove(ref.itemId); }
+      if (e.key === 'ArrowUp' && index > 0) { e.preventDefault(); handlers.onReorder(index, index - 1); }
+      if (e.key === 'ArrowDown' && index < selected.length - 1) { e.preventDefault(); handlers.onReorder(index, index + 1); }
     });
 
     container.append(li);
@@ -181,30 +292,95 @@ export function renderScalesPanel(
   categories: Category[],
   scales: Scale[],
   scaleByItem: Record<string, string>,
+  weightByItem: Record<string, number>,
   defaultScaleId: string,
   handlers: RenderHandlers
 ) {
   container.innerHTML = '';
 
-  const defaultSelect = el('select', { id: 'default-scale', 'aria-label': strings.labels.defaultScale });
+  const defaultSelect = el('select', { id: 'default-scale', 'aria-label': strings.labels.defaultScale }) as HTMLSelectElement;
   scales.forEach((s) => defaultSelect.append(el('option', { value: s.id, text: `${s.id} – ${scaleDisplay(s)}` })));
   defaultSelect.value = defaultScaleId;
-  defaultSelect.addEventListener('change', () => handlers.onDefaultScaleChange((defaultSelect as HTMLSelectElement).value));
-  const defaultWrap = el('div', { class: 'default-scale' }, el('label', { for: 'default-scale', text: strings.labels.defaultScale }), defaultSelect);
-  container.append(defaultWrap);
+  defaultSelect.addEventListener('change', () => handlers.onDefaultScaleChange(defaultSelect.value));
+  container.append(el('div', { class: 'default-scale' }, el('label', { for: 'default-scale', text: strings.labels.defaultScale }), defaultSelect));
 
   selected.forEach((ref) => {
     const cat = categories.find((c) => c.id === ref.categoryId);
     if (!cat) return;
-    const item = cat.items.find((i) => i.id === ref.itemId);
+    const item = findItemInCategory(cat, ref.itemId);
     if (!item) return;
 
-    const select = el('select', { 'data-item': ref.itemId, 'aria-label': `${item.label} – ${strings.labels.scale}` }) as HTMLSelectElement;
-    scales.forEach((s) => select.append(el('option', { value: s.id, text: `${s.id} – ${scaleDisplay(s)}` })));
-    select.value = scaleByItem[ref.itemId] || defaultScaleId;
-    select.addEventListener('change', () => handlers.onScaleChange(ref.itemId, select.value));
+    const scaleSelect = el('select', { 'data-item': ref.itemId, 'aria-label': `${item.label} – ${strings.labels.scale}` }) as HTMLSelectElement;
+    scales.forEach((s) => scaleSelect.append(el('option', { value: s.id, text: `${s.id} – ${scaleDisplay(s)}` })));
+    scaleSelect.value = scaleByItem[ref.itemId] ?? defaultScaleId;
+    scaleSelect.addEventListener('change', () => handlers.onScaleChange(ref.itemId, scaleSelect.value));
 
-    const row = el('div', { class: 'scale-row' }, el('div', { class: 'scale-item-label', text: item.label }), select);
+    const weightInput = el('input', {
+      type: 'number', min: '1', max: '10', step: '1',
+      class: 'weight-input',
+      value: String(weightByItem[ref.itemId] ?? 1),
+      'aria-label': `${item.label} – ${strings.labels.weight}`,
+      title: strings.labels.weight
+    }) as HTMLInputElement;
+    weightInput.addEventListener('change', () => {
+      const v = parseInt(weightInput.value, 10);
+      handlers.onWeightChange(ref.itemId, Number.isNaN(v) ? 1 : Math.max(1, Math.min(10, v)));
+    });
+
+    const row = el('div', { class: 'scale-row' },
+      el('div', { class: 'scale-item-label', text: item.label }),
+      el('div', { class: 'scale-controls' }, scaleSelect, weightInput)
+    );
     container.append(row);
   });
+}
+
+export function renderPreview(container: HTMLElement, rows: ExportRow[], header: HeaderData) {
+  container.innerHTML = '';
+
+  if (rows.length === 0) {
+    container.append(el('p', { class: 'preview-empty', text: strings.labels.previewEmpty }));
+    return;
+  }
+
+  if (header.learner || header.topic || header.date) {
+    const meta = el('div', { class: 'preview-meta' });
+    if (header.learner) meta.append(el('span', { class: 'preview-meta-item' }, `${strings.kopfdaten.learner}: `, el('strong', {}, header.learner)));
+    if (header.topic) meta.append(el('span', { class: 'preview-meta-item' }, `${strings.kopfdaten.topic}: `, el('strong', {}, header.topic)));
+    if (header.date) meta.append(el('span', { class: 'preview-meta-item' }, `${strings.kopfdaten.date}: `, el('strong', {}, header.date)));
+    container.append(meta);
+  }
+
+  const table = el('table', { class: 'preview-table' });
+  const thead = el('thead');
+  thead.append(el('tr', {},
+    el('th', { text: strings.labels.previewColCategory }),
+    el('th', { text: strings.labels.previewColItem }),
+    el('th', { text: strings.labels.previewColDesc }),
+    el('th', { text: strings.labels.previewColWeight }),
+    el('th', { text: strings.labels.previewColScale }),
+    el('th', { text: strings.labels.previewColEval })
+  ));
+  const tbody = el('tbody');
+  rows.forEach((r) => {
+    tbody.append(el('tr', {},
+      el('td', { text: r.category }),
+      el('td', { text: r.item }),
+      el('td', { text: r.description ?? '' }),
+      el('td', { class: 'td-weight', text: String(r.weight) }),
+      el('td', { text: r.scaleLabel }),
+      el('td', { class: 'td-eval' })
+    ));
+  });
+  table.append(thead, tbody);
+  container.append(table);
+
+  if (header.feedback) {
+    container.append(
+      el('div', { class: 'preview-feedback' },
+        el('strong', {}, `${strings.kopfdaten.feedback}: `),
+        el('span', {}, header.feedback)
+      )
+    );
+  }
 }

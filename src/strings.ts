@@ -3,30 +3,49 @@ export const strings = {
   toolbar: {
     save: 'Speichern (Browser)',
     load: 'Laden',
-    exportJson: 'Konfig als JSON exportieren',
+    exportJson: 'Konfig exportieren',
     importJson: 'JSON importieren',
     exportPdf: 'Export PDF',
     exportDocx: 'Export DOCX',
     exportXlsx: 'Export XLSX',
     exportOdp: 'Export ODP',
     exportNow: 'Exportieren',
-    exportFormat: 'Format'
+    exportFormat: 'Format',
+    togglePreview: 'Vorschau'
   },
   keyboard: {
     save: 'Alt+S: Speichern',
-    export: 'Alt+E: Export-Menü'
+    export: 'Alt+E: Export'
   },
   columns: {
     categories: 'Kategorien',
     selected: 'Ausgewählt',
     scales: 'Skalen'
   },
+  kopfdaten: {
+    title: 'Kopfdaten',
+    learner: 'Lernende/r',
+    topic: 'Thema',
+    date: 'Datum',
+    feedback: 'Feedback / Anmerkungen'
+  },
   labels: {
     add: 'Hinzufügen',
     remove: 'Entfernen',
     reorder: 'Verschieben',
     scale: 'Skala',
-    defaultScale: 'Standard-Skala'
+    defaultScale: 'Standard-Skala',
+    weight: 'Gewicht',
+    addCustomItem: 'Eigenes Kriterium hinzufügen',
+    customItemPlaceholder: 'Kriterium eingeben…',
+    preview: 'Vorschau Bewertungsbogen',
+    previewEmpty: 'Noch keine Kriterien ausgewählt.',
+    previewColCategory: 'Kategorie',
+    previewColItem: 'Kriterium',
+    previewColDesc: 'Beschreibung',
+    previewColWeight: 'Gew.',
+    previewColScale: 'Skala',
+    previewColEval: 'Bewertung'
   },
   a11y: {
     status: 'Statusmeldungen',
@@ -40,6 +59,8 @@ export const strings = {
     loaded: 'Konfiguration geladen.',
     imported: 'JSON importiert.',
     exported: 'Export gestartet...',
-    removed: 'Kriterium entfernt.'
+    removed: 'Kriterium entfernt.',
+    customItemAdded: 'Eigenes Kriterium hinzugefügt.',
+    customItemRemoved: 'Eigenes Kriterium entfernt.'
   }
 } as const;

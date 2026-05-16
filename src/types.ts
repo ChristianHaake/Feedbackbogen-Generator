@@ -21,30 +21,11 @@ export type ScaleBase = {
   kind: 'verbal' | 'numeric' | 'emoji' | 'traffic' | 'percent';
 };
 
-export type VerbalScale = ScaleBase & {
-  kind: 'verbal';
-  labels: string[]; // 4–5 Stufen
-};
-
-export type NumericScale = ScaleBase & {
-  kind: 'numeric';
-  min: number;
-  max: number;
-};
-
-export type EmojiScale = ScaleBase & {
-  kind: 'emoji';
-  set: string[]; // emojis
-};
-
-export type TrafficScale = ScaleBase & {
-  kind: 'traffic';
-  colors: string[]; // green, yellow, red
-};
-
-export type PercentScale = ScaleBase & {
-  kind: 'percent';
-};
+export type VerbalScale = ScaleBase & { kind: 'verbal'; labels: string[] };
+export type NumericScale = ScaleBase & { kind: 'numeric'; min: number; max: number };
+export type EmojiScale = ScaleBase & { kind: 'emoji'; set: string[] };
+export type TrafficScale = ScaleBase & { kind: 'traffic'; colors: string[] };
+export type PercentScale = ScaleBase & { kind: 'percent' };
 
 export type Scale = VerbalScale | NumericScale | EmojiScale | TrafficScale | PercentScale;
 
@@ -59,11 +40,34 @@ export type SelectedItemRef = {
   itemId: string;
 };
 
+export type CustomItem = Item & {
+  custom: true;
+  categoryId: string;
+};
+
+export type HeaderData = {
+  learner: string;
+  topic: string;
+  date: string;
+  feedback: string;
+};
+
+// Kept for V1→V2 migration
 export type AppConfigV1 = {
   version: 1;
   selectedItems: SelectedItemRef[];
-  scaleByItem: Record<string, string>; // itemId -> scaleId
+  scaleByItem: Record<string, string>;
   defaultScaleId?: string;
+};
+
+export type AppConfigV2 = {
+  version: 2;
+  selectedItems: SelectedItemRef[];
+  scaleByItem: Record<string, string>;
+  weightByItem: Record<string, number>;
+  defaultScaleId?: string;
+  header: HeaderData;
+  customItems: CustomItem[];
 };
 
 export type ExportRow = {
@@ -71,4 +75,7 @@ export type ExportRow = {
   item: string;
   description?: string;
   scaleLabel: string;
+  weight: number;
 };
+
+export type PrintMode = 'full' | 'checklist';

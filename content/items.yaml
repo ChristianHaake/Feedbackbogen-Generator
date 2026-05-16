@@ -78,7 +78,7 @@ categories:
             label: Konkrete, nachvollziehbare Lösungsvorschläge
 
   - id: peer
-    title: Optional: Peer-Feedback / Reflexion
+    title: "Optional: Peer-Feedback / Reflexion"
     description: Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.
     items:
       - id: erfolg_arbeitsphase

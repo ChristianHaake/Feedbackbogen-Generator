@@ -1,4 +1,5 @@
 import YAML from 'yaml';
+
 import type { YAMLData, Category, Scale, Item, CustomItem } from './types';
 import { announce } from './a11y';
 

@@ -6,14 +6,21 @@ export const strings = {
     exportJson: 'Konfig exportieren',
     importJson: 'JSON importieren',
     exportNow: 'Exportieren',
-    exportFormat: 'Format'
+    exportFormat: 'Format',
+    more: 'Mehr',
+    exportPdf: 'PDF / Drucken',
+    exportDocx: 'DOCX',
+    exportXlsx: 'XLSX',
+    exportOdp: 'ODP'
   },
   keyboard: {
     save: 'Alt+S: Speichern',
     export: 'Alt+E: Export'
   },
   columns: {
-    categories: 'Kategorien & Kriterien'
+    selected: 'Ausgewählt',
+    categories: 'Kategorien & Kriterien',
+    export: 'Export'
   },
   kopfdaten: {
     title: 'Kopfdaten (optional vorausfüllen)',
@@ -24,8 +31,8 @@ export const strings = {
     feedback: 'Feedback / Anmerkungen'
   },
   modes: {
-    full: 'Bewertungsbogen',
-    checklist: 'Checkliste'
+    full: 'Mit Skalen',
+    checklist: 'Nur Checkliste'
   },
   labels: {
     remove: 'Entfernen',
@@ -33,8 +40,19 @@ export const strings = {
     defaultScale: 'Standard-Skala',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',
+    customItemBadge: 'Eigenes Kriterium',
+    searchCriteria: 'Kriterien suchen',
+    searchPlaceholder: 'Suchen…',
+    clearSelection: 'Auswahl leeren',
+    selectCategory: 'Kategorie auswählen',
+    clearCategory: 'Kategorie abwählen',
     previewMode: 'Ansicht',
     previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
+    selectedEmpty: 'Noch keine Kriterien ausgewählt.',
+    moreActions: 'Weitere Aktionen',
+    mobileEdit: 'Bearbeiten',
+    mobilePreview: 'Vorschau',
+    mobileExport: 'Export',
     selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`
   },
   a11y: {

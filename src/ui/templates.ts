@@ -1,7 +1,19 @@
-import type { Category, Scale, SelectedItemRef, CustomItem, HeaderData, ExportRow, PrintMode, Item } from '@/types';
 import { el, icon } from './components';
+
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
+import type { Category, Scale, CustomItem, HeaderData, ExportRow, PrintMode, Item } from '@/types';
+
+export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
+export type MobileView = 'edit' | 'preview' | 'export';
+export type SelectedSummary = {
+  itemId: string;
+  categoryId: string;
+  category: string;
+  item: string;
+  scaleLabel: string;
+  isCustom: boolean;
+};
 
 export type RenderHandlers = {
   onToggle: (categoryId: string, itemId: string, checked: boolean) => void;
@@ -9,8 +21,14 @@ export type RenderHandlers = {
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
   onRemoveCustomItem: (itemId: string) => void;
+  onRemoveSelected: (itemId: string) => void;
+  onSelectCategory: (categoryId: string) => void;
+  onClearCategory: (categoryId: string) => void;
+  onClearSelection: () => void;
+  onSearchChange: (value: string) => void;
   onHeaderChange: (field: keyof HeaderData, value: string) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
+  onMobileViewChange: (view: MobileView) => void;
 };
 
 export function renderLayout(): HTMLElement {
@@ -31,36 +49,54 @@ export function renderLayout(): HTMLElement {
         toolbarButton('save', strings.toolbar.save, 'save', { 'aria-keyshortcuts': 'Alt+S' }),
         toolbarButton('file', strings.toolbar.load, 'load'),
         el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
-        toolbarButton('download', strings.toolbar.exportJson, 'export-json'),
-        toolbarButton('upload', strings.toolbar.importJson, 'import-json'),
-        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
-        el('div', { class: 'export-controls' },
-          el('label', { for: 'export-format', class: 'sr-only', text: strings.toolbar.exportFormat }),
-          el('select', { id: 'export-format', 'aria-label': strings.toolbar.exportFormat },
-            el('option', { value: 'pdf', text: 'PDF (Drucken)' }),
-            el('option', { value: 'docx', text: 'DOCX' }),
-            el('option', { value: 'xlsx', text: 'XLSX' }),
-            el('option', { value: 'odp', text: 'ODP' })
-          ),
-          toolbarButton('pdf', strings.toolbar.exportNow, 'export-now', { 'aria-keyshortcuts': 'Alt+E' })
-        )
+        actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
+          menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf', { 'aria-keyshortcuts': 'Alt+E' }),
+          menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
+          menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
+          menuAction('odp', strings.toolbar.exportOdp, 'icon-odp')
+        ]),
+        actionMenu('more-menu', strings.toolbar.more, 'icon-reorder', [
+          menuButton(strings.toolbar.exportJson, 'icon-download', 'export-json'),
+          menuButton(strings.toolbar.importJson, 'icon-upload', 'import-json')
+        ])
       )
     )
   );
 
   const workspace = el('div', { class: 'workspace' },
-    el('aside', { class: 'editor-pane', 'aria-label': 'Editor' },
+    el('nav', { class: 'mobile-tabs', role: 'tablist', 'aria-label': 'Arbeitsbereich' },
+      mobileTab('edit', strings.labels.mobileEdit, true),
+      mobileTab('preview', strings.labels.mobilePreview, false),
+      mobileTab('export', strings.labels.mobileExport, false)
+    ),
+    el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
       editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSection(strings.columns.selected,
+        el('div', { class: 'selected-head' },
+          el('div', { id: 'selected-counter', class: 'selected-counter' }),
+          toolbarButton('trash', strings.labels.clearSelection, 'clear-selection', { class: 'btn btn-small' })
+        ),
+        el('div', { id: 'selected-list', class: 'selected-list' })
+      ),
       editorSection(strings.columns.categories,
+        el('div', { class: 'search-wrap' },
+          el('label', { for: 'criteria-search', class: 'small-label', text: strings.labels.searchCriteria }),
+          el('input', {
+            id: 'criteria-search',
+            type: 'search',
+            class: 'criteria-search',
+            placeholder: strings.labels.searchPlaceholder,
+            autocomplete: 'off'
+          })
+        ),
         el('div', { class: 'scale-default-wrap' },
           el('label', { for: 'default-scale', class: 'small-label', text: strings.labels.defaultScale }),
           el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
         ),
-        el('div', { id: 'selected-counter', class: 'selected-counter' }),
         el('div', { id: 'categories', class: 'accordion' })
       )
     ),
-    el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau' },
+    el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
         el('div', { class: 'mode-switch', role: 'tablist', 'aria-label': strings.labels.previewMode },
           modeTab('full', strings.modes.full, true),
@@ -69,6 +105,20 @@ export function renderLayout(): HTMLElement {
       ),
       el('div', { class: 'preview-pane-inner' },
         el('div', { id: 'a4-page', class: 'a4-page' })
+      )
+    ),
+    el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
+      editorSection(strings.columns.export,
+        el('div', { class: 'mobile-export-actions' },
+          exportButton('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
+          exportButton('docx', strings.toolbar.exportDocx, 'icon-doc'),
+          exportButton('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
+          exportButton('odp', strings.toolbar.exportOdp, 'icon-odp')
+        ),
+        el('div', { class: 'mobile-secondary-actions' },
+          toolbarButton('download', strings.toolbar.exportJson, 'export-json-mobile'),
+          toolbarButton('upload', strings.toolbar.importJson, 'import-json-mobile')
+        )
       )
     )
   );
@@ -98,9 +148,49 @@ function modeTab(mode: PrintMode, label: string, active: boolean): HTMLButtonEle
   return btn;
 }
 
+function mobileTab(view: MobileView, label: string, active: boolean): HTMLButtonElement {
+  const btn = el('button', {
+    type: 'button',
+    class: `mobile-tab ${active ? 'active' : ''}`,
+    role: 'tab',
+    'aria-selected': String(active),
+    'data-mobile-view': view
+  }) as HTMLButtonElement;
+  btn.textContent = label;
+  return btn;
+}
+
 function toolbarButton(iconId: string, label: string, id?: string, extra: Record<string, string> = {}) {
-  const btn = el('button', { class: 'btn', type: 'button', ...(id ? { id } : {}), ...extra });
+  const className = extra.class ?? 'btn';
+  const rest = { ...extra };
+  delete rest.class;
+  const btn = el('button', { class: className, type: 'button', ...(id ? { id } : {}), ...rest });
   btn.append(icon(`icon-${iconId}`), el('span', { class: 'btn-label', text: label }));
+  return btn;
+}
+
+function actionMenu(id: string, label: string, iconId: string, actions: HTMLElement[]) {
+  return el('details', { class: 'action-menu', id },
+    el('summary', { class: 'btn menu-trigger' }, icon(iconId), el('span', { class: 'btn-label', text: label })),
+    el('div', { class: 'menu-panel' }, ...actions)
+  );
+}
+
+function menuAction(format: ExportFormat, label: string, iconId: string, extra: Record<string, string> = {}) {
+  const btn = el('button', { class: 'menu-item', type: 'button', 'data-export-format': format, ...extra });
+  btn.append(icon(iconId), el('span', { text: label }));
+  return btn;
+}
+
+function menuButton(label: string, iconId: string, id: string) {
+  const btn = el('button', { class: 'menu-item', type: 'button', id });
+  btn.append(icon(iconId), el('span', { text: label }));
+  return btn;
+}
+
+function exportButton(format: ExportFormat, label: string, iconId: string) {
+  const btn = el('button', { class: 'export-card-button', type: 'button', 'data-export-format': format });
+  btn.append(icon(iconId), el('span', { text: label }));
   return btn;
 }
 
@@ -137,6 +227,41 @@ export function renderSelectedCounter(container: HTMLElement, count: number) {
   container.textContent = strings.labels.selectedCount(count);
 }
 
+export function renderSelectedList(
+  container: HTMLElement,
+  selectedItems: SelectedSummary[],
+  handlers: RenderHandlers
+) {
+  container.innerHTML = '';
+
+  if (selectedItems.length === 0) {
+    container.append(el('p', { class: 'selected-empty', text: strings.labels.selectedEmpty }));
+    return;
+  }
+
+  const list = el('ol', { class: 'selected-items' });
+  selectedItems.forEach((item) => {
+    const removeBtn = el('button', {
+      class: 'btn-icon quiet',
+      type: 'button',
+      title: strings.labels.remove,
+      'aria-label': `${strings.labels.remove}: ${item.item}`
+    }, icon('icon-trash'));
+    removeBtn.addEventListener('click', () => handlers.onRemoveSelected(item.itemId));
+    const meta = item.isCustom
+      ? `${item.category} · ${strings.labels.customItemBadge} · ${item.scaleLabel}`
+      : `${item.category} · ${item.scaleLabel}`;
+    list.append(el('li', { class: 'selected-item' },
+      el('div', { class: 'selected-item-main' },
+        el('span', { class: 'selected-item-label', text: item.item }),
+        el('span', { class: 'selected-item-meta', text: meta })
+      ),
+      removeBtn
+    ));
+  });
+  container.append(list);
+}
+
 export function renderDefaultScaleSelect(
   selectEl: HTMLSelectElement,
   scales: Scale[],
@@ -157,11 +282,21 @@ export function renderCategories(
   scales: Scale[],
   scaleByItem: Record<string, string>,
   defaultScaleId: string,
-  handlers: RenderHandlers
+  handlers: RenderHandlers,
+  searchQuery = ''
 ) {
   container.innerHTML = '';
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  let renderedCategories = 0;
 
   categories.forEach((c) => {
+    const visibleRegular = visibleCategoryParts(c, normalizedQuery);
+    const catCustomItems = customItems.filter((ci) => ci.categoryId === c.id);
+    const visibleCustomItems = catCustomItems.filter((ci) => matchesItem(ci, normalizedQuery));
+    const hasVisibleItems = visibleRegular.hasItems || visibleCustomItems.length > 0;
+    if (normalizedQuery && !hasVisibleItems) return;
+    renderedCategories++;
+
     const buttonId = `acc-${c.id}`;
     const headerBtn = el(
       'button',
@@ -171,22 +306,25 @@ export function renderCategories(
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
+    panel.append(el('div', { class: 'category-actions' },
+      smallActionButton(strings.labels.selectCategory, () => handlers.onSelectCategory(c.id)),
+      smallActionButton(strings.labels.clearCategory, () => handlers.onClearCategory(c.id))
+    ));
 
     if (Array.isArray(c.groups)) {
-      c.groups.forEach((g) => {
+      visibleRegular.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
         groupBlock.append(el('h3', { class: 'group-title', text: g.title }));
         g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
         panel.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
-      c.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
+      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
     }
 
-    const catCustomItems = customItems.filter((ci) => ci.categoryId === c.id);
-    if (catCustomItems.length > 0) {
+    if (visibleCustomItems.length > 0) {
       const customSection = el('div', { class: 'custom-items-section' });
-      catCustomItems.forEach((ci) => {
+      visibleCustomItems.forEach((ci) => {
         const removeBtn = el('button', { class: 'btn-icon danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
         removeBtn.addEventListener('click', () => handlers.onRemoveCustomItem(ci.id));
         const row = itemCheckboxRow(c.id, ci, selectedIds, scales, scaleByItem, defaultScaleId, handlers, true);
@@ -222,6 +360,34 @@ export function renderCategories(
 
   // Update the per-category count badges
   refreshCategoryCounts(container, categories, customItems, selectedIds);
+  if (renderedCategories === 0) {
+    container.append(el('p', { class: 'search-empty', text: 'Keine passenden Kriterien gefunden.' }));
+  }
+}
+
+function smallActionButton(label: string, onClick: () => void) {
+  const btn = el('button', { class: 'btn-mini', type: 'button', text: label });
+  btn.addEventListener('click', onClick);
+  return btn;
+}
+
+function visibleCategoryParts(c: Category, normalizedQuery: string) {
+  const matches = (it: Item) => matchesItem(it, normalizedQuery);
+  if (Array.isArray(c.groups)) {
+    const groups = c.groups
+      .map((g) => ({ ...g, items: normalizedQuery ? g.items.filter(matches) : g.items }))
+      .filter((g) => g.items.length > 0);
+    return { groups, items: [], hasItems: groups.length > 0 };
+  }
+  const items = Array.isArray(c.items)
+    ? (normalizedQuery ? c.items.filter(matches) : c.items)
+    : [];
+  return { groups: [], items, hasItems: items.length > 0 };
+}
+
+function matchesItem(item: Item, normalizedQuery: string) {
+  if (!normalizedQuery) return true;
+  return `${item.label} ${item.description ?? ''}`.toLowerCase().includes(normalizedQuery);
 }
 
 function refreshCategoryCounts(
@@ -271,6 +437,9 @@ function itemCheckboxRow(
   cb.addEventListener('change', () => handlers.onToggle(categoryId, item.id, cb.checked));
 
   const label = el('label', { for: `cb-${item.id}`, class: 'item-label-text', text: item.label });
+  if (isCustom) {
+    label.append(el('span', { class: 'custom-badge', text: strings.labels.customItemBadge }));
+  }
 
   const main = el('div', { class: 'item-main' }, cb, label);
   row.append(main);
@@ -302,6 +471,18 @@ export function renderModeSwitch(
     btn.classList.toggle('active', isActive);
     btn.setAttribute('aria-selected', String(isActive));
     btn.onclick = () => handlers.onPreviewModeChange(btn.dataset.mode as PrintMode);
+  });
+}
+
+export function renderMobileTabs(container: HTMLElement, activeView: MobileView, handlers: RenderHandlers) {
+  container.querySelectorAll<HTMLButtonElement>('.mobile-tab').forEach((btn) => {
+    const isActive = btn.dataset.mobileView === activeView;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', String(isActive));
+    btn.onclick = () => handlers.onMobileViewChange(btn.dataset.mobileView as MobileView);
+  });
+  document.querySelectorAll<HTMLElement>('[data-mobile-panel]').forEach((panel) => {
+    panel.classList.toggle('mobile-active', panel.dataset.mobilePanel === activeView);
   });
 }
 

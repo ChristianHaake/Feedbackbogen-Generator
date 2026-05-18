@@ -12,6 +12,11 @@ function contentPlugin() {
   return {
     name: 'content-static',
     configureServer(server: any) {
+      const mainEntry = path.resolve(__dirname, 'src', 'main.ts');
+      server.middlewares.use((req: any, _res: any, next: any) => {
+        if (req.url === '/main.ts') req.url = `/Feedbackbogen-Generator/@fs/${mainEntry}`;
+        next();
+      });
       server.middlewares.use('/content', (req: any, res: any, next: any) => {
         const url = req.url?.replace(/^\/content\/?/, '') || '';
         const filePath = path.join(contentDir, url);
@@ -58,7 +63,9 @@ export default defineConfig({
   },
   plugins: [contentPlugin()],
   test: {
+    root: __dirname,
     environment: 'jsdom',
+    include: ['tests/**/*.test.ts'],
     coverage: {
       provider: 'v8'
     }

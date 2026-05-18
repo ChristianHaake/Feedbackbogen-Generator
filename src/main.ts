@@ -1,13 +1,16 @@
 import './app.css';
 import {
   renderLayout, renderKopfdaten, renderCategories,
-  renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter
+  renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
+  renderSelectedList, renderMobileTabs
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
-import { loadYAML, findItemById, scaleById, buildCategoriesWithCustom } from './yaml';
+import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
 import { saveConfig, loadConfig, exportConfigJSON, importConfigJSON, EMPTY_HEADER } from './storage';
-import type { AppConfigV2, SelectedItemRef, ExportRow, CustomItem, HeaderData, PrintMode } from './types';
+import { scaleDisplay } from './scale-utils';
+import type { SelectedItemRef, ExportRow, CustomItem, HeaderData, PrintMode } from './types';
+import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
 async function bootstrap() {
   focusVisiblePolyfill();
@@ -27,6 +30,8 @@ async function bootstrap() {
   let header: HeaderData = { ...EMPTY_HEADER };
   let customItems: CustomItem[] = [];
   let previewMode: PrintMode = 'full';
+  let searchQuery = '';
+  let mobileView: MobileView = 'edit';
 
   const persisted = loadConfig();
   if (persisted) {
@@ -40,10 +45,14 @@ async function bootstrap() {
 
   const categoriesEl = document.getElementById('categories')!;
   const counterEl = document.getElementById('selected-counter')!;
+  const selectedListEl = document.getElementById('selected-list')!;
   const kopfdatenEl = document.getElementById('kopfdaten-form')!;
   const a4El = document.getElementById('a4-page')!;
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
+  const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
+  const clearSelectionEl = document.getElementById('clear-selection') as HTMLButtonElement;
   const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
+  const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
@@ -82,6 +91,37 @@ async function bootstrap() {
       renderA4();
       announce(strings.messages.customItemRemoved);
     },
+    onRemoveSelected: (itemId: string) => {
+      selected = selected.filter((s) => s.itemId !== itemId);
+      delete scaleByItemMap[itemId];
+      renderEditor();
+      renderA4();
+    },
+    onSelectCategory: (categoryId: string) => {
+      const ids = itemIdsOfCategory(categoryId);
+      ids.forEach((itemId) => {
+        if (!selected.some((s) => s.itemId === itemId)) selected.push({ categoryId, itemId });
+      });
+      renderEditor();
+      renderA4();
+    },
+    onClearCategory: (categoryId: string) => {
+      const ids = new Set(itemIdsOfCategory(categoryId));
+      selected = selected.filter((s) => !ids.has(s.itemId));
+      ids.forEach((itemId) => delete scaleByItemMap[itemId]);
+      renderEditor();
+      renderA4();
+    },
+    onClearSelection: () => {
+      selected = [];
+      scaleByItemMap = {};
+      renderEditor();
+      renderA4();
+    },
+    onSearchChange: (value: string) => {
+      searchQuery = value;
+      renderEditor();
+    },
     onHeaderChange: (field: keyof HeaderData, value: string) => {
       header = { ...header, [field]: value };
       renderA4();
@@ -90,6 +130,10 @@ async function bootstrap() {
       previewMode = mode;
       renderModeSwitch(modeSwitchEl, previewMode, handlers);
       renderA4();
+    },
+    onMobileViewChange: (view: MobileView) => {
+      mobileView = view;
+      renderMobileTabs(mobileTabsEl, mobileView, handlers);
     }
   };
 
@@ -115,6 +159,41 @@ async function bootstrap() {
       });
     });
     return out;
+  }
+
+  function buildSelectedSummaries(): SelectedSummary[] {
+    const customIds = new Set(customItems.map((ci) => ci.id));
+    const merged = buildCategoriesWithCustom(categories, customItems);
+    const selectedIds = selectedSet();
+    const out: SelectedSummary[] = [];
+    merged.forEach((category) => {
+      const items: { id: string; label: string }[] = [];
+      if (Array.isArray(category.items)) category.items.forEach((item) => items.push({ id: item.id, label: item.label }));
+      if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => items.push({ id: item.id, label: item.label })));
+      items.forEach((item) => {
+        if (!selectedIds.has(item.id)) return;
+        const scale = scaleById(scales, scaleByItemMap[item.id] ?? defaultScaleId);
+        out.push({
+          itemId: item.id,
+          categoryId: category.id,
+          category: category.title,
+          item: item.label,
+          scaleLabel: scale ? scaleDisplay(scale) : strings.labels.scale,
+          isCustom: customIds.has(item.id)
+        });
+      });
+    });
+    return out;
+  }
+
+  function itemIdsOfCategory(categoryId: string): string[] {
+    const merged = buildCategoriesWithCustom(categories, customItems);
+    const category = merged.find((c) => c.id === categoryId);
+    if (!category) return [];
+    const ids: string[] = [];
+    if (Array.isArray(category.items)) category.items.forEach((item) => ids.push(item.id));
+    if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => ids.push(item.id)));
+    return ids;
   }
 
   function persist() {
@@ -157,7 +236,10 @@ async function bootstrap() {
     renderKopfdaten(kopfdatenEl, header, handlers.onHeaderChange);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
-    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByItemMap, defaultScaleId, handlers);
+    renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
+    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByItemMap, defaultScaleId, handlers, searchQuery);
+    criteriaSearchEl.value = searchQuery;
+    clearSelectionEl.disabled = selected.length === 0;
 
     // Restore inputs
     Object.entries(savedInputs).forEach(([catId, val]) => {
@@ -182,15 +264,16 @@ async function bootstrap() {
 
   renderEditor();
   renderModeSwitch(modeSwitchEl, previewMode, handlers);
+  renderMobileTabs(mobileTabsEl, mobileView, handlers);
   renderA4();
 
   // Toolbar
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
-  document.getElementById('export-json')?.addEventListener('click', () =>
-    exportConfigJSON({ version: 2, selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems })
-  );
-  document.getElementById('import-json')?.addEventListener('click', async () => {
+  const exportJson = () => {
+    exportConfigJSON({ version: 2, selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems });
+  };
+  const importJson = async () => {
     const cfg = await importConfigJSON();
     if (cfg) {
       selected = cfg.selectedItems;
@@ -202,14 +285,15 @@ async function bootstrap() {
       renderA4();
       announce(strings.messages.imported);
     }
-  });
+  };
+  document.getElementById('export-json')?.addEventListener('click', exportJson);
+  document.getElementById('export-json-mobile')?.addEventListener('click', exportJson);
+  document.getElementById('import-json')?.addEventListener('click', importJson);
+  document.getElementById('import-json-mobile')?.addEventListener('click', importJson);
+  criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
+  clearSelectionEl.addEventListener('click', handlers.onClearSelection);
 
-  const exportNowBtn = document.getElementById('export-now') as HTMLButtonElement | null;
-  const exportFormatSel = document.getElementById('export-format') as HTMLSelectElement | null;
-  if (exportFormatSel) exportFormatSel.value = 'pdf';
-
-  exportNowBtn?.addEventListener('click', async () => {
-    const fmt = exportFormatSel?.value ?? 'pdf';
+  async function exportFormat(fmt: ExportFormat) {
     announce(strings.messages.exported);
     if (fmt === 'pdf') {
       window.print();
@@ -223,10 +307,17 @@ async function bootstrap() {
       const { exportODP } = await import('./export/export-odp');
       exportODP(buildExportRows());
     }
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-export-format]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll<HTMLDetailsElement>('.action-menu[open]').forEach((menu) => menu.removeAttribute('open'));
+      exportFormat(btn.dataset.exportFormat as ExportFormat);
+    });
   });
 
   setupKeyboardShortcuts(persist, async () => {
-    (document.getElementById('export-now') as HTMLButtonElement)?.click();
+    exportFormat('pdf');
   });
 }
 

@@ -6,8 +6,8 @@ Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen
 
 - Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
 - Konfiguration via YAML: Datei `content/items.yaml` liefert Kategorien und Skalen. Beim Laden wird validiert; bei Fehlern erfolgt ein Toast und Fallback auf Demo-Daten.
-- UI: Drei-Spalten-Layout – links Kategorien (Accordion), Mitte ausgewählte Kriterien (Drag-Sort, Tastatur), rechts Skalen-Zuordnung (Dropdown je Kriterium + Standard-Skala).
-- Exporte lokal im Browser: PDF (jsPDF + AutoTable), DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
+- UI: Zweigeteilter Builder – links Kopfdaten, ausgewählte Kriterien, Suche und Kategorien; rechts die papiernahe Druckvorschau.
+- Exporte lokal im Browser: PDF/Druckdialog, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (Export-Hinweis), respektiert `prefers-reduced-motion`.
 - Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
 
@@ -71,21 +71,29 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 
 ## Speichern/Laden der Konfiguration
 
-- LocalStorage-Key: `bbk:config:v1`.
+- LocalStorage-Key: `bbk:config:v2`.
 - JSON-Import/-Export via Toolbar. Schema:
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
   "scaleByItem": { "<itemId>": "<scaleId>" },
-  "defaultScaleId": "verbal_5"
+  "defaultScaleId": "verbal_5",
+  "header": {
+    "learner": "",
+    "learngroup": "",
+    "topic": "",
+    "date": "",
+    "feedback": ""
+  },
+  "customItems": []
 }
 ```
 
 ## Exporte (Client-Side)
 
-- PDF: DIN A4, Tabelle der Kriterien + Skala. jsPDF + AutoTable.
+- PDF: DIN A4 über die Browser-Druckfunktion.
 - DOCX: Überschrift, Datum, Tabelle (docx).
 - XLSX: Sheet „Bewertungsbogen“, zusätzliche Spalten für Punkte/Notizen (xlsx).
 - ODP: Minimal lauffähiges ODF-Gerüst (ZIP+XML mit `mimetype`, `content.xml`, `styles.xml`, `meta.xml`, `META-INF/manifest.xml`). Enthält eine Titelfolie und eine Folie mit Tabelle.
@@ -96,7 +104,7 @@ Limitierungen ODP:
 
 ## Barrierefreiheit
 
-- Tastatur: Auswahl, Entfernen (Entf), Reordering mit Pfeiltasten (ausgewählte Liste fokussierbar), Shortcuts Alt+S (Speichern), Alt+E (Export-Hinweis).
+- Tastatur: Auswahl per Checkbox, Shortcuts Alt+S (Speichern), Alt+E (PDF/Druck).
 - ARIA: `aria-expanded` bei Accordion, `aria-live` für Statusmeldungen.
 - Sichtbarer Fokus-Ring, `prefers-reduced-motion` berücksichtigt.
 
@@ -109,4 +117,3 @@ Limitierungen ODP:
 ## Lizenz
 
 MIT – siehe `LICENSE`.
-

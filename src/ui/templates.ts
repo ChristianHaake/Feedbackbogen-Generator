@@ -1,15 +1,11 @@
-import type { Category, Scale, SelectedItemRef, CustomItem, HeaderData, ExportRow, PrintMode } from '@/types';
+import type { Category, Scale, SelectedItemRef, CustomItem, HeaderData, ExportRow, PrintMode, Item } from '@/types';
 import { el, icon } from './components';
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
-import { findItemInCategory } from '@/yaml';
 
 export type RenderHandlers = {
-  onAdd: (categoryId: string, itemId: string) => void;
-  onRemove: (itemId: string) => void;
-  onReorder: (fromIndex: number, toIndex: number) => void;
+  onToggle: (categoryId: string, itemId: string, checked: boolean) => void;
   onScaleChange: (itemId: string, scaleId: string) => void;
-  onWeightChange: (itemId: string, weight: number) => void;
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
   onRemoveCustomItem: (itemId: string) => void;
@@ -55,13 +51,13 @@ export function renderLayout(): HTMLElement {
   const workspace = el('div', { class: 'workspace' },
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor' },
       editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
-      editorSection(strings.columns.categories, el('div', { id: 'categories', class: 'accordion' })),
-      editorSection(strings.columns.selected,
-        el('div', { class: 'selected-controls' },
+      editorSection(strings.columns.categories,
+        el('div', { class: 'scale-default-wrap' },
           el('label', { for: 'default-scale', class: 'small-label', text: strings.labels.defaultScale }),
           el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
         ),
-        el('ol', { id: 'selected', class: 'selected', role: 'list' })
+        el('div', { id: 'selected-counter', class: 'selected-counter' }),
+        el('div', { id: 'categories', class: 'accordion' })
       )
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau' },
@@ -117,6 +113,7 @@ export function renderKopfdaten(
 
   const fields: { key: keyof HeaderData; label: string; type: string }[] = [
     { key: 'learner', label: strings.kopfdaten.learner, type: 'text' },
+    { key: 'learngroup', label: strings.kopfdaten.learngroup, type: 'text' },
     { key: 'topic', label: strings.kopfdaten.topic, type: 'text' },
     { key: 'date', label: strings.kopfdaten.date, type: 'date' }
   ];
@@ -136,47 +133,64 @@ export function renderKopfdaten(
   container.append(el('div', { class: 'kd-field kd-field-wide' }, fbLabel, fbInput));
 }
 
+export function renderSelectedCounter(container: HTMLElement, count: number) {
+  container.textContent = strings.labels.selectedCount(count);
+}
+
+export function renderDefaultScaleSelect(
+  selectEl: HTMLSelectElement,
+  scales: Scale[],
+  defaultScaleId: string,
+  handlers: RenderHandlers
+) {
+  selectEl.innerHTML = '';
+  scales.forEach((s) => selectEl.append(el('option', { value: s.id, text: scaleDisplay(s) })));
+  selectEl.value = defaultScaleId;
+  selectEl.onchange = () => handlers.onDefaultScaleChange(selectEl.value);
+}
+
 export function renderCategories(
   container: HTMLElement,
   categories: Category[],
   customItems: CustomItem[],
+  selectedIds: Set<string>,
+  scales: Scale[],
+  scaleByItem: Record<string, string>,
+  defaultScaleId: string,
   handlers: RenderHandlers
 ) {
   container.innerHTML = '';
 
   categories.forEach((c) => {
     const buttonId = `acc-${c.id}`;
-    const header = el(
+    const headerBtn = el(
       'button',
       { class: 'accordion-header', 'aria-expanded': 'false', id: buttonId, 'aria-controls': `${buttonId}-panel`, type: 'button' },
-      el('span', { class: 'acc-title', text: c.title })
+      el('span', { class: 'acc-title', text: c.title }),
+      el('span', { class: 'acc-count', 'data-cat': c.id })
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
-
-    if (c.description) panel.append(el('p', { class: 'category-desc', text: c.description }));
 
     if (Array.isArray(c.groups)) {
       c.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
         groupBlock.append(el('h3', { class: 'group-title', text: g.title }));
-        g.items.forEach((it) => groupBlock.append(itemRow(it.label, it.description, () => handlers.onAdd(c.id, it.id))));
+        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
         panel.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
-      c.items.forEach((it) => panel.append(itemRow(it.label, it.description, () => handlers.onAdd(c.id, it.id))));
+      c.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
     }
 
     const catCustomItems = customItems.filter((ci) => ci.categoryId === c.id);
     if (catCustomItems.length > 0) {
       const customSection = el('div', { class: 'custom-items-section' });
       catCustomItems.forEach((ci) => {
-        const removeBtn = el('button', { class: 'btn btn-small danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
+        const removeBtn = el('button', { class: 'btn-icon danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
         removeBtn.addEventListener('click', () => handlers.onRemoveCustomItem(ci.id));
-        const row = el('div', { class: 'item-row custom-item-row' },
-          el('div', { class: 'item-text' }, el('div', { class: 'item-label custom-tag', text: ci.label })),
-          el('div', { class: 'item-actions' }, addButton(() => handlers.onAdd(c.id, ci.id)), removeBtn)
-        );
+        const row = itemCheckboxRow(c.id, ci, selectedIds, scales, scaleByItem, defaultScaleId, handlers, true);
+        row.querySelector('.item-actions')?.append(removeBtn);
         customSection.append(row);
       });
       panel.append(customSection);
@@ -187,7 +201,7 @@ export function renderCategories(
       placeholder: strings.labels.customItemPlaceholder,
       'aria-label': strings.labels.addCustomItem
     }) as HTMLInputElement;
-    const addCustomBtn = el('button', { class: 'btn btn-small btn-primary', type: 'button', 'aria-label': strings.labels.addCustomItem });
+    const addCustomBtn = el('button', { class: 'btn-icon btn-primary', type: 'button', 'aria-label': strings.labels.addCustomItem });
     addCustomBtn.append(icon('icon-plus'));
     addCustomBtn.addEventListener('click', () => { handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; });
     customInput.addEventListener('keydown', (e) => {
@@ -195,128 +209,87 @@ export function renderCategories(
     });
     panel.append(el('div', { class: 'add-custom-row' }, customInput, addCustomBtn));
 
-    header.addEventListener('click', () => {
-      const expanded = header.getAttribute('aria-expanded') === 'true';
+    headerBtn.addEventListener('click', () => {
+      const expanded = headerBtn.getAttribute('aria-expanded') === 'true';
       const next = !expanded;
-      header.setAttribute('aria-expanded', String(next));
+      headerBtn.setAttribute('aria-expanded', String(next));
       panel.classList.toggle('open', next);
       (panel as HTMLDivElement).hidden = !next;
     });
 
-    container.append(header, panel);
+    container.append(headerBtn, panel);
+  });
+
+  // Update the per-category count badges
+  refreshCategoryCounts(container, categories, customItems, selectedIds);
+}
+
+function refreshCategoryCounts(
+  container: HTMLElement,
+  categories: Category[],
+  customItems: CustomItem[],
+  selectedIds: Set<string>
+) {
+  categories.forEach((c) => {
+    const all = allItemIdsOfCategory(c, customItems);
+    const count = all.filter((id) => selectedIds.has(id)).length;
+    const badge = container.querySelector<HTMLElement>(`.acc-count[data-cat="${c.id}"]`);
+    if (badge) badge.textContent = count > 0 ? `${count}` : '';
+    if (badge) badge.classList.toggle('has-selection', count > 0);
   });
 }
 
-function itemRow(label: string, description: string | undefined, onAdd: () => void) {
-  return el('div', { class: 'item-row' },
-    el('div', { class: 'item-text' },
-      el('div', { class: 'item-label', text: label }),
-      description ? el('div', { class: 'item-desc', text: description }) : null
-    ),
-    el('div', { class: 'item-actions' }, addButton(onAdd))
-  );
+function allItemIdsOfCategory(c: Category, customItems: CustomItem[]): string[] {
+  const ids: string[] = [];
+  if (Array.isArray(c.items)) c.items.forEach((it) => ids.push(it.id));
+  if (Array.isArray(c.groups)) c.groups.forEach((g) => g.items.forEach((it) => ids.push(it.id)));
+  customItems.filter((ci) => ci.categoryId === c.id).forEach((ci) => ids.push(ci.id));
+  return ids;
 }
 
-function addButton(onClick: () => void) {
-  const btn = el('button', { class: 'btn btn-small', type: 'button', title: strings.labels.add, 'aria-label': strings.labels.add });
-  btn.append(icon('icon-plus'));
-  btn.addEventListener('click', onClick);
-  return btn;
-}
-
-export function renderDefaultScaleSelect(
-  selectEl: HTMLSelectElement,
-  scales: Scale[],
-  defaultScaleId: string,
-  handlers: RenderHandlers
-) {
-  selectEl.innerHTML = '';
-  scales.forEach((s) => selectEl.append(el('option', { value: s.id, text: `${s.id} – ${scaleDisplay(s)}` })));
-  selectEl.value = defaultScaleId;
-  selectEl.onchange = () => handlers.onDefaultScaleChange(selectEl.value);
-}
-
-export function renderSelected(
-  container: HTMLElement,
-  selected: SelectedItemRef[],
-  categories: Category[],
+function itemCheckboxRow(
+  categoryId: string,
+  item: Item,
+  selectedIds: Set<string>,
   scales: Scale[],
   scaleByItem: Record<string, string>,
-  weightByItem: Record<string, number>,
   defaultScaleId: string,
-  handlers: RenderHandlers
-) {
-  container.innerHTML = '';
+  handlers: RenderHandlers,
+  isCustom = false
+): HTMLElement {
+  const isChecked = selectedIds.has(item.id);
+  const row = el('div', { class: `item-row item-checkbox-row ${isCustom ? 'custom-item-row' : ''}` });
 
-  if (selected.length === 0) {
-    const empty = el('li', { class: 'selected-empty', text: strings.labels.selectedEmpty });
-    container.append(empty);
-    return;
-  }
+  const cb = el('input', {
+    type: 'checkbox',
+    class: 'item-checkbox',
+    id: `cb-${item.id}`,
+    'data-cat': categoryId,
+    'data-item': item.id
+  }) as HTMLInputElement;
+  cb.checked = isChecked;
+  cb.addEventListener('change', () => handlers.onToggle(categoryId, item.id, cb.checked));
 
-  selected.forEach((ref, index) => {
-    const cat = categories.find((c) => c.id === ref.categoryId);
-    if (!cat) return;
-    const item = findItemInCategory(cat, ref.itemId);
-    if (!item) return;
+  const label = el('label', { for: `cb-${item.id}`, class: 'item-label-text', text: item.label });
 
-    const li = el('li', { class: 'selected-row', draggable: 'true', role: 'listitem', tabindex: '0', 'aria-label': item.label });
-    li.dataset.index = String(index);
+  const main = el('div', { class: 'item-main' }, cb, label);
+  row.append(main);
 
-    const handle = el('span', { class: 'drag-handle', title: strings.labels.reorder, 'aria-hidden': 'true' }, icon('icon-reorder'));
-    const text = el('span', { class: 'selected-text', text: item.label });
-    const removeBtn = el('button', { class: 'btn btn-small danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
-    removeBtn.addEventListener('click', () => handlers.onRemove(ref.itemId));
+  // Inline scale dropdown (only meaningful when checked, but always rendered for layout stability)
+  const scaleSel = el('select', {
+    class: 'inline-scale',
+    'data-item': item.id,
+    'aria-label': `${item.label} – ${strings.labels.scale}`
+  }) as HTMLSelectElement;
+  scales.forEach((s) => scaleSel.append(el('option', { value: s.id, text: scaleDisplay(s) })));
+  scaleSel.value = scaleByItem[item.id] ?? defaultScaleId;
+  scaleSel.disabled = !isChecked;
+  scaleSel.addEventListener('change', () => handlers.onScaleChange(item.id, scaleSel.value));
 
-    const topRow = el('div', { class: 'selected-top' }, handle, text, removeBtn);
+  const actions = el('div', { class: 'item-actions' }, scaleSel);
+  row.append(actions);
 
-    // Inline scale + weight
-    const scaleSelect = el('select', { class: 'inline-scale', 'data-item': ref.itemId, 'aria-label': `${item.label} – ${strings.labels.scale}` }) as HTMLSelectElement;
-    scales.forEach((s) => scaleSelect.append(el('option', { value: s.id, text: scaleDisplay(s) })));
-    scaleSelect.value = scaleByItem[ref.itemId] ?? defaultScaleId;
-    scaleSelect.addEventListener('change', () => handlers.onScaleChange(ref.itemId, scaleSelect.value));
-
-    const weightInput = el('input', {
-      type: 'number', min: '1', max: '10', step: '1',
-      class: 'weight-input',
-      value: String(weightByItem[ref.itemId] ?? 1),
-      'aria-label': `${item.label} – ${strings.labels.weight}`,
-      title: strings.labels.weight
-    }) as HTMLInputElement;
-    weightInput.addEventListener('change', () => {
-      const v = parseInt(weightInput.value, 10);
-      handlers.onWeightChange(ref.itemId, Number.isNaN(v) ? 1 : Math.max(1, Math.min(10, v)));
-    });
-
-    const bottomRow = el('div', { class: 'selected-bottom' },
-      el('label', { class: 'inline-label', text: strings.labels.scale }), scaleSelect,
-      el('label', { class: 'inline-label', text: strings.labels.weight }), weightInput
-    );
-
-    li.append(topRow, bottomRow);
-
-    // Drag-and-drop
-    li.addEventListener('dragstart', (e) => {
-      (e.dataTransfer as DataTransfer).setData('text/plain', String(index));
-      (e.dataTransfer as DataTransfer).effectAllowed = 'move';
-      li.classList.add('dragging');
-    });
-    li.addEventListener('dragend', () => li.classList.remove('dragging'));
-    li.addEventListener('dragover', (e) => { e.preventDefault(); (e.dataTransfer as DataTransfer).dropEffect = 'move'; });
-    li.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const from = Number((e.dataTransfer as DataTransfer).getData('text/plain'));
-      const to = Number(li.dataset.index ?? '0');
-      if (!Number.isNaN(from) && !Number.isNaN(to) && from !== to) handlers.onReorder(from, to);
-    });
-    li.addEventListener('keydown', (e) => {
-      if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); handlers.onRemove(ref.itemId); }
-      if (e.key === 'ArrowUp' && index > 0) { e.preventDefault(); handlers.onReorder(index, index - 1); }
-      if (e.key === 'ArrowDown' && index < selected.length - 1) { e.preventDefault(); handlers.onReorder(index, index + 1); }
-    });
-
-    container.append(li);
-  });
+  return row;
 }
 
 export function renderModeSwitch(
@@ -332,6 +305,10 @@ export function renderModeSwitch(
   });
 }
 
+// ────────────────────────────────────────────────────────────────────
+// A4 PREVIEW (= Druckausgabe)
+// ────────────────────────────────────────────────────────────────────
+
 export function renderPreview(
   container: HTMLElement,
   rows: ExportRow[],
@@ -340,94 +317,112 @@ export function renderPreview(
 ) {
   container.innerHTML = '';
 
-  // Title
-  const title = el('h1', { class: 'a4-title', text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen' });
-  container.append(title);
+  container.append(el('h1', { class: 'a4-title', text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen' }));
 
-  // Meta: Lernende/Thema/Datum als Definitionsliste
-  if (header.learner || header.topic || header.date) {
-    const meta = el('table', { class: 'a4-meta' });
-    const tbody = el('tbody');
-    const metaRows: [string, string][] = [];
-    if (header.learner) metaRows.push([`${strings.kopfdaten.learner}:`, header.learner]);
-    if (header.topic) metaRows.push([`${strings.kopfdaten.topic}:`, header.topic]);
-    if (header.date) metaRows.push([`${strings.kopfdaten.date}:`, header.date]);
-    metaRows.forEach(([k, v]) => {
-      tbody.append(el('tr', {}, el('td', { class: 'a4-meta-key', text: k }), el('td', { class: 'a4-meta-val', text: v })));
-    });
-    meta.append(tbody);
-    container.append(meta);
-  }
+  // Header fields with blank lines (always shown — empty fields stay fillable on paper)
+  container.append(renderA4Header(header));
 
-  // Content
   if (rows.length === 0) {
     container.append(el('p', { class: 'a4-empty', text: strings.labels.previewEmpty }));
-  } else if (mode === 'checklist') {
-    container.append(buildChecklist(rows));
   } else {
-    container.append(buildTable(rows));
+    container.append(renderA4Body(rows, mode));
   }
 
-  // Feedback
-  const fbSection = el('div', { class: 'a4-feedback' });
-  fbSection.append(el('h2', { class: 'a4-feedback-title', text: strings.kopfdaten.feedback }));
-  if (header.feedback) fbSection.append(el('p', { class: 'a4-feedback-text', text: header.feedback }));
-  fbSection.append(el('div', { class: 'a4-feedback-space' }));
-  container.append(fbSection);
+  container.append(renderA4Feedback(header));
 }
 
-function buildTable(rows: ExportRow[]): HTMLElement {
-  const table = el('table', { class: 'a4-table' });
-  const thead = el('thead');
-  const headRow = el('tr');
-  [
-    ['Kategorie', ''],
-    ['Kriterium', ''],
-    ['Beschreibung', ''],
-    ['Gew.', 'a4-col-weight'],
-    ['Skala', ''],
-    ['Bewertung', 'a4-col-eval']
-  ].forEach(([text, cls]) => {
-    const th = el('th', cls ? { class: cls } : {});
-    th.textContent = text;
-    headRow.append(th);
-  });
-  thead.append(headRow);
-  table.append(thead);
+function renderA4Header(header: HeaderData): HTMLElement {
+  const wrap = el('div', { class: 'a4-header-fields' });
 
-  const tbody = el('tbody');
+  const fields: [string, string][] = [
+    [strings.kopfdaten.learner, header.learner],
+    [strings.kopfdaten.learngroup, header.learngroup],
+    [strings.kopfdaten.topic, header.topic],
+    [strings.kopfdaten.date, header.date]
+  ];
+
+  fields.forEach(([label, value]) => {
+    const row = el('div', { class: 'a4-hf-row' });
+    row.append(el('span', { class: 'a4-hf-label', text: `${label}:` }));
+    const valEl = el('span', { class: 'a4-hf-value' });
+    if (value) valEl.textContent = value;
+    row.append(valEl);
+    wrap.append(row);
+  });
+
+  return wrap;
+}
+
+function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
+  const wrap = el('div', { class: 'a4-body' });
+
+  // Group rows by categoryId, preserve category order from first appearance
+  const groups = new Map<string, { title: string; items: ExportRow[] }>();
   rows.forEach((r) => {
-    const tr = el('tr');
-    tr.append(
-      tdText(r.category),
-      tdText(r.item),
-      tdText(r.description ?? ''),
-      tdText(String(r.weight), 'a4-col-weight'),
-      tdText(r.scaleLabel),
-      tdText('', 'a4-col-eval')
-    );
-    tbody.append(tr);
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, items: [] });
+    groups.get(r.categoryId)!.items.push(r);
   });
-  table.append(tbody);
-  return table;
+
+  groups.forEach(({ title, items }) => {
+    const section = el('section', { class: 'a4-cat-section' });
+    section.append(el('h2', { class: 'a4-cat-heading', text: title }));
+    const list = el('ol', { class: 'a4-items' });
+    items.forEach((r) => list.append(renderA4Item(r, mode)));
+    section.append(list);
+    wrap.append(section);
+  });
+
+  return wrap;
 }
 
-function buildChecklist(rows: ExportRow[]): HTMLElement {
-  const list = el('div', { class: 'a4-checklist' });
-  rows.forEach((r) => {
-    const item = el('div', { class: 'a4-checklist-item' });
-    item.append(el('span', { class: 'a4-checkbox', text: '☐' }));
-    const txt = el('div', { class: 'a4-checklist-text' });
-    txt.append(el('div', { class: 'a4-checklist-label', text: r.item }));
-    if (r.description) txt.append(el('div', { class: 'a4-checklist-desc', text: r.description }));
-    item.append(txt);
-    list.append(item);
-  });
-  return list;
+function renderA4Item(row: ExportRow, mode: PrintMode): HTMLElement {
+  const li = el('li', { class: 'a4-item' });
+
+  if (mode === 'checklist') {
+    li.append(el('span', { class: 'a4-cbox', text: '☐' }));
+    li.append(el('span', { class: 'a4-item-label', text: row.item }));
+    return li;
+  }
+
+  li.append(el('div', { class: 'a4-item-label', text: row.item }));
+  if (row.scale) {
+    li.append(renderScaleOptions(row.scale));
+  } else {
+    li.append(el('div', { class: 'a4-scale-line' }));
+  }
+  return li;
 }
 
-function tdText(text: string, cls?: string): HTMLElement {
-  const td = el('td', cls ? { class: cls } : {});
-  td.textContent = text;
-  return td;
+function renderScaleOptions(scale: Scale): HTMLElement {
+  const wrap = el('div', { class: 'a4-scale-options' });
+  scaleOptionLabels(scale).forEach((label) => {
+    const opt = el('span', { class: 'a4-scale-opt' });
+    opt.append(el('span', { class: 'a4-cbox', text: '☐' }));
+    opt.append(el('span', { class: 'a4-scale-opt-text', text: label }));
+    wrap.append(opt);
+  });
+  return wrap;
+}
+
+function scaleOptionLabels(scale: Scale): string[] {
+  switch (scale.kind) {
+    case 'verbal': return scale.labels;
+    case 'numeric': {
+      const out: string[] = [];
+      for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
+      return out;
+    }
+    case 'emoji': return scale.set;
+    case 'traffic': return ['Grün', 'Gelb', 'Rot'];
+    case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
+  }
+}
+
+function renderA4Feedback(header: HeaderData): HTMLElement {
+  const section = el('div', { class: 'a4-feedback' });
+  section.append(el('h2', { class: 'a4-feedback-title', text: strings.kopfdaten.feedback }));
+  if (header.feedback) section.append(el('p', { class: 'a4-feedback-text', text: header.feedback }));
+  // Blank lines for handwriting
+  for (let i = 0; i < 5; i++) section.append(el('div', { class: 'a4-feedback-line' }));
+  return section;
 }

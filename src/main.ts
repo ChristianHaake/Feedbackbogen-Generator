@@ -1,7 +1,7 @@
 import './app.css';
 import {
-  renderLayout, renderKopfdaten, renderCategories, renderSelected,
-  renderDefaultScaleSelect, renderPreview, renderModeSwitch
+  renderLayout, renderKopfdaten, renderCategories,
+  renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
@@ -23,7 +23,6 @@ async function bootstrap() {
   // State
   let selected: SelectedItemRef[] = [];
   let scaleByItemMap: Record<string, string> = {};
-  let weightByItemMap: Record<string, number> = {};
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
   let header: HeaderData = { ...EMPTY_HEADER };
   let customItems: CustomItem[] = [];
@@ -33,46 +32,33 @@ async function bootstrap() {
   if (persisted) {
     selected = persisted.selectedItems;
     scaleByItemMap = persisted.scaleByItem;
-    weightByItemMap = persisted.weightByItem ?? {};
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
-    header = persisted.header ?? { ...EMPTY_HEADER };
+    header = { ...EMPTY_HEADER, ...(persisted.header ?? {}) };
     customItems = persisted.customItems ?? [];
     announce(strings.messages.loaded);
   }
 
   const categoriesEl = document.getElementById('categories')!;
-  const selectedEl = document.getElementById('selected')!;
+  const counterEl = document.getElementById('selected-counter')!;
   const kopfdatenEl = document.getElementById('kopfdaten-form')!;
   const a4El = document.getElementById('a4-page')!;
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
   const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
 
   const handlers = {
-    onAdd: (categoryId: string, itemId: string) => {
-      if (!selected.some((s) => s.itemId === itemId)) selected.push({ categoryId, itemId });
-      renderEditor();
-      renderA4();
-    },
-    onRemove: (itemId: string) => {
-      selected = selected.filter((s) => s.itemId !== itemId);
-      delete scaleByItemMap[itemId];
-      delete weightByItemMap[itemId];
-      renderEditor();
-      renderA4();
-      announce(strings.messages.removed);
-    },
-    onReorder: (from: number, to: number) => {
-      const [moved] = selected.splice(from, 1);
-      selected.splice(to, 0, moved);
+    onToggle: (categoryId: string, itemId: string, checked: boolean) => {
+      const idx = selected.findIndex((s) => s.itemId === itemId);
+      if (checked && idx === -1) {
+        selected.push({ categoryId, itemId });
+      } else if (!checked && idx !== -1) {
+        selected.splice(idx, 1);
+        delete scaleByItemMap[itemId];
+      }
       renderEditor();
       renderA4();
     },
     onScaleChange: (itemId: string, scaleId: string) => {
       scaleByItemMap[itemId] = scaleId;
-      renderA4();
-    },
-    onWeightChange: (itemId: string, weight: number) => {
-      weightByItemMap[itemId] = weight;
       renderA4();
     },
     onDefaultScaleChange: (scaleId: string) => {
@@ -92,7 +78,6 @@ async function bootstrap() {
       customItems = customItems.filter((ci) => ci.id !== itemId);
       selected = selected.filter((s) => s.itemId !== itemId);
       delete scaleByItemMap[itemId];
-      delete weightByItemMap[itemId];
       renderEditor();
       renderA4();
       announce(strings.messages.customItemRemoved);
@@ -108,31 +93,28 @@ async function bootstrap() {
     }
   };
 
+  function selectedSet(): Set<string> {
+    return new Set(selected.map((s) => s.itemId));
+  }
+
   function buildExportRows(): ExportRow[] {
     const merged = buildCategoriesWithCustom(categories, customItems);
-    return selected.map((ref) => {
-      const found = findItemById(merged, ref.itemId);
-      if (!found) return null;
-      const sId = scaleByItemMap[ref.itemId] ?? defaultScaleId;
-      const s = scaleById(scales, sId);
-      let scaleLabel = '';
-      if (s) {
-        switch (s.kind) {
-          case 'verbal': scaleLabel = s.labels.join(' | '); break;
-          case 'numeric': scaleLabel = `${s.min}–${s.max}`; break;
-          case 'emoji': scaleLabel = s.set.join(' '); break;
-          case 'traffic': scaleLabel = 'Grün / Gelb / Rot'; break;
-          case 'percent': scaleLabel = '0–100%'; break;
-        }
-      }
-      return {
-        category: found.category.title,
-        item: found.item.label,
-        description: found.item.description,
-        scaleLabel,
-        weight: weightByItemMap[ref.itemId] ?? 1
-      };
-    }).filter((r): r is ExportRow => r !== null);
+    // Output: grouped by category (YAML category order), within category in YAML item order;
+    // only items that are selected appear.
+    const selectedIds = selectedSet();
+    const out: ExportRow[] = [];
+    merged.forEach((c) => {
+      const ids: { id: string; label: string }[] = [];
+      if (Array.isArray(c.items)) c.items.forEach((it) => ids.push({ id: it.id, label: it.label }));
+      if (Array.isArray(c.groups)) c.groups.forEach((g) => g.items.forEach((it) => ids.push({ id: it.id, label: it.label })));
+      ids.forEach(({ id, label }) => {
+        if (!selectedIds.has(id)) return;
+        const sId = scaleByItemMap[id] ?? defaultScaleId;
+        const s = scaleById(scales, sId);
+        out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
+      });
+    });
+    return out;
   }
 
   function persist() {
@@ -140,7 +122,6 @@ async function bootstrap() {
       version: 2,
       selectedItems: selected,
       scaleByItem: scaleByItemMap,
-      weightByItem: weightByItemMap,
       defaultScaleId, header, customItems
     });
     announce(strings.messages.saved);
@@ -151,9 +132,8 @@ async function bootstrap() {
     if (cfg) {
       selected = cfg.selectedItems;
       scaleByItemMap = cfg.scaleByItem;
-      weightByItemMap = cfg.weightByItem ?? {};
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      header = cfg.header ?? { ...EMPTY_HEADER };
+      header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
       customItems = cfg.customItems ?? [];
       renderEditor();
       renderA4();
@@ -161,22 +141,38 @@ async function bootstrap() {
     }
   }
 
-  // Render the editor sidebar (kopfdaten + categories + selected)
   function renderEditor() {
+    // Preserve any in-progress custom item inputs
     const savedInputs: Record<string, string> = {};
     document.querySelectorAll<HTMLInputElement>('.custom-item-input[data-cat]').forEach((el) => {
       if (el.dataset.cat) savedInputs[el.dataset.cat] = el.value;
     });
+    // Preserve accordion open state
+    const openCats = new Set<string>();
+    document.querySelectorAll<HTMLButtonElement>('.accordion-header[aria-expanded="true"]').forEach((h) => {
+      const id = h.id.replace(/^acc-/, '');
+      openCats.add(id);
+    });
 
-    const merged = buildCategoriesWithCustom(categories, customItems);
     renderKopfdaten(kopfdatenEl, header, handlers.onHeaderChange);
-    renderCategories(categoriesEl, categories, customItems, handlers);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
-    renderSelected(selectedEl, selected, merged, scales, scaleByItemMap, weightByItemMap, defaultScaleId, handlers);
+    renderSelectedCounter(counterEl, selected.length);
+    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByItemMap, defaultScaleId, handlers);
 
+    // Restore inputs
     Object.entries(savedInputs).forEach(([catId, val]) => {
       const el = document.querySelector<HTMLInputElement>(`.custom-item-input[data-cat="${catId}"]`);
       if (el) el.value = val;
+    });
+    // Restore accordion state
+    openCats.forEach((catId) => {
+      const header = document.getElementById(`acc-${catId}`);
+      const panel = document.getElementById(`acc-${catId}-panel`);
+      if (header && panel) {
+        header.setAttribute('aria-expanded', 'true');
+        panel.classList.add('open');
+        (panel as HTMLDivElement).hidden = false;
+      }
     });
   }
 
@@ -192,16 +188,15 @@ async function bootstrap() {
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   document.getElementById('export-json')?.addEventListener('click', () =>
-    exportConfigJSON({ version: 2, selectedItems: selected, scaleByItem: scaleByItemMap, weightByItem: weightByItemMap, defaultScaleId, header, customItems })
+    exportConfigJSON({ version: 2, selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems })
   );
   document.getElementById('import-json')?.addEventListener('click', async () => {
     const cfg = await importConfigJSON();
     if (cfg) {
       selected = cfg.selectedItems;
       scaleByItemMap = cfg.scaleByItem;
-      weightByItemMap = cfg.weightByItem ?? {};
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      header = cfg.header ?? { ...EMPTY_HEADER };
+      header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
       customItems = cfg.customItems ?? [];
       renderEditor();
       renderA4();
@@ -220,7 +215,7 @@ async function bootstrap() {
       window.print();
     } else if (fmt === 'docx') {
       const { exportDOCX } = await import('./export/export-docx');
-      exportDOCX(buildExportRows(), header);
+      exportDOCX(buildExportRows(), header, previewMode);
     } else if (fmt === 'xlsx') {
       const { exportXLSX } = await import('./export/export-xlsx');
       exportXLSX(buildExportRows());

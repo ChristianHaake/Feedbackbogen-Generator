@@ -47,6 +47,7 @@ export type CustomItem = Item & {
 
 export type HeaderData = {
   learner: string;
+  learngroup: string;
   topic: string;
   date: string;
   feedback: string;
@@ -64,18 +65,16 @@ export type AppConfigV2 = {
   version: 2;
   selectedItems: SelectedItemRef[];
   scaleByItem: Record<string, string>;
-  weightByItem: Record<string, number>;
   defaultScaleId?: string;
   header: HeaderData;
   customItems: CustomItem[];
 };
 
 export type ExportRow = {
+  categoryId: string;
   category: string;
   item: string;
-  description?: string;
-  scaleLabel: string;
-  weight: number;
+  scale: Scale | null;
 };
 
 export type PrintMode = 'full' | 'checklist';

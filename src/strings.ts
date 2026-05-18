@@ -13,13 +13,12 @@ export const strings = {
     export: 'Alt+E: Export'
   },
   columns: {
-    categories: 'Kategorien',
-    selected: 'Ausgewählte Kriterien',
-    scales: 'Skalen'
+    categories: 'Kategorien & Kriterien'
   },
   kopfdaten: {
-    title: 'Kopfdaten',
-    learner: 'Lernende/r',
+    title: 'Kopfdaten (optional vorausfüllen)',
+    learner: 'Name',
+    learngroup: 'Lerngruppe',
     topic: 'Thema',
     date: 'Datum',
     feedback: 'Feedback / Anmerkungen'
@@ -29,22 +28,18 @@ export const strings = {
     checklist: 'Checkliste'
   },
   labels: {
-    add: 'Hinzufügen',
     remove: 'Entfernen',
-    reorder: 'Verschieben',
     scale: 'Skala',
     defaultScale: 'Standard-Skala',
-    weight: 'Gewicht',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',
     previewMode: 'Ansicht',
-    previewEmpty: 'Noch keine Kriterien ausgewählt — füge links Kriterien hinzu.',
-    selectedEmpty: 'Noch nichts ausgewählt.'
+    previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
+    selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`
   },
   a11y: {
     status: 'Statusmeldungen',
-    accordionToggle: 'Abschnitt umschalten',
-    dragHint: 'Mit Pfeiltasten verschieben; Entfernen-Taste entfernt.'
+    accordionToggle: 'Abschnitt umschalten'
   },
   messages: {
     loadedYaml: 'YAML geladen.',
@@ -53,7 +48,6 @@ export const strings = {
     loaded: 'Konfiguration geladen.',
     imported: 'JSON importiert.',
     exported: 'Export gestartet...',
-    removed: 'Kriterium entfernt.',
     customItemAdded: 'Eigenes Kriterium hinzugefügt.',
     customItemRemoved: 'Eigenes Kriterium entfernt.'
   }

@@ -251,48 +251,82 @@ body {
 
 /* Category sections */
 .a4-body { margin-bottom: 18pt; }
-.a4-cat-section { margin-bottom: 18pt; page-break-inside: auto; }
+.a4-cat-section { margin-bottom: 16pt; page-break-inside: auto; }
 .a4-cat-heading {
-  font-size: 11pt; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  margin: 0 0 8pt 0; padding: 4pt 0 3pt 0;
-  border-bottom: 1pt solid #444; color: #111;
+  font-size: 10pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin: 0 0 0 0;
+  padding: 5pt 8pt 5pt 8pt;
+  background: #2c2c2c;
+  color: #fff;
 }
-.a4-items { list-style: none; padding: 0; margin: 0; counter-reset: item; }
+.a4-items {
+  list-style: none; padding: 0; margin: 0;
+  counter-reset: item;
+  border: 0.6pt solid #888;
+  border-top: none;
+}
 .a4-item {
-  padding: 7pt 0;
-  border-bottom: 0.3pt dashed #ccc;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14pt;
+  padding: 7pt 8pt;
+  border-bottom: 0.4pt solid #ddd;
   page-break-inside: avoid;
   counter-increment: item;
 }
 .a4-item:last-child { border-bottom: none; }
+.a4-item:nth-child(even) { background: #fafafa; }
+
 .a4-item-label {
-  font-size: 10.5pt; font-weight: 500;
-  margin-bottom: 4pt;
+  flex: 0 0 42%;
+  font-size: 10pt;
+  font-weight: 500;
+  line-height: 1.35;
 }
 .a4-item-label::before {
   content: counter(item) '.';
-  color: #888; font-weight: 400;
-  margin-right: 6pt;
+  color: #888;
+  font-weight: 400;
+  margin-right: 5pt;
 }
 
-/* Scale options as checkboxes */
+/* Scale options as checkboxes — right aligned, same baseline as item */
 .a4-scale-options {
-  display: flex; flex-wrap: wrap; gap: 4pt 12pt;
-  margin-left: 16pt;
-  font-size: 9.5pt;
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 5pt 10pt;
+  font-size: 9pt;
 }
-.a4-scale-opt { display: inline-flex; align-items: center; gap: 4pt; }
-.a4-cbox { font-size: 13pt; line-height: 1; color: #333; }
-.a4-scale-opt-text { color: #333; }
+.a4-scale-opt {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3pt;
+  white-space: nowrap;
+}
+.a4-cbox { font-size: 12pt; line-height: 1; color: #333; }
+.a4-scale-opt-text { color: #222; }
 .a4-scale-line {
-  margin-left: 16pt; margin-top: 4pt;
+  flex: 1 1 auto;
   border-bottom: 0.7pt solid #444;
-  min-height: 14pt;
+  align-self: flex-end;
+  min-width: 200pt;
+  height: 14pt;
 }
 
-/* Checkliste mode */
-.a4-item:has(> .a4-cbox) { display: flex; align-items: baseline; gap: 8pt; padding-left: 0; }
+/* Checkliste mode — item with a single ☐ before the label */
+.a4-item:has(> .a4-cbox) {
+  justify-content: flex-start;
+  gap: 8pt;
+}
+.a4-item:has(> .a4-cbox) .a4-item-label {
+  max-width: 100%;
+  flex: 1 1 auto;
+}
 .a4-item:has(> .a4-cbox) .a4-item-label::before { content: none; }
 
 /* Feedback */

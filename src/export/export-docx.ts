@@ -1,6 +1,7 @@
 import {
-  Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType, TabStopType
+  Document, Packer, Paragraph, HeadingLevel, TextRun
 } from 'docx';
+
 import type { ExportRow, HeaderData, PrintMode, Scale } from '@/types';
 import { strings } from '@/strings';
 

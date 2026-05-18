@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+
 import type { ExportRow, Scale } from '@/types';
 
 function scaleLabel(scale: Scale | null): string {

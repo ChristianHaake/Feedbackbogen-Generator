@@ -1,5 +1,8 @@
 import './app.css';
-import { renderLayout, renderKopfdaten, renderCategories, renderSelected, renderScalesPanel, renderPreview } from './ui/templates';
+import {
+  renderLayout, renderKopfdaten, renderCategories, renderSelected,
+  renderDefaultScaleSelect, renderPreview, renderModeSwitch
+} from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, findItemById, scaleById, buildCategoriesWithCustom } from './yaml';
@@ -24,7 +27,7 @@ async function bootstrap() {
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
   let header: HeaderData = { ...EMPTY_HEADER };
   let customItems: CustomItem[] = [];
-  let previewVisible = false;
+  let previewMode: PrintMode = 'full';
 
   const persisted = loadConfig();
   if (persisted) {
@@ -39,47 +42,50 @@ async function bootstrap() {
 
   const categoriesEl = document.getElementById('categories')!;
   const selectedEl = document.getElementById('selected')!;
-  const scalesPanelEl = document.getElementById('scales-panel')!;
   const kopfdatenEl = document.getElementById('kopfdaten-form')!;
-  const previewContentEl = document.getElementById('preview-content')!;
-  const previewSection = document.getElementById('preview-section') as HTMLElement;
-  const previewToggleBtn = document.getElementById('toggle-preview') as HTMLButtonElement;
+  const a4El = document.getElementById('a4-page')!;
+  const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
+  const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
 
   const handlers = {
     onAdd: (categoryId: string, itemId: string) => {
       if (!selected.some((s) => s.itemId === itemId)) selected.push({ categoryId, itemId });
-      renderAll();
+      renderEditor();
+      renderA4();
     },
     onRemove: (itemId: string) => {
       selected = selected.filter((s) => s.itemId !== itemId);
       delete scaleByItemMap[itemId];
       delete weightByItemMap[itemId];
-      renderAll();
+      renderEditor();
+      renderA4();
       announce(strings.messages.removed);
     },
     onReorder: (from: number, to: number) => {
       const [moved] = selected.splice(from, 1);
       selected.splice(to, 0, moved);
-      renderAll();
+      renderEditor();
+      renderA4();
     },
     onScaleChange: (itemId: string, scaleId: string) => {
       scaleByItemMap[itemId] = scaleId;
-      renderPreview(previewContentEl, buildExportRows(), header);
+      renderA4();
     },
     onWeightChange: (itemId: string, weight: number) => {
       weightByItemMap[itemId] = weight;
-      renderPreview(previewContentEl, buildExportRows(), header);
+      renderA4();
     },
     onDefaultScaleChange: (scaleId: string) => {
       defaultScaleId = scaleId;
-      renderAll();
+      renderEditor();
+      renderA4();
     },
     onAddCustomItem: (categoryId: string, label: string) => {
       const trimmed = label.trim();
       if (!trimmed) return;
       const id = `custom_${categoryId}_${Date.now()}`;
       customItems.push({ id, label: trimmed, custom: true, categoryId });
-      renderAll();
+      renderEditor();
       announce(strings.messages.customItemAdded);
     },
     onRemoveCustomItem: (itemId: string) => {
@@ -87,12 +93,18 @@ async function bootstrap() {
       selected = selected.filter((s) => s.itemId !== itemId);
       delete scaleByItemMap[itemId];
       delete weightByItemMap[itemId];
-      renderAll();
+      renderEditor();
+      renderA4();
       announce(strings.messages.customItemRemoved);
     },
     onHeaderChange: (field: keyof HeaderData, value: string) => {
       header = { ...header, [field]: value };
-      renderPreview(previewContentEl, buildExportRows(), header);
+      renderA4();
+    },
+    onPreviewModeChange: (mode: PrintMode) => {
+      previewMode = mode;
+      renderModeSwitch(modeSwitchEl, previewMode, handlers);
+      renderA4();
     }
   };
 
@@ -124,16 +136,13 @@ async function bootstrap() {
   }
 
   function persist() {
-    const cfg: AppConfigV2 = {
+    saveConfig({
       version: 2,
       selectedItems: selected,
       scaleByItem: scaleByItemMap,
       weightByItem: weightByItemMap,
-      defaultScaleId,
-      header,
-      customItems
-    };
-    saveConfig(cfg);
+      defaultScaleId, header, customItems
+    });
     announce(strings.messages.saved);
   }
 
@@ -146,13 +155,14 @@ async function bootstrap() {
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
       header = cfg.header ?? { ...EMPTY_HEADER };
       customItems = cfg.customItems ?? [];
-      renderAll();
+      renderEditor();
+      renderA4();
       announce(strings.messages.loaded);
     }
   }
 
-  function renderAll() {
-    // Preserve any in-progress custom item inputs before re-render
+  // Render the editor sidebar (kopfdaten + categories + selected)
+  function renderEditor() {
     const savedInputs: Record<string, string> = {};
     document.querySelectorAll<HTMLInputElement>('.custom-item-input[data-cat]').forEach((el) => {
       if (el.dataset.cat) savedInputs[el.dataset.cat] = el.value;
@@ -161,28 +171,24 @@ async function bootstrap() {
     const merged = buildCategoriesWithCustom(categories, customItems);
     renderKopfdaten(kopfdatenEl, header, handlers.onHeaderChange);
     renderCategories(categoriesEl, categories, customItems, handlers);
-    renderSelected(selectedEl, selected, merged, handlers);
-    renderScalesPanel(scalesPanelEl, selected, merged, scales, scaleByItemMap, weightByItemMap, defaultScaleId, handlers);
-    renderPreview(previewContentEl, buildExportRows(), header);
+    renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
+    renderSelected(selectedEl, selected, merged, scales, scaleByItemMap, weightByItemMap, defaultScaleId, handlers);
 
-    // Restore saved inputs
     Object.entries(savedInputs).forEach(([catId, val]) => {
       const el = document.querySelector<HTMLInputElement>(`.custom-item-input[data-cat="${catId}"]`);
       if (el) el.value = val;
     });
   }
 
-  renderAll();
+  function renderA4() {
+    renderPreview(a4El, buildExportRows(), header, previewMode);
+  }
 
-  // Preview toggle
-  previewToggleBtn?.addEventListener('click', () => {
-    previewVisible = !previewVisible;
-    previewSection.hidden = !previewVisible;
-    previewToggleBtn.setAttribute('aria-pressed', String(previewVisible));
-    previewToggleBtn.classList.toggle('active', previewVisible);
-  });
+  renderEditor();
+  renderModeSwitch(modeSwitchEl, previewMode, handlers);
+  renderA4();
 
-  // Toolbar handlers
+  // Toolbar
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   document.getElementById('export-json')?.addEventListener('click', () =>
@@ -197,7 +203,8 @@ async function bootstrap() {
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
       header = cfg.header ?? { ...EMPTY_HEADER };
       customItems = cfg.customItems ?? [];
-      renderAll();
+      renderEditor();
+      renderA4();
       announce(strings.messages.imported);
     }
   });
@@ -208,23 +215,18 @@ async function bootstrap() {
 
   exportNowBtn?.addEventListener('click', async () => {
     const fmt = exportFormatSel?.value ?? 'pdf';
-    const rows = buildExportRows();
     announce(strings.messages.exported);
     if (fmt === 'pdf') {
-      const { exportPDF } = await import('./export/export-pdf');
-      exportPDF(rows, header, 'full');
-    } else if (fmt === 'pdf-checklist') {
-      const { exportPDF } = await import('./export/export-pdf');
-      exportPDF(rows, header, 'checklist');
+      window.print();
     } else if (fmt === 'docx') {
       const { exportDOCX } = await import('./export/export-docx');
-      exportDOCX(rows, header);
+      exportDOCX(buildExportRows(), header);
     } else if (fmt === 'xlsx') {
       const { exportXLSX } = await import('./export/export-xlsx');
-      exportXLSX(rows);
+      exportXLSX(buildExportRows());
     } else if (fmt === 'odp') {
       const { exportODP } = await import('./export/export-odp');
-      exportODP(rows);
+      exportODP(buildExportRows());
     }
   });
 

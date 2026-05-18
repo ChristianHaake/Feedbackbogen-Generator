@@ -1,17 +1,12 @@
 export const strings = {
   appTitle: 'Bewertungsbaukasten',
   toolbar: {
-    save: 'Speichern (Browser)',
+    save: 'Speichern',
     load: 'Laden',
     exportJson: 'Konfig exportieren',
     importJson: 'JSON importieren',
-    exportPdf: 'Export PDF',
-    exportDocx: 'Export DOCX',
-    exportXlsx: 'Export XLSX',
-    exportOdp: 'Export ODP',
     exportNow: 'Exportieren',
-    exportFormat: 'Format',
-    togglePreview: 'Vorschau'
+    exportFormat: 'Format'
   },
   keyboard: {
     save: 'Alt+S: Speichern',
@@ -19,7 +14,7 @@ export const strings = {
   },
   columns: {
     categories: 'Kategorien',
-    selected: 'Ausgewählt',
+    selected: 'Ausgewählte Kriterien',
     scales: 'Skalen'
   },
   kopfdaten: {
@@ -29,6 +24,10 @@ export const strings = {
     date: 'Datum',
     feedback: 'Feedback / Anmerkungen'
   },
+  modes: {
+    full: 'Bewertungsbogen',
+    checklist: 'Checkliste'
+  },
   labels: {
     add: 'Hinzufügen',
     remove: 'Entfernen',
@@ -37,15 +36,10 @@ export const strings = {
     defaultScale: 'Standard-Skala',
     weight: 'Gewicht',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
-    customItemPlaceholder: 'Kriterium eingeben…',
-    preview: 'Vorschau Bewertungsbogen',
-    previewEmpty: 'Noch keine Kriterien ausgewählt.',
-    previewColCategory: 'Kategorie',
-    previewColItem: 'Kriterium',
-    previewColDesc: 'Beschreibung',
-    previewColWeight: 'Gew.',
-    previewColScale: 'Skala',
-    previewColEval: 'Bewertung'
+    customItemPlaceholder: 'Eigenes Kriterium…',
+    previewMode: 'Ansicht',
+    previewEmpty: 'Noch keine Kriterien ausgewählt — füge links Kriterien hinzu.',
+    selectedEmpty: 'Noch nichts ausgewählt.'
   },
   a11y: {
     status: 'Statusmeldungen',

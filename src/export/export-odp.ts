@@ -33,14 +33,23 @@ export async function exportODP(rows: ExportRow[]) {
   zip.file('meta.xml', meta);
 
   // Build a very simple content.xml with title slide and a table slide
+  const scaleLabel = (s: typeof rows[number]['scale']): string => {
+    if (!s) return '';
+    switch (s.kind) {
+      case 'verbal': return s.labels.join(' | ');
+      case 'numeric': return `${s.min}–${s.max}`;
+      case 'emoji': return s.set.join(' ');
+      case 'traffic': return 'Grün / Gelb / Rot';
+      case 'percent': return '0–100 %';
+    }
+  };
   const tableRows = rows
     .map(
       (r) => `
       <table:table-row>
         <table:table-cell office:value-type="string"><text:p>${escapeXml(r.category)}</text:p></table:table-cell>
         <table:table-cell office:value-type="string"><text:p>${escapeXml(r.item)}</text:p></table:table-cell>
-        <table:table-cell office:value-type="string"><text:p>${escapeXml(r.description || '')}</text:p></table:table-cell>
-        <table:table-cell office:value-type="string"><text:p>${escapeXml(r.scaleLabel)}</text:p></table:table-cell>
+        <table:table-cell office:value-type="string"><text:p>${escapeXml(scaleLabel(r.scale))}</text:p></table:table-cell>
       </table:table-row>`
     )
     .join('');
@@ -74,7 +83,6 @@ export async function exportODP(rows: ExportRow[]) {
                 <table:table-row>
                   <table:table-cell office:value-type="string"><text:p>Kategorie</text:p></table:table-cell>
                   <table:table-cell office:value-type="string"><text:p>Kriterium</text:p></table:table-cell>
-                  <table:table-cell office:value-type="string"><text:p>Beschreibung</text:p></table:table-cell>
                   <table:table-cell office:value-type="string"><text:p>Skala</text:p></table:table-cell>
                 </table:table-row>
                 ${tableRows}

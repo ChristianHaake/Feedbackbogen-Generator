@@ -1,91 +1,109 @@
 import {
-  Document, Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell,
-  WidthType, AlignmentType, TextRun, BorderStyle
+  Document, Packer, Paragraph, HeadingLevel, TextRun, AlignmentType, TabStopType
 } from 'docx';
-import type { ExportRow, HeaderData } from '@/types';
+import type { ExportRow, HeaderData, PrintMode, Scale } from '@/types';
 import { strings } from '@/strings';
 
-const BORDER = { style: BorderStyle.SINGLE, size: 4, color: '999999' };
-const TABLE_BORDERS = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER, insideH: BORDER, insideV: BORDER };
+function scaleOptions(scale: Scale | null): string[] {
+  if (!scale) return [];
+  switch (scale.kind) {
+    case 'verbal': return scale.labels;
+    case 'numeric': {
+      const out: string[] = [];
+      for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
+      return out;
+    }
+    case 'emoji': return scale.set;
+    case 'traffic': return ['Grün', 'Gelb', 'Rot'];
+    case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
+  }
+}
 
-function headerCell(text: string) {
-  return new TableCell({
-    borders: TABLE_BORDERS,
-    shading: { fill: 'E8E8E8' },
-    children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })]
+function headerLine(label: string, value: string): Paragraph {
+  const valueStr = value || '____________________________________';
+  return new Paragraph({
+    children: [
+      new TextRun({ text: `${label}: `, bold: true }),
+      new TextRun({ text: valueStr, underline: value ? undefined : { type: 'single' } })
+    ],
+    spacing: { after: 80 }
   });
 }
 
-function dataCell(text: string) {
-  return new TableCell({
-    borders: TABLE_BORDERS,
-    children: [new Paragraph({ children: [new TextRun(text)] })]
-  });
-}
-
-export async function exportDOCX(rows: ExportRow[], header: HeaderData) {
-  const metaParagraphs: Paragraph[] = [];
-  if (header.learner) {
-    metaParagraphs.push(new Paragraph({ children: [new TextRun({ text: `${strings.kopfdaten.learner}: `, bold: true }), new TextRun(header.learner)] }));
-  }
-  if (header.topic) {
-    metaParagraphs.push(new Paragraph({ children: [new TextRun({ text: `${strings.kopfdaten.topic}: `, bold: true }), new TextRun(header.topic)] }));
-  }
-  if (header.date) {
-    metaParagraphs.push(new Paragraph({ children: [new TextRun({ text: `${strings.kopfdaten.date}: `, bold: true }), new TextRun(header.date)], spacing: { after: 200 } }));
-  }
-
-  const tableRows = [
-    new TableRow({
-      tableHeader: true,
-      children: [
-        headerCell('Kategorie'),
-        headerCell('Kriterium'),
-        headerCell('Beschreibung'),
-        headerCell('Gew.'),
-        headerCell('Skala'),
-        headerCell('Bewertung')
-      ]
+export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: PrintMode = 'full') {
+  const children: Paragraph[] = [
+    new Paragraph({
+      text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen',
+      heading: HeadingLevel.TITLE,
+      spacing: { after: 240 }
     }),
-    ...rows.map((r) => new TableRow({
-      children: [
-        dataCell(r.category),
-        dataCell(r.item),
-        dataCell(r.description ?? ''),
-        dataCell(String(r.weight)),
-        dataCell(r.scaleLabel),
-        dataCell('')
-      ]
-    }))
+    headerLine(strings.kopfdaten.learner, header.learner),
+    headerLine(strings.kopfdaten.learngroup, header.learngroup),
+    headerLine(strings.kopfdaten.topic, header.topic),
+    headerLine(strings.kopfdaten.date, header.date),
+    new Paragraph({ text: '' })
   ];
 
-  const feedbackParagraphs: Paragraph[] = [
-    new Paragraph({ text: '' }),
-    new Paragraph({ children: [new TextRun({ text: `${strings.kopfdaten.feedback}:`, bold: true })], spacing: { after: 100 } })
-  ];
-  if (header.feedback) {
-    feedbackParagraphs.push(new Paragraph({ text: header.feedback }));
-  }
-
-  const doc = new Document({
-    sections: [{
-      properties: {},
-      children: [
-        new Paragraph({ text: 'Bewertungsbogen', heading: HeadingLevel.TITLE }),
-        new Paragraph({
-          children: [new TextRun({ text: new Date().toLocaleDateString('de-DE'), color: '666666' })],
-          spacing: { after: 200 }
-        }),
-        ...metaParagraphs,
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: tableRows
-        }),
-        ...feedbackParagraphs
-      ]
-    }]
+  // Group rows by category
+  const groups = new Map<string, { title: string; items: ExportRow[] }>();
+  rows.forEach((r) => {
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, items: [] });
+    groups.get(r.categoryId)!.items.push(r);
   });
 
+  let counter = 0;
+  groups.forEach(({ title, items }) => {
+    children.push(new Paragraph({
+      text: title.toUpperCase(),
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 200, after: 100 }
+    }));
+    items.forEach((r) => {
+      counter++;
+      children.push(new Paragraph({
+        children: [new TextRun({ text: `${counter}. ${r.item}`, bold: true })],
+        spacing: { after: 60 }
+      }));
+      if (mode === 'checklist') {
+        children.push(new Paragraph({
+          children: [new TextRun({ text: '☐  erledigt' })],
+          spacing: { after: 100 }
+        }));
+      } else {
+        const opts = scaleOptions(r.scale);
+        if (opts.length > 0) {
+          children.push(new Paragraph({
+            children: [new TextRun({ text: opts.map((o) => `☐ ${o}`).join('     ') })],
+            spacing: { after: 120 }
+          }));
+        } else {
+          children.push(new Paragraph({
+            children: [new TextRun({ text: '____________________________________________' })],
+            spacing: { after: 120 }
+          }));
+        }
+      }
+    });
+  });
+
+  // Feedback
+  children.push(new Paragraph({ text: '' }));
+  children.push(new Paragraph({
+    children: [new TextRun({ text: strings.kopfdaten.feedback, bold: true })],
+    heading: HeadingLevel.HEADING_2,
+    spacing: { before: 200, after: 100 }
+  }));
+  if (header.feedback) {
+    children.push(new Paragraph({ text: header.feedback, spacing: { after: 100 } }));
+  }
+  for (let i = 0; i < 5; i++) {
+    children.push(new Paragraph({
+      children: [new TextRun({ text: '____________________________________________________________________' })],
+      spacing: { after: 80 }
+    }));
+  }
+
+  const doc = new Document({ sections: [{ properties: {}, children }] });
   const blob = await Packer.toBlob(doc);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);

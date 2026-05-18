@@ -3,7 +3,7 @@ import type { AppConfigV1, AppConfigV2, HeaderData } from './types';
 const KEY_V2 = 'bbk:config:v2';
 const KEY_V1 = 'bbk:config:v1';
 
-export const EMPTY_HEADER: HeaderData = { learner: '', topic: '', date: '', feedback: '' };
+export const EMPTY_HEADER: HeaderData = { learner: '', learngroup: '', topic: '', date: '', feedback: '' };
 
 export function saveConfig(config: AppConfigV2) {
   localStorage.setItem(KEY_V2, JSON.stringify(config));
@@ -14,7 +14,9 @@ export function loadConfig(): AppConfigV2 | null {
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      if (parsed?.version === 2) return parsed as AppConfigV2;
+      if (parsed?.version === 2) {
+        return { ...parsed, header: { ...EMPTY_HEADER, ...(parsed.header ?? {}) } } as AppConfigV2;
+      }
     } catch { /* ignore */ }
   }
   // Migrate from V1
@@ -27,9 +29,8 @@ export function loadConfig(): AppConfigV2 | null {
           version: 2,
           selectedItems: v1.selectedItems,
           scaleByItem: v1.scaleByItem ?? {},
-          weightByItem: {},
           defaultScaleId: v1.defaultScaleId,
-          header: EMPTY_HEADER,
+          header: { ...EMPTY_HEADER },
           customItems: []
         };
       }
@@ -59,15 +60,14 @@ export async function importConfigJSON(): Promise<AppConfigV2 | null> {
       try {
         const cfg = JSON.parse(text);
         if (cfg?.version === 2) {
-          resolve(cfg as AppConfigV2);
+          resolve({ ...cfg, header: { ...EMPTY_HEADER, ...(cfg.header ?? {}) } });
         } else if (cfg?.version === 1 && Array.isArray(cfg.selectedItems)) {
           resolve({
             version: 2,
             selectedItems: cfg.selectedItems,
             scaleByItem: cfg.scaleByItem ?? {},
-            weightByItem: {},
             defaultScaleId: cfg.defaultScaleId,
-            header: EMPTY_HEADER,
+            header: { ...EMPTY_HEADER },
             customItems: []
           });
         } else {

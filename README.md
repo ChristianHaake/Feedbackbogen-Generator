@@ -154,4 +154,4 @@ Weiterführende Informationen stehen in der Anwendung unter „About“.
 
 ## Lizenz
 
-GPLv3, siehe `LICENSE`.
+MIT, siehe `LICENSE`.

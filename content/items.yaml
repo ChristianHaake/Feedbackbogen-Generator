@@ -14,15 +14,6 @@ categories:
       - id: quellenangaben
         label: Quellenangaben vorhanden
 
-  - id: produktebene
-    title: Produktebene
-    description: Produktspezifische Anforderungen gemäß Prüfungsformat.
-    items:
-      - id: produktspez_anforderungen
-        label: Produktspezifische Kriterien (formatabhängig)
-      - id: zielerreichung
-        label: Zielerreichung im Kontext des Formats
-
   - id: sachebene
     title: Sachebene
     description: Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.

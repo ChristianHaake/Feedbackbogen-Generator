@@ -5,8 +5,8 @@ Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen
 ## Konzept & Architektur
 
 - Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
-- Konfiguration via YAML: Datei `content/items.yaml` liefert Kategorien und Skalen. Beim Laden wird validiert; bei Fehlern erfolgt ein Toast und Fallback auf Demo-Daten.
-- UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche und Kategorien; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
+- Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.json` liefert Produktformat-Pakete für die Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
+- UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF/Druckdialog, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF/Druck), respektiert `prefers-reduced-motion`.
@@ -37,7 +37,7 @@ npm run lint    # ESLint
 npm run format  # Prettier
 ```
 
-Die App lädt `content/items.yaml` zur Laufzeit. In Dev und im Build wird der Ordner per Vite-Plugin statisch mitserviert/kopiert.
+Die App lädt `content/items.yaml` und `content/format.json` zur Laufzeit. In Dev und im Build wird der Ordner per Vite-Plugin statisch mitserviert/kopiert.
 
 ## YAML-Schema
 
@@ -81,6 +81,34 @@ scales:
 
 Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallback auf Demo-Daten (in `src/yaml.ts`).
 
+## Produktformate
+
+Produktspezifische Kriterien liegen in `content/format.json`. Produktformate sind standardmäßig nicht ausgewählt. Über die Sidebar-Sektion `Produktebene` können Format-Pakete hinzugefügt werden; ausgewählte Pakete erscheinen anschließend als eigene Akkordeonbereiche mit denselben Skalen-, Auswahl- und Custom-Kriterien-Funktionen wie normale Kategorien.
+
+Schema:
+
+```json
+{
+  "groups": [
+    {
+      "id": "fotoprodukte",
+      "title": "Fotoprodukte",
+      "formats": [
+        {
+          "id": "fotostory",
+          "title": "Fotostory",
+          "criteria": [
+            { "id": "bildgestaltung", "label": "ansprechende Bildgestaltung" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Im Druck/PDF/DOCX/XLSX/ODP erscheinen ausgewählte Produktformate als normale Kategorien, z. B. `Fotostory`; es gibt keinen zusätzlichen sichtbaren `Produktebene`-Wrapper im fertigen Bogen.
+
 ## Speichern/Laden der Konfiguration
 
 - LocalStorage-Key: `bbk:config`.
@@ -89,6 +117,7 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 ```json
 {
   "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
+  "selectedProductFormats": ["format:fotoprodukte:fotostory"],
   "scaleByCategory": { "<categoryId>": "<scaleId>" },
   "defaultScaleId": "verbal_5",
   "documentTitle": {
@@ -119,7 +148,7 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 }
 ```
 
-Ältere JSON-Konfigurationen mit `header.learner`, `header.learngroup`, `header.topic` und `header.date` werden beim Laden in die neue `header.fields`-Struktur übernommen. Alte `header.feedback`-Werte werden ignoriert; Feedback bleibt ein leeres Schreibfeld auf dem Bogen.
+Ältere JSON-Konfigurationen mit `header.learner`, `header.learngroup`, `header.topic` und `header.date` werden beim Laden in die neue `header.fields`-Struktur übernommen. Alte `header.feedback`-Werte werden ignoriert; Feedback bleibt ein leeres Schreibfeld auf dem Bogen. Alte `Produktebene`-Platzhalter-Kriterien werden beim Laden verworfen.
 
 ## Exporte (Client-Side)
 

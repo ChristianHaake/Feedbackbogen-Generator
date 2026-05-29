@@ -2,11 +2,13 @@ import './app.css';
 import {
   documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
   renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
-  renderSelectedList, renderMobileTabs, renderFooterFields
+  renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
+  renderProductFormatModal
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
+import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
 import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
   EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE
@@ -14,7 +16,7 @@ import {
 import { scaleDisplay } from './scale-utils';
 import type {
   SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
-  HeaderData, FooterFields, FooterFieldId, PrintMode
+  HeaderData, FooterFields, FooterFieldId, PrintMode, Category
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
@@ -26,11 +28,13 @@ async function bootstrap() {
 
   const baseUrl = import.meta.env.BASE_URL as string;
   const data = await loadYAML(baseUrl);
+  const productFormats = await loadProductFormats(baseUrl);
   const categories = data.categories;
   const scales = data.scales;
 
   // State
   let selected: SelectedItemRef[] = [];
+  let selectedProductFormats: string[] = [];
   let scaleByCategoryMap: Record<string, string> = {};
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
   let documentTitle: DocumentTitleConfig = { ...DEFAULT_DOCUMENT_TITLE };
@@ -39,11 +43,14 @@ async function bootstrap() {
   let customItems: CustomItem[] = [];
   let previewMode: PrintMode = 'full';
   let searchQuery = '';
+  let productFormatModalOpen = false;
+  let productFormatSearchQuery = '';
   let mobileView: MobileView = 'edit';
 
   const persisted = loadConfig();
   if (persisted) {
     selected = persisted.selectedItems;
+    selectedProductFormats = persisted.selectedProductFormats;
     scaleByCategoryMap = persisted.scaleByCategory;
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
     documentTitle = { ...persisted.documentTitle };
@@ -54,6 +61,9 @@ async function bootstrap() {
   }
 
   const categoriesEl = document.getElementById('categories')!;
+  const productFormatControlsEl = document.getElementById('product-format-controls')!;
+  const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
+  const productFormatModalEl = document.getElementById('product-format-modal-root')!;
   const counterEl = document.getElementById('selected-counter')!;
   const selectedListEl = document.getElementById('selected-list')!;
   const documentTitleEl = document.getElementById('document-title-form')!;
@@ -68,7 +78,7 @@ async function bootstrap() {
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
-      const idx = selected.findIndex((s) => s.itemId === itemId);
+      const idx = selected.findIndex((s) => s.categoryId === categoryId && s.itemId === itemId);
       if (checked && idx === -1) {
         selected.push({ categoryId, itemId });
       } else if (!checked && idx !== -1) {
@@ -102,8 +112,8 @@ async function bootstrap() {
       renderA4();
       announce(strings.messages.customItemRemoved);
     },
-    onRemoveSelected: (itemId: string) => {
-      selected = selected.filter((s) => s.itemId !== itemId);
+    onRemoveSelected: (categoryId: string, itemId: string) => {
+      selected = selected.filter((s) => !(s.categoryId === categoryId && s.itemId === itemId));
       renderEditor();
       renderA4();
     },
@@ -129,6 +139,33 @@ async function bootstrap() {
     onSearchChange: (value: string) => {
       searchQuery = value;
       renderEditor();
+    },
+    onOpenProductFormatModal: () => {
+      productFormatModalOpen = true;
+      renderProductFormatModalOnly(true);
+    },
+    onCloseProductFormatModal: () => {
+      productFormatModalOpen = false;
+      productFormatSearchQuery = '';
+      renderProductFormatModalOnly();
+    },
+    onProductFormatSearchChange: (value: string) => {
+      productFormatSearchQuery = value;
+    },
+    onToggleProductFormat: (categoryId: string, isSelected: boolean) => {
+      if (isSelected && !selectedProductFormats.includes(categoryId)) {
+        selectedProductFormats = [...selectedProductFormats, categoryId];
+        announce(strings.messages.productFormatAdded);
+      } else if (!isSelected) {
+        selectedProductFormats = selectedProductFormats.filter((id) => id !== categoryId);
+        selected = selected.filter((item) => item.categoryId !== categoryId);
+        customItems = customItems.filter((item) => item.categoryId !== categoryId);
+        const { [categoryId]: _removed, ...rest } = scaleByCategoryMap;
+        scaleByCategoryMap = rest;
+        announce(strings.messages.productFormatRemoved);
+      }
+      renderEditor();
+      renderA4();
     },
     onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
       documentTitle = { ...documentTitle, mode };
@@ -186,8 +223,20 @@ async function bootstrap() {
     }
   };
 
-  function selectedSet(): Set<string> {
-    return new Set(selected.map((s) => s.itemId));
+  function selectionKey(categoryId: string, itemId: string): string {
+    return `${categoryId}::${itemId}`;
+  }
+
+  function selectedKeySet(): Set<string> {
+    return new Set(selected.map((s) => selectionKey(s.categoryId, s.itemId)));
+  }
+
+  function productCategories(): Category[] {
+    return selectedProductFormatCategories(productFormats, selectedProductFormats);
+  }
+
+  function allActiveCategories(): Category[] {
+    return [...categories, ...productCategories()];
   }
 
   function cloneHeader(value: HeaderData): HeaderData {
@@ -197,17 +246,17 @@ async function bootstrap() {
   }
 
   function buildExportRows(): ExportRow[] {
-    const merged = buildCategoriesWithCustom(categories, customItems);
+    const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
     // Output: grouped by category (YAML category order), within category in YAML item order;
     // only items that are selected appear.
-    const selectedIds = selectedSet();
+    const selectedKeys = selectedKeySet();
     const out: ExportRow[] = [];
     merged.forEach((c) => {
       const ids: { id: string; label: string }[] = [];
       if (Array.isArray(c.items)) c.items.forEach((it) => ids.push({ id: it.id, label: it.label }));
       if (Array.isArray(c.groups)) c.groups.forEach((g) => g.items.forEach((it) => ids.push({ id: it.id, label: it.label })));
       ids.forEach(({ id, label }) => {
-        if (!selectedIds.has(id)) return;
+        if (!selectedKeys.has(selectionKey(c.id, id))) return;
         const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = scaleById(scales, sId);
         out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
@@ -218,15 +267,15 @@ async function bootstrap() {
 
   function buildSelectedSummaries(): SelectedSummary[] {
     const customIds = new Set(customItems.map((ci) => ci.id));
-    const merged = buildCategoriesWithCustom(categories, customItems);
-    const selectedIds = selectedSet();
+    const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
+    const selectedKeys = selectedKeySet();
     const out: SelectedSummary[] = [];
     merged.forEach((category) => {
       const items: { id: string; label: string }[] = [];
       if (Array.isArray(category.items)) category.items.forEach((item) => items.push({ id: item.id, label: item.label }));
       if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => items.push({ id: item.id, label: item.label })));
       items.forEach((item) => {
-        if (!selectedIds.has(item.id)) return;
+        if (!selectedKeys.has(selectionKey(category.id, item.id))) return;
         const scale = scaleById(scales, scaleByCategoryMap[category.id] ?? defaultScaleId);
         out.push({
           itemId: item.id,
@@ -242,7 +291,7 @@ async function bootstrap() {
   }
 
   function itemIdsOfCategory(categoryId: string): string[] {
-    const merged = buildCategoriesWithCustom(categories, customItems);
+    const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
     const category = merged.find((c) => c.id === categoryId);
     if (!category) return [];
     const ids: string[] = [];
@@ -254,6 +303,7 @@ async function bootstrap() {
   function persist() {
     saveConfig({
       selectedItems: selected,
+      selectedProductFormats,
       scaleByCategory: scaleByCategoryMap,
       defaultScaleId, documentTitle, header, footerFields, customItems
     });
@@ -264,6 +314,7 @@ async function bootstrap() {
     const cfg = loadConfig();
     if (cfg) {
       selected = cfg.selectedItems;
+      selectedProductFormats = cfg.selectedProductFormats;
       scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
       documentTitle = { ...cfg.documentTitle };
@@ -295,7 +346,15 @@ async function bootstrap() {
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+    renderCategories(categoriesEl, categories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+    const currentProductCategories = productCategories();
+    renderProductFormatControls(productFormatControlsEl, currentProductCategories, handlers);
+    if (currentProductCategories.length > 0) {
+      renderCategories(productFormatCategoriesEl, currentProductCategories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+    } else {
+      productFormatCategoriesEl.innerHTML = '';
+    }
+    renderProductFormatModal(productFormatModalEl, productFormats, new Set(selectedProductFormats), productFormatModalOpen, productFormatSearchQuery, handlers);
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 
@@ -316,6 +375,23 @@ async function bootstrap() {
     });
   }
 
+  function renderProductFormatModalOnly(focusSearch = false) {
+    renderProductFormatModal(productFormatModalEl, productFormats, new Set(selectedProductFormats), productFormatModalOpen, productFormatSearchQuery, handlers);
+    if (!focusSearch || !productFormatModalOpen) return;
+
+    requestAnimationFrame(() => {
+      const searchInput = productFormatModalEl.querySelector<HTMLInputElement>('.product-format-search');
+      if (!searchInput) return;
+      searchInput.focus();
+      const cursorPosition = searchInput.value.length;
+      try {
+        searchInput.setSelectionRange(cursorPosition, cursorPosition);
+      } catch {
+        // Some browsers do not expose selection APIs for search inputs.
+      }
+    });
+  }
+
   function renderA4() {
     renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
   }
@@ -329,12 +405,13 @@ async function bootstrap() {
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   const exportJson = () => {
-    exportConfigJSON({ selectedItems: selected, scaleByCategory: scaleByCategoryMap, defaultScaleId, documentTitle, header, footerFields, customItems });
+    exportConfigJSON({ selectedItems: selected, selectedProductFormats, scaleByCategory: scaleByCategoryMap, defaultScaleId, documentTitle, header, footerFields, customItems });
   };
   const importJson = async () => {
     const cfg = await importConfigJSON();
     if (cfg) {
       selected = cfg.selectedItems;
+      selectedProductFormats = cfg.selectedProductFormats;
       scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
       documentTitle = { ...cfg.documentTitle };

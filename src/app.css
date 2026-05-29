@@ -236,6 +236,102 @@ body {
   font-size: 12px;
 }
 .footer-field-option:hover { background: #f7f8f9; }
+.product-format-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.choose-product-formats-btn {
+  justify-content: center;
+  width: 100%;
+}
+.product-format-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.product-format-categories {
+  margin-top: var(--space-2);
+}
+.product-format-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: rgba(17, 24, 39, 0.42);
+}
+.product-format-modal {
+  width: min(760px, calc(100vw - 48px));
+  height: min(720px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.product-format-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.product-format-modal-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+}
+.product-format-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: var(--space-2);
+}
+.product-format-group {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+.product-format-group:first-child {
+  border-top: none;
+}
+.product-format-group-title {
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.product-format-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 7px 0;
+}
+.product-format-row + .product-format-row {
+  border-top: 1px solid #f0f2f4;
+}
+.product-format-row-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.product-format-row-title {
+  font-size: 13px;
+  line-height: 1.25;
+}
+.product-format-row-meta {
+  color: var(--muted);
+  font-size: 11px;
+}
 
 /* Default scale */
 .scale-default-wrap { display: flex; flex-direction: column; gap: 3px; margin-bottom: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border); }

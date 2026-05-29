@@ -19,7 +19,8 @@ export const strings = {
   },
   columns: {
     selected: 'Ausgewählt',
-    categories: 'Kategorien & Kriterien',
+    categories: 'Bewertungskriterien',
+    productFormats: 'Produktebene',
     export: 'Export'
   },
   kopfdaten: {
@@ -61,6 +62,14 @@ export const strings = {
     clearSelection: 'Auswahl leeren',
     selectCategory: 'Kategorie auswählen',
     clearCategory: 'Kategorie abwählen',
+    chooseProductFormats: 'Formate auswählen',
+    selectedProductFormatsEmpty: 'Noch keine Produktformate ausgewählt.',
+    productFormatModalTitle: 'Produktformate auswählen',
+    productFormatSearch: 'Formate suchen',
+    productFormatSearchPlaceholder: 'Format oder Kriterium suchen...',
+    addProductFormat: 'Hinzufügen',
+    removeProductFormat: 'Entfernen',
+    close: 'Schließen',
     previewMode: 'Ansicht',
     previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
     selectedEmpty: 'Noch keine Kriterien ausgewählt.',
@@ -84,6 +93,8 @@ export const strings = {
     customItemAdded: 'Eigenes Kriterium hinzugefügt.',
     customItemRemoved: 'Eigenes Kriterium entfernt.',
     headerFieldAdded: 'Kopffeld hinzugefügt.',
-    headerFieldRemoved: 'Kopffeld entfernt.'
+    headerFieldRemoved: 'Kopffeld entfernt.',
+    productFormatAdded: 'Produktformat hinzugefügt.',
+    productFormatRemoved: 'Produktformat entfernt.'
   }
 } as const;

@@ -236,6 +236,30 @@ body {
   font-size: 12px;
 }
 .footer-field-option:hover { background: #f7f8f9; }
+.legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.legal-link {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.35;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal-link:hover,
+.legal-link:focus-visible {
+  color: var(--brand);
+}
 .product-format-controls {
   display: flex;
   flex-direction: column;
@@ -292,6 +316,72 @@ body {
   min-height: 0;
   overflow-y: auto;
   padding-top: var(--space-2);
+}
+.content-page-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: rgba(17, 24, 39, 0.42);
+}
+.content-page-modal {
+  width: min(760px, calc(100vw - 48px));
+  height: min(720px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.content-page-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.content-page-modal-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+}
+.content-page-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: var(--space-2);
+}
+.content-page-markdown {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.content-page-markdown h2,
+.content-page-markdown h3,
+.content-page-markdown h4 {
+  margin: 18px 0 8px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.content-page-markdown h2:first-child,
+.content-page-markdown h3:first-child,
+.content-page-markdown h4:first-child {
+  margin-top: 0;
+}
+.content-page-markdown p {
+  margin: 0 0 10px;
+}
+.content-page-markdown ul {
+  margin: 0 0 12px 18px;
+  padding: 0;
+}
+.content-page-markdown a {
+  color: var(--brand);
 }
 .product-format-group {
   padding: var(--space-2) 0;

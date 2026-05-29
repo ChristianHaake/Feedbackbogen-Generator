@@ -1,6 +1,6 @@
 # Bewertungsbaukasten (Client-Side-Only)
 
-Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen von Bewertungsbögen (Rubrics) aus YAML-konfigurierten Kriterien und frei wählbaren Skalen. Die App läuft ohne Backend, eignet sich für statisches Hosting (z. B. GitHub Pages) und lässt sich per `<iframe>` einbetten (z. B. in Moodle/WordPress).
+Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen von Bewertungsbögen (Rubrics) aus YAML-konfigurierten Kriterien und frei wählbaren Skalen. Die App läuft ohne Backend, eignet sich für statisches Hosting (z. B. Cloudflare Pages) und lässt sich per `<iframe>` einbetten (z. B. in Moodle/WordPress).
 
 ## Konzept & Architektur
 
@@ -8,19 +8,19 @@ Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen
 - Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.json` liefert Produktformat-Pakete für die Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
 - UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
-- Exporte lokal im Browser: PDF/Druckdialog, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
-- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF/Druck), respektiert `prefers-reduced-motion`.
+- Exporte lokal im Browser: PDF, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
+- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF), respektiert `prefers-reduced-motion`.
 - Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
 
 ## Einbettung per iframe
 
-- Die App setzt keine blockierenden HTTP-Header wie X-Frame-Options oder CSP, da GitHub Pages keine benutzerdefinierten Header erlaubt. Daher ist die Einbettung per `<iframe>` grundsätzlich möglich, solange die Zielumgebung (z. B. Moodle/WordPress) diese nicht selbst blockiert.
+- Die App setzt selbst keine blockierenden HTTP-Header wie X-Frame-Options oder CSP. Daher ist die Einbettung per `<iframe>` grundsätzlich möglich, solange die Hosting- oder Zielumgebung (z. B. Moodle/WordPress) diese nicht selbst blockiert.
 - Wenn später restriktive Header gewünscht sind, empfiehlt sich ein Reverse-Proxy bzw. ein separater Host mit konfigurierbaren Headern.
 
 Beispiel:
 
 ```html
-<iframe src="https://<user>.github.io/<repo>/" width="100%" height="800" style="border:0"></iframe>
+<iframe src="https://<domain>/" width="100%" height="800" style="border:0"></iframe>
 ```
 
 ## Installation & Nutzung
@@ -163,15 +163,16 @@ Limitierungen ODP:
 
 ## Barrierefreiheit
 
-- Tastatur: Auswahl per Checkbox, Shortcuts Alt+S (Speichern), Alt+E (PDF/Druck).
+- Tastatur: Auswahl per Checkbox, Shortcuts Alt+S (Speichern), Alt+E (PDF).
 - ARIA: `aria-expanded` bei Accordion, `aria-live` für Statusmeldungen.
 - Sichtbarer Fokus-Ring, `prefers-reduced-motion` berücksichtigt.
 
-## GitHub Pages Deployment
+## Cloudflare Pages Deployment
 
-- Workflow unter `.github/workflows/pages.yml` baut bei Push auf `main` und deployt `dist/`.
-- Repository-Einstellung: Pages Source = GitHub Actions.
-- Vite ist so konfiguriert, dass `base: './'` verwendet wird (relative Pfade), damit die App lokal, in Unterordnern und auf GitHub Pages ohne hartcodierten Repository-Pfad funktioniert.
+- Build command: `npm run build`.
+- Build output directory: `dist`.
+- `public/_redirects` leitet alle Routen auf `index.html`, damit direkte Aufrufe wie `/about`, `/imprint` und `/privacy` funktionieren.
+- Vite ist für Root-Hosting mit `base: '/'` konfiguriert.
 
 ## Lizenz
 

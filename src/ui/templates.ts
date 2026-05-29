@@ -3,6 +3,7 @@ import { el, icon } from './components';
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
+import { contentPages } from '@/content-pages';
 import type {
   Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
@@ -54,7 +55,7 @@ export function renderLayout(): HTMLElement {
     { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
     el('div', { class: 'toolbar-inner' },
       el('div', { class: 'left' },
-        el('img', { src: './favicon.svg', alt: '', width: '24', height: '24' }),
+        el('img', { src: '/favicon.svg', alt: '', width: '24', height: '24' }),
         el('div', { class: 'title-wrap' },
           el('strong', { class: 'title', text: strings.appTitle }),
           el('div', { class: 'subtitle', text: 'Baukasten für zukunftsorientierte Prüfungsformate' })
@@ -144,10 +145,18 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
+  const appFooter = el('footer', { class: 'app-footer' },
+    el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+      el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
+      el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
+      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+    )
+  );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, workspace, productFormatModal, live);
+  app.append(header, workspace, contentPage, appFooter, productFormatModal, live);
   return app;
 }
 

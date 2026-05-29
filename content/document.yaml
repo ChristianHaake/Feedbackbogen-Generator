@@ -1,0 +1,13 @@
+Header: 
+- Name: 
+- Lerngruppe: 
+- Thema:
+- Datum:
+
+Footer: 
+- Datum: boolean
+- Unterschrift: boolean
+- Bewertung: boolean
+- Generatorlink: Erstellt mit whitehouse.gov
+
+

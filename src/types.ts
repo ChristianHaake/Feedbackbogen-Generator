@@ -34,6 +34,28 @@ export type YAMLData = {
   scales: Scale[];
 };
 
+export type ProductFormatCriterion = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export type ProductFormat = {
+  id: string;
+  title: string;
+  criteria: ProductFormatCriterion[];
+};
+
+export type ProductFormatGroup = {
+  id: string;
+  title: string;
+  formats: ProductFormat[];
+};
+
+export type ProductFormatData = {
+  groups: ProductFormatGroup[];
+};
+
 export type SelectedItemRef = {
   categoryId: string;
   itemId: string;
@@ -66,6 +88,7 @@ export type FooterFields = Record<FooterFieldId, boolean>;
 
 export type AppConfig = {
   selectedItems: SelectedItemRef[];
+  selectedProductFormats: string[];
   scaleByCategory: Record<string, string>;
   defaultScaleId?: string;
   documentTitle: DocumentTitleConfig;

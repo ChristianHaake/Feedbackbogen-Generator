@@ -86,7 +86,10 @@ function normalizeConfig(value: unknown): AppConfig | null {
     ? cfg.scaleByCategory
     : {};
   return {
-    selectedItems: cfg.selectedItems,
+    selectedItems: cfg.selectedItems.filter((item) => item.categoryId !== 'produktebene'),
+    selectedProductFormats: Array.isArray(cfg.selectedProductFormats)
+      ? cfg.selectedProductFormats.filter((id): id is string => typeof id === 'string')
+      : [],
     scaleByCategory,
     defaultScaleId: cfg.defaultScaleId,
     documentTitle: normalizeDocumentTitle(cfg.documentTitle),

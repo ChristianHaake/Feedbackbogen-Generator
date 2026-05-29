@@ -12,14 +12,6 @@ export const DEMO_YAML: YAMLData = {
         { id: 'abgabe', label: 'Abgabe termingerecht', description: 'Liegt die Leistung fristgerecht vor?' },
         { id: 'vollstaendigkeit', label: 'Vollständigkeit', description: 'Sind alle geforderten Teile vorhanden?' }
       ]
-    },
-    {
-      id: 'produktebene',
-      title: 'Produktebene',
-      items: [
-        { id: 'funktion', label: 'Funktionalität', description: 'Erfüllt das Produkt seine Aufgabe?' },
-        { id: 'gestaltung', label: 'Gestaltung', description: 'Ist die Gestaltung ansprechend und konsistent?' }
-      ]
     }
   ],
   scales: [

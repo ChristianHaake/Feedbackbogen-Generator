@@ -2,9 +2,11 @@ import { el, icon } from './components';
 
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
+import { productFormatCategoryId } from '@/product-formats';
 import type {
   Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
-  HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item
+  HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
+  ProductFormatData
 } from '@/types';
 
 export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
@@ -24,11 +26,15 @@ export type RenderHandlers = {
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
   onRemoveCustomItem: (itemId: string) => void;
-  onRemoveSelected: (itemId: string) => void;
+  onRemoveSelected: (categoryId: string, itemId: string) => void;
   onSelectCategory: (categoryId: string) => void;
   onClearCategory: (categoryId: string) => void;
   onClearSelection: () => void;
   onSearchChange: (value: string) => void;
+  onOpenProductFormatModal: () => void;
+  onCloseProductFormatModal: () => void;
+  onProductFormatSearchChange: (value: string) => void;
+  onToggleProductFormat: (categoryId: string, selected: boolean) => void;
   onDocumentTitleModeChange: (mode: DocumentTitleMode) => void;
   onDocumentTitleCustomChange: (value: string) => void;
   onHeaderFieldLabelChange: (fieldId: string, label: string) => void;
@@ -105,6 +111,10 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
+      editorSection(strings.columns.productFormats,
+        el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
+        el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
+      ),
       editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
@@ -134,9 +144,10 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, workspace, live);
+  app.append(header, workspace, productFormatModal, live);
   return app;
 }
 
@@ -366,7 +377,7 @@ export function renderSelectedList(
       title: strings.labels.remove,
       'aria-label': `${strings.labels.remove}: ${item.item}`
     }, icon('icon-trash'));
-    removeBtn.addEventListener('click', () => handlers.onRemoveSelected(item.itemId));
+    removeBtn.addEventListener('click', () => handlers.onRemoveSelected(item.categoryId, item.itemId));
     const meta = item.isCustom
       ? `${item.category} · ${strings.labels.customItemBadge} · ${item.scaleLabel}`
       : `${item.category} · ${item.scaleLabel}`;
@@ -393,11 +404,120 @@ export function renderDefaultScaleSelect(
   selectEl.onchange = () => handlers.onDefaultScaleChange(selectEl.value);
 }
 
+export function renderProductFormatControls(
+  container: HTMLElement,
+  selectedFormats: Category[],
+  handlers: Pick<RenderHandlers, 'onOpenProductFormatModal'>
+) {
+  container.innerHTML = '';
+  const chooseBtn = el('button', { class: 'btn btn-small btn-primary choose-product-formats-btn', type: 'button' });
+  chooseBtn.append(icon('icon-plus'), el('span', { text: strings.labels.chooseProductFormats }));
+  chooseBtn.addEventListener('click', handlers.onOpenProductFormatModal);
+  container.append(chooseBtn);
+
+  if (selectedFormats.length === 0) {
+    container.append(el('p', { class: 'product-format-empty', text: strings.labels.selectedProductFormatsEmpty }));
+  }
+}
+
+export function renderProductFormatModal(
+  container: HTMLElement,
+  formats: ProductFormatData,
+  selectedFormatIds: Set<string>,
+  isOpen: boolean,
+  searchQuery: string,
+  handlers: Pick<RenderHandlers, 'onCloseProductFormatModal' | 'onProductFormatSearchChange' | 'onToggleProductFormat'>
+) {
+  container.innerHTML = '';
+  if (!isOpen) return;
+
+  const dialog = el('div', { class: 'product-format-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'product-format-modal-title' });
+  const closeBtn = el('button', { class: 'btn btn-small', type: 'button', text: strings.labels.close });
+  closeBtn.addEventListener('click', handlers.onCloseProductFormatModal);
+
+  const searchInput = el('input', {
+    type: 'search',
+    class: 'criteria-search product-format-search',
+    placeholder: strings.labels.productFormatSearchPlaceholder,
+    value: searchQuery,
+    autocomplete: 'off'
+  }) as HTMLInputElement;
+
+  const body = el('div', { class: 'product-format-modal-body' });
+  formats.groups.forEach((group) => {
+    const groupBlock = el('section', { class: 'product-format-group' },
+      el('h3', { class: 'product-format-group-title', text: group.title })
+    );
+    group.formats.forEach((format) => {
+      const categoryId = productFormatCategoryId(group.id, format.id);
+      const isSelected = selectedFormatIds.has(categoryId);
+      const toggleBtn = el('button', {
+        class: `btn btn-small ${isSelected ? '' : 'btn-primary'}`,
+        type: 'button',
+        text: isSelected ? strings.labels.removeProductFormat : strings.labels.addProductFormat
+      });
+      toggleBtn.addEventListener('click', () => handlers.onToggleProductFormat(categoryId, !isSelected));
+      const searchText = `${group.title} ${format.title} ${format.criteria.map((criterion) => criterion.label).join(' ')}`.toLowerCase();
+      groupBlock.append(el('div', { class: 'product-format-row', 'data-search-text': searchText },
+        el('div', { class: 'product-format-row-main' },
+          el('strong', { class: 'product-format-row-title', text: format.title }),
+          el('span', { class: 'product-format-row-meta', text: `${format.criteria.length} Kriterien` })
+        ),
+        toggleBtn
+      ));
+    });
+    body.append(groupBlock);
+  });
+  const emptyMessage = el('p', { class: 'search-empty product-format-search-empty', text: 'Keine passenden Formate gefunden.' });
+  body.append(emptyMessage);
+  applyProductFormatFilter(body, searchQuery);
+  searchInput.addEventListener('input', () => {
+    handlers.onProductFormatSearchChange(searchInput.value);
+    applyProductFormatFilter(body, searchInput.value);
+  });
+
+  dialog.append(
+    el('div', { class: 'product-format-modal-head' },
+      el('h2', { id: 'product-format-modal-title', class: 'product-format-modal-title', text: strings.labels.productFormatModalTitle }),
+      closeBtn
+    ),
+    el('label', { class: 'small-label', text: strings.labels.productFormatSearch }),
+    searchInput,
+    body
+  );
+  const backdrop = el('div', { class: 'product-format-modal-backdrop' }, dialog);
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) handlers.onCloseProductFormatModal();
+  });
+  container.append(backdrop);
+}
+
+function applyProductFormatFilter(body: HTMLElement, searchQuery: string) {
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  let visibleRows = 0;
+
+  body.querySelectorAll<HTMLElement>('.product-format-group').forEach((group) => {
+    let groupHasVisibleRows = false;
+    group.querySelectorAll<HTMLElement>('.product-format-row').forEach((row) => {
+      const rowMatches = !normalizedQuery || (row.dataset.searchText ?? '').includes(normalizedQuery);
+      row.hidden = !rowMatches;
+      if (rowMatches) {
+        visibleRows++;
+        groupHasVisibleRows = true;
+      }
+    });
+    group.hidden = !groupHasVisibleRows;
+  });
+
+  const emptyMessage = body.querySelector<HTMLElement>('.product-format-search-empty');
+  if (emptyMessage) emptyMessage.hidden = visibleRows > 0;
+}
+
 export function renderCategories(
   container: HTMLElement,
   categories: Category[],
   customItems: CustomItem[],
-  selectedIds: Set<string>,
+  selectedKeys: Set<string>,
   scales: Scale[],
   scaleByCategory: Record<string, string>,
   defaultScaleId: string,
@@ -435,11 +555,11 @@ export function renderCategories(
       visibleRegular.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
         groupBlock.append(el('h3', { class: 'group-title', text: g.title }));
-        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedIds, handlers)));
+        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedKeys, handlers)));
         panel.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
-      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, handlers)));
+      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedKeys, handlers)));
     }
 
     if (visibleCustomItems.length > 0) {
@@ -447,7 +567,7 @@ export function renderCategories(
       visibleCustomItems.forEach((ci) => {
         const removeBtn = el('button', { class: 'btn-icon danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
         removeBtn.addEventListener('click', () => handlers.onRemoveCustomItem(ci.id));
-        const row = itemCheckboxRow(c.id, ci, selectedIds, handlers, true);
+        const row = itemCheckboxRow(c.id, ci, selectedKeys, handlers, true);
         row.querySelector('.item-actions')?.append(removeBtn);
         customSection.append(row);
       });
@@ -479,7 +599,7 @@ export function renderCategories(
   });
 
   // Update the per-category count badges
-  refreshCategoryCounts(container, categories, customItems, selectedIds);
+  refreshCategoryCounts(container, categories, customItems, selectedKeys);
   if (renderedCategories === 0) {
     container.append(el('p', { class: 'search-empty', text: 'Keine passenden Kriterien gefunden.' }));
   }
@@ -529,11 +649,11 @@ function refreshCategoryCounts(
   container: HTMLElement,
   categories: Category[],
   customItems: CustomItem[],
-  selectedIds: Set<string>
+  selectedKeys: Set<string>
 ) {
   categories.forEach((c) => {
     const all = allItemIdsOfCategory(c, customItems);
-    const count = all.filter((id) => selectedIds.has(id)).length;
+    const count = all.filter((id) => selectedKeys.has(selectionKey(c.id, id))).length;
     const badge = container.querySelector<HTMLElement>(`.acc-count[data-cat="${c.id}"]`);
     if (badge) badge.textContent = count > 0 ? `${count}` : '';
     if (badge) badge.classList.toggle('has-selection', count > 0);
@@ -551,24 +671,25 @@ function allItemIdsOfCategory(c: Category, customItems: CustomItem[]): string[] 
 function itemCheckboxRow(
   categoryId: string,
   item: Item,
-  selectedIds: Set<string>,
+  selectedKeys: Set<string>,
   handlers: RenderHandlers,
   isCustom = false
 ): HTMLElement {
-  const isChecked = selectedIds.has(item.id);
+  const isChecked = selectedKeys.has(selectionKey(categoryId, item.id));
+  const checkboxId = `cb-${domSafeId(categoryId)}-${domSafeId(item.id)}`;
   const row = el('div', { class: `item-row item-checkbox-row ${isCustom ? 'custom-item-row' : ''}` });
 
   const cb = el('input', {
     type: 'checkbox',
     class: 'item-checkbox',
-    id: `cb-${item.id}`,
+    id: checkboxId,
     'data-cat': categoryId,
     'data-item': item.id
   }) as HTMLInputElement;
   cb.checked = isChecked;
   cb.addEventListener('change', () => handlers.onToggle(categoryId, item.id, cb.checked));
 
-  const label = el('label', { for: `cb-${item.id}`, class: 'item-label-text', text: item.label });
+  const label = el('label', { for: checkboxId, class: 'item-label-text', text: item.label });
   if (isCustom) {
     label.append(el('span', { class: 'custom-badge', text: strings.labels.customItemBadge }));
   }
@@ -579,6 +700,14 @@ function itemCheckboxRow(
   row.append(el('div', { class: 'item-actions' }));
 
   return row;
+}
+
+function selectionKey(categoryId: string, itemId: string): string {
+  return `${categoryId}::${itemId}`;
+}
+
+function domSafeId(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, '-');
 }
 
 export function renderModeSwitch(

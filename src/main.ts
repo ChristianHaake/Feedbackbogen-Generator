@@ -10,6 +10,10 @@ import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
 import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
 import {
+  contentPages, loadContentMarkdown, renderContentPage, routeFromPath,
+  type AppRoute, type ContentPageId
+} from './content-pages';
+import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
   EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE
 } from './storage';
@@ -61,6 +65,8 @@ async function bootstrap() {
   }
 
   const categoriesEl = document.getElementById('categories')!;
+  const workspaceEl = document.querySelector('.workspace') as HTMLElement;
+  const contentPageEl = document.getElementById('content-page')!;
   const productFormatControlsEl = document.getElementById('product-format-controls')!;
   const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
   const productFormatModalEl = document.getElementById('product-format-modal-root')!;
@@ -73,8 +79,11 @@ async function bootstrap() {
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
   const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
   const clearSelectionEl = document.getElementById('clear-selection') as HTMLButtonElement;
+  const toolbarActionsEl = document.querySelector('.toolbar .actions') as HTMLElement;
   const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
   const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
+  const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
+  let routeRenderId = 0;
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
@@ -396,10 +405,60 @@ async function bootstrap() {
     renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
   }
 
+  function isContentRoute(route: AppRoute): route is ContentPageId {
+    return route !== 'generator';
+  }
+
+  async function renderRoute() {
+    const route = routeFromPath(window.location.pathname);
+    const renderId = ++routeRenderId;
+    updateFooterNav(route);
+
+    workspaceEl.hidden = route !== 'generator';
+    contentPageEl.hidden = route === 'generator';
+    toolbarActionsEl.hidden = route !== 'generator';
+    if (!isContentRoute(route)) return;
+
+    contentPageEl.innerHTML = '';
+    contentPageEl.append(simpleContentMessage('Inhalt wird geladen...'));
+    try {
+      const markdown = contentMarkdownCache[route] ?? await loadContentMarkdown(route);
+      contentMarkdownCache[route] = markdown;
+      if (renderId !== routeRenderId) return;
+      renderContentPage(contentPageEl, route, markdown);
+      contentPageEl.scrollTo({ top: 0 });
+    } catch {
+      if (renderId !== routeRenderId) return;
+      contentPageEl.innerHTML = '';
+      contentPageEl.append(simpleContentMessage('Der Inhalt konnte nicht geladen werden.'));
+    }
+  }
+
+  function simpleContentMessage(message: string): HTMLElement {
+    const wrap = document.createElement('article');
+    wrap.className = 'content-page-card';
+    const p = document.createElement('p');
+    p.textContent = message;
+    wrap.append(p);
+    return wrap;
+  }
+
+  function updateFooterNav(route: AppRoute) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-app-route]').forEach((link) => {
+      const linkRoute = link.dataset.appRoute as AppRoute | undefined;
+      if (linkRoute && linkRoute === route) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+
   renderEditor();
   renderModeSwitch(modeSwitchEl, previewMode, handlers);
   renderMobileTabs(mobileTabsEl, mobileView, handlers);
   renderA4();
+  renderRoute();
 
   // Toolbar
   document.getElementById('save')?.addEventListener('click', persist);
@@ -429,6 +488,20 @@ async function bootstrap() {
   document.getElementById('import-json-mobile')?.addEventListener('click', importJson);
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const link = target?.closest<HTMLAnchorElement>('a[data-app-route]');
+    if (!link) return;
+
+    const route = link.dataset.appRoute as AppRoute | undefined;
+    const path = route === 'generator' ? '/' : route && isContentRoute(route) ? contentPages[route].path : null;
+    if (!path) return;
+
+    event.preventDefault();
+    if (window.location.pathname !== path) window.history.pushState(null, '', path);
+    renderRoute();
+  });
+  window.addEventListener('popstate', renderRoute);
 
   async function exportFormat(fmt: ExportFormat) {
     announce(strings.messages.exported);

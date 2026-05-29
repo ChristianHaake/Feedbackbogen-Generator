@@ -60,7 +60,7 @@ function contentPlugin() {
 
 export default defineConfig({
   root: path.resolve(__dirname, 'src/ui'),
-  base: './',
+  base: '/',
   publicDir: path.resolve(__dirname, 'public'),
   build: {
     outDir: path.resolve(__dirname, 'dist'),

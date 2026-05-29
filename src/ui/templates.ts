@@ -3,6 +3,7 @@ import { el, icon } from './components';
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
+import { contentPages } from '@/content-pages';
 import type {
   Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
@@ -144,10 +145,18 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
+  const appFooter = el('footer', { class: 'app-footer' },
+    el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+      el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
+      el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
+      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+    )
+  );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, workspace, productFormatModal, live);
+  app.append(header, workspace, contentPage, appFooter, productFormatModal, live);
   return app;
 }
 
@@ -762,6 +771,7 @@ export function renderPreview(
 
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
+  container.append(el('div', { class: 'a4-watermark', text: 'Made with Bewertungsbaukasten' }));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {

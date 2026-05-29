@@ -72,6 +72,7 @@ export function exportPDF(rows: ExportRow[], title: string, header: HeaderData, 
     drawFooterFields(pdf, footerFields, y);
   }
 
+  drawWatermarks(pdf);
   pdf.save('bewertungsbogen.pdf');
 }
 
@@ -289,6 +290,17 @@ function drawFooterFields(pdf: PdfDoc, footerFields: FooterFields, y: number) {
     pdf.setLineWidth(0.7);
     pdf.line(lineX, y + 14, x + fieldWidth, y + 14);
   });
+}
+
+function drawWatermarks(pdf: PdfDoc) {
+  const pageCount = pdf.getNumberOfPages();
+  for (let page = 1; page <= pageCount; page++) {
+    pdf.setPage(page);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7);
+    pdf.setTextColor(170, 170, 170);
+    pdf.text('Made with Bewertungsbaukasten', pageWidth - 18, pageHeight - 14, { align: 'right' });
+  }
 }
 
 function footerFieldOptions(): { id: FooterFieldId; label: string }[] {

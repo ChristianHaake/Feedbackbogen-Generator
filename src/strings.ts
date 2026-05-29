@@ -8,7 +8,7 @@ export const strings = {
     exportNow: 'Exportieren',
     exportFormat: 'Format',
     more: 'Mehr',
-    exportPdf: 'PDF / Drucken',
+    exportPdf: 'PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdp: 'ODP'

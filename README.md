@@ -41,7 +41,6 @@ Die App lädt `content/items.yaml` zur Laufzeit. In Dev und im Build wird der Or
 ## YAML-Schema
 
 ```yaml
-version: 1
 categories:
   - id: <string>
     title: <string>
@@ -71,12 +70,11 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 
 ## Speichern/Laden der Konfiguration
 
-- LocalStorage-Key: `bbk:config:v2`.
+- LocalStorage-Key: `bbk:config`.
 - JSON-Import/-Export via Toolbar. Schema:
 
 ```json
 {
-  "version": 2,
   "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
   "scaleByItem": { "<itemId>": "<scaleId>" },
   "defaultScaleId": "verbal_5",

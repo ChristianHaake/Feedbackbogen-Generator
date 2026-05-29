@@ -198,7 +198,6 @@ async function bootstrap() {
 
   function persist() {
     saveConfig({
-      version: 2,
       selectedItems: selected,
       scaleByItem: scaleByItemMap,
       defaultScaleId, header, customItems
@@ -271,7 +270,7 @@ async function bootstrap() {
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   const exportJson = () => {
-    exportConfigJSON({ version: 2, selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems });
+    exportConfigJSON({ selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems });
   };
   const importJson = async () => {
     const cfg = await importConfigJSON();

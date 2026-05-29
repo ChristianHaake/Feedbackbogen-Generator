@@ -10,14 +10,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Minimal plugin to serve/copy /content alongside /public
 function contentPlugin() {
   const contentDir = path.resolve(__dirname, 'content');
+  const mainEntry = path.resolve(__dirname, 'src', 'main.ts');
   return {
     name: 'content-static',
+    transformIndexHtml(html: string, ctx: any) {
+      if (!ctx.server) return html;
+      return html.replace('src="../main.ts"', `src="/@fs/${mainEntry}"`);
+    },
     configureServer(server: any) {
-      const mainEntry = path.resolve(__dirname, 'src', 'main.ts');
-      server.middlewares.use((req: any, _res: any, next: any) => {
-        if (req.url === '/main.ts') req.url = `/@fs/${mainEntry}`;
-        next();
-      });
       server.middlewares.use('/content', (req: any, res: any, _next: any) => {
         let requestPath = '';
         try {

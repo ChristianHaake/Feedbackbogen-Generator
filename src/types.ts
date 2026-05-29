@@ -54,7 +54,7 @@ export type HeaderData = {
 
 export type AppConfig = {
   selectedItems: SelectedItemRef[];
-  scaleByItem: Record<string, string>;
+  scaleByCategory: Record<string, string>;
   defaultScaleId?: string;
   header: HeaderData;
   customItems: CustomItem[];

@@ -76,7 +76,7 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 ```json
 {
   "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
-  "scaleByItem": { "<itemId>": "<scaleId>" },
+  "scaleByCategory": { "<categoryId>": "<scaleId>" },
   "defaultScaleId": "verbal_5",
   "header": {
     "learner": "",

@@ -46,19 +46,26 @@ export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: Pr
   ];
 
   // Group rows by category
-  const groups = new Map<string, { title: string; items: ExportRow[] }>();
+  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
   rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, items: [] });
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
     groups.get(r.categoryId)!.items.push(r);
   });
 
   let counter = 0;
-  groups.forEach(({ title, items }) => {
+  groups.forEach(({ title, scale, items }) => {
     children.push(new Paragraph({
       text: title.toUpperCase(),
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 200, after: 100 }
     }));
+    const opts = scaleOptions(scale);
+    if (mode === 'full' && opts.length > 0) {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: opts.join('     '), bold: true })],
+        spacing: { after: 80 }
+      }));
+    }
     items.forEach((r) => {
       counter++;
       children.push(new Paragraph({
@@ -71,10 +78,9 @@ export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: Pr
           spacing: { after: 100 }
         }));
       } else {
-        const opts = scaleOptions(r.scale);
         if (opts.length > 0) {
           children.push(new Paragraph({
-            children: [new TextRun({ text: opts.map((o) => `☐ ${o}`).join('     ') })],
+            children: [new TextRun({ text: opts.map(() => '☐').join('     ') })],
             spacing: { after: 120 }
           }));
         } else {

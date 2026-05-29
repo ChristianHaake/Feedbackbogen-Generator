@@ -2,7 +2,7 @@ import {
   Document, Packer, Paragraph, HeadingLevel, TextRun
 } from 'docx';
 
-import type { ExportRow, HeaderData, PrintMode, Scale } from '@/types';
+import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
 import { strings } from '@/strings';
 
 function scaleOptions(scale: Scale | null): string[] {
@@ -21,44 +21,57 @@ function scaleOptions(scale: Scale | null): string[] {
 }
 
 function headerLine(label: string, value: string): Paragraph {
+  const safeLabel = label.trim() || strings.kopfdaten.fallbackField;
   const valueStr = value || '____________________________________';
   return new Paragraph({
     children: [
-      new TextRun({ text: `${label}: `, bold: true }),
-      new TextRun({ text: valueStr, underline: value ? undefined : { type: 'single' } })
+      new TextRun({ text: `${safeLabel}: `, bold: true }),
+      new TextRun({ text: valueStr, underline: { type: 'single' } })
     ],
     spacing: { after: 80 }
   });
 }
 
-export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: PrintMode = 'full') {
+function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
+  return [
+    { id: 'date', label: strings.kopfdaten.date },
+    { id: 'signature', label: strings.kopfdaten.signature },
+    { id: 'grade', label: strings.kopfdaten.grade }
+  ];
+}
+
+export async function exportDOCX(rows: ExportRow[], title: string, header: HeaderData, footerFields: FooterFields, mode: PrintMode = 'full') {
   const children: Paragraph[] = [
     new Paragraph({
-      text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen',
+      text: title,
       heading: HeadingLevel.TITLE,
       spacing: { after: 240 }
     }),
-    headerLine(strings.kopfdaten.learner, header.learner),
-    headerLine(strings.kopfdaten.learngroup, header.learngroup),
-    headerLine(strings.kopfdaten.topic, header.topic),
-    headerLine(strings.kopfdaten.date, header.date),
+    ...header.fields.map((field) => headerLine(field.label, field.value)),
     new Paragraph({ text: '' })
   ];
 
   // Group rows by category
-  const groups = new Map<string, { title: string; items: ExportRow[] }>();
+  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
   rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, items: [] });
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
     groups.get(r.categoryId)!.items.push(r);
   });
 
   let counter = 0;
-  groups.forEach(({ title, items }) => {
+  groups.forEach(({ title, scale, items }) => {
     children.push(new Paragraph({
       text: title.toUpperCase(),
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 200, after: 100 }
     }));
+    const opts = scaleOptions(scale);
+    if (mode === 'full' && opts.length > 0) {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: opts.join('     '), bold: true })],
+        spacing: { after: 80 }
+      }));
+    }
     items.forEach((r) => {
       counter++;
       children.push(new Paragraph({
@@ -71,10 +84,9 @@ export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: Pr
           spacing: { after: 100 }
         }));
       } else {
-        const opts = scaleOptions(r.scale);
         if (opts.length > 0) {
           children.push(new Paragraph({
-            children: [new TextRun({ text: opts.map((o) => `☐ ${o}`).join('     ') })],
+            children: [new TextRun({ text: opts.map(() => '☐').join('     ') })],
             spacing: { after: 120 }
           }));
         } else {
@@ -94,13 +106,22 @@ export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: Pr
     heading: HeadingLevel.HEADING_2,
     spacing: { before: 200, after: 100 }
   }));
-  if (header.feedback) {
-    children.push(new Paragraph({ text: header.feedback, spacing: { after: 100 } }));
-  }
   for (let i = 0; i < 5; i++) {
     children.push(new Paragraph({
       children: [new TextRun({ text: '____________________________________________________________________' })],
       spacing: { after: 80 }
+    }));
+  }
+
+  const enabledFooterFields = footerFieldOptions().filter(({ id }) => footerFields[id]);
+  if (enabledFooterFields.length > 0) {
+    children.push(new Paragraph({ text: '' }));
+    children.push(new Paragraph({
+      children: [new TextRun({
+        text: enabledFooterFields.map(({ label }) => `${label}: ____________________`).join('     '),
+        bold: true
+      })],
+      spacing: { before: 200, after: 80 }
     }));
   }
 

@@ -19,16 +19,30 @@ export const strings = {
   },
   columns: {
     selected: 'Ausgewählt',
-    categories: 'Kategorien & Kriterien',
+    categories: 'Bewertungskriterien',
+    productFormats: 'Produktebene',
     export: 'Export'
   },
   kopfdaten: {
+    documentTitleSection: 'Titel',
+    documentTitle: 'Titel',
+    titleBewertungsbogen: 'Bewertungsbogen',
+    titleFeedbackbogen: 'Feedbackbogen',
+    titleCustom: 'Benutzerdefiniert',
+    customTitlePlaceholder: 'Eigener Titel',
     title: 'Kopfdaten (optional vorausfüllen)',
     learner: 'Name',
     learngroup: 'Lerngruppe',
     topic: 'Thema',
     date: 'Datum',
-    feedback: 'Feedback / Anmerkungen'
+    feedback: 'Feedback / Anmerkungen',
+    fieldLabel: 'Feld',
+    fieldValue: 'Vorausfüllung',
+    addField: 'Kopffeld hinzufügen',
+    fallbackField: 'Feld',
+    footerTitle: 'Fußzeile',
+    signature: 'Unterschrift',
+    grade: 'Bewertung'
   },
   modes: {
     full: 'Mit Skalen',
@@ -37,15 +51,25 @@ export const strings = {
   labels: {
     remove: 'Entfernen',
     scale: 'Skala',
+    add: 'Hinzufügen',
     defaultScale: 'Standard-Skala',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',
     customItemBadge: 'Eigenes Kriterium',
+    removeHeaderField: 'Kopffeld entfernen',
     searchCriteria: 'Kriterien suchen',
     searchPlaceholder: 'Suchen…',
     clearSelection: 'Auswahl leeren',
     selectCategory: 'Kategorie auswählen',
     clearCategory: 'Kategorie abwählen',
+    chooseProductFormats: 'Formate auswählen',
+    selectedProductFormatsEmpty: 'Noch keine Produktformate ausgewählt.',
+    productFormatModalTitle: 'Produktformate auswählen',
+    productFormatSearch: 'Formate suchen',
+    productFormatSearchPlaceholder: 'Format oder Kriterium suchen...',
+    addProductFormat: 'Hinzufügen',
+    removeProductFormat: 'Entfernen',
+    close: 'Schließen',
     previewMode: 'Ansicht',
     previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
     selectedEmpty: 'Noch keine Kriterien ausgewählt.',
@@ -67,6 +91,10 @@ export const strings = {
     imported: 'JSON importiert.',
     exported: 'Export gestartet...',
     customItemAdded: 'Eigenes Kriterium hinzugefügt.',
-    customItemRemoved: 'Eigenes Kriterium entfernt.'
+    customItemRemoved: 'Eigenes Kriterium entfernt.',
+    headerFieldAdded: 'Kopffeld hinzugefügt.',
+    headerFieldRemoved: 'Kopffeld entfernt.',
+    productFormatAdded: 'Produktformat hinzugefügt.',
+    productFormatRemoved: 'Produktformat entfernt.'
   }
 } as const;

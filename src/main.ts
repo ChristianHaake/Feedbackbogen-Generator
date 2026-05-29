@@ -111,6 +111,7 @@ async function bootstrap() {
       if (!trimmed) return;
       const id = `custom_${categoryId}_${Date.now()}`;
       customItems.push({ id, label: trimmed, custom: true, categoryId });
+      autoPersist();
       renderEditor();
       announce(strings.messages.customItemAdded);
     },
@@ -309,31 +310,17 @@ async function bootstrap() {
     return ids;
   }
 
-  function persist() {
-    saveConfig({
+  function currentConfig() {
+    return {
       selectedItems: selected,
       selectedProductFormats,
       scaleByCategory: scaleByCategoryMap,
       defaultScaleId, documentTitle, header, footerFields, customItems
-    });
-    announce(strings.messages.saved);
+    };
   }
 
-  function loadPersisted() {
-    const cfg = loadConfig();
-    if (cfg) {
-      selected = cfg.selectedItems;
-      selectedProductFormats = cfg.selectedProductFormats;
-      scaleByCategoryMap = cfg.scaleByCategory;
-      if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      documentTitle = { ...cfg.documentTitle };
-      header = cloneHeader(cfg.header);
-      footerFields = cfg.footerFields;
-      customItems = cfg.customItems ?? [];
-      renderEditor();
-      renderA4();
-      announce(strings.messages.loaded);
-    }
+  function autoPersist() {
+    saveConfig(currentConfig());
   }
 
   function renderEditor() {
@@ -402,6 +389,7 @@ async function bootstrap() {
   }
 
   function renderA4() {
+    autoPersist();
     renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
   }
 
@@ -461,10 +449,8 @@ async function bootstrap() {
   renderRoute();
 
   // Toolbar
-  document.getElementById('save')?.addEventListener('click', persist);
-  document.getElementById('load')?.addEventListener('click', loadPersisted);
   const exportJson = () => {
-    exportConfigJSON({ selectedItems: selected, selectedProductFormats, scaleByCategory: scaleByCategoryMap, defaultScaleId, documentTitle, header, footerFields, customItems });
+    exportConfigJSON(currentConfig());
   };
   const importJson = async () => {
     const cfg = await importConfigJSON();
@@ -482,10 +468,15 @@ async function bootstrap() {
       announce(strings.messages.imported);
     }
   };
-  document.getElementById('export-json')?.addEventListener('click', exportJson);
-  document.getElementById('export-json-mobile')?.addEventListener('click', exportJson);
-  document.getElementById('import-json')?.addEventListener('click', importJson);
-  document.getElementById('import-json-mobile')?.addEventListener('click', importJson);
+  document.querySelectorAll<HTMLButtonElement>('#config-save, #config-save-mobile').forEach((btn) => {
+    btn.addEventListener('click', exportJson);
+  });
+  document.querySelectorAll<HTMLButtonElement>('#config-load, #config-load-mobile').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await importJson();
+      btn.focus();
+    });
+  });
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
   document.addEventListener('click', (event) => {
@@ -520,16 +511,34 @@ async function bootstrap() {
     }
   }
 
+  const exportMenu = document.getElementById('export-menu') as HTMLDetailsElement | null;
+  const exportMenuTrigger = document.getElementById('export-menu-trigger') as HTMLElement | null;
+  const closeExportMenu = (restoreFocus = false) => {
+    exportMenu?.removeAttribute('open');
+    if (restoreFocus) exportMenuTrigger?.focus();
+  };
+  const openExportMenu = () => {
+    if (!exportMenu) return;
+    exportMenu.setAttribute('open', '');
+    requestAnimationFrame(() => exportMenu.querySelector<HTMLButtonElement>('.menu-item')?.focus());
+  };
+  exportMenu?.addEventListener('toggle', () => {
+    if (exportMenu.open) requestAnimationFrame(() => exportMenu.querySelector<HTMLButtonElement>('.menu-item')?.focus());
+  });
+  exportMenu?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    closeExportMenu(true);
+  });
+
   document.querySelectorAll<HTMLButtonElement>('[data-export-format]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll<HTMLDetailsElement>('.action-menu[open]').forEach((menu) => menu.removeAttribute('open'));
+      closeExportMenu(true);
       exportFormat(btn.dataset.exportFormat as ExportFormat);
     });
   });
 
-  setupKeyboardShortcuts(persist, async () => {
-    exportFormat('pdf');
-  });
+  setupKeyboardShortcuts(exportJson, openExportMenu);
 }
 
 bootstrap();

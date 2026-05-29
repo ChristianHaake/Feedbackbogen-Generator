@@ -1,13 +1,10 @@
 export const strings = {
   appTitle: 'Feedbackbogen-Generator',
   toolbar: {
-    save: 'Speichern',
-    load: 'Laden',
-    exportJson: 'Konfig exportieren',
-    importJson: 'JSON importieren',
+    saveConfig: 'Config speichern',
+    loadConfig: 'Config laden',
     exportNow: 'Exportieren',
-    exportFormat: 'Format',
-    more: 'Mehr',
+    about: 'About',
     exportPdf: 'PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',

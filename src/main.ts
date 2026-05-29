@@ -25,7 +25,7 @@ async function bootstrap() {
 
   // State
   let selected: SelectedItemRef[] = [];
-  let scaleByItemMap: Record<string, string> = {};
+  let scaleByCategoryMap: Record<string, string> = {};
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
   let header: HeaderData = { ...EMPTY_HEADER };
   let customItems: CustomItem[] = [];
@@ -36,7 +36,7 @@ async function bootstrap() {
   const persisted = loadConfig();
   if (persisted) {
     selected = persisted.selectedItems;
-    scaleByItemMap = persisted.scaleByItem;
+    scaleByCategoryMap = persisted.scaleByCategory;
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
     header = { ...EMPTY_HEADER, ...(persisted.header ?? {}) };
     customItems = persisted.customItems ?? [];
@@ -61,13 +61,13 @@ async function bootstrap() {
         selected.push({ categoryId, itemId });
       } else if (!checked && idx !== -1) {
         selected.splice(idx, 1);
-        delete scaleByItemMap[itemId];
       }
       renderEditor();
       renderA4();
     },
-    onScaleChange: (itemId: string, scaleId: string) => {
-      scaleByItemMap[itemId] = scaleId;
+    onCategoryScaleChange: (categoryId: string, scaleId: string) => {
+      scaleByCategoryMap[categoryId] = scaleId;
+      renderEditor();
       renderA4();
     },
     onDefaultScaleChange: (scaleId: string) => {
@@ -86,14 +86,12 @@ async function bootstrap() {
     onRemoveCustomItem: (itemId: string) => {
       customItems = customItems.filter((ci) => ci.id !== itemId);
       selected = selected.filter((s) => s.itemId !== itemId);
-      delete scaleByItemMap[itemId];
       renderEditor();
       renderA4();
       announce(strings.messages.customItemRemoved);
     },
     onRemoveSelected: (itemId: string) => {
       selected = selected.filter((s) => s.itemId !== itemId);
-      delete scaleByItemMap[itemId];
       renderEditor();
       renderA4();
     },
@@ -108,13 +106,11 @@ async function bootstrap() {
     onClearCategory: (categoryId: string) => {
       const ids = new Set(itemIdsOfCategory(categoryId));
       selected = selected.filter((s) => !ids.has(s.itemId));
-      ids.forEach((itemId) => delete scaleByItemMap[itemId]);
       renderEditor();
       renderA4();
     },
     onClearSelection: () => {
       selected = [];
-      scaleByItemMap = {};
       renderEditor();
       renderA4();
     },
@@ -153,7 +149,7 @@ async function bootstrap() {
       if (Array.isArray(c.groups)) c.groups.forEach((g) => g.items.forEach((it) => ids.push({ id: it.id, label: it.label })));
       ids.forEach(({ id, label }) => {
         if (!selectedIds.has(id)) return;
-        const sId = scaleByItemMap[id] ?? defaultScaleId;
+        const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = scaleById(scales, sId);
         out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
       });
@@ -172,7 +168,7 @@ async function bootstrap() {
       if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => items.push({ id: item.id, label: item.label })));
       items.forEach((item) => {
         if (!selectedIds.has(item.id)) return;
-        const scale = scaleById(scales, scaleByItemMap[item.id] ?? defaultScaleId);
+        const scale = scaleById(scales, scaleByCategoryMap[category.id] ?? defaultScaleId);
         out.push({
           itemId: item.id,
           categoryId: category.id,
@@ -199,7 +195,7 @@ async function bootstrap() {
   function persist() {
     saveConfig({
       selectedItems: selected,
-      scaleByItem: scaleByItemMap,
+      scaleByCategory: scaleByCategoryMap,
       defaultScaleId, header, customItems
     });
     announce(strings.messages.saved);
@@ -209,7 +205,7 @@ async function bootstrap() {
     const cfg = loadConfig();
     if (cfg) {
       selected = cfg.selectedItems;
-      scaleByItemMap = cfg.scaleByItem;
+      scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
       header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
       customItems = cfg.customItems ?? [];
@@ -236,7 +232,7 @@ async function bootstrap() {
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByItemMap, defaultScaleId, handlers, searchQuery);
+    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 
@@ -270,13 +266,13 @@ async function bootstrap() {
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   const exportJson = () => {
-    exportConfigJSON({ selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems });
+    exportConfigJSON({ selectedItems: selected, scaleByCategory: scaleByCategoryMap, defaultScaleId, header, customItems });
   };
   const importJson = async () => {
     const cfg = await importConfigJSON();
     if (cfg) {
       selected = cfg.selectedItems;
-      scaleByItemMap = cfg.scaleByItem;
+      scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
       header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
       customItems = cfg.customItems ?? [];

@@ -8,15 +8,15 @@ function normalizeConfig(value: unknown): AppConfig | null {
   if (!value || typeof value !== 'object') return null;
   const cfg = value as Partial<AppConfig>;
   if (!Array.isArray(cfg.selectedItems)) return null;
-  const scaleByItem = cfg.scaleByItem && typeof cfg.scaleByItem === 'object' && !Array.isArray(cfg.scaleByItem)
-    ? cfg.scaleByItem
+  const scaleByCategory = cfg.scaleByCategory && typeof cfg.scaleByCategory === 'object' && !Array.isArray(cfg.scaleByCategory)
+    ? cfg.scaleByCategory
     : {};
   const header = cfg.header && typeof cfg.header === 'object'
     ? cfg.header
     : {};
   return {
     selectedItems: cfg.selectedItems,
-    scaleByItem,
+    scaleByCategory,
     defaultScaleId: cfg.defaultScaleId,
     header: { ...EMPTY_HEADER, ...header },
     customItems: Array.isArray(cfg.customItems) ? cfg.customItems : []

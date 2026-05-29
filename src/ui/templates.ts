@@ -17,7 +17,7 @@ export type SelectedSummary = {
 
 export type RenderHandlers = {
   onToggle: (categoryId: string, itemId: string, checked: boolean) => void;
-  onScaleChange: (itemId: string, scaleId: string) => void;
+  onCategoryScaleChange: (categoryId: string, scaleId: string) => void;
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
   onRemoveCustomItem: (itemId: string) => void;
@@ -280,7 +280,7 @@ export function renderCategories(
   customItems: CustomItem[],
   selectedIds: Set<string>,
   scales: Scale[],
-  scaleByItem: Record<string, string>,
+  scaleByCategory: Record<string, string>,
   defaultScaleId: string,
   handlers: RenderHandlers,
   searchQuery = ''
@@ -306,6 +306,7 @@ export function renderCategories(
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
+    panel.append(categoryScaleRow(c, scales, scaleByCategory[c.id] ?? defaultScaleId, handlers));
     panel.append(el('div', { class: 'category-actions' },
       smallActionButton(strings.labels.selectCategory, () => handlers.onSelectCategory(c.id)),
       smallActionButton(strings.labels.clearCategory, () => handlers.onClearCategory(c.id))
@@ -315,11 +316,11 @@ export function renderCategories(
       visibleRegular.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
         groupBlock.append(el('h3', { class: 'group-title', text: g.title }));
-        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
+        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedIds, handlers)));
         panel.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
-      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
+      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, handlers)));
     }
 
     if (visibleCustomItems.length > 0) {
@@ -327,7 +328,7 @@ export function renderCategories(
       visibleCustomItems.forEach((ci) => {
         const removeBtn = el('button', { class: 'btn-icon danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
         removeBtn.addEventListener('click', () => handlers.onRemoveCustomItem(ci.id));
-        const row = itemCheckboxRow(c.id, ci, selectedIds, scales, scaleByItem, defaultScaleId, handlers, true);
+        const row = itemCheckboxRow(c.id, ci, selectedIds, handlers, true);
         row.querySelector('.item-actions')?.append(removeBtn);
         customSection.append(row);
       });
@@ -339,8 +340,8 @@ export function renderCategories(
       placeholder: strings.labels.customItemPlaceholder,
       'aria-label': strings.labels.addCustomItem
     }) as HTMLInputElement;
-    const addCustomBtn = el('button', { class: 'btn-icon btn-primary', type: 'button', 'aria-label': strings.labels.addCustomItem });
-    addCustomBtn.append(icon('icon-plus'));
+    const addCustomBtn = el('button', { class: 'btn btn-small btn-primary add-custom-btn', type: 'button', 'aria-label': strings.labels.addCustomItem });
+    addCustomBtn.append(icon('icon-plus'), el('span', { text: strings.labels.add }));
     addCustomBtn.addEventListener('click', () => { handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; });
     customInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; }
@@ -363,6 +364,21 @@ export function renderCategories(
   if (renderedCategories === 0) {
     container.append(el('p', { class: 'search-empty', text: 'Keine passenden Kriterien gefunden.' }));
   }
+}
+
+function categoryScaleRow(category: Category, scales: Scale[], scaleId: string, handlers: RenderHandlers): HTMLElement {
+  const select = el('select', {
+    class: 'category-scale-select',
+    'aria-label': `${category.title} – ${strings.labels.scale}`
+  }) as HTMLSelectElement;
+  scales.forEach((s) => select.append(el('option', { value: s.id, text: scaleDisplay(s) })));
+  select.value = scaleId;
+  select.addEventListener('change', () => handlers.onCategoryScaleChange(category.id, select.value));
+
+  return el('div', { class: 'category-scale-row' },
+    el('label', { class: 'small-label', text: strings.labels.scale }),
+    select
+  );
 }
 
 function smallActionButton(label: string, onClick: () => void) {
@@ -417,9 +433,6 @@ function itemCheckboxRow(
   categoryId: string,
   item: Item,
   selectedIds: Set<string>,
-  scales: Scale[],
-  scaleByItem: Record<string, string>,
-  defaultScaleId: string,
   handlers: RenderHandlers,
   isCustom = false
 ): HTMLElement {
@@ -444,19 +457,7 @@ function itemCheckboxRow(
   const main = el('div', { class: 'item-main' }, cb, label);
   row.append(main);
 
-  // Inline scale dropdown (only meaningful when checked, but always rendered for layout stability)
-  const scaleSel = el('select', {
-    class: 'inline-scale',
-    'data-item': item.id,
-    'aria-label': `${item.label} – ${strings.labels.scale}`
-  }) as HTMLSelectElement;
-  scales.forEach((s) => scaleSel.append(el('option', { value: s.id, text: scaleDisplay(s) })));
-  scaleSel.value = scaleByItem[item.id] ?? defaultScaleId;
-  scaleSel.disabled = !isChecked;
-  scaleSel.addEventListener('change', () => handlers.onScaleChange(item.id, scaleSel.value));
-
-  const actions = el('div', { class: 'item-actions' }, scaleSel);
-  row.append(actions);
+  row.append(el('div', { class: 'item-actions' }));
 
   return row;
 }
@@ -538,17 +539,18 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   const wrap = el('div', { class: 'a4-body' });
 
   // Group rows by categoryId, preserve category order from first appearance
-  const groups = new Map<string, { title: string; items: ExportRow[] }>();
+  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
   rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, items: [] });
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
     groups.get(r.categoryId)!.items.push(r);
   });
 
-  groups.forEach(({ title, items }) => {
+  groups.forEach(({ title, scale, items }) => {
     const section = el('section', { class: 'a4-cat-section' });
     section.append(el('h2', { class: 'a4-cat-heading', text: title }));
+    if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
     const list = el('ol', { class: 'a4-items' });
-    items.forEach((r) => list.append(renderA4Item(r, mode)));
+    items.forEach((r) => list.append(renderA4Item(r, mode, scale)));
     section.append(list);
     wrap.append(section);
   });
@@ -556,33 +558,74 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   return wrap;
 }
 
-function renderA4Item(row: ExportRow, mode: PrintMode): HTMLElement {
-  const li = el('li', { class: 'a4-item' });
+function renderA4Item(row: ExportRow, mode: PrintMode, scale: Scale | null): HTMLElement {
+  const itemClasses = ['a4-item'];
+  if (mode === 'checklist') itemClasses.push('a4-item-checklist');
+  if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
+
+  const li = el('li', { class: itemClasses.join(' ') });
+  const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {
     li.append(el('span', { class: 'a4-cbox', text: '☐' }));
-    li.append(el('span', { class: 'a4-item-label', text: row.item }));
+    li.append(label);
     return li;
   }
 
-  li.append(el('div', { class: 'a4-item-label', text: row.item }));
-  if (row.scale) {
-    li.append(renderScaleOptions(row.scale));
+  li.append(label);
+  if (scale) {
+    li.append(renderScaleBoxes(scale));
   } else {
     li.append(el('div', { class: 'a4-scale-line' }));
   }
   return li;
 }
 
-function renderScaleOptions(scale: Scale): HTMLElement {
-  const wrap = el('div', { class: 'a4-scale-options' });
+function renderScaleHeader(scale: Scale): HTMLElement {
+  if (scale.kind === 'numeric') return renderNumericScaleHeader(scale);
+
+  const wrap = el('div', { class: 'a4-scale-header' });
+  wrap.append(el('div', { class: 'a4-scale-header-spacer' }));
+  const options = el('div', { class: 'a4-scale-options', style: scaleGridStyle(scale) });
   scaleOptionLabels(scale).forEach((label) => {
-    const opt = el('span', { class: 'a4-scale-opt' });
-    opt.append(el('span', { class: 'a4-cbox', text: '☐' }));
-    opt.append(el('span', { class: 'a4-scale-opt-text', text: label }));
-    wrap.append(opt);
+    options.append(el('span', { class: 'a4-scale-opt-text', text: label }));
+  });
+  wrap.append(options);
+  return wrap;
+}
+
+function renderScaleBoxes(scale: Scale): HTMLElement {
+  if (scale.kind === 'numeric') return renderNumericScaleBoxes(scale);
+
+  const wrap = el('div', { class: 'a4-scale-boxes', style: scaleGridStyle(scale) });
+  scaleOptionLabels(scale).forEach(() => {
+    wrap.append(el('span', { class: 'a4-cbox', text: '☐' }));
   });
   return wrap;
+}
+
+function renderNumericScaleHeader(scale: Scale & { kind: 'numeric' }): HTMLElement {
+  const wrap = el('div', { class: 'a4-scale-header a4-scale-header-numeric' });
+  wrap.append(el('div', { class: 'a4-scale-header-spacer' }));
+  const options = el('div', { class: 'a4-scale-options a4-scale-options-numeric', style: scaleGridStyle(scale) });
+  scaleOptionLabels(scale).forEach((label) => {
+    options.append(el('span', { class: 'a4-scale-opt-text', text: label }));
+  });
+  wrap.append(options);
+  return wrap;
+}
+
+function renderNumericScaleBoxes(scale: Scale & { kind: 'numeric' }): HTMLElement {
+  const wrap = el('div', { class: 'a4-scale-boxes a4-scale-boxes-numeric', style: scaleGridStyle(scale) });
+  scaleOptionLabels(scale).forEach(() => {
+    wrap.append(el('span', { class: 'a4-cbox', text: '☐' }));
+  });
+  return wrap;
+}
+
+function scaleGridStyle(scale: Scale): string {
+  const minColumnWidth = scale.kind === 'numeric' ? '13pt' : '26pt';
+  return `grid-template-columns: repeat(${scaleOptionLabels(scale).length}, minmax(${minColumnWidth}, 1fr))`;
 }
 
 function scaleOptionLabels(scale: Scale): string[] {

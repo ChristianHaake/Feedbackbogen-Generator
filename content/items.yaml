@@ -37,48 +37,49 @@ categories:
       - id: selbststaendigkeit
         label: Selbstständigkeit in der Auseinandersetzung mit dem Inhalt
 
-  - id: variabel
-    title: Präsentation / Darstellung / Reflexion (abhängig vom Produkt)
-    description: Parameter für Bewertung der Darstellung/Präsentation/Reflexion.
-    groups:
-      - id: praesentation
-        title: Präsentation
-        items:
-          - id: koerpersprache
-            label: Körpersprache und Blickkontakt
-          - id: aktivierend
-            label: Aktivierende Elemente
-          - id: sprachlicher_ausdruck
-            label: Sprachlicher Ausdruck
-          - id: eigeninitiative_praes
-            label: Eigeninitiative
-          - id: kreativitaet
-            label: Kreativität
-          - id: adressatenaufbereitung
-            label: Adressatengerechte Aufbereitung
-      - id: darstellung
-        title: Darstellung
-        items:
-          - id: gestaltung
-            label: Gestaltung (ansprechendes Layout, visuelle Attraktivität)
-          - id: farb_schrift
-            label: Einheitliches Farb- und Schriftkonzept
-          - id: optische_konsistenz
-            label: Optische Konsistenz
-          - id: thematisches_design
-            label: Thematisch passendes und unterstützendes Design
-      - id: reflexion
-        title: Reflexion
-        items:
-          - id: tiefe_reflexion
-            label: Tiefe und Differenziertheit der Prozessreflexion
-          - id: analyse_schwierigkeiten
-            label: Identifikation/Analyse von Schwierigkeiten
-          - id: loesungsvorschlaege
-            label: Konkrete, nachvollziehbare Lösungsvorschläge
+  - id: praesentation
+    title: Präsentation
+    description: Parameter für Bewertung der Präsentation.
+    items:
+      - id: koerpersprache
+        label: Körpersprache und Blickkontakt
+      - id: aktivierend
+        label: Aktivierende Elemente
+      - id: sprachlicher_ausdruck
+        label: Sprachlicher Ausdruck
+      - id: eigeninitiative_praes
+        label: Eigeninitiative
+      - id: kreativitaet
+        label: Kreativität
+      - id: adressatenaufbereitung
+        label: Adressatengerechte Aufbereitung
+
+  - id: reflexion
+    title: Reflexion
+    description: Parameter für Bewertung der Reflexion.
+    items:
+      - id: tiefe_reflexion
+        label: Tiefe und Differenziertheit der Prozessreflexion
+      - id: analyse_schwierigkeiten
+        label: Identifikation/Analyse von Schwierigkeiten
+      - id: loesungsvorschlaege
+        label: Konkrete, nachvollziehbare Lösungsvorschläge
+
+  - id: darstellung
+    title: Darstellung
+    description: Parameter für Bewertung der Darstellung.
+    items:
+      - id: gestaltung
+        label: Gestaltung (ansprechendes Layout, visuelle Attraktivität)
+      - id: farb_schrift
+        label: Einheitliches Farb- und Schriftkonzept
+      - id: optische_konsistenz
+        label: Optische Konsistenz
+      - id: thematisches_design
+        label: Thematisch passendes und unterstützendes Design
 
   - id: peer
-    title: "Optional: Peer-Feedback / Reflexion"
+    title: "Peer-Feedback / Reflexion"
     description: Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.
     items:
       - id: erfolg_arbeitsphase
@@ -126,3 +127,6 @@ scales:
     colors: ["#2e7d32","#fbc02d","#c62828"]
   - id: prozent
     kind: percent
+  - id: yes-no
+    kind: numeric
+    set: ["Ja","Nein"]

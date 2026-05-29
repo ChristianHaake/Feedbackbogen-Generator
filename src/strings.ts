@@ -23,12 +23,25 @@ export const strings = {
     export: 'Export'
   },
   kopfdaten: {
+    documentTitleSection: 'Titel',
+    documentTitle: 'Titel',
+    titleBewertungsbogen: 'Bewertungsbogen',
+    titleFeedbackbogen: 'Feedbackbogen',
+    titleCustom: 'Benutzerdefiniert',
+    customTitlePlaceholder: 'Eigener Titel',
     title: 'Kopfdaten (optional vorausfüllen)',
     learner: 'Name',
     learngroup: 'Lerngruppe',
     topic: 'Thema',
     date: 'Datum',
-    feedback: 'Feedback / Anmerkungen'
+    feedback: 'Feedback / Anmerkungen',
+    fieldLabel: 'Feld',
+    fieldValue: 'Vorausfüllung',
+    addField: 'Kopffeld hinzufügen',
+    fallbackField: 'Feld',
+    footerTitle: 'Fußzeile',
+    signature: 'Unterschrift',
+    grade: 'Bewertung'
   },
   modes: {
     full: 'Mit Skalen',
@@ -42,6 +55,7 @@ export const strings = {
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',
     customItemBadge: 'Eigenes Kriterium',
+    removeHeaderField: 'Kopffeld entfernen',
     searchCriteria: 'Kriterien suchen',
     searchPlaceholder: 'Suchen…',
     clearSelection: 'Auswahl leeren',
@@ -68,6 +82,8 @@ export const strings = {
     imported: 'JSON importiert.',
     exported: 'Export gestartet...',
     customItemAdded: 'Eigenes Kriterium hinzugefügt.',
-    customItemRemoved: 'Eigenes Kriterium entfernt.'
+    customItemRemoved: 'Eigenes Kriterium entfernt.',
+    headerFieldAdded: 'Kopffeld hinzugefügt.',
+    headerFieldRemoved: 'Kopffeld entfernt.'
   }
 } as const;

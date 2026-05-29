@@ -2,7 +2,7 @@ import {
   Document, Packer, Paragraph, HeadingLevel, TextRun
 } from 'docx';
 
-import type { ExportRow, HeaderData, PrintMode, Scale } from '@/types';
+import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
 import { strings } from '@/strings';
 
 function scaleOptions(scale: Scale | null): string[] {
@@ -21,27 +21,33 @@ function scaleOptions(scale: Scale | null): string[] {
 }
 
 function headerLine(label: string, value: string): Paragraph {
+  const safeLabel = label.trim() || strings.kopfdaten.fallbackField;
   const valueStr = value || '____________________________________';
   return new Paragraph({
     children: [
-      new TextRun({ text: `${label}: `, bold: true }),
-      new TextRun({ text: valueStr, underline: value ? undefined : { type: 'single' } })
+      new TextRun({ text: `${safeLabel}: `, bold: true }),
+      new TextRun({ text: valueStr, underline: { type: 'single' } })
     ],
     spacing: { after: 80 }
   });
 }
 
-export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: PrintMode = 'full') {
+function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
+  return [
+    { id: 'date', label: strings.kopfdaten.date },
+    { id: 'signature', label: strings.kopfdaten.signature },
+    { id: 'grade', label: strings.kopfdaten.grade }
+  ];
+}
+
+export async function exportDOCX(rows: ExportRow[], title: string, header: HeaderData, footerFields: FooterFields, mode: PrintMode = 'full') {
   const children: Paragraph[] = [
     new Paragraph({
-      text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen',
+      text: title,
       heading: HeadingLevel.TITLE,
       spacing: { after: 240 }
     }),
-    headerLine(strings.kopfdaten.learner, header.learner),
-    headerLine(strings.kopfdaten.learngroup, header.learngroup),
-    headerLine(strings.kopfdaten.topic, header.topic),
-    headerLine(strings.kopfdaten.date, header.date),
+    ...header.fields.map((field) => headerLine(field.label, field.value)),
     new Paragraph({ text: '' })
   ];
 
@@ -100,13 +106,22 @@ export async function exportDOCX(rows: ExportRow[], header: HeaderData, mode: Pr
     heading: HeadingLevel.HEADING_2,
     spacing: { before: 200, after: 100 }
   }));
-  if (header.feedback) {
-    children.push(new Paragraph({ text: header.feedback, spacing: { after: 100 } }));
-  }
   for (let i = 0; i < 5; i++) {
     children.push(new Paragraph({
       children: [new TextRun({ text: '____________________________________________________________________' })],
       spacing: { after: 80 }
+    }));
+  }
+
+  const enabledFooterFields = footerFieldOptions().filter(({ id }) => footerFields[id]);
+  if (enabledFooterFields.length > 0) {
+    children.push(new Paragraph({ text: '' }));
+    children.push(new Paragraph({
+      children: [new TextRun({
+        text: enabledFooterFields.map(({ label }) => `${label}: ____________________`).join('     '),
+        bold: true
+      })],
+      spacing: { before: 200, after: 80 }
     }));
   }
 

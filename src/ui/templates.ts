@@ -2,7 +2,10 @@ import { el, icon } from './components';
 
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
-import type { Category, Scale, CustomItem, HeaderData, ExportRow, PrintMode, Item } from '@/types';
+import type {
+  Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item
+} from '@/types';
 
 export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
 export type MobileView = 'edit' | 'preview' | 'export';
@@ -26,7 +29,13 @@ export type RenderHandlers = {
   onClearCategory: (categoryId: string) => void;
   onClearSelection: () => void;
   onSearchChange: (value: string) => void;
-  onHeaderChange: (field: keyof HeaderData, value: string) => void;
+  onDocumentTitleModeChange: (mode: DocumentTitleMode) => void;
+  onDocumentTitleCustomChange: (value: string) => void;
+  onHeaderFieldLabelChange: (fieldId: string, label: string) => void;
+  onHeaderFieldValueChange: (fieldId: string, value: string) => void;
+  onAddHeaderField: () => void;
+  onRemoveHeaderField: (fieldId: string) => void;
+  onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
   onMobileViewChange: (view: MobileView) => void;
 };
@@ -70,6 +79,7 @@ export function renderLayout(): HTMLElement {
       mobileTab('export', strings.labels.mobileExport, false)
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
+      editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
       editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
       editorSection(strings.columns.selected,
         el('div', { class: 'selected-head' },
@@ -94,7 +104,8 @@ export function renderLayout(): HTMLElement {
           el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
         ),
         el('div', { id: 'categories', class: 'accordion' })
-      )
+      ),
+      editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -194,33 +205,141 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   return btn;
 }
 
+export function documentTitleText(config: DocumentTitleConfig): string {
+  if (config.mode === 'feedbackbogen') return strings.kopfdaten.titleFeedbackbogen;
+  if (config.mode === 'custom') return config.custom.trim() || strings.kopfdaten.titleBewertungsbogen;
+  return strings.kopfdaten.titleBewertungsbogen;
+}
+
+export function renderDocumentTitleForm(
+  container: HTMLElement,
+  documentTitle: DocumentTitleConfig,
+  handlers: Pick<RenderHandlers, 'onDocumentTitleModeChange' | 'onDocumentTitleCustomChange'>
+) {
+  container.innerHTML = '';
+  const selectId = 'document-title-mode';
+  const select = el('select', {
+    id: selectId,
+    class: 'default-scale-select',
+    'aria-label': strings.kopfdaten.documentTitle
+  }) as HTMLSelectElement;
+  const options: { value: DocumentTitleMode; label: string }[] = [
+    { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
+    { value: 'feedbackbogen', label: strings.kopfdaten.titleFeedbackbogen },
+    { value: 'custom', label: strings.kopfdaten.titleCustom }
+  ];
+  options.forEach(({ value, label }) => select.append(el('option', { value, text: label })));
+  select.value = documentTitle.mode;
+  select.addEventListener('change', () => handlers.onDocumentTitleModeChange(select.value as DocumentTitleMode));
+
+  container.append(el('div', { class: 'kd-field' },
+    el('label', { for: selectId, class: 'kd-label', text: strings.kopfdaten.documentTitle }),
+    select
+  ));
+
+  if (documentTitle.mode === 'custom') {
+    const inputId = 'document-title-custom';
+    const input = el('input', {
+      id: inputId,
+      class: 'kd-input',
+      type: 'text',
+      value: documentTitle.custom,
+      placeholder: strings.kopfdaten.customTitlePlaceholder
+    }) as HTMLInputElement;
+    input.addEventListener('input', () => handlers.onDocumentTitleCustomChange(input.value));
+    container.append(el('div', { class: 'kd-field' },
+      el('label', { for: inputId, class: 'kd-label', text: strings.kopfdaten.titleCustom }),
+      input
+    ));
+  }
+}
+
 export function renderKopfdaten(
   container: HTMLElement,
   header: HeaderData,
-  onChange: (field: keyof HeaderData, value: string) => void
+  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onAddHeaderField' | 'onRemoveHeaderField'>
 ) {
   container.innerHTML = '';
 
-  const fields: { key: keyof HeaderData; label: string; type: string }[] = [
-    { key: 'learner', label: strings.kopfdaten.learner, type: 'text' },
-    { key: 'learngroup', label: strings.kopfdaten.learngroup, type: 'text' },
-    { key: 'topic', label: strings.kopfdaten.topic, type: 'text' },
-    { key: 'date', label: strings.kopfdaten.date, type: 'date' }
-  ];
+  container.append(el('div', { class: 'header-field-head', 'aria-hidden': 'true' },
+    el('span', { text: strings.kopfdaten.fieldLabel }),
+    el('span', { text: strings.kopfdaten.fieldValue }),
+    el('span')
+  ));
 
-  fields.forEach(({ key, label, type }) => {
-    const inputId = `kd-${key}`;
-    const input = el('input', { type, id: inputId, class: 'kd-input', value: header[key], placeholder: label }) as HTMLInputElement;
-    input.addEventListener('input', () => onChange(key, input.value));
-    const lbl = el('label', { for: inputId, class: 'kd-label', text: label });
-    container.append(el('div', { class: 'kd-field' }, lbl, input));
+  header.fields.forEach((field) => {
+    container.append(renderHeaderFieldEditor(field, handlers));
   });
 
-  const fbInput = el('textarea', { id: 'kd-feedback', class: 'kd-textarea', placeholder: strings.kopfdaten.feedback, rows: '3' }) as HTMLTextAreaElement;
-  fbInput.value = header.feedback;
-  fbInput.addEventListener('input', () => onChange('feedback', fbInput.value));
-  const fbLabel = el('label', { for: 'kd-feedback', class: 'kd-label', text: strings.kopfdaten.feedback });
-  container.append(el('div', { class: 'kd-field kd-field-wide' }, fbLabel, fbInput));
+  const addFieldBtn = el('button', { class: 'btn btn-small btn-primary add-header-field-btn', type: 'button' });
+  addFieldBtn.append(icon('icon-plus'), el('span', { text: strings.kopfdaten.addField }));
+  addFieldBtn.addEventListener('click', handlers.onAddHeaderField);
+  container.append(addFieldBtn);
+}
+
+function renderHeaderFieldEditor(
+  field: HeaderField,
+  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onRemoveHeaderField'>
+): HTMLElement {
+  const labelInputId = `kd-label-${field.id}`;
+  const valueInputId = `kd-value-${field.id}`;
+  const labelInput = el('input', {
+    type: 'text',
+    id: labelInputId,
+    class: 'kd-input',
+    value: field.label,
+    placeholder: strings.kopfdaten.fieldLabel
+  }) as HTMLInputElement;
+  const valueInput = el('input', {
+    type: 'text',
+    id: valueInputId,
+    class: 'kd-input',
+    value: field.value,
+    placeholder: ''
+  }) as HTMLInputElement;
+  const removeBtn = el('button', {
+    class: 'btn-icon remove-header-field-btn',
+    type: 'button',
+    'aria-label': strings.labels.removeHeaderField,
+    title: strings.labels.removeHeaderField
+  });
+  removeBtn.append(el('span', { class: 'remove-header-field-mark', text: 'x' }));
+
+  labelInput.addEventListener('input', () => handlers.onHeaderFieldLabelChange(field.id, labelInput.value));
+  valueInput.addEventListener('input', () => handlers.onHeaderFieldValueChange(field.id, valueInput.value));
+  removeBtn.addEventListener('click', () => handlers.onRemoveHeaderField(field.id));
+
+  return el('div', { class: 'header-field-row' },
+    el('div', { class: 'kd-field' },
+      el('label', { for: labelInputId, class: 'kd-label sr-only', text: strings.kopfdaten.fieldLabel }),
+      labelInput
+    ),
+    el('div', { class: 'kd-field' },
+      el('label', { for: valueInputId, class: 'kd-label sr-only', text: strings.kopfdaten.fieldValue }),
+      valueInput
+    ),
+    removeBtn
+  );
+}
+
+export function renderFooterFields(
+  container: HTMLElement,
+  footerFields: FooterFields,
+  handlers: Pick<RenderHandlers, 'onFooterFieldToggle'>
+) {
+  container.innerHTML = '';
+  footerFieldOptions().forEach(({ id, label }) => {
+    const inputId = `footer-${id}`;
+    const input = el('input', {
+      type: 'checkbox',
+      id: inputId,
+      class: 'item-checkbox',
+      checked: footerFields[id] ? 'true' : undefined
+    }) as HTMLInputElement;
+    input.checked = footerFields[id];
+    input.addEventListener('change', () => handlers.onFooterFieldToggle(id, input.checked));
+    container.append(el('label', { class: 'footer-field-option', for: inputId }, input, el('span', { text: label })));
+  });
 }
 
 export function renderSelectedCounter(container: HTMLElement, count: number) {
@@ -494,12 +613,14 @@ export function renderMobileTabs(container: HTMLElement, activeView: MobileView,
 export function renderPreview(
   container: HTMLElement,
   rows: ExportRow[],
+  documentTitle: DocumentTitleConfig,
   header: HeaderData,
+  footerFields: FooterFields,
   mode: PrintMode
 ) {
   container.innerHTML = '';
 
-  container.append(el('h1', { class: 'a4-title', text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen' }));
+  container.append(el('h1', { class: 'a4-title', text: documentTitleText(documentTitle) }));
 
   // Header fields with blank lines (always shown — empty fields stay fillable on paper)
   container.append(renderA4Header(header));
@@ -510,22 +631,17 @@ export function renderPreview(
     container.append(renderA4Body(rows, mode));
   }
 
-  container.append(renderA4Feedback(header));
+  container.append(renderA4Feedback());
+  container.append(renderA4Footer(footerFields));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {
   const wrap = el('div', { class: 'a4-header-fields' });
 
-  const fields: [string, string][] = [
-    [strings.kopfdaten.learner, header.learner],
-    [strings.kopfdaten.learngroup, header.learngroup],
-    [strings.kopfdaten.topic, header.topic],
-    [strings.kopfdaten.date, header.date]
-  ];
-
-  fields.forEach(([label, value]) => {
+  header.fields.forEach(({ label, value }) => {
+    const safeLabel = label.trim() || strings.kopfdaten.fallbackField;
     const row = el('div', { class: 'a4-hf-row' });
-    row.append(el('span', { class: 'a4-hf-label', text: `${label}:` }));
+    row.append(el('span', { class: 'a4-hf-label', text: `${safeLabel}:` }));
     const valEl = el('span', { class: 'a4-hf-value' });
     if (value) valEl.textContent = value;
     row.append(valEl);
@@ -642,11 +758,30 @@ function scaleOptionLabels(scale: Scale): string[] {
   }
 }
 
-function renderA4Feedback(header: HeaderData): HTMLElement {
+function renderA4Feedback(): HTMLElement {
   const section = el('div', { class: 'a4-feedback' });
   section.append(el('h2', { class: 'a4-feedback-title', text: strings.kopfdaten.feedback }));
-  if (header.feedback) section.append(el('p', { class: 'a4-feedback-text', text: header.feedback }));
   // Blank lines for handwriting
   for (let i = 0; i < 5; i++) section.append(el('div', { class: 'a4-feedback-line' }));
   return section;
+}
+
+function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
+  return [
+    { id: 'date', label: strings.kopfdaten.date },
+    { id: 'signature', label: strings.kopfdaten.signature },
+    { id: 'grade', label: strings.kopfdaten.grade }
+  ];
+}
+
+function renderA4Footer(footerFields: FooterFields): HTMLElement {
+  const enabled = footerFieldOptions().filter(({ id }) => footerFields[id]);
+  const wrap = el('div', { class: 'a4-footer-fields' });
+  enabled.forEach(({ label }) => {
+    wrap.append(el('div', { class: 'a4-footer-field' },
+      el('span', { class: 'a4-footer-label', text: `${label}:` }),
+      el('span', { class: 'a4-footer-line' })
+    ));
+  });
+  return wrap;
 }

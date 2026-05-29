@@ -1,15 +1,21 @@
 import './app.css';
 import {
-  renderLayout, renderKopfdaten, renderCategories,
+  documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
   renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
-  renderSelectedList, renderMobileTabs
+  renderSelectedList, renderMobileTabs, renderFooterFields
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
-import { saveConfig, loadConfig, exportConfigJSON, importConfigJSON, EMPTY_HEADER } from './storage';
+import {
+  saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
+  EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE
+} from './storage';
 import { scaleDisplay } from './scale-utils';
-import type { SelectedItemRef, ExportRow, CustomItem, HeaderData, PrintMode } from './types';
+import type {
+  SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  HeaderData, FooterFields, FooterFieldId, PrintMode
+} from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
 async function bootstrap() {
@@ -27,7 +33,9 @@ async function bootstrap() {
   let selected: SelectedItemRef[] = [];
   let scaleByCategoryMap: Record<string, string> = {};
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
-  let header: HeaderData = { ...EMPTY_HEADER };
+  let documentTitle: DocumentTitleConfig = { ...DEFAULT_DOCUMENT_TITLE };
+  let header: HeaderData = cloneHeader(EMPTY_HEADER);
+  let footerFields: FooterFields = { ...DEFAULT_FOOTER_FIELDS };
   let customItems: CustomItem[] = [];
   let previewMode: PrintMode = 'full';
   let searchQuery = '';
@@ -38,7 +46,9 @@ async function bootstrap() {
     selected = persisted.selectedItems;
     scaleByCategoryMap = persisted.scaleByCategory;
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
-    header = { ...EMPTY_HEADER, ...(persisted.header ?? {}) };
+    documentTitle = { ...persisted.documentTitle };
+    header = cloneHeader(persisted.header);
+    footerFields = persisted.footerFields;
     customItems = persisted.customItems ?? [];
     announce(strings.messages.loaded);
   }
@@ -46,7 +56,9 @@ async function bootstrap() {
   const categoriesEl = document.getElementById('categories')!;
   const counterEl = document.getElementById('selected-counter')!;
   const selectedListEl = document.getElementById('selected-list')!;
+  const documentTitleEl = document.getElementById('document-title-form')!;
   const kopfdatenEl = document.getElementById('kopfdaten-form')!;
+  const footerFieldsEl = document.getElementById('footer-fields')!;
   const a4El = document.getElementById('a4-page')!;
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
   const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
@@ -118,8 +130,49 @@ async function bootstrap() {
       searchQuery = value;
       renderEditor();
     },
-    onHeaderChange: (field: keyof HeaderData, value: string) => {
-      header = { ...header, [field]: value };
+    onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
+      documentTitle = { ...documentTitle, mode };
+      renderEditor();
+      renderA4();
+    },
+    onDocumentTitleCustomChange: (value: string) => {
+      documentTitle = { ...documentTitle, custom: value };
+      renderA4();
+    },
+    onHeaderFieldLabelChange: (fieldId: string, label: string) => {
+      header = {
+        ...header,
+        fields: header.fields.map((field) => field.id === fieldId ? { ...field, label } : field)
+      };
+      renderA4();
+    },
+    onHeaderFieldValueChange: (fieldId: string, value: string) => {
+      header = {
+        ...header,
+        fields: header.fields.map((field) => field.id === fieldId ? { ...field, value } : field)
+      };
+      renderA4();
+    },
+    onAddHeaderField: () => {
+      header = {
+        ...header,
+        fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
+      };
+      renderEditor();
+      renderA4();
+      announce(strings.messages.headerFieldAdded);
+    },
+    onRemoveHeaderField: (fieldId: string) => {
+      header = {
+        ...header,
+        fields: header.fields.filter((field) => field.id !== fieldId)
+      };
+      renderEditor();
+      renderA4();
+      announce(strings.messages.headerFieldRemoved);
+    },
+    onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => {
+      footerFields = { ...footerFields, [field]: checked };
       renderA4();
     },
     onPreviewModeChange: (mode: PrintMode) => {
@@ -135,6 +188,12 @@ async function bootstrap() {
 
   function selectedSet(): Set<string> {
     return new Set(selected.map((s) => s.itemId));
+  }
+
+  function cloneHeader(value: HeaderData): HeaderData {
+    return {
+      fields: value.fields.map((field) => ({ ...field }))
+    };
   }
 
   function buildExportRows(): ExportRow[] {
@@ -196,7 +255,7 @@ async function bootstrap() {
     saveConfig({
       selectedItems: selected,
       scaleByCategory: scaleByCategoryMap,
-      defaultScaleId, header, customItems
+      defaultScaleId, documentTitle, header, footerFields, customItems
     });
     announce(strings.messages.saved);
   }
@@ -207,7 +266,9 @@ async function bootstrap() {
       selected = cfg.selectedItems;
       scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
+      documentTitle = { ...cfg.documentTitle };
+      header = cloneHeader(cfg.header);
+      footerFields = cfg.footerFields;
       customItems = cfg.customItems ?? [];
       renderEditor();
       renderA4();
@@ -228,7 +289,9 @@ async function bootstrap() {
       openCats.add(id);
     });
 
-    renderKopfdaten(kopfdatenEl, header, handlers.onHeaderChange);
+    renderDocumentTitleForm(documentTitleEl, documentTitle, handlers);
+    renderKopfdaten(kopfdatenEl, header, handlers);
+    renderFooterFields(footerFieldsEl, footerFields, handlers);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
@@ -254,7 +317,7 @@ async function bootstrap() {
   }
 
   function renderA4() {
-    renderPreview(a4El, buildExportRows(), header, previewMode);
+    renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
   }
 
   renderEditor();
@@ -266,7 +329,7 @@ async function bootstrap() {
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   const exportJson = () => {
-    exportConfigJSON({ selectedItems: selected, scaleByCategory: scaleByCategoryMap, defaultScaleId, header, customItems });
+    exportConfigJSON({ selectedItems: selected, scaleByCategory: scaleByCategoryMap, defaultScaleId, documentTitle, header, footerFields, customItems });
   };
   const importJson = async () => {
     const cfg = await importConfigJSON();
@@ -274,7 +337,9 @@ async function bootstrap() {
       selected = cfg.selectedItems;
       scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
+      documentTitle = { ...cfg.documentTitle };
+      header = cloneHeader(cfg.header);
+      footerFields = cfg.footerFields;
       customItems = cfg.customItems ?? [];
       renderEditor();
       renderA4();
@@ -294,7 +359,7 @@ async function bootstrap() {
       window.print();
     } else if (fmt === 'docx') {
       const { exportDOCX } = await import('./export/export-docx');
-      exportDOCX(buildExportRows(), header, previewMode);
+      exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
     } else if (fmt === 'xlsx') {
       const { exportXLSX } = await import('./export/export-xlsx');
       exportXLSX(buildExportRows());

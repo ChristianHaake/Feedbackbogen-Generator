@@ -1,8 +1,82 @@
-import type { AppConfig, HeaderData } from './types';
+import { strings } from './strings';
+import type { AppConfig, DocumentTitleConfig, DocumentTitleMode, FooterFields, HeaderData, HeaderField } from './types';
 
 const KEY = 'bbk:config';
 
-export const EMPTY_HEADER: HeaderData = { learner: '', learngroup: '', topic: '', date: '', feedback: '' };
+export const DEFAULT_HEADER_FIELDS: HeaderField[] = [
+  { id: 'name', label: strings.kopfdaten.learner, value: '' },
+  { id: 'learngroup', label: strings.kopfdaten.learngroup, value: '' },
+  { id: 'topic', label: strings.kopfdaten.topic, value: '' },
+  { id: 'date', label: strings.kopfdaten.date, value: '' }
+];
+
+export const DEFAULT_FOOTER_FIELDS: FooterFields = {
+  date: true,
+  signature: true,
+  grade: true
+};
+
+export const DEFAULT_DOCUMENT_TITLE: DocumentTitleConfig = {
+  mode: 'bewertungsbogen',
+  custom: ''
+};
+
+export const EMPTY_HEADER: HeaderData = {
+  fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field }))
+};
+
+function normalizeDocumentTitle(value: unknown): DocumentTitleConfig {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_DOCUMENT_TITLE };
+  const title = value as Partial<DocumentTitleConfig>;
+  const modes: DocumentTitleMode[] = ['bewertungsbogen', 'feedbackbogen', 'custom'];
+  return {
+    mode: typeof title.mode === 'string' && modes.includes(title.mode as DocumentTitleMode)
+      ? title.mode as DocumentTitleMode
+      : DEFAULT_DOCUMENT_TITLE.mode,
+    custom: typeof title.custom === 'string' ? title.custom : ''
+  };
+}
+
+function normalizeHeaderField(field: unknown, index: number): HeaderField | null {
+  if (!field || typeof field !== 'object') return null;
+  const value = field as Partial<HeaderField>;
+  if (typeof value.id !== 'string' || typeof value.label !== 'string') return null;
+  return {
+    id: value.id || `field_${index}`,
+    label: value.label.trim() || strings.kopfdaten.fallbackField,
+    value: typeof value.value === 'string' ? value.value : ''
+  };
+}
+
+function normalizeHeader(headerValue: unknown): HeaderData {
+  if (!headerValue || typeof headerValue !== 'object') return {
+    fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field }))
+  };
+
+  const header = headerValue as Partial<HeaderData> & Record<string, unknown>;
+  const fields = Array.isArray(header.fields)
+    ? header.fields
+      .map((field, index) => normalizeHeaderField(field, index))
+      .filter((field): field is HeaderField => field !== null)
+    : [
+      { ...DEFAULT_HEADER_FIELDS[0], value: typeof header.learner === 'string' ? header.learner : '' },
+      { ...DEFAULT_HEADER_FIELDS[1], value: typeof header.learngroup === 'string' ? header.learngroup : '' },
+      { ...DEFAULT_HEADER_FIELDS[2], value: typeof header.topic === 'string' ? header.topic : '' },
+      { ...DEFAULT_HEADER_FIELDS[3], value: typeof header.date === 'string' ? header.date : '' }
+    ];
+
+  return { fields };
+}
+
+function normalizeFooterFields(value: unknown): FooterFields {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_FOOTER_FIELDS };
+  const footer = value as Partial<FooterFields>;
+  return {
+    date: typeof footer.date === 'boolean' ? footer.date : DEFAULT_FOOTER_FIELDS.date,
+    signature: typeof footer.signature === 'boolean' ? footer.signature : DEFAULT_FOOTER_FIELDS.signature,
+    grade: typeof footer.grade === 'boolean' ? footer.grade : DEFAULT_FOOTER_FIELDS.grade
+  };
+}
 
 function normalizeConfig(value: unknown): AppConfig | null {
   if (!value || typeof value !== 'object') return null;
@@ -11,14 +85,13 @@ function normalizeConfig(value: unknown): AppConfig | null {
   const scaleByCategory = cfg.scaleByCategory && typeof cfg.scaleByCategory === 'object' && !Array.isArray(cfg.scaleByCategory)
     ? cfg.scaleByCategory
     : {};
-  const header = cfg.header && typeof cfg.header === 'object'
-    ? cfg.header
-    : {};
   return {
     selectedItems: cfg.selectedItems,
     scaleByCategory,
     defaultScaleId: cfg.defaultScaleId,
-    header: { ...EMPTY_HEADER, ...header },
+    documentTitle: normalizeDocumentTitle(cfg.documentTitle),
+    header: normalizeHeader(cfg.header),
+    footerFields: normalizeFooterFields(cfg.footerFields),
     customItems: Array.isArray(cfg.customItems) ? cfg.customItems : []
   };
 }

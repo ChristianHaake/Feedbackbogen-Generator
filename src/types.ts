@@ -44,19 +44,33 @@ export type CustomItem = Item & {
   categoryId: string;
 };
 
-export type HeaderData = {
-  learner: string;
-  learngroup: string;
-  topic: string;
-  date: string;
-  feedback: string;
+export type HeaderField = {
+  id: string;
+  label: string;
+  value: string;
 };
+
+export type HeaderData = {
+  fields: HeaderField[];
+};
+
+export type DocumentTitleMode = 'bewertungsbogen' | 'feedbackbogen' | 'custom';
+
+export type DocumentTitleConfig = {
+  mode: DocumentTitleMode;
+  custom: string;
+};
+
+export type FooterFieldId = 'date' | 'signature' | 'grade';
+export type FooterFields = Record<FooterFieldId, boolean>;
 
 export type AppConfig = {
   selectedItems: SelectedItemRef[];
   scaleByCategory: Record<string, string>;
   defaultScaleId?: string;
+  documentTitle: DocumentTitleConfig;
   header: HeaderData;
+  footerFields: FooterFields;
   customItems: CustomItem[];
 };
 

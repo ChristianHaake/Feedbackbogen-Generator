@@ -6,7 +6,7 @@ Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen
 
 - Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
 - Konfiguration via YAML: Datei `content/items.yaml` liefert Kategorien und Skalen. Beim Laden wird validiert; bei Fehlern erfolgt ein Toast und Fallback auf Demo-Daten.
-- UI: Zweigeteilter Builder – links Kopfdaten, ausgewählte Kriterien, Suche und Kategorien; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
+- UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche und Kategorien; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF/Druckdialog, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF/Druck), respektiert `prefers-reduced-motion`.
@@ -91,12 +91,22 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
   "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
   "scaleByCategory": { "<categoryId>": "<scaleId>" },
   "defaultScaleId": "verbal_5",
+  "documentTitle": {
+    "mode": "bewertungsbogen",
+    "custom": ""
+  },
   "header": {
-    "learner": "",
-    "learngroup": "",
-    "topic": "",
-    "date": "",
-    "feedback": ""
+    "fields": [
+      { "id": "name", "label": "Name", "value": "" },
+      { "id": "learngroup", "label": "Lerngruppe", "value": "" },
+      { "id": "topic", "label": "Thema", "value": "" },
+      { "id": "date", "label": "Datum", "value": "" }
+    ]
+  },
+  "footerFields": {
+    "date": true,
+    "signature": true,
+    "grade": true
   },
   "customItems": [
     {
@@ -109,10 +119,12 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 }
 ```
 
+Ältere JSON-Konfigurationen mit `header.learner`, `header.learngroup`, `header.topic` und `header.date` werden beim Laden in die neue `header.fields`-Struktur übernommen. Alte `header.feedback`-Werte werden ignoriert; Feedback bleibt ein leeres Schreibfeld auf dem Bogen.
+
 ## Exporte (Client-Side)
 
 - PDF: DIN A4 über die Browser-Druckfunktion (`window.print()`), je nach aktueller Vorschau als Bewertungsbogen oder Checkliste.
-- DOCX: Überschrift, Datum, Tabelle (docx), ebenfalls abhängig vom aktuellen Vorschaumodus.
+- DOCX: Überschrift, Kopffelder, Feedback, optionale Fußzeile und Bewertungstabelle (docx), ebenfalls abhängig vom aktuellen Vorschaumodus.
 - XLSX: Sheet „Bewertungsbogen“, zusätzliche Spalten für Punkte/Notizen (xlsx).
 - ODP: Minimal lauffähiges ODF-Gerüst (ZIP+XML mit `mimetype`, `content.xml`, `styles.xml`, `meta.xml`, `META-INF/manifest.xml`). Enthält eine Titelfolie und eine Folie mit Tabelle.
 

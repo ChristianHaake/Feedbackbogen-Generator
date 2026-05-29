@@ -127,5 +127,5 @@ scales:
   - id: prozent
     kind: percent
   - id: yes-no
-    kind: numeric
-    set: ["Ja","Nein"]
+    kind: verbal
+    labels: ["Ja","Nein"]

@@ -8,7 +8,7 @@ export const strings = {
     exportNow: 'Exportieren',
     exportFormat: 'Format',
     more: 'Mehr',
-    exportPdf: 'PDF / Drucken',
+    exportPdf: 'PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdp: 'ODP'
@@ -78,11 +78,6 @@ export const strings = {
     mobilePreview: 'Vorschau',
     mobileExport: 'Export',
     selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`
-  },
-  links: {
-    imprint: 'Impressum',
-    privacy: 'Datenschutz',
-    github: 'GitHub'
   },
   a11y: {
     status: 'Statusmeldungen',

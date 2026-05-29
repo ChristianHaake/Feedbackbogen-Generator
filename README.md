@@ -4,6 +4,14 @@ Der Feedbackbogen-Generator ist ein webbasiertes Open-Source-Werkzeug zur Erstel
 
 Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeldung und keine serverseitige Speicherung der eingegebenen Inhalte.
 
+- Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
+- Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.json` liefert Produktformat-Pakete für die Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
+- UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
+- Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
+- Exporte lokal im Browser: PDF, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
+- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF), respektiert `prefers-reduced-motion`.
+- Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
+
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 
 ## Wofür ist das Tool gedacht?
@@ -147,4 +155,4 @@ Weiterführende Informationen stehen in der Anwendung unter „About“.
 
 ## Lizenz
 
-GPLv3, siehe `LICENSE`.
+MIT, siehe `LICENSE`.

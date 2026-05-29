@@ -17,9 +17,9 @@ export function icon(id: string, ariaLabel?: string) {
   const svg = el('svg', { 'aria-hidden': ariaLabel ? 'false' : 'true', width: '18', height: '18', viewBox: '0 0 24 24' });
   const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
   // Modern attribute
-  use.setAttribute('href', `./icons.svg#${id}`);
+  use.setAttribute('href', `/icons.svg#${id}`);
   // Legacy xlink for older browsers
-  use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `./icons.svg#${id}`);
+  use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `/icons.svg#${id}`);
   (svg as any).append(use);
   if (ariaLabel) svg.setAttribute('role', 'img');
   return svg;

@@ -3,12 +3,16 @@ import {
   documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
   renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
   renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
-  renderProductFormatModal, renderContentPageModal
+  renderProductFormatModal
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
 import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
+import {
+  contentPages, loadContentMarkdown, renderContentPage, routeFromPath,
+  type AppRoute, type ContentPageId
+} from './content-pages';
 import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
   EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE
@@ -18,7 +22,7 @@ import type {
   SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, FooterFields, FooterFieldId, PrintMode, Category
 } from './types';
-import type { ContentPageId, ContentPageState, ExportFormat, MobileView, SelectedSummary } from './ui/templates';
+import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
 async function bootstrap() {
   focusVisiblePolyfill();
@@ -27,7 +31,7 @@ async function bootstrap() {
   root.append(app);
 
   const baseUrl = import.meta.env.BASE_URL as string;
-  const data = await loadYAML(baseUrl);
+  const data = await loadYAML();
   const productFormats = await loadProductFormats(baseUrl);
   const categories = data.categories;
   const scales = data.scales;
@@ -46,7 +50,6 @@ async function bootstrap() {
   let productFormatModalOpen = false;
   let productFormatSearchQuery = '';
   let mobileView: MobileView = 'edit';
-  let contentPage: ContentPageState = null;
 
   const persisted = loadConfig();
   if (persisted) {
@@ -62,10 +65,11 @@ async function bootstrap() {
   }
 
   const categoriesEl = document.getElementById('categories')!;
+  const workspaceEl = document.querySelector('.workspace') as HTMLElement;
+  const contentPageEl = document.getElementById('content-page')!;
   const productFormatControlsEl = document.getElementById('product-format-controls')!;
   const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
   const productFormatModalEl = document.getElementById('product-format-modal-root')!;
-  const contentPageModalEl = document.getElementById('content-page-modal-root')!;
   const counterEl = document.getElementById('selected-counter')!;
   const selectedListEl = document.getElementById('selected-list')!;
   const documentTitleEl = document.getElementById('document-title-form')!;
@@ -75,8 +79,11 @@ async function bootstrap() {
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
   const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
   const clearSelectionEl = document.getElementById('clear-selection') as HTMLButtonElement;
+  const toolbarActionsEl = document.querySelector('.toolbar .actions') as HTMLElement;
   const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
   const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
+  const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
+  let routeRenderId = 0;
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
@@ -222,30 +229,8 @@ async function bootstrap() {
     onMobileViewChange: (view: MobileView) => {
       mobileView = view;
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
-    },
-    onOpenContentPage: async (page: ContentPageId) => {
-      const pageMeta = contentPageMeta(page);
-      contentPage = { id: page, title: pageMeta.title, body: '', loading: true, error: false };
-      renderContentPageModal(contentPageModalEl, contentPage, handlers);
-      try {
-        const res = await fetch(baseUrl + pageMeta.path);
-        if (!res.ok) throw new Error(`Failed to load ${pageMeta.path}`);
-        contentPage = { id: page, title: pageMeta.title, body: await res.text(), loading: false, error: false };
-      } catch {
-        contentPage = { id: page, title: pageMeta.title, body: '', loading: false, error: true };
-      }
-      renderContentPageModal(contentPageModalEl, contentPage, handlers);
-    },
-    onCloseContentPage: () => {
-      contentPage = null;
-      renderContentPageModal(contentPageModalEl, contentPage, handlers);
     }
   };
-
-  function contentPageMeta(page: ContentPageId): { title: string; path: string } {
-    if (page === 'imprint') return { title: strings.links.imprint, path: 'content/imprint.md' };
-    return { title: strings.links.privacy, path: 'content/privacy.md' };
-  }
 
   function selectionKey(categoryId: string, itemId: string): string {
     return `${categoryId}::${itemId}`;
@@ -420,10 +405,60 @@ async function bootstrap() {
     renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
   }
 
+  function isContentRoute(route: AppRoute): route is ContentPageId {
+    return route !== 'generator';
+  }
+
+  async function renderRoute() {
+    const route = routeFromPath(window.location.pathname);
+    const renderId = ++routeRenderId;
+    updateFooterNav(route);
+
+    workspaceEl.hidden = route !== 'generator';
+    contentPageEl.hidden = route === 'generator';
+    toolbarActionsEl.hidden = route !== 'generator';
+    if (!isContentRoute(route)) return;
+
+    contentPageEl.innerHTML = '';
+    contentPageEl.append(simpleContentMessage('Inhalt wird geladen...'));
+    try {
+      const markdown = contentMarkdownCache[route] ?? await loadContentMarkdown(route);
+      contentMarkdownCache[route] = markdown;
+      if (renderId !== routeRenderId) return;
+      renderContentPage(contentPageEl, route, markdown);
+      contentPageEl.scrollTo({ top: 0 });
+    } catch {
+      if (renderId !== routeRenderId) return;
+      contentPageEl.innerHTML = '';
+      contentPageEl.append(simpleContentMessage('Der Inhalt konnte nicht geladen werden.'));
+    }
+  }
+
+  function simpleContentMessage(message: string): HTMLElement {
+    const wrap = document.createElement('article');
+    wrap.className = 'content-page-card';
+    const p = document.createElement('p');
+    p.textContent = message;
+    wrap.append(p);
+    return wrap;
+  }
+
+  function updateFooterNav(route: AppRoute) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-app-route]').forEach((link) => {
+      const linkRoute = link.dataset.appRoute as AppRoute | undefined;
+      if (linkRoute && linkRoute === route) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+
   renderEditor();
   renderModeSwitch(modeSwitchEl, previewMode, handlers);
   renderMobileTabs(mobileTabsEl, mobileView, handlers);
   renderA4();
+  renderRoute();
 
   // Toolbar
   document.getElementById('save')?.addEventListener('click', persist);
@@ -451,14 +486,22 @@ async function bootstrap() {
   document.getElementById('export-json-mobile')?.addEventListener('click', exportJson);
   document.getElementById('import-json')?.addEventListener('click', importJson);
   document.getElementById('import-json-mobile')?.addEventListener('click', importJson);
-  document.querySelectorAll<HTMLElement>('[data-content-page]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      handlers.onOpenContentPage(link.dataset.contentPage as ContentPageId);
-    });
-  });
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const link = target?.closest<HTMLAnchorElement>('a[data-app-route]');
+    if (!link) return;
+
+    const route = link.dataset.appRoute as AppRoute | undefined;
+    const path = route === 'generator' ? '/' : route && isContentRoute(route) ? contentPages[route].path : null;
+    if (!path) return;
+
+    event.preventDefault();
+    if (window.location.pathname !== path) window.history.pushState(null, '', path);
+    renderRoute();
+  });
+  window.addEventListener('popstate', renderRoute);
 
   async function exportFormat(fmt: ExportFormat) {
     announce(strings.messages.exported);

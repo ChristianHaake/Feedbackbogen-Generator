@@ -13,7 +13,7 @@ E-Mail: {mein Vorname}{mein Nachname}@gmail.com
 
 ## 2. Bereitstellung der Website
 
-Diese Website wird über GitHub Pages bereitgestellt.
+Diese Website wird über Cloudflare Pages bereitgestellt.
 
 Beim Aufruf der Website werden technisch notwendige Verbindungsdaten verarbeitet. Hierzu können insbesondere die IP-Adresse, Browserinformationen, Betriebssystem, Datum und Uhrzeit des Zugriffs sowie angeforderte Inhalte gehören.
 
@@ -21,15 +21,15 @@ Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berec
 
 Anbieter des Hostings
 
-GitHub Inc.  
-88 Colin P. Kelly Jr. Street  
+Cloudflare Inc.  
+101 Townsend St.  
 San Francisco, CA 94107  
 USA
 
 Weitere Informationen:  
-https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement
+https://www.cloudflare.com/privacypolicy/
 
-## 3. Einsatz von Cloudflare
+## 3. Einsatz von Cloudflare-Diensten
 
 Zur Bereitstellung der Domain, DNS-Dienste, Netzwerksicherheit sowie Performanceoptimierung wird Cloudflare eingesetzt.
 
@@ -72,7 +72,7 @@ Soweit durch technische Infrastrukturkomponenten technisch notwendige Cookies ge
 
 ## 7. Datenübermittlung in Drittländer
 
-Bei der Nutzung von GitHub Pages und Cloudflare kann eine Verarbeitung personenbezogener Daten in den USA nicht ausgeschlossen werden.
+Bei der Nutzung von Cloudflare kann eine Verarbeitung personenbezogener Daten in den USA nicht ausgeschlossen werden.
 
 Die Anbieter verwenden nach eigenen Angaben geeignete Garantien für internationale Datenübermittlungen, insbesondere Standardvertragsklauseln der Europäischen Kommission, soweit dies erforderlich ist.
 

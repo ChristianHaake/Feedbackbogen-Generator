@@ -103,23 +103,29 @@ categories:
 
 scales:
   - id: verbal_5
-    kind: Likert-Skala (5-stufig)
+    kind: verbal
     labels: ["trifft voll zu","trifft eher zu","teils/teils","trifft eher nicht zu","trifft nicht zu"]
+
   - id: punkte_10
     kind: numeric
     min: 0
     max: 10
+
   - id: Ascii_3
-    kind: 3-stufige Smilieskala
+    kind: emoji
     set: [":(",":/",":)"]
+
   - id: Ascii_5
-    kind: 5-stufige Smilieskala
+    kind: emoji
     set: [":'(",":( ",":/",":)",":D"]
+
   - id: ampel
     kind: traffic
     colors: ["#2e7d32","#fbc02d","#c62828"]
+
   - id: prozent
     kind: percent
+
   - id: yes-no
-    kind: Binäre Skala
+    kind: verbal
     labels: ["Ja","Nein"]

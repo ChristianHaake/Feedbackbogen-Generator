@@ -24,7 +24,7 @@ Beispiel:
 
 ## Installation & Nutzung
 
-Voraussetzungen: Node.js >= 18
+Voraussetzungen: Node.js >= 20.19.0 oder >= 22.12.0
 
 ```bash
 npm ci
@@ -110,7 +110,7 @@ Limitierungen ODP:
 
 - Workflow unter `.github/workflows/pages.yml` baut bei Push auf `main` und deployt `dist/`.
 - Repository-Einstellung: Pages Source = GitHub Actions.
-- Vite ist so konfiguriert, dass `base: './'` verwendet wird (relative Pfade), damit GitHub Pages unter Projektsubpfad funktioniert.
+- Vite ist so konfiguriert, dass `base: './'` verwendet wird (relative Pfade), damit die App lokal, in Unterordnern und auf GitHub Pages ohne hartcodierten Repository-Pfad funktioniert.
 
 ## Lizenz
 

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { validateYAML, DEMO_YAML } from '@/yaml';
 
 describe('YAML validation', () => {

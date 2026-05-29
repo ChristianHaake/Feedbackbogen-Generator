@@ -8,7 +8,7 @@
     "dev": "vite --open",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "lint": "eslint --ext .ts,.tsx,.js,.jsx src",
+    "lint": "eslint src tests vite.config.ts",
     "format": "prettier --write .",
     "test": "vitest"
   },

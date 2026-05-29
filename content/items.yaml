@@ -103,7 +103,7 @@ categories:
 
 scales:
   - id: verbal_5
-    kind: verbal
+    kind: Likert-Skala (5-stufig)
     labels: ["trifft voll zu","trifft eher zu","teils/teils","trifft eher nicht zu","trifft nicht zu"]
   - id: punkte_10
     kind: numeric
@@ -118,5 +118,5 @@ scales:
   - id: prozent
     kind: percent
   - id: yes-no
-    kind: verbal
+    kind: Binäre Skala
     labels: ["Ja","Nein"]

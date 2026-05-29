@@ -1,5 +1,5 @@
 export const strings = {
-  appTitle: 'Bewertungsbaukasten',
+  appTitle: 'Feedbackbogen-Generator',
   toolbar: {
     save: 'Speichern',
     load: 'Laden',

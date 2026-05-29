@@ -27,7 +27,7 @@ export async function exportODP(rows: ExportRow[]) {
   const meta = `<?xml version="1.0" encoding="UTF-8"?>
   <office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" office:version="1.3">
     <office:meta>
-      <meta:generator>Bewertungsbaukasten</meta:generator>
+      <meta:generator>Feedbackbogen-Generator</meta:generator>
       <meta:creation-date>${new Date().toISOString()}</meta:creation-date>
     </office:meta>
   </office:document-meta>`;

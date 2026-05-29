@@ -55,7 +55,7 @@ export function renderLayout(): HTMLElement {
     { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
     el('div', { class: 'toolbar-inner' },
       el('div', { class: 'left' },
-        el('img', { src: '/favicon.svg', alt: '', width: '24', height: '24' }),
+        el('img', { src: './icon_Feedbackgenerator.svg', alt: '', width: '24', height: '24' }),
         el('div', { class: 'title-wrap' },
           el('strong', { class: 'title', text: strings.appTitle }),
           el('div', { class: 'subtitle', text: 'Baukasten für zukunftsorientierte Prüfungsformate' })

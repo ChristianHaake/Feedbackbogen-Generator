@@ -762,6 +762,7 @@ export function renderPreview(
 
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
+  container.append(el('div', { class: 'a4-watermark', text: 'Made with Bewertungsbaukasten' }));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {

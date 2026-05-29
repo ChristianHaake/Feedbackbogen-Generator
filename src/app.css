@@ -553,6 +553,7 @@ body {
    A4 PAGE — Live-Vorschau = Druckausgabe
    ═══════════════════════════════════════ */
 .a4-page {
+  position: relative;
   width: 21cm; min-height: 29.7cm;
   padding: 2cm 2.2cm;
   background: white;
@@ -739,6 +740,14 @@ body {
   flex: 1;
   min-height: 14pt;
   border-bottom: 0.7pt solid #444;
+}
+.a4-watermark {
+  position: absolute;
+  right: 16pt;
+  bottom: 12pt;
+  color: #aaa;
+  font-size: 7pt;
+  line-height: 1;
 }
 
 /* ─────── A11y ─────── */

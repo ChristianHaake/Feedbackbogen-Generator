@@ -109,9 +109,12 @@ scales:
     kind: numeric
     min: 0
     max: 10
-  - id: emoji_3
-    kind: emoji
-    set: ["😀","😐","☹️"]
+  - id: Ascii_3
+    kind: 3-stufige Smilieskala
+    set: [":(",":/",":)"]
+  - id: Ascii_5
+    kind: 5-stufige Smilieskala
+    set: [":'(",":( ",":/",":)",":D"]
   - id: ampel
     kind: traffic
     colors: ["#2e7d32","#fbc02d","#c62828"]

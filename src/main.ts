@@ -3,7 +3,7 @@ import {
   documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
   renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
   renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
-  renderProductFormatModal
+  renderProductFormatModal, renderContentPageModal
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
@@ -22,7 +22,7 @@ import type {
   SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, FooterFields, FooterFieldId, PrintMode, Category
 } from './types';
-import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
+import type { ContentPageId, ContentPageState, ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
 async function bootstrap() {
   focusVisiblePolyfill();
@@ -50,6 +50,7 @@ async function bootstrap() {
   let productFormatModalOpen = false;
   let productFormatSearchQuery = '';
   let mobileView: MobileView = 'edit';
+  let contentPage: ContentPageState = null;
 
   const persisted = loadConfig();
   if (persisted) {
@@ -70,6 +71,7 @@ async function bootstrap() {
   const productFormatControlsEl = document.getElementById('product-format-controls')!;
   const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
   const productFormatModalEl = document.getElementById('product-format-modal-root')!;
+  const contentPageModalEl = document.getElementById('content-page-modal-root')!;
   const counterEl = document.getElementById('selected-counter')!;
   const selectedListEl = document.getElementById('selected-list')!;
   const documentTitleEl = document.getElementById('document-title-form')!;
@@ -229,8 +231,30 @@ async function bootstrap() {
     onMobileViewChange: (view: MobileView) => {
       mobileView = view;
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
+    },
+    onOpenContentPage: async (page: ContentPageId) => {
+      const pageMeta = contentPageMeta(page);
+      contentPage = { id: page, title: pageMeta.title, body: '', loading: true, error: false };
+      renderContentPageModal(contentPageModalEl, contentPage, handlers);
+      try {
+        const res = await fetch(baseUrl + pageMeta.path);
+        if (!res.ok) throw new Error(`Failed to load ${pageMeta.path}`);
+        contentPage = { id: page, title: pageMeta.title, body: await res.text(), loading: false, error: false };
+      } catch {
+        contentPage = { id: page, title: pageMeta.title, body: '', loading: false, error: true };
+      }
+      renderContentPageModal(contentPageModalEl, contentPage, handlers);
+    },
+    onCloseContentPage: () => {
+      contentPage = null;
+      renderContentPageModal(contentPageModalEl, contentPage, handlers);
     }
   };
+
+  function contentPageMeta(page: ContentPageId): { title: string; path: string } {
+    if (page === 'imprint') return { title: strings.links.imprint, path: 'content/imprint.md' };
+    return { title: strings.links.privacy, path: 'content/privacy.md' };
+  }
 
   function selectionKey(categoryId: string, itemId: string): string {
     return `${categoryId}::${itemId}`;
@@ -486,6 +510,12 @@ async function bootstrap() {
   document.getElementById('export-json-mobile')?.addEventListener('click', exportJson);
   document.getElementById('import-json')?.addEventListener('click', importJson);
   document.getElementById('import-json-mobile')?.addEventListener('click', importJson);
+  document.querySelectorAll<HTMLElement>('[data-content-page]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      handlers.onOpenContentPage(link.dataset.contentPage as ContentPageId);
+    });
+  });
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
   document.addEventListener('click', (event) => {

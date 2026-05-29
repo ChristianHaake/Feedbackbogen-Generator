@@ -27,7 +27,7 @@ async function bootstrap() {
   root.append(app);
 
   const baseUrl = import.meta.env.BASE_URL as string;
-  const data = await loadYAML(baseUrl);
+  const data = await loadYAML();
   const productFormats = await loadProductFormats(baseUrl);
   const categories = data.categories;
   const scales = data.scales;

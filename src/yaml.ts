@@ -68,17 +68,21 @@ export function validateYAML(obj: any): obj is YAMLData {
   return true;
 }
 
-export async function loadYAML(baseUrl: string): Promise<YAMLData> {
+export async function loadYAML(): Promise<YAMLData> {
   try {
-    const url = baseUrl + 'content/items.yaml';
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('fetch failed');
+    const res = await fetch('/content/items.yaml');
+    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
     const text = await res.text();
     const parsed = YAML.parse(text);
-    if (!validateYAML(parsed)) throw new Error('invalid');
+    console.log('parsed YAML:', parsed);
+    if (!validateYAML(parsed)) {
+      console.error('Invalid YAML shape:', parsed);
+      throw new Error('invalid');
+    }
     announce('YAML geladen.');
     return parsed as YAMLData;
-  } catch {
+  } catch (err) {
+    console.error('Failed to init, loading demo', err);
     announce('Fehler beim Laden/Validieren von YAML. Fallback aktiviert.');
     return DEMO_YAML;
   }

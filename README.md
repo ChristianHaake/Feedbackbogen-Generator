@@ -28,7 +28,6 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 - Konfigurierbare Skalen pro Kategorie
 - Vorschau als Bewertungsbogen oder Checkliste
 - Frei anpassbare Kopffelder und optionale Fußzeile
-- Lokales Speichern im Browser
 - Import und Export der Konfiguration als JSON
 - Export als PDF/Druckansicht, DOCX, XLSX und ODP
 
@@ -36,7 +35,7 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 
 Die eingegebenen Inhalte werden lokal im Browser verarbeitet. Sie werden nicht an den Betreiber übermittelt.
 
-Gespeicherte Konfigurationen liegen im `localStorage` des Browsers. Sie können zusätzlich als JSON-Datei exportiert und später wieder importiert werden.
+Konfigurationen können als JSON-Datei exportiert und später wieder importiert werden.
 
 ## Technischer Überblick
 
@@ -44,7 +43,7 @@ Die App ist eine clientseitige Vite/TypeScript-Anwendung ohne Backend.
 
 - Framework: Vanilla TypeScript mit Vite
 - Datenquellen: YAML/JSON-Dateien im Ordner `content/`
-- Persistenz: `localStorage`
+- Persistenz: JSON-Import und -Export
 - Exporte: Browser-Druckfunktion, `docx`, `xlsx`, `jszip`
 - Hosting: statische Auslieferung möglich
 

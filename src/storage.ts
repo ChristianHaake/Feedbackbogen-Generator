@@ -117,9 +117,28 @@ export function exportConfigJSON(config: AppConfig) {
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'bewertungsbaukasten.json';
+  a.download = configDownloadFilename(config);
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+function configDownloadFilename(config: AppConfig): string {
+  const now = new Date();
+  const date = [
+    String(now.getFullYear()).padStart(4, '0'),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-');
+  const topic = config.header.fields
+    .find((field) => field.id === 'topic')
+    ?.value.trim()
+    .split('')
+    .filter((character) => character.charCodeAt(0) >= 32)
+    .join('')
+    .replace(/[<>:"/\\|?*]/g, '-')
+    .replace(/\s+/g, ' ');
+
+  return `${date}_Feedbackbogen${topic ? `_${topic}` : ''}.json`;
 }
 
 export async function importConfigJSON(): Promise<AppConfig | null> {
@@ -135,6 +154,7 @@ export async function importConfigJSON(): Promise<AppConfig | null> {
         resolve(normalizeConfig(JSON.parse(text)));
       } catch { resolve(null); }
     };
+    input.oncancel = () => resolve(null);
     input.click();
   });
 }

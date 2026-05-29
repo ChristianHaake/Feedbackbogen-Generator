@@ -62,19 +62,16 @@ export function renderLayout(): HTMLElement {
         )
       ),
       el('div', { class: 'actions' },
-        toolbarButton('save', strings.toolbar.save, 'save', { 'aria-keyshortcuts': 'Alt+S' }),
-        toolbarButton('file', strings.toolbar.load, 'load'),
+        toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
+        toolbarButton('upload', strings.toolbar.loadConfig, 'config-load'),
         el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
-          menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf', { 'aria-keyshortcuts': 'Alt+E' }),
+          menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
           menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
           menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
           menuAction('odp', strings.toolbar.exportOdp, 'icon-odp')
         ]),
-        actionMenu('more-menu', strings.toolbar.more, 'icon-reorder', [
-          menuButton(strings.toolbar.exportJson, 'icon-download', 'export-json'),
-          menuButton(strings.toolbar.importJson, 'icon-upload', 'import-json')
-        ])
+        toolbarLink(strings.toolbar.about, contentPages.about.path, 'about')
       )
     )
   );
@@ -138,8 +135,8 @@ export function renderLayout(): HTMLElement {
           exportButton('odp', strings.toolbar.exportOdp, 'icon-odp')
         ),
         el('div', { class: 'mobile-secondary-actions' },
-          toolbarButton('download', strings.toolbar.exportJson, 'export-json-mobile'),
-          toolbarButton('upload', strings.toolbar.importJson, 'import-json-mobile')
+          toolbarButton('download', strings.toolbar.saveConfig, 'config-save-mobile'),
+          toolbarButton('upload', strings.toolbar.loadConfig, 'config-load-mobile')
         )
       )
     )
@@ -195,14 +192,14 @@ function toolbarButton(iconId: string, label: string, id?: string, extra: Record
   const className = extra.class ?? 'btn';
   const rest = { ...extra };
   delete rest.class;
-  const btn = el('button', { class: className, type: 'button', ...(id ? { id } : {}), ...rest });
+  const btn = el('button', { class: className, type: 'button', 'aria-label': label, ...(id ? { id } : {}), ...rest });
   btn.append(icon(`icon-${iconId}`), el('span', { class: 'btn-label', text: label }));
   return btn;
 }
 
 function actionMenu(id: string, label: string, iconId: string, actions: HTMLElement[]) {
   return el('details', { class: 'action-menu', id },
-    el('summary', { class: 'btn menu-trigger' }, icon(iconId), el('span', { class: 'btn-label', text: label })),
+    el('summary', { class: 'btn menu-trigger', id: `${id}-trigger`, 'aria-label': label, 'aria-keyshortcuts': 'Alt+E' }, icon(iconId), el('span', { class: 'btn-label', text: label })),
     el('div', { class: 'menu-panel' }, ...actions)
   );
 }
@@ -213,10 +210,8 @@ function menuAction(format: ExportFormat, label: string, iconId: string, extra: 
   return btn;
 }
 
-function menuButton(label: string, iconId: string, id: string) {
-  const btn = el('button', { class: 'menu-item', type: 'button', id });
-  btn.append(icon(iconId), el('span', { text: label }));
-  return btn;
+function toolbarLink(label: string, href: string, route: string) {
+  return el('a', { class: 'btn toolbar-link', href, 'data-app-route': route, text: label });
 }
 
 function exportButton(format: ExportFormat, label: string, iconId: string) {

@@ -68,6 +68,7 @@ body {
 .btn:hover { background: #f5f6f7; }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.toolbar-link { text-decoration: none; }
 .btn.danger { background: #fff5f5; color: #b71c1c; }
 .btn-small { min-height: 28px; padding: 4px 8px; font-size: 12px; }
 .btn-primary { background: var(--brand); color: white; border-color: var(--brand); }

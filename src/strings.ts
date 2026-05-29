@@ -79,11 +79,6 @@ export const strings = {
     mobileExport: 'Export',
     selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`
   },
-  links: {
-    imprint: 'Impressum',
-    privacy: 'Datenschutz',
-    github: 'GitHub'
-  },
   a11y: {
     status: 'Statusmeldungen',
     accordionToggle: 'Abschnitt umschalten'

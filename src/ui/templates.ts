@@ -12,14 +12,6 @@ import type {
 
 export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
 export type MobileView = 'edit' | 'preview' | 'export';
-export type ContentPageId = 'imprint' | 'privacy';
-export type ContentPageState = {
-  id: ContentPageId;
-  title: string;
-  body: string;
-  loading: boolean;
-  error: boolean;
-} | null;
 export type SelectedSummary = {
   itemId: string;
   categoryId: string;
@@ -53,8 +45,6 @@ export type RenderHandlers = {
   onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
   onMobileViewChange: (view: MobileView) => void;
-  onOpenContentPage: (page: ContentPageId) => void;
-  onCloseContentPage: () => void;
 };
 
 export function renderLayout(): HTMLElement {
@@ -126,10 +116,7 @@ export function renderLayout(): HTMLElement {
         el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
         el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
       ),
-      editorSection(strings.kopfdaten.footerTitle,
-        el('div', { id: 'footer-fields', class: 'footer-fields' }),
-        legalLinks()
-      )
+      editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -167,29 +154,10 @@ export function renderLayout(): HTMLElement {
     )
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
-  const contentPageModal = el('div', { id: 'content-page-modal-root' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, workspace, productFormatModal, contentPageModal, live);
+  app.append(header, workspace, contentPage, appFooter, productFormatModal, live);
   return app;
-}
-
-function legalLinks(): HTMLElement {
-  return el('div', { class: 'legal-links', 'aria-label': 'Rechtliches und Projekt' },
-    legalPageLink(strings.links.imprint, 'imprint', './content/imprint.md'),
-    legalPageLink(strings.links.privacy, 'privacy', './content/privacy.md'),
-    el('a', {
-      class: 'legal-link',
-      href: 'https://github.com/ChristianHaake/Feedbackbogen-Generator/tree/master',
-      target: '_blank',
-      rel: 'noopener noreferrer',
-      text: strings.links.github
-    })
-  );
-}
-
-function legalPageLink(label: string, page: ContentPageId, href: string): HTMLAnchorElement {
-  return el('a', { class: 'legal-link', href, 'data-content-page': page, text: label }) as HTMLAnchorElement;
 }
 
 function editorSection(title: string, ...children: (HTMLElement | null)[]): HTMLElement {
@@ -531,100 +499,6 @@ export function renderProductFormatModal(
     if (event.target === backdrop) handlers.onCloseProductFormatModal();
   });
   container.append(backdrop);
-}
-
-export function renderContentPageModal(root: HTMLElement, state: ContentPageState, handlers: RenderHandlers) {
-  root.innerHTML = '';
-  if (!state) return;
-
-  const body = el('div', { class: 'content-page-modal-body' });
-  if (state.loading) {
-    body.append(el('p', { text: 'Wird geladen...' }));
-  } else if (state.error) {
-    body.append(el('p', { text: 'Der Inhalt konnte nicht geladen werden.' }));
-  } else {
-    body.append(renderMarkdown(state.body));
-  }
-
-  const closeBtn = el('button', { class: 'btn btn-small', type: 'button', text: strings.labels.close });
-  closeBtn.addEventListener('click', handlers.onCloseContentPage);
-
-  const dialog = el('div', { class: 'content-page-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'content-page-modal-title' },
-    el('div', { class: 'content-page-modal-head' },
-      el('h2', { id: 'content-page-modal-title', class: 'content-page-modal-title', text: state.title }),
-      closeBtn
-    ),
-    body
-  );
-  const backdrop = el('div', { class: 'content-page-modal-backdrop' }, dialog);
-  backdrop.addEventListener('click', (event) => {
-    if (event.target === backdrop) handlers.onCloseContentPage();
-  });
-  root.append(backdrop);
-}
-
-function renderMarkdown(markdown: string): HTMLElement {
-  const container = el('div', { class: 'content-page-markdown' });
-  const lines = markdown.split(/\r?\n/);
-  let paragraph: string[] = [];
-  let list: HTMLUListElement | null = null;
-
-  const flushParagraph = () => {
-    if (paragraph.length === 0) return;
-    container.append(el('p', {}, ...inlineText(paragraph.join(' '))));
-    paragraph = [];
-  };
-
-  lines.forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      flushParagraph();
-      list = null;
-      return;
-    }
-
-    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) {
-      flushParagraph();
-      list = null;
-      const level = Math.min(heading[1].length + 1, 4);
-      container.append(el(`h${level}` as keyof HTMLElementTagNameMap, { text: heading[2] }));
-      return;
-    }
-
-    if (trimmed.startsWith('- ')) {
-      flushParagraph();
-      if (!list) {
-        list = el('ul');
-        container.append(list);
-      }
-      list.append(el('li', {}, ...inlineText(trimmed.slice(2))));
-      return;
-    }
-
-    list = null;
-    paragraph.push(trimmed);
-  });
-
-  flushParagraph();
-  return container;
-}
-
-function inlineText(text: string): Node[] {
-  const nodes: Node[] = [];
-  const urlPattern = /(https?:\/\/[^\s]+)/g;
-  let lastIndex = 0;
-
-  for (const match of text.matchAll(urlPattern)) {
-    if (match.index === undefined) continue;
-    if (match.index > lastIndex) nodes.push(document.createTextNode(text.slice(lastIndex, match.index)));
-    const url = match[0];
-    nodes.push(el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: url }));
-    lastIndex = match.index + url.length;
-  }
-
-  if (lastIndex < text.length) nodes.push(document.createTextNode(text.slice(lastIndex)));
-  return nodes;
 }
 
 function applyProductFormatFilter(body: HTMLElement, searchQuery: string) {

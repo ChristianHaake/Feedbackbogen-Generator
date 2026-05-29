@@ -1,45 +1,76 @@
-# Bewertungsbaukasten (Client-Side-Only)
+# Feedbackbogen-Generator
 
-Bewertungsbaukasten ist eine rein clientseitige Webanwendung zum Zusammenstellen von Bewertungsbögen (Rubrics) aus YAML-konfigurierten Kriterien und frei wählbaren Skalen. Die App läuft ohne Backend, eignet sich für statisches Hosting (z. B. GitHub Pages) und lässt sich per `<iframe>` einbetten (z. B. in Moodle/WordPress).
+Der Feedbackbogen-Generator ist ein webbasiertes Open-Source-Werkzeug zur Erstellung strukturierter Feedback- und Bewertungsbögen für Unterricht, Fortbildungen, Workshops und weitere Lernkontexte.
 
-## Konzept & Architektur
+Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeldung und keine serverseitige Speicherung der eingegebenen Inhalte.
 
-- Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
-- Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.json` liefert Produktformat-Pakete für die Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
-- UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
-- Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
-- Exporte lokal im Browser: PDF/Druckdialog, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
-- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF/Druck), respektiert `prefers-reduced-motion`.
-- Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
+Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 
-## Einbettung per iframe
+## Wofür ist das Tool gedacht?
 
-- Die App setzt keine blockierenden HTTP-Header wie X-Frame-Options oder CSP, da GitHub Pages keine benutzerdefinierten Header erlaubt. Daher ist die Einbettung per `<iframe>` grundsätzlich möglich, solange die Zielumgebung (z. B. Moodle/WordPress) diese nicht selbst blockiert.
-- Wenn später restriktive Header gewünscht sind, empfiehlt sich ein Reverse-Proxy bzw. ein separater Host mit konfigurierbaren Headern.
+Der Generator unterstützt dabei, Feedbackbögen systematisch aufzubauen und Bewertungskriterien transparent zu machen. Er richtet sich insbesondere an Lehrkräfte, Fortbildende, Schulentwicklungs- und Beratungsteams sowie weitere Personen, die Feedback- und Bewertungsprozesse nachvollziehbarer gestalten wollen.
 
-Beispiel:
+Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback als Teil von Lern-, Reflexions- und Entwicklungsprozessen.
 
-```html
-<iframe src="https://<user>.github.io/<repo>/" width="100%" height="800" style="border:0"></iframe>
-```
+## Funktionen
 
-## Installation & Nutzung
+- Auswahl vorstrukturierter Feedback- und Bewertungskriterien
+- Ergänzung eigener Kriterien
+- Auswahl produktspezifischer Kriterien für unterschiedliche Prüfungs- und Arbeitsformate
+- Konfigurierbare Skalen pro Kategorie
+- Vorschau als Bewertungsbogen oder Checkliste
+- Frei anpassbare Kopffelder und optionale Fußzeile
+- Lokales Speichern im Browser
+- Import und Export der Konfiguration als JSON
+- Export als PDF/Druckansicht, DOCX, XLSX und ODP
 
-Voraussetzungen: Node.js >= 20.19.0 oder >= 22.12.0
+## Datenschutz
+
+Die eingegebenen Inhalte werden lokal im Browser verarbeitet. Sie werden nicht an den Betreiber übermittelt.
+
+Gespeicherte Konfigurationen liegen im `localStorage` des Browsers. Sie können zusätzlich als JSON-Datei exportiert und später wieder importiert werden.
+
+## Technischer Überblick
+
+Die App ist eine clientseitige Vite/TypeScript-Anwendung ohne Backend.
+
+- Framework: Vanilla TypeScript mit Vite
+- Datenquellen: YAML/JSON-Dateien im Ordner `content/`
+- Persistenz: `localStorage`
+- Exporte: Browser-Druckfunktion, `docx`, `xlsx`, `jszip`
+- Hosting: statische Auslieferung möglich
+
+Die Anwendung lädt die Kriterien und Produktformate zur Laufzeit aus:
+
+- `content/items.yaml`
+- `content/format.json`
+
+## Entwicklung
+
+Voraussetzung: Node.js `>= 20.19.0` oder `>= 22.12.0`
 
 ```bash
 npm ci
-npm run dev     # Entwicklungsserver
-npm run build   # Produktionsbuild in dist/
-npm run preview # Vorschau des Builds
-npm run test    # Vitest (Unit-Tests)
-npm run lint    # ESLint
-npm run format  # Prettier
+npm run dev
+npm run build
+npm run preview
+npm run test
+npm run lint
 ```
 
-Die App lädt `content/items.yaml` und `content/format.json` zur Laufzeit. In Dev und im Build wird der Ordner per Vite-Plugin statisch mitserviert/kopiert.
+Wichtige Skripte:
 
-## YAML-Schema
+- `npm run dev`: startet den lokalen Entwicklungsserver
+- `npm run build`: erstellt den Produktionsbuild in `dist/`
+- `npm run preview`: zeigt den Produktionsbuild lokal an
+- `npm run test`: führt die Unit-Tests aus
+- `npm run lint`: prüft den Code mit ESLint
+
+## Konfiguration
+
+Die Standardkriterien werden in YAML gepflegt. Produktformatspezifische Kriterien liegen in JSON.
+
+Vereinfachtes YAML-Schema:
 
 ```yaml
 categories:
@@ -51,41 +82,18 @@ categories:
         label: <string>
         description: <string?>
 
-  - id: <string>
-    title: <string>
-    description: <string?>
-    groups:
-      - id: <string>
-        title: <string>
-        items:
-          - id: <string>
-            label: <string>
-            description: <string?>
 scales:
   - id: verbal_5
     kind: verbal
-    labels: ["trifft voll zu","trifft eher zu","teils/teils","trifft eher nicht zu","trifft nicht zu"]
-  - id: punkte_10
-    kind: numeric
-    min: 0
-    max: 10
-  - id: emoji_3
-    kind: emoji
-    set: ["😀","😐","☹️"]
-  - id: ampel
-    kind: traffic
-    colors: ["#2e7d32","#fbc02d","#c62828"]
-  - id: prozent
-    kind: percent
+    labels:
+      - trifft voll zu
+      - trifft eher zu
+      - teils/teils
+      - trifft eher nicht zu
+      - trifft nicht zu
 ```
 
-Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallback auf Demo-Daten (in `src/yaml.ts`).
-
-## Produktformate
-
-Produktspezifische Kriterien liegen in `content/format.json`. Produktformate sind standardmäßig nicht ausgewählt. Über die Sidebar-Sektion `Produktebene` können Format-Pakete hinzugefügt werden; ausgewählte Pakete erscheinen anschließend als eigene Akkordeonbereiche mit denselben Skalen-, Auswahl- und Custom-Kriterien-Funktionen wie normale Kategorien.
-
-Schema:
+Produktformate folgen diesem Grundaufbau:
 
 ```json
 {
@@ -98,7 +106,10 @@ Schema:
           "id": "fotostory",
           "title": "Fotostory",
           "criteria": [
-            { "id": "bildgestaltung", "label": "ansprechende Bildgestaltung" }
+            {
+              "id": "bildgestaltung",
+              "label": "ansprechende Bildgestaltung"
+            }
           ]
         }
       ]
@@ -107,72 +118,33 @@ Schema:
 }
 ```
 
-Im Druck/PDF/DOCX/XLSX/ODP erscheinen ausgewählte Produktformate als normale Kategorien, z. B. `Fotostory`; es gibt keinen zusätzlichen sichtbaren `Produktebene`-Wrapper im fertigen Bogen.
+## Exportformate
 
-## Speichern/Laden der Konfiguration
+- PDF/Druck: über die Druckfunktion des Browsers
+- DOCX: editierbares Word-Dokument
+- XLSX: Tabelle mit Kriterien, Punkten und Notizen
+- ODP: einfache Präsentationsdatei mit Titelfolie und Tabelle
 
-- LocalStorage-Key: `bbk:config`.
-- JSON-Import/-Export via Toolbar. Schema:
+Der ODP-Export ist bewusst schlicht gehalten. Die Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt; PowerPoint kann je nach Version abweichen.
 
-```json
-{
-  "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
-  "selectedProductFormats": ["format:fotoprodukte:fotostory"],
-  "scaleByCategory": { "<categoryId>": "<scaleId>" },
-  "defaultScaleId": "verbal_5",
-  "documentTitle": {
-    "mode": "bewertungsbogen",
-    "custom": ""
-  },
-  "header": {
-    "fields": [
-      { "id": "name", "label": "Name", "value": "" },
-      { "id": "learngroup", "label": "Lerngruppe", "value": "" },
-      { "id": "topic", "label": "Thema", "value": "" },
-      { "id": "date", "label": "Datum", "value": "" }
-    ]
-  },
-  "footerFields": {
-    "date": true,
-    "signature": true,
-    "grade": true
-  },
-  "customItems": [
-    {
-      "id": "custom_<categoryId>_<timestamp>",
-      "categoryId": "...",
-      "label": "...",
-      "custom": true
-    }
-  ]
-}
+## Einbettung
+
+Da die Anwendung statisch ausgeliefert wird, kann sie grundsätzlich per `iframe` eingebettet werden, sofern die Zielplattform dies zulässt.
+
+```html
+<iframe src="https://fbg.haak3.de" width="100%" height="800" style="border:0"></iframe>
 ```
 
-Ältere JSON-Konfigurationen mit `header.learner`, `header.learngroup`, `header.topic` und `header.date` werden beim Laden in die neue `header.fields`-Struktur übernommen. Alte `header.feedback`-Werte werden ignoriert; Feedback bleibt ein leeres Schreibfeld auf dem Bogen. Alte `Produktebene`-Platzhalter-Kriterien werden beim Laden verworfen.
+## Wissenschaftlicher Hintergrund
 
-## Exporte (Client-Side)
+Der Feedbackbogen-Generator basiert auf Arbeiten zur Systematisierung zukunftsorientierter Prüfungsformate und zur Entwicklung transparenter Feedback- und Bewertungsprozesse.
 
-- PDF: DIN A4 über die Browser-Druckfunktion (`window.print()`), je nach aktueller Vorschau als Bewertungsbogen oder Checkliste.
-- DOCX: Überschrift, Kopffelder, Feedback, optionale Fußzeile und Bewertungstabelle (docx), ebenfalls abhängig vom aktuellen Vorschaumodus.
-- XLSX: Sheet „Bewertungsbogen“, zusätzliche Spalten für Punkte/Notizen (xlsx).
-- ODP: Minimal lauffähiges ODF-Gerüst (ZIP+XML mit `mimetype`, `content.xml`, `styles.xml`, `meta.xml`, `META-INF/manifest.xml`). Enthält eine Titelfolie und eine Folie mit Tabelle.
+Weiterführende Informationen stehen in der Anwendung unter „About“.
 
-Limitierungen ODP:
-- Sehr einfache Struktur, keine erweiterten Layouts oder Masterseiten.
-- Kompatibel mit LibreOffice/OpenOffice; MS PowerPoint-Unterstützung kann variieren.
+## Repository
 
-## Barrierefreiheit
-
-- Tastatur: Auswahl per Checkbox, Shortcuts Alt+S (Speichern), Alt+E (PDF/Druck).
-- ARIA: `aria-expanded` bei Accordion, `aria-live` für Statusmeldungen.
-- Sichtbarer Fokus-Ring, `prefers-reduced-motion` berücksichtigt.
-
-## GitHub Pages Deployment
-
-- Workflow unter `.github/workflows/pages.yml` baut bei Push auf `main` und deployt `dist/`.
-- Repository-Einstellung: Pages Source = GitHub Actions.
-- Vite ist so konfiguriert, dass `base: './'` verwendet wird (relative Pfade), damit die App lokal, in Unterordnern und auf GitHub Pages ohne hartcodierten Repository-Pfad funktioniert.
+[https://github.com/ChristianHaake/Feedbackbogen-Generator](https://github.com/ChristianHaake/Feedbackbogen-Generator)
 
 ## Lizenz
 
-MIT – siehe `LICENSE`.
+MIT, siehe `LICENSE`.

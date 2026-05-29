@@ -21,6 +21,7 @@ Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berec
 
 Anbieter des Hostings
 
+<<<<<<< Updated upstream
 Cloudflare Inc.  
 101 Townsend St.  
 San Francisco, CA 94107  
@@ -37,6 +38,8 @@ Dabei können technische Verbindungsdaten über die Infrastruktur von Cloudflare
 
 Anbieter
 
+=======
+>>>>>>> Stashed changes
 Cloudflare Inc.  
 101 Townsend St.  
 San Francisco, CA 94107  
@@ -45,7 +48,7 @@ USA
 Weitere Informationen:  
 https://www.cloudflare.com/privacypolicy/
 
-## 4. Cloudflare Web Analytics
+## 3. Cloudflare Web Analytics
 
 Diese Website verwendet Cloudflare Web Analytics zur statistischen Analyse der Nutzung der Website.
 
@@ -58,25 +61,25 @@ Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berec
 Weitere Informationen:  
 https://www.cloudflare.com/web-analytics/
 
-## 5. Lokale Verarbeitung von Eingaben
+## 4. Lokale Verarbeitung von Eingaben
 
 Der Feedbackbogen-Generator verarbeitet die vom Nutzer eingegebenen Inhalte grundsätzlich lokal im Browser.
 
 Die eingegebenen Daten werden nicht an den Betreiber übermittelt und nicht dauerhaft gespeichert, soweit dies nicht ausdrücklich anders angegeben wird.
 
-## 6. Cookies
+## 5. Cookies
 
 Diese Website verwendet keine Cookies zu Werbe-, Marketing- oder Trackingzwecken.
 
 Soweit durch technische Infrastrukturkomponenten technisch notwendige Cookies gesetzt werden, erfolgt dies auf Grundlage des berechtigten Interesses gemäß Art. 6 Abs. 1 lit. f DSGVO.
 
-## 7. Datenübermittlung in Drittländer
+## 6. Datenübermittlung in Drittländer
 
 Bei der Nutzung von Cloudflare kann eine Verarbeitung personenbezogener Daten in den USA nicht ausgeschlossen werden.
 
-Die Anbieter verwenden nach eigenen Angaben geeignete Garantien für internationale Datenübermittlungen, insbesondere Standardvertragsklauseln der Europäischen Kommission, soweit dies erforderlich ist.
+Der Anbieter verwendet nach eigenen Angaben geeignete Garantien für internationale Datenübermittlungen, insbesondere Standardvertragsklauseln der Europäischen Kommission, soweit dies erforderlich ist.
 
-## 8. Rechte der betroffenen Personen
+## 7. Rechte der betroffenen Personen
 
 Sie haben im Rahmen der gesetzlichen Bestimmungen insbesondere folgende Rechte:
 
@@ -89,7 +92,7 @@ Sie haben im Rahmen der gesetzlichen Bestimmungen insbesondere folgende Rechte:
 
 Außerdem haben Sie das Recht, Beschwerde bei einer Datenschutzaufsichtsbehörde einzulegen.
 
-## 9. Änderungen dieser Datenschutzerklärung
+## 8. Änderungen dieser Datenschutzerklärung
 
 Diese Datenschutzerklärung kann angepasst werden, wenn technische oder rechtliche Änderungen dies erforderlich machen. Es gilt jeweils die auf dieser Website veröffentlichte aktuelle Fassung.
 

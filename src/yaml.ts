@@ -4,7 +4,6 @@ import type { YAMLData, Category, Scale, Item, CustomItem } from './types';
 import { announce } from './a11y';
 
 export const DEMO_YAML: YAMLData = {
-  version: 1,
   categories: [
     {
       id: 'allgemeine',
@@ -33,7 +32,7 @@ export const DEMO_YAML: YAMLData = {
 };
 
 export function validateYAML(obj: any): obj is YAMLData {
-  if (!obj || obj.version !== 1) return false;
+  if (!obj || typeof obj !== 'object') return false;
   if (!Array.isArray(obj.categories) || !Array.isArray(obj.scales)) return false;
   const categoryIds = new Set<string>();
   const itemIds = new Set<string>();

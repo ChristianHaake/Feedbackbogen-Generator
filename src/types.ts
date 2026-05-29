@@ -30,7 +30,6 @@ export type PercentScale = ScaleBase & { kind: 'percent' };
 export type Scale = VerbalScale | NumericScale | EmojiScale | TrafficScale | PercentScale;
 
 export type YAMLData = {
-  version: 1;
   categories: Category[];
   scales: Scale[];
 };
@@ -53,16 +52,7 @@ export type HeaderData = {
   feedback: string;
 };
 
-// Kept for V1→V2 migration
-export type AppConfigV1 = {
-  version: 1;
-  selectedItems: SelectedItemRef[];
-  scaleByItem: Record<string, string>;
-  defaultScaleId?: string;
-};
-
-export type AppConfigV2 = {
-  version: 2;
+export type AppConfig = {
   selectedItems: SelectedItemRef[];
   scaleByItem: Record<string, string>;
   defaultScaleId?: string;

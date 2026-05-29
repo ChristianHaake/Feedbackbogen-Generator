@@ -24,7 +24,7 @@ Beispiel:
 
 ## Installation & Nutzung
 
-Voraussetzungen: Node.js >= 18
+Voraussetzungen: Node.js >= 20.19.0 oder >= 22.12.0
 
 ```bash
 npm ci
@@ -41,7 +41,6 @@ Die App lädt `content/items.yaml` zur Laufzeit. In Dev und im Build wird der Or
 ## YAML-Schema
 
 ```yaml
-version: 1
 categories:
   - id: <string>
     title: <string>
@@ -71,12 +70,11 @@ Beim Laden wird das Schema validiert. Fehler → `aria-live`-Hinweis und Fallbac
 
 ## Speichern/Laden der Konfiguration
 
-- LocalStorage-Key: `bbk:config:v2`.
+- LocalStorage-Key: `bbk:config`.
 - JSON-Import/-Export via Toolbar. Schema:
 
 ```json
 {
-  "version": 2,
   "selectedItems": [{ "categoryId": "...", "itemId": "..." }],
   "scaleByItem": { "<itemId>": "<scaleId>" },
   "defaultScaleId": "verbal_5",
@@ -112,7 +110,7 @@ Limitierungen ODP:
 
 - Workflow unter `.github/workflows/pages.yml` baut bei Push auf `main` und deployt `dist/`.
 - Repository-Einstellung: Pages Source = GitHub Actions.
-- Vite ist so konfiguriert, dass `base: './'` verwendet wird (relative Pfade), damit GitHub Pages unter Projektsubpfad funktioniert.
+- Vite ist so konfiguriert, dass `base: './'` verwendet wird (relative Pfade), damit die App lokal, in Unterordnern und auf GitHub Pages ohne hartcodierten Repository-Pfad funktioniert.
 
 ## Lizenz
 

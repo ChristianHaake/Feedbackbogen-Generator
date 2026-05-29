@@ -1,7 +1,8 @@
-import { defineConfig } from 'vite';
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { defineConfig } from 'vite';
 
 // __dirname replacement for ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,12 +15,27 @@ function contentPlugin() {
     configureServer(server: any) {
       const mainEntry = path.resolve(__dirname, 'src', 'main.ts');
       server.middlewares.use((req: any, _res: any, next: any) => {
-        if (req.url === '/main.ts') req.url = `/Feedbackbogen-Generator/@fs/${mainEntry}`;
+        if (req.url === '/main.ts') req.url = `/@fs/${mainEntry}`;
         next();
       });
-      server.middlewares.use('/content', (req: any, res: any, next: any) => {
-        const url = req.url?.replace(/^\/content\/?/, '') || '';
-        const filePath = path.join(contentDir, url);
+      server.middlewares.use('/content', (req: any, res: any, _next: any) => {
+        let requestPath = '';
+        try {
+          requestPath = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname)
+            .replace(/^\/+/, '')
+            .replace(/^content\/?/, '');
+        } catch {
+          res.statusCode = 400;
+          res.end('Bad request');
+          return;
+        }
+        const filePath = path.resolve(contentDir, requestPath);
+        const relativePath = path.relative(contentDir, filePath);
+        if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+          res.statusCode = 403;
+          res.end('Forbidden');
+          return;
+        }
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           fs.createReadStream(filePath).pipe(res);
         } else {
@@ -49,7 +65,7 @@ function contentPlugin() {
 
 export default defineConfig({
   root: path.resolve(__dirname, 'src/ui'),
-  base: '/Feedbackbogen-Generator/', // Wichtig für GitHub Pages
+  base: './',
   publicDir: path.resolve(__dirname, 'public'),
   build: {
     outDir: path.resolve(__dirname, 'dist'),

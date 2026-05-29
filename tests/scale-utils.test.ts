@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { normalizeScaleValue, scaleDisplay } from '@/scale-utils';
 
 describe('scale utils', () => {
@@ -24,4 +25,3 @@ describe('scale utils', () => {
     expect(normalizeScaleValue(s)).toBe('0–100%');
   });
 });
-

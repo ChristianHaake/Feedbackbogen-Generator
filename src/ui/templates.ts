@@ -340,8 +340,8 @@ export function renderCategories(
       placeholder: strings.labels.customItemPlaceholder,
       'aria-label': strings.labels.addCustomItem
     }) as HTMLInputElement;
-    const addCustomBtn = el('button', { class: 'btn-icon btn-primary', type: 'button', 'aria-label': strings.labels.addCustomItem });
-    addCustomBtn.append(icon('icon-plus'));
+    const addCustomBtn = el('button', { class: 'btn btn-small btn-primary add-custom-btn', type: 'button', 'aria-label': strings.labels.addCustomItem });
+    addCustomBtn.append(icon('icon-plus'), el('span', { text: strings.labels.add }));
     addCustomBtn.addEventListener('click', () => { handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; });
     customInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; }
@@ -559,15 +559,20 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
 }
 
 function renderA4Item(row: ExportRow, mode: PrintMode, scale: Scale | null): HTMLElement {
-  const li = el('li', { class: `a4-item ${scale?.kind === 'numeric' ? 'a4-item-numeric' : ''}` });
+  const itemClasses = ['a4-item'];
+  if (mode === 'checklist') itemClasses.push('a4-item-checklist');
+  if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
+
+  const li = el('li', { class: itemClasses.join(' ') });
+  const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {
     li.append(el('span', { class: 'a4-cbox', text: '☐' }));
-    li.append(el('span', { class: 'a4-item-label', text: row.item }));
+    li.append(label);
     return li;
   }
 
-  li.append(el('div', { class: 'a4-item-label', text: row.item }));
+  li.append(label);
   if (scale) {
     li.append(renderScaleBoxes(scale));
   } else {

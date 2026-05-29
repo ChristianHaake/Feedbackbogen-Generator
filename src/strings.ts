@@ -37,6 +37,7 @@ export const strings = {
   labels: {
     remove: 'Entfernen',
     scale: 'Skala',
+    add: 'Hinzufügen',
     defaultScale: 'Standard-Skala',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',

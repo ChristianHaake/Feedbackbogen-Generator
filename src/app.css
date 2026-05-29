@@ -336,6 +336,10 @@ body {
   padding: 5px 8px; font-size: 12px; background: #fff;
 }
 .custom-item-input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+.add-custom-btn {
+  flex-shrink: 0;
+  min-height: 30px;
+}
 
 /* ─────── Preview Pane ─────── */
 .preview-pane {
@@ -464,6 +468,9 @@ body {
 
 .a4-item-label {
   flex: 0 0 42%;
+  display: grid;
+  grid-template-columns: 20pt minmax(0, 1fr);
+  column-gap: 4pt;
   font-size: 10pt;
   font-weight: 500;
   line-height: 1.35;
@@ -472,7 +479,11 @@ body {
   content: counter(item) '.';
   color: #888;
   font-weight: 400;
-  margin-right: 5pt;
+  grid-column: 1;
+}
+.a4-item-text {
+  grid-column: 2;
+  min-width: 0;
 }
 .a4-item-numeric .a4-item-label {
   flex-basis: 46%;
@@ -532,15 +543,17 @@ body {
 }
 
 /* Checkliste mode — item with a single ☐ before the label */
-.a4-item:has(> .a4-cbox) {
+.a4-item-checklist {
   justify-content: flex-start;
   gap: 8pt;
 }
-.a4-item:has(> .a4-cbox) .a4-item-label {
+.a4-item-checklist .a4-item-label {
+  display: block;
   max-width: 100%;
-  flex: 1 1 auto;
+  flex: 1 1 0;
 }
-.a4-item:has(> .a4-cbox) .a4-item-label::before { content: none; }
+.a4-item-checklist .a4-item-label::before { content: none; }
+.a4-item-checklist .a4-item-text { display: inline; }
 
 /* Feedback */
 .a4-feedback { margin-top: 18pt; page-break-inside: avoid; }

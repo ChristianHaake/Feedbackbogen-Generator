@@ -30,9 +30,30 @@ export type PercentScale = ScaleBase & { kind: 'percent' };
 export type Scale = VerbalScale | NumericScale | EmojiScale | TrafficScale | PercentScale;
 
 export type YAMLData = {
-  version: 1;
   categories: Category[];
   scales: Scale[];
+};
+
+export type ProductFormatCriterion = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export type ProductFormat = {
+  id: string;
+  title: string;
+  criteria: ProductFormatCriterion[];
+};
+
+export type ProductFormatGroup = {
+  id: string;
+  title: string;
+  formats: ProductFormat[];
+};
+
+export type ProductFormatData = {
+  groups: ProductFormatGroup[];
 };
 
 export type SelectedItemRef = {
@@ -45,28 +66,34 @@ export type CustomItem = Item & {
   categoryId: string;
 };
 
+export type HeaderField = {
+  id: string;
+  label: string;
+  value: string;
+};
+
 export type HeaderData = {
-  learner: string;
-  learngroup: string;
-  topic: string;
-  date: string;
-  feedback: string;
+  fields: HeaderField[];
 };
 
-// Kept for V1→V2 migration
-export type AppConfigV1 = {
-  version: 1;
-  selectedItems: SelectedItemRef[];
-  scaleByItem: Record<string, string>;
-  defaultScaleId?: string;
+export type DocumentTitleMode = 'bewertungsbogen' | 'feedbackbogen' | 'custom';
+
+export type DocumentTitleConfig = {
+  mode: DocumentTitleMode;
+  custom: string;
 };
 
-export type AppConfigV2 = {
-  version: 2;
+export type FooterFieldId = 'date' | 'signature' | 'grade';
+export type FooterFields = Record<FooterFieldId, boolean>;
+
+export type AppConfig = {
   selectedItems: SelectedItemRef[];
-  scaleByItem: Record<string, string>;
+  selectedProductFormats: string[];
+  scaleByCategory: Record<string, string>;
   defaultScaleId?: string;
+  documentTitle: DocumentTitleConfig;
   header: HeaderData;
+  footerFields: FooterFields;
   customItems: CustomItem[];
 };
 

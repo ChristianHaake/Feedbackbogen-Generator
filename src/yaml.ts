@@ -4,7 +4,6 @@ import type { YAMLData, Category, Scale, Item, CustomItem } from './types';
 import { announce } from './a11y';
 
 export const DEMO_YAML: YAMLData = {
-  version: 1,
   categories: [
     {
       id: 'allgemeine',
@@ -12,14 +11,6 @@ export const DEMO_YAML: YAMLData = {
       items: [
         { id: 'abgabe', label: 'Abgabe termingerecht', description: 'Liegt die Leistung fristgerecht vor?' },
         { id: 'vollstaendigkeit', label: 'Vollständigkeit', description: 'Sind alle geforderten Teile vorhanden?' }
-      ]
-    },
-    {
-      id: 'produktebene',
-      title: 'Produktebene',
-      items: [
-        { id: 'funktion', label: 'Funktionalität', description: 'Erfüllt das Produkt seine Aufgabe?' },
-        { id: 'gestaltung', label: 'Gestaltung', description: 'Ist die Gestaltung ansprechend und konsistent?' }
       ]
     }
   ],
@@ -33,7 +24,7 @@ export const DEMO_YAML: YAMLData = {
 };
 
 export function validateYAML(obj: any): obj is YAMLData {
-  if (!obj || obj.version !== 1) return false;
+  if (!obj || typeof obj !== 'object') return false;
   if (!Array.isArray(obj.categories) || !Array.isArray(obj.scales)) return false;
   const categoryIds = new Set<string>();
   const itemIds = new Set<string>();

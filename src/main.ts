@@ -1,15 +1,23 @@
 import './app.css';
 import {
-  renderLayout, renderKopfdaten, renderCategories,
+  documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
   renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
-  renderSelectedList, renderMobileTabs
+  renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
+  renderProductFormatModal
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
-import { saveConfig, loadConfig, exportConfigJSON, importConfigJSON, EMPTY_HEADER } from './storage';
+import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
+import {
+  saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
+  EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE
+} from './storage';
 import { scaleDisplay } from './scale-utils';
-import type { SelectedItemRef, ExportRow, CustomItem, HeaderData, PrintMode } from './types';
+import type {
+  SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  HeaderData, FooterFields, FooterFieldId, PrintMode, Category
+} from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
 async function bootstrap() {
@@ -20,33 +28,47 @@ async function bootstrap() {
 
   const baseUrl = import.meta.env.BASE_URL as string;
   const data = await loadYAML(baseUrl);
+  const productFormats = await loadProductFormats(baseUrl);
   const categories = data.categories;
   const scales = data.scales;
 
   // State
   let selected: SelectedItemRef[] = [];
-  let scaleByItemMap: Record<string, string> = {};
+  let selectedProductFormats: string[] = [];
+  let scaleByCategoryMap: Record<string, string> = {};
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
-  let header: HeaderData = { ...EMPTY_HEADER };
+  let documentTitle: DocumentTitleConfig = { ...DEFAULT_DOCUMENT_TITLE };
+  let header: HeaderData = cloneHeader(EMPTY_HEADER);
+  let footerFields: FooterFields = { ...DEFAULT_FOOTER_FIELDS };
   let customItems: CustomItem[] = [];
   let previewMode: PrintMode = 'full';
   let searchQuery = '';
+  let productFormatModalOpen = false;
+  let productFormatSearchQuery = '';
   let mobileView: MobileView = 'edit';
 
   const persisted = loadConfig();
   if (persisted) {
     selected = persisted.selectedItems;
-    scaleByItemMap = persisted.scaleByItem;
+    selectedProductFormats = persisted.selectedProductFormats;
+    scaleByCategoryMap = persisted.scaleByCategory;
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
-    header = { ...EMPTY_HEADER, ...(persisted.header ?? {}) };
+    documentTitle = { ...persisted.documentTitle };
+    header = cloneHeader(persisted.header);
+    footerFields = persisted.footerFields;
     customItems = persisted.customItems ?? [];
     announce(strings.messages.loaded);
   }
 
   const categoriesEl = document.getElementById('categories')!;
+  const productFormatControlsEl = document.getElementById('product-format-controls')!;
+  const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
+  const productFormatModalEl = document.getElementById('product-format-modal-root')!;
   const counterEl = document.getElementById('selected-counter')!;
   const selectedListEl = document.getElementById('selected-list')!;
+  const documentTitleEl = document.getElementById('document-title-form')!;
   const kopfdatenEl = document.getElementById('kopfdaten-form')!;
+  const footerFieldsEl = document.getElementById('footer-fields')!;
   const a4El = document.getElementById('a4-page')!;
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
   const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
@@ -56,18 +78,18 @@ async function bootstrap() {
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
-      const idx = selected.findIndex((s) => s.itemId === itemId);
+      const idx = selected.findIndex((s) => s.categoryId === categoryId && s.itemId === itemId);
       if (checked && idx === -1) {
         selected.push({ categoryId, itemId });
       } else if (!checked && idx !== -1) {
         selected.splice(idx, 1);
-        delete scaleByItemMap[itemId];
       }
       renderEditor();
       renderA4();
     },
-    onScaleChange: (itemId: string, scaleId: string) => {
-      scaleByItemMap[itemId] = scaleId;
+    onCategoryScaleChange: (categoryId: string, scaleId: string) => {
+      scaleByCategoryMap[categoryId] = scaleId;
+      renderEditor();
       renderA4();
     },
     onDefaultScaleChange: (scaleId: string) => {
@@ -86,14 +108,12 @@ async function bootstrap() {
     onRemoveCustomItem: (itemId: string) => {
       customItems = customItems.filter((ci) => ci.id !== itemId);
       selected = selected.filter((s) => s.itemId !== itemId);
-      delete scaleByItemMap[itemId];
       renderEditor();
       renderA4();
       announce(strings.messages.customItemRemoved);
     },
-    onRemoveSelected: (itemId: string) => {
-      selected = selected.filter((s) => s.itemId !== itemId);
-      delete scaleByItemMap[itemId];
+    onRemoveSelected: (categoryId: string, itemId: string) => {
+      selected = selected.filter((s) => !(s.categoryId === categoryId && s.itemId === itemId));
       renderEditor();
       renderA4();
     },
@@ -108,13 +128,11 @@ async function bootstrap() {
     onClearCategory: (categoryId: string) => {
       const ids = new Set(itemIdsOfCategory(categoryId));
       selected = selected.filter((s) => !ids.has(s.itemId));
-      ids.forEach((itemId) => delete scaleByItemMap[itemId]);
       renderEditor();
       renderA4();
     },
     onClearSelection: () => {
       selected = [];
-      scaleByItemMap = {};
       renderEditor();
       renderA4();
     },
@@ -122,8 +140,76 @@ async function bootstrap() {
       searchQuery = value;
       renderEditor();
     },
-    onHeaderChange: (field: keyof HeaderData, value: string) => {
-      header = { ...header, [field]: value };
+    onOpenProductFormatModal: () => {
+      productFormatModalOpen = true;
+      renderProductFormatModalOnly(true);
+    },
+    onCloseProductFormatModal: () => {
+      productFormatModalOpen = false;
+      productFormatSearchQuery = '';
+      renderProductFormatModalOnly();
+    },
+    onProductFormatSearchChange: (value: string) => {
+      productFormatSearchQuery = value;
+    },
+    onToggleProductFormat: (categoryId: string, isSelected: boolean) => {
+      if (isSelected && !selectedProductFormats.includes(categoryId)) {
+        selectedProductFormats = [...selectedProductFormats, categoryId];
+        announce(strings.messages.productFormatAdded);
+      } else if (!isSelected) {
+        selectedProductFormats = selectedProductFormats.filter((id) => id !== categoryId);
+        selected = selected.filter((item) => item.categoryId !== categoryId);
+        customItems = customItems.filter((item) => item.categoryId !== categoryId);
+        const { [categoryId]: _removed, ...rest } = scaleByCategoryMap;
+        scaleByCategoryMap = rest;
+        announce(strings.messages.productFormatRemoved);
+      }
+      renderEditor();
+      renderA4();
+    },
+    onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
+      documentTitle = { ...documentTitle, mode };
+      renderEditor();
+      renderA4();
+    },
+    onDocumentTitleCustomChange: (value: string) => {
+      documentTitle = { ...documentTitle, custom: value };
+      renderA4();
+    },
+    onHeaderFieldLabelChange: (fieldId: string, label: string) => {
+      header = {
+        ...header,
+        fields: header.fields.map((field) => field.id === fieldId ? { ...field, label } : field)
+      };
+      renderA4();
+    },
+    onHeaderFieldValueChange: (fieldId: string, value: string) => {
+      header = {
+        ...header,
+        fields: header.fields.map((field) => field.id === fieldId ? { ...field, value } : field)
+      };
+      renderA4();
+    },
+    onAddHeaderField: () => {
+      header = {
+        ...header,
+        fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
+      };
+      renderEditor();
+      renderA4();
+      announce(strings.messages.headerFieldAdded);
+    },
+    onRemoveHeaderField: (fieldId: string) => {
+      header = {
+        ...header,
+        fields: header.fields.filter((field) => field.id !== fieldId)
+      };
+      renderEditor();
+      renderA4();
+      announce(strings.messages.headerFieldRemoved);
+    },
+    onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => {
+      footerFields = { ...footerFields, [field]: checked };
       renderA4();
     },
     onPreviewModeChange: (mode: PrintMode) => {
@@ -137,23 +223,41 @@ async function bootstrap() {
     }
   };
 
-  function selectedSet(): Set<string> {
-    return new Set(selected.map((s) => s.itemId));
+  function selectionKey(categoryId: string, itemId: string): string {
+    return `${categoryId}::${itemId}`;
+  }
+
+  function selectedKeySet(): Set<string> {
+    return new Set(selected.map((s) => selectionKey(s.categoryId, s.itemId)));
+  }
+
+  function productCategories(): Category[] {
+    return selectedProductFormatCategories(productFormats, selectedProductFormats);
+  }
+
+  function allActiveCategories(): Category[] {
+    return [...categories, ...productCategories()];
+  }
+
+  function cloneHeader(value: HeaderData): HeaderData {
+    return {
+      fields: value.fields.map((field) => ({ ...field }))
+    };
   }
 
   function buildExportRows(): ExportRow[] {
-    const merged = buildCategoriesWithCustom(categories, customItems);
+    const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
     // Output: grouped by category (YAML category order), within category in YAML item order;
     // only items that are selected appear.
-    const selectedIds = selectedSet();
+    const selectedKeys = selectedKeySet();
     const out: ExportRow[] = [];
     merged.forEach((c) => {
       const ids: { id: string; label: string }[] = [];
       if (Array.isArray(c.items)) c.items.forEach((it) => ids.push({ id: it.id, label: it.label }));
       if (Array.isArray(c.groups)) c.groups.forEach((g) => g.items.forEach((it) => ids.push({ id: it.id, label: it.label })));
       ids.forEach(({ id, label }) => {
-        if (!selectedIds.has(id)) return;
-        const sId = scaleByItemMap[id] ?? defaultScaleId;
+        if (!selectedKeys.has(selectionKey(c.id, id))) return;
+        const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = scaleById(scales, sId);
         out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
       });
@@ -163,16 +267,16 @@ async function bootstrap() {
 
   function buildSelectedSummaries(): SelectedSummary[] {
     const customIds = new Set(customItems.map((ci) => ci.id));
-    const merged = buildCategoriesWithCustom(categories, customItems);
-    const selectedIds = selectedSet();
+    const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
+    const selectedKeys = selectedKeySet();
     const out: SelectedSummary[] = [];
     merged.forEach((category) => {
       const items: { id: string; label: string }[] = [];
       if (Array.isArray(category.items)) category.items.forEach((item) => items.push({ id: item.id, label: item.label }));
       if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => items.push({ id: item.id, label: item.label })));
       items.forEach((item) => {
-        if (!selectedIds.has(item.id)) return;
-        const scale = scaleById(scales, scaleByItemMap[item.id] ?? defaultScaleId);
+        if (!selectedKeys.has(selectionKey(category.id, item.id))) return;
+        const scale = scaleById(scales, scaleByCategoryMap[category.id] ?? defaultScaleId);
         out.push({
           itemId: item.id,
           categoryId: category.id,
@@ -187,7 +291,7 @@ async function bootstrap() {
   }
 
   function itemIdsOfCategory(categoryId: string): string[] {
-    const merged = buildCategoriesWithCustom(categories, customItems);
+    const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
     const category = merged.find((c) => c.id === categoryId);
     if (!category) return [];
     const ids: string[] = [];
@@ -198,10 +302,10 @@ async function bootstrap() {
 
   function persist() {
     saveConfig({
-      version: 2,
       selectedItems: selected,
-      scaleByItem: scaleByItemMap,
-      defaultScaleId, header, customItems
+      selectedProductFormats,
+      scaleByCategory: scaleByCategoryMap,
+      defaultScaleId, documentTitle, header, footerFields, customItems
     });
     announce(strings.messages.saved);
   }
@@ -210,9 +314,12 @@ async function bootstrap() {
     const cfg = loadConfig();
     if (cfg) {
       selected = cfg.selectedItems;
-      scaleByItemMap = cfg.scaleByItem;
+      selectedProductFormats = cfg.selectedProductFormats;
+      scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
+      documentTitle = { ...cfg.documentTitle };
+      header = cloneHeader(cfg.header);
+      footerFields = cfg.footerFields;
       customItems = cfg.customItems ?? [];
       renderEditor();
       renderA4();
@@ -233,11 +340,21 @@ async function bootstrap() {
       openCats.add(id);
     });
 
-    renderKopfdaten(kopfdatenEl, header, handlers.onHeaderChange);
+    renderDocumentTitleForm(documentTitleEl, documentTitle, handlers);
+    renderKopfdaten(kopfdatenEl, header, handlers);
+    renderFooterFields(footerFieldsEl, footerFields, handlers);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, categories, customItems, selectedSet(), scales, scaleByItemMap, defaultScaleId, handlers, searchQuery);
+    renderCategories(categoriesEl, categories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+    const currentProductCategories = productCategories();
+    renderProductFormatControls(productFormatControlsEl, currentProductCategories, handlers);
+    if (currentProductCategories.length > 0) {
+      renderCategories(productFormatCategoriesEl, currentProductCategories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+    } else {
+      productFormatCategoriesEl.innerHTML = '';
+    }
+    renderProductFormatModal(productFormatModalEl, productFormats, new Set(selectedProductFormats), productFormatModalOpen, productFormatSearchQuery, handlers);
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 
@@ -258,8 +375,25 @@ async function bootstrap() {
     });
   }
 
+  function renderProductFormatModalOnly(focusSearch = false) {
+    renderProductFormatModal(productFormatModalEl, productFormats, new Set(selectedProductFormats), productFormatModalOpen, productFormatSearchQuery, handlers);
+    if (!focusSearch || !productFormatModalOpen) return;
+
+    requestAnimationFrame(() => {
+      const searchInput = productFormatModalEl.querySelector<HTMLInputElement>('.product-format-search');
+      if (!searchInput) return;
+      searchInput.focus();
+      const cursorPosition = searchInput.value.length;
+      try {
+        searchInput.setSelectionRange(cursorPosition, cursorPosition);
+      } catch {
+        // Some browsers do not expose selection APIs for search inputs.
+      }
+    });
+  }
+
   function renderA4() {
-    renderPreview(a4El, buildExportRows(), header, previewMode);
+    renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
   }
 
   renderEditor();
@@ -271,15 +405,18 @@ async function bootstrap() {
   document.getElementById('save')?.addEventListener('click', persist);
   document.getElementById('load')?.addEventListener('click', loadPersisted);
   const exportJson = () => {
-    exportConfigJSON({ version: 2, selectedItems: selected, scaleByItem: scaleByItemMap, defaultScaleId, header, customItems });
+    exportConfigJSON({ selectedItems: selected, selectedProductFormats, scaleByCategory: scaleByCategoryMap, defaultScaleId, documentTitle, header, footerFields, customItems });
   };
   const importJson = async () => {
     const cfg = await importConfigJSON();
     if (cfg) {
       selected = cfg.selectedItems;
-      scaleByItemMap = cfg.scaleByItem;
+      selectedProductFormats = cfg.selectedProductFormats;
+      scaleByCategoryMap = cfg.scaleByCategory;
       if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      header = { ...EMPTY_HEADER, ...(cfg.header ?? {}) };
+      documentTitle = { ...cfg.documentTitle };
+      header = cloneHeader(cfg.header);
+      footerFields = cfg.footerFields;
       customItems = cfg.customItems ?? [];
       renderEditor();
       renderA4();
@@ -299,7 +436,7 @@ async function bootstrap() {
       window.print();
     } else if (fmt === 'docx') {
       const { exportDOCX } = await import('./export/export-docx');
-      exportDOCX(buildExportRows(), header, previewMode);
+      exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
     } else if (fmt === 'xlsx') {
       const { exportXLSX } = await import('./export/export-xlsx');
       exportXLSX(buildExportRows());

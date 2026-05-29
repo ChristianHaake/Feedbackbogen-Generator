@@ -2,7 +2,12 @@ import { el, icon } from './components';
 
 import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
-import type { Category, Scale, CustomItem, HeaderData, ExportRow, PrintMode, Item } from '@/types';
+import { productFormatCategoryId } from '@/product-formats';
+import type {
+  Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
+  ProductFormatData
+} from '@/types';
 
 export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
 export type MobileView = 'edit' | 'preview' | 'export';
@@ -17,16 +22,26 @@ export type SelectedSummary = {
 
 export type RenderHandlers = {
   onToggle: (categoryId: string, itemId: string, checked: boolean) => void;
-  onScaleChange: (itemId: string, scaleId: string) => void;
+  onCategoryScaleChange: (categoryId: string, scaleId: string) => void;
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
   onRemoveCustomItem: (itemId: string) => void;
-  onRemoveSelected: (itemId: string) => void;
+  onRemoveSelected: (categoryId: string, itemId: string) => void;
   onSelectCategory: (categoryId: string) => void;
   onClearCategory: (categoryId: string) => void;
   onClearSelection: () => void;
   onSearchChange: (value: string) => void;
-  onHeaderChange: (field: keyof HeaderData, value: string) => void;
+  onOpenProductFormatModal: () => void;
+  onCloseProductFormatModal: () => void;
+  onProductFormatSearchChange: (value: string) => void;
+  onToggleProductFormat: (categoryId: string, selected: boolean) => void;
+  onDocumentTitleModeChange: (mode: DocumentTitleMode) => void;
+  onDocumentTitleCustomChange: (value: string) => void;
+  onHeaderFieldLabelChange: (fieldId: string, label: string) => void;
+  onHeaderFieldValueChange: (fieldId: string, value: string) => void;
+  onAddHeaderField: () => void;
+  onRemoveHeaderField: (fieldId: string) => void;
+  onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
   onMobileViewChange: (view: MobileView) => void;
 };
@@ -70,6 +85,7 @@ export function renderLayout(): HTMLElement {
       mobileTab('export', strings.labels.mobileExport, false)
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
+      editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
       editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
       editorSection(strings.columns.selected,
         el('div', { class: 'selected-head' },
@@ -94,7 +110,12 @@ export function renderLayout(): HTMLElement {
           el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
         ),
         el('div', { id: 'categories', class: 'accordion' })
-      )
+      ),
+      editorSection(strings.columns.productFormats,
+        el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
+        el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
+      ),
+      editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -123,9 +144,10 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, workspace, live);
+  app.append(header, workspace, productFormatModal, live);
   return app;
 }
 
@@ -194,33 +216,141 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   return btn;
 }
 
+export function documentTitleText(config: DocumentTitleConfig): string {
+  if (config.mode === 'feedbackbogen') return strings.kopfdaten.titleFeedbackbogen;
+  if (config.mode === 'custom') return config.custom.trim() || strings.kopfdaten.titleBewertungsbogen;
+  return strings.kopfdaten.titleBewertungsbogen;
+}
+
+export function renderDocumentTitleForm(
+  container: HTMLElement,
+  documentTitle: DocumentTitleConfig,
+  handlers: Pick<RenderHandlers, 'onDocumentTitleModeChange' | 'onDocumentTitleCustomChange'>
+) {
+  container.innerHTML = '';
+  const selectId = 'document-title-mode';
+  const select = el('select', {
+    id: selectId,
+    class: 'default-scale-select',
+    'aria-label': strings.kopfdaten.documentTitle
+  }) as HTMLSelectElement;
+  const options: { value: DocumentTitleMode; label: string }[] = [
+    { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
+    { value: 'feedbackbogen', label: strings.kopfdaten.titleFeedbackbogen },
+    { value: 'custom', label: strings.kopfdaten.titleCustom }
+  ];
+  options.forEach(({ value, label }) => select.append(el('option', { value, text: label })));
+  select.value = documentTitle.mode;
+  select.addEventListener('change', () => handlers.onDocumentTitleModeChange(select.value as DocumentTitleMode));
+
+  container.append(el('div', { class: 'kd-field' },
+    el('label', { for: selectId, class: 'kd-label', text: strings.kopfdaten.documentTitle }),
+    select
+  ));
+
+  if (documentTitle.mode === 'custom') {
+    const inputId = 'document-title-custom';
+    const input = el('input', {
+      id: inputId,
+      class: 'kd-input',
+      type: 'text',
+      value: documentTitle.custom,
+      placeholder: strings.kopfdaten.customTitlePlaceholder
+    }) as HTMLInputElement;
+    input.addEventListener('input', () => handlers.onDocumentTitleCustomChange(input.value));
+    container.append(el('div', { class: 'kd-field' },
+      el('label', { for: inputId, class: 'kd-label', text: strings.kopfdaten.titleCustom }),
+      input
+    ));
+  }
+}
+
 export function renderKopfdaten(
   container: HTMLElement,
   header: HeaderData,
-  onChange: (field: keyof HeaderData, value: string) => void
+  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onAddHeaderField' | 'onRemoveHeaderField'>
 ) {
   container.innerHTML = '';
 
-  const fields: { key: keyof HeaderData; label: string; type: string }[] = [
-    { key: 'learner', label: strings.kopfdaten.learner, type: 'text' },
-    { key: 'learngroup', label: strings.kopfdaten.learngroup, type: 'text' },
-    { key: 'topic', label: strings.kopfdaten.topic, type: 'text' },
-    { key: 'date', label: strings.kopfdaten.date, type: 'date' }
-  ];
+  container.append(el('div', { class: 'header-field-head', 'aria-hidden': 'true' },
+    el('span', { text: strings.kopfdaten.fieldLabel }),
+    el('span', { text: strings.kopfdaten.fieldValue }),
+    el('span')
+  ));
 
-  fields.forEach(({ key, label, type }) => {
-    const inputId = `kd-${key}`;
-    const input = el('input', { type, id: inputId, class: 'kd-input', value: header[key], placeholder: label }) as HTMLInputElement;
-    input.addEventListener('input', () => onChange(key, input.value));
-    const lbl = el('label', { for: inputId, class: 'kd-label', text: label });
-    container.append(el('div', { class: 'kd-field' }, lbl, input));
+  header.fields.forEach((field) => {
+    container.append(renderHeaderFieldEditor(field, handlers));
   });
 
-  const fbInput = el('textarea', { id: 'kd-feedback', class: 'kd-textarea', placeholder: strings.kopfdaten.feedback, rows: '3' }) as HTMLTextAreaElement;
-  fbInput.value = header.feedback;
-  fbInput.addEventListener('input', () => onChange('feedback', fbInput.value));
-  const fbLabel = el('label', { for: 'kd-feedback', class: 'kd-label', text: strings.kopfdaten.feedback });
-  container.append(el('div', { class: 'kd-field kd-field-wide' }, fbLabel, fbInput));
+  const addFieldBtn = el('button', { class: 'btn btn-small btn-primary add-header-field-btn', type: 'button' });
+  addFieldBtn.append(icon('icon-plus'), el('span', { text: strings.kopfdaten.addField }));
+  addFieldBtn.addEventListener('click', handlers.onAddHeaderField);
+  container.append(addFieldBtn);
+}
+
+function renderHeaderFieldEditor(
+  field: HeaderField,
+  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onRemoveHeaderField'>
+): HTMLElement {
+  const labelInputId = `kd-label-${field.id}`;
+  const valueInputId = `kd-value-${field.id}`;
+  const labelInput = el('input', {
+    type: 'text',
+    id: labelInputId,
+    class: 'kd-input',
+    value: field.label,
+    placeholder: strings.kopfdaten.fieldLabel
+  }) as HTMLInputElement;
+  const valueInput = el('input', {
+    type: 'text',
+    id: valueInputId,
+    class: 'kd-input',
+    value: field.value,
+    placeholder: ''
+  }) as HTMLInputElement;
+  const removeBtn = el('button', {
+    class: 'btn-icon remove-header-field-btn',
+    type: 'button',
+    'aria-label': strings.labels.removeHeaderField,
+    title: strings.labels.removeHeaderField
+  });
+  removeBtn.append(el('span', { class: 'remove-header-field-mark', text: 'x' }));
+
+  labelInput.addEventListener('input', () => handlers.onHeaderFieldLabelChange(field.id, labelInput.value));
+  valueInput.addEventListener('input', () => handlers.onHeaderFieldValueChange(field.id, valueInput.value));
+  removeBtn.addEventListener('click', () => handlers.onRemoveHeaderField(field.id));
+
+  return el('div', { class: 'header-field-row' },
+    el('div', { class: 'kd-field' },
+      el('label', { for: labelInputId, class: 'kd-label sr-only', text: strings.kopfdaten.fieldLabel }),
+      labelInput
+    ),
+    el('div', { class: 'kd-field' },
+      el('label', { for: valueInputId, class: 'kd-label sr-only', text: strings.kopfdaten.fieldValue }),
+      valueInput
+    ),
+    removeBtn
+  );
+}
+
+export function renderFooterFields(
+  container: HTMLElement,
+  footerFields: FooterFields,
+  handlers: Pick<RenderHandlers, 'onFooterFieldToggle'>
+) {
+  container.innerHTML = '';
+  footerFieldOptions().forEach(({ id, label }) => {
+    const inputId = `footer-${id}`;
+    const input = el('input', {
+      type: 'checkbox',
+      id: inputId,
+      class: 'item-checkbox',
+      checked: footerFields[id] ? 'true' : undefined
+    }) as HTMLInputElement;
+    input.checked = footerFields[id];
+    input.addEventListener('change', () => handlers.onFooterFieldToggle(id, input.checked));
+    container.append(el('label', { class: 'footer-field-option', for: inputId }, input, el('span', { text: label })));
+  });
 }
 
 export function renderSelectedCounter(container: HTMLElement, count: number) {
@@ -247,7 +377,7 @@ export function renderSelectedList(
       title: strings.labels.remove,
       'aria-label': `${strings.labels.remove}: ${item.item}`
     }, icon('icon-trash'));
-    removeBtn.addEventListener('click', () => handlers.onRemoveSelected(item.itemId));
+    removeBtn.addEventListener('click', () => handlers.onRemoveSelected(item.categoryId, item.itemId));
     const meta = item.isCustom
       ? `${item.category} · ${strings.labels.customItemBadge} · ${item.scaleLabel}`
       : `${item.category} · ${item.scaleLabel}`;
@@ -274,13 +404,122 @@ export function renderDefaultScaleSelect(
   selectEl.onchange = () => handlers.onDefaultScaleChange(selectEl.value);
 }
 
+export function renderProductFormatControls(
+  container: HTMLElement,
+  selectedFormats: Category[],
+  handlers: Pick<RenderHandlers, 'onOpenProductFormatModal'>
+) {
+  container.innerHTML = '';
+  const chooseBtn = el('button', { class: 'btn btn-small btn-primary choose-product-formats-btn', type: 'button' });
+  chooseBtn.append(icon('icon-plus'), el('span', { text: strings.labels.chooseProductFormats }));
+  chooseBtn.addEventListener('click', handlers.onOpenProductFormatModal);
+  container.append(chooseBtn);
+
+  if (selectedFormats.length === 0) {
+    container.append(el('p', { class: 'product-format-empty', text: strings.labels.selectedProductFormatsEmpty }));
+  }
+}
+
+export function renderProductFormatModal(
+  container: HTMLElement,
+  formats: ProductFormatData,
+  selectedFormatIds: Set<string>,
+  isOpen: boolean,
+  searchQuery: string,
+  handlers: Pick<RenderHandlers, 'onCloseProductFormatModal' | 'onProductFormatSearchChange' | 'onToggleProductFormat'>
+) {
+  container.innerHTML = '';
+  if (!isOpen) return;
+
+  const dialog = el('div', { class: 'product-format-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'product-format-modal-title' });
+  const closeBtn = el('button', { class: 'btn btn-small', type: 'button', text: strings.labels.close });
+  closeBtn.addEventListener('click', handlers.onCloseProductFormatModal);
+
+  const searchInput = el('input', {
+    type: 'search',
+    class: 'criteria-search product-format-search',
+    placeholder: strings.labels.productFormatSearchPlaceholder,
+    value: searchQuery,
+    autocomplete: 'off'
+  }) as HTMLInputElement;
+
+  const body = el('div', { class: 'product-format-modal-body' });
+  formats.groups.forEach((group) => {
+    const groupBlock = el('section', { class: 'product-format-group' },
+      el('h3', { class: 'product-format-group-title', text: group.title })
+    );
+    group.formats.forEach((format) => {
+      const categoryId = productFormatCategoryId(group.id, format.id);
+      const isSelected = selectedFormatIds.has(categoryId);
+      const toggleBtn = el('button', {
+        class: `btn btn-small ${isSelected ? '' : 'btn-primary'}`,
+        type: 'button',
+        text: isSelected ? strings.labels.removeProductFormat : strings.labels.addProductFormat
+      });
+      toggleBtn.addEventListener('click', () => handlers.onToggleProductFormat(categoryId, !isSelected));
+      const searchText = `${group.title} ${format.title} ${format.criteria.map((criterion) => criterion.label).join(' ')}`.toLowerCase();
+      groupBlock.append(el('div', { class: 'product-format-row', 'data-search-text': searchText },
+        el('div', { class: 'product-format-row-main' },
+          el('strong', { class: 'product-format-row-title', text: format.title }),
+          el('span', { class: 'product-format-row-meta', text: `${format.criteria.length} Kriterien` })
+        ),
+        toggleBtn
+      ));
+    });
+    body.append(groupBlock);
+  });
+  const emptyMessage = el('p', { class: 'search-empty product-format-search-empty', text: 'Keine passenden Formate gefunden.' });
+  body.append(emptyMessage);
+  applyProductFormatFilter(body, searchQuery);
+  searchInput.addEventListener('input', () => {
+    handlers.onProductFormatSearchChange(searchInput.value);
+    applyProductFormatFilter(body, searchInput.value);
+  });
+
+  dialog.append(
+    el('div', { class: 'product-format-modal-head' },
+      el('h2', { id: 'product-format-modal-title', class: 'product-format-modal-title', text: strings.labels.productFormatModalTitle }),
+      closeBtn
+    ),
+    el('label', { class: 'small-label', text: strings.labels.productFormatSearch }),
+    searchInput,
+    body
+  );
+  const backdrop = el('div', { class: 'product-format-modal-backdrop' }, dialog);
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) handlers.onCloseProductFormatModal();
+  });
+  container.append(backdrop);
+}
+
+function applyProductFormatFilter(body: HTMLElement, searchQuery: string) {
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  let visibleRows = 0;
+
+  body.querySelectorAll<HTMLElement>('.product-format-group').forEach((group) => {
+    let groupHasVisibleRows = false;
+    group.querySelectorAll<HTMLElement>('.product-format-row').forEach((row) => {
+      const rowMatches = !normalizedQuery || (row.dataset.searchText ?? '').includes(normalizedQuery);
+      row.hidden = !rowMatches;
+      if (rowMatches) {
+        visibleRows++;
+        groupHasVisibleRows = true;
+      }
+    });
+    group.hidden = !groupHasVisibleRows;
+  });
+
+  const emptyMessage = body.querySelector<HTMLElement>('.product-format-search-empty');
+  if (emptyMessage) emptyMessage.hidden = visibleRows > 0;
+}
+
 export function renderCategories(
   container: HTMLElement,
   categories: Category[],
   customItems: CustomItem[],
-  selectedIds: Set<string>,
+  selectedKeys: Set<string>,
   scales: Scale[],
-  scaleByItem: Record<string, string>,
+  scaleByCategory: Record<string, string>,
   defaultScaleId: string,
   handlers: RenderHandlers,
   searchQuery = ''
@@ -306,6 +545,7 @@ export function renderCategories(
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
+    panel.append(categoryScaleRow(c, scales, scaleByCategory[c.id] ?? defaultScaleId, handlers));
     panel.append(el('div', { class: 'category-actions' },
       smallActionButton(strings.labels.selectCategory, () => handlers.onSelectCategory(c.id)),
       smallActionButton(strings.labels.clearCategory, () => handlers.onClearCategory(c.id))
@@ -315,11 +555,11 @@ export function renderCategories(
       visibleRegular.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
         groupBlock.append(el('h3', { class: 'group-title', text: g.title }));
-        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
+        g.items.forEach((it) => groupBlock.append(itemCheckboxRow(c.id, it, selectedKeys, handlers)));
         panel.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
-      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedIds, scales, scaleByItem, defaultScaleId, handlers)));
+      visibleRegular.items.forEach((it) => panel.append(itemCheckboxRow(c.id, it, selectedKeys, handlers)));
     }
 
     if (visibleCustomItems.length > 0) {
@@ -327,7 +567,7 @@ export function renderCategories(
       visibleCustomItems.forEach((ci) => {
         const removeBtn = el('button', { class: 'btn-icon danger', type: 'button', title: strings.labels.remove, 'aria-label': strings.labels.remove }, icon('icon-trash'));
         removeBtn.addEventListener('click', () => handlers.onRemoveCustomItem(ci.id));
-        const row = itemCheckboxRow(c.id, ci, selectedIds, scales, scaleByItem, defaultScaleId, handlers, true);
+        const row = itemCheckboxRow(c.id, ci, selectedKeys, handlers, true);
         row.querySelector('.item-actions')?.append(removeBtn);
         customSection.append(row);
       });
@@ -339,8 +579,8 @@ export function renderCategories(
       placeholder: strings.labels.customItemPlaceholder,
       'aria-label': strings.labels.addCustomItem
     }) as HTMLInputElement;
-    const addCustomBtn = el('button', { class: 'btn-icon btn-primary', type: 'button', 'aria-label': strings.labels.addCustomItem });
-    addCustomBtn.append(icon('icon-plus'));
+    const addCustomBtn = el('button', { class: 'btn btn-small btn-primary add-custom-btn', type: 'button', 'aria-label': strings.labels.addCustomItem });
+    addCustomBtn.append(icon('icon-plus'), el('span', { text: strings.labels.add }));
     addCustomBtn.addEventListener('click', () => { handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; });
     customInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); handlers.onAddCustomItem(c.id, customInput.value); customInput.value = ''; }
@@ -359,10 +599,25 @@ export function renderCategories(
   });
 
   // Update the per-category count badges
-  refreshCategoryCounts(container, categories, customItems, selectedIds);
+  refreshCategoryCounts(container, categories, customItems, selectedKeys);
   if (renderedCategories === 0) {
     container.append(el('p', { class: 'search-empty', text: 'Keine passenden Kriterien gefunden.' }));
   }
+}
+
+function categoryScaleRow(category: Category, scales: Scale[], scaleId: string, handlers: RenderHandlers): HTMLElement {
+  const select = el('select', {
+    class: 'category-scale-select',
+    'aria-label': `${category.title} – ${strings.labels.scale}`
+  }) as HTMLSelectElement;
+  scales.forEach((s) => select.append(el('option', { value: s.id, text: scaleDisplay(s) })));
+  select.value = scaleId;
+  select.addEventListener('change', () => handlers.onCategoryScaleChange(category.id, select.value));
+
+  return el('div', { class: 'category-scale-row' },
+    el('label', { class: 'small-label', text: strings.labels.scale }),
+    select
+  );
 }
 
 function smallActionButton(label: string, onClick: () => void) {
@@ -394,11 +649,11 @@ function refreshCategoryCounts(
   container: HTMLElement,
   categories: Category[],
   customItems: CustomItem[],
-  selectedIds: Set<string>
+  selectedKeys: Set<string>
 ) {
   categories.forEach((c) => {
     const all = allItemIdsOfCategory(c, customItems);
-    const count = all.filter((id) => selectedIds.has(id)).length;
+    const count = all.filter((id) => selectedKeys.has(selectionKey(c.id, id))).length;
     const badge = container.querySelector<HTMLElement>(`.acc-count[data-cat="${c.id}"]`);
     if (badge) badge.textContent = count > 0 ? `${count}` : '';
     if (badge) badge.classList.toggle('has-selection', count > 0);
@@ -416,27 +671,25 @@ function allItemIdsOfCategory(c: Category, customItems: CustomItem[]): string[] 
 function itemCheckboxRow(
   categoryId: string,
   item: Item,
-  selectedIds: Set<string>,
-  scales: Scale[],
-  scaleByItem: Record<string, string>,
-  defaultScaleId: string,
+  selectedKeys: Set<string>,
   handlers: RenderHandlers,
   isCustom = false
 ): HTMLElement {
-  const isChecked = selectedIds.has(item.id);
+  const isChecked = selectedKeys.has(selectionKey(categoryId, item.id));
+  const checkboxId = `cb-${domSafeId(categoryId)}-${domSafeId(item.id)}`;
   const row = el('div', { class: `item-row item-checkbox-row ${isCustom ? 'custom-item-row' : ''}` });
 
   const cb = el('input', {
     type: 'checkbox',
     class: 'item-checkbox',
-    id: `cb-${item.id}`,
+    id: checkboxId,
     'data-cat': categoryId,
     'data-item': item.id
   }) as HTMLInputElement;
   cb.checked = isChecked;
   cb.addEventListener('change', () => handlers.onToggle(categoryId, item.id, cb.checked));
 
-  const label = el('label', { for: `cb-${item.id}`, class: 'item-label-text', text: item.label });
+  const label = el('label', { for: checkboxId, class: 'item-label-text', text: item.label });
   if (isCustom) {
     label.append(el('span', { class: 'custom-badge', text: strings.labels.customItemBadge }));
   }
@@ -444,21 +697,17 @@ function itemCheckboxRow(
   const main = el('div', { class: 'item-main' }, cb, label);
   row.append(main);
 
-  // Inline scale dropdown (only meaningful when checked, but always rendered for layout stability)
-  const scaleSel = el('select', {
-    class: 'inline-scale',
-    'data-item': item.id,
-    'aria-label': `${item.label} – ${strings.labels.scale}`
-  }) as HTMLSelectElement;
-  scales.forEach((s) => scaleSel.append(el('option', { value: s.id, text: scaleDisplay(s) })));
-  scaleSel.value = scaleByItem[item.id] ?? defaultScaleId;
-  scaleSel.disabled = !isChecked;
-  scaleSel.addEventListener('change', () => handlers.onScaleChange(item.id, scaleSel.value));
-
-  const actions = el('div', { class: 'item-actions' }, scaleSel);
-  row.append(actions);
+  row.append(el('div', { class: 'item-actions' }));
 
   return row;
+}
+
+function selectionKey(categoryId: string, itemId: string): string {
+  return `${categoryId}::${itemId}`;
+}
+
+function domSafeId(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, '-');
 }
 
 export function renderModeSwitch(
@@ -493,12 +742,14 @@ export function renderMobileTabs(container: HTMLElement, activeView: MobileView,
 export function renderPreview(
   container: HTMLElement,
   rows: ExportRow[],
+  documentTitle: DocumentTitleConfig,
   header: HeaderData,
+  footerFields: FooterFields,
   mode: PrintMode
 ) {
   container.innerHTML = '';
 
-  container.append(el('h1', { class: 'a4-title', text: mode === 'checklist' ? 'Bewertungscheckliste' : 'Bewertungsbogen' }));
+  container.append(el('h1', { class: 'a4-title', text: documentTitleText(documentTitle) }));
 
   // Header fields with blank lines (always shown — empty fields stay fillable on paper)
   container.append(renderA4Header(header));
@@ -509,22 +760,17 @@ export function renderPreview(
     container.append(renderA4Body(rows, mode));
   }
 
-  container.append(renderA4Feedback(header));
+  container.append(renderA4Feedback());
+  container.append(renderA4Footer(footerFields));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {
   const wrap = el('div', { class: 'a4-header-fields' });
 
-  const fields: [string, string][] = [
-    [strings.kopfdaten.learner, header.learner],
-    [strings.kopfdaten.learngroup, header.learngroup],
-    [strings.kopfdaten.topic, header.topic],
-    [strings.kopfdaten.date, header.date]
-  ];
-
-  fields.forEach(([label, value]) => {
+  header.fields.forEach(({ label, value }) => {
+    const safeLabel = label.trim() || strings.kopfdaten.fallbackField;
     const row = el('div', { class: 'a4-hf-row' });
-    row.append(el('span', { class: 'a4-hf-label', text: `${label}:` }));
+    row.append(el('span', { class: 'a4-hf-label', text: `${safeLabel}:` }));
     const valEl = el('span', { class: 'a4-hf-value' });
     if (value) valEl.textContent = value;
     row.append(valEl);
@@ -538,17 +784,18 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   const wrap = el('div', { class: 'a4-body' });
 
   // Group rows by categoryId, preserve category order from first appearance
-  const groups = new Map<string, { title: string; items: ExportRow[] }>();
+  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
   rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, items: [] });
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
     groups.get(r.categoryId)!.items.push(r);
   });
 
-  groups.forEach(({ title, items }) => {
+  groups.forEach(({ title, scale, items }) => {
     const section = el('section', { class: 'a4-cat-section' });
     section.append(el('h2', { class: 'a4-cat-heading', text: title }));
+    if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
     const list = el('ol', { class: 'a4-items' });
-    items.forEach((r) => list.append(renderA4Item(r, mode)));
+    items.forEach((r) => list.append(renderA4Item(r, mode, scale)));
     section.append(list);
     wrap.append(section);
   });
@@ -556,33 +803,74 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   return wrap;
 }
 
-function renderA4Item(row: ExportRow, mode: PrintMode): HTMLElement {
-  const li = el('li', { class: 'a4-item' });
+function renderA4Item(row: ExportRow, mode: PrintMode, scale: Scale | null): HTMLElement {
+  const itemClasses = ['a4-item'];
+  if (mode === 'checklist') itemClasses.push('a4-item-checklist');
+  if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
+
+  const li = el('li', { class: itemClasses.join(' ') });
+  const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {
     li.append(el('span', { class: 'a4-cbox', text: '☐' }));
-    li.append(el('span', { class: 'a4-item-label', text: row.item }));
+    li.append(label);
     return li;
   }
 
-  li.append(el('div', { class: 'a4-item-label', text: row.item }));
-  if (row.scale) {
-    li.append(renderScaleOptions(row.scale));
+  li.append(label);
+  if (scale) {
+    li.append(renderScaleBoxes(scale));
   } else {
     li.append(el('div', { class: 'a4-scale-line' }));
   }
   return li;
 }
 
-function renderScaleOptions(scale: Scale): HTMLElement {
-  const wrap = el('div', { class: 'a4-scale-options' });
+function renderScaleHeader(scale: Scale): HTMLElement {
+  if (scale.kind === 'numeric') return renderNumericScaleHeader(scale);
+
+  const wrap = el('div', { class: 'a4-scale-header' });
+  wrap.append(el('div', { class: 'a4-scale-header-spacer' }));
+  const options = el('div', { class: 'a4-scale-options', style: scaleGridStyle(scale) });
   scaleOptionLabels(scale).forEach((label) => {
-    const opt = el('span', { class: 'a4-scale-opt' });
-    opt.append(el('span', { class: 'a4-cbox', text: '☐' }));
-    opt.append(el('span', { class: 'a4-scale-opt-text', text: label }));
-    wrap.append(opt);
+    options.append(el('span', { class: 'a4-scale-opt-text', text: label }));
+  });
+  wrap.append(options);
+  return wrap;
+}
+
+function renderScaleBoxes(scale: Scale): HTMLElement {
+  if (scale.kind === 'numeric') return renderNumericScaleBoxes(scale);
+
+  const wrap = el('div', { class: 'a4-scale-boxes', style: scaleGridStyle(scale) });
+  scaleOptionLabels(scale).forEach(() => {
+    wrap.append(el('span', { class: 'a4-cbox', text: '☐' }));
   });
   return wrap;
+}
+
+function renderNumericScaleHeader(scale: Scale & { kind: 'numeric' }): HTMLElement {
+  const wrap = el('div', { class: 'a4-scale-header a4-scale-header-numeric' });
+  wrap.append(el('div', { class: 'a4-scale-header-spacer' }));
+  const options = el('div', { class: 'a4-scale-options a4-scale-options-numeric', style: scaleGridStyle(scale) });
+  scaleOptionLabels(scale).forEach((label) => {
+    options.append(el('span', { class: 'a4-scale-opt-text', text: label }));
+  });
+  wrap.append(options);
+  return wrap;
+}
+
+function renderNumericScaleBoxes(scale: Scale & { kind: 'numeric' }): HTMLElement {
+  const wrap = el('div', { class: 'a4-scale-boxes a4-scale-boxes-numeric', style: scaleGridStyle(scale) });
+  scaleOptionLabels(scale).forEach(() => {
+    wrap.append(el('span', { class: 'a4-cbox', text: '☐' }));
+  });
+  return wrap;
+}
+
+function scaleGridStyle(scale: Scale): string {
+  const minColumnWidth = scale.kind === 'numeric' ? '13pt' : '26pt';
+  return `grid-template-columns: repeat(${scaleOptionLabels(scale).length}, minmax(${minColumnWidth}, 1fr))`;
 }
 
 function scaleOptionLabels(scale: Scale): string[] {
@@ -599,11 +887,30 @@ function scaleOptionLabels(scale: Scale): string[] {
   }
 }
 
-function renderA4Feedback(header: HeaderData): HTMLElement {
+function renderA4Feedback(): HTMLElement {
   const section = el('div', { class: 'a4-feedback' });
   section.append(el('h2', { class: 'a4-feedback-title', text: strings.kopfdaten.feedback }));
-  if (header.feedback) section.append(el('p', { class: 'a4-feedback-text', text: header.feedback }));
   // Blank lines for handwriting
   for (let i = 0; i < 5; i++) section.append(el('div', { class: 'a4-feedback-line' }));
   return section;
+}
+
+function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
+  return [
+    { id: 'date', label: strings.kopfdaten.date },
+    { id: 'signature', label: strings.kopfdaten.signature },
+    { id: 'grade', label: strings.kopfdaten.grade }
+  ];
+}
+
+function renderA4Footer(footerFields: FooterFields): HTMLElement {
+  const enabled = footerFieldOptions().filter(({ id }) => footerFields[id]);
+  const wrap = el('div', { class: 'a4-footer-fields' });
+  enabled.forEach(({ label }) => {
+    wrap.append(el('div', { class: 'a4-footer-field' },
+      el('span', { class: 'a4-footer-label', text: `${label}:` }),
+      el('span', { class: 'a4-footer-line' })
+    ));
+  });
+  return wrap;
 }

@@ -8,17 +8,13 @@
     "dev": "vite --open",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "lint": "eslint --ext .ts,.tsx,.js,.jsx src",
+    "lint": "eslint src tests vite.config.ts",
     "format": "prettier --write .",
     "test": "vitest"
   },
   "dependencies": {
     "docx": "^8.5.0",
-    "glob": "^11.0.3",
-    "jspdf": "^3.0.2",
-    "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",
-    "rimraf": "^6.0.1",
     "xlsx": "^0.18.5",
     "yaml": "^2.4.2"
   },

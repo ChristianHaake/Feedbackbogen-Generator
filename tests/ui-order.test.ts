@@ -1,0 +1,97 @@
+import { describe, expect, it, vi } from 'vitest';
+
+import { renderSelectedList, type RenderHandlers, type SelectedSummary } from '@/ui/templates';
+
+const items: SelectedSummary[] = [
+  { categoryId: 'a', category: 'Kategorie A', itemId: 'a1', item: 'Kriterium A1', scaleLabel: 'Skala', isCustom: false },
+  { categoryId: 'a', category: 'Kategorie A', itemId: 'a2', item: 'Kriterium A2', scaleLabel: 'Skala', isCustom: false },
+  { categoryId: 'b', category: 'Kategorie B', itemId: 'b1', item: 'Kriterium B1', scaleLabel: 'Skala', isCustom: false }
+];
+
+describe('selected order UI', () => {
+  it('moves categories through the drag-and-drop handler', () => {
+    const handlers = handlerSpies();
+    const container = document.createElement('div');
+    renderSelectedList(container, items, handlers);
+    const source = container.querySelector<HTMLButtonElement>('[aria-label^="Kategorie verschieben: Kategorie B"]')!;
+    const target = container.querySelector<HTMLElement>('[data-category-id="a"]')!;
+    const transfer = dataTransfer();
+
+    source.dispatchEvent(dragEvent('dragstart', transfer));
+    target.dispatchEvent(dragEvent('dragover', transfer));
+    target.dispatchEvent(dragEvent('drop', transfer));
+
+    expect(handlers.onReorderCategory).toHaveBeenCalledWith('b', 'a');
+  });
+
+  it('moves criteria through the drag-and-drop and keyboard handlers', () => {
+    const handlers = handlerSpies();
+    const container = document.createElement('div');
+    renderSelectedList(container, items, handlers);
+    const source = container.querySelector<HTMLButtonElement>('[aria-label^="Kriterium verschieben: Kriterium A2"]')!;
+    const target = container.querySelector<HTMLElement>('[data-category-id="a"] [data-item-id="a1"]')!;
+    const transfer = dataTransfer();
+
+    source.dispatchEvent(dragEvent('dragstart', transfer));
+    target.dispatchEvent(dragEvent('drop', transfer));
+    expect(handlers.onReorderItem).toHaveBeenCalledWith('a', 'a2', 'a1');
+
+    source.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    expect(handlers.onReorderItem).toHaveBeenCalledWith('a', 'a2', 'a1');
+  });
+});
+
+function dataTransfer(): DataTransfer {
+  const entries = new Map<string, string>();
+  const transfer = {
+    effectAllowed: 'uninitialized',
+    dropEffect: 'none',
+    files: [] as unknown as FileList,
+    items: [] as unknown as DataTransferItemList,
+    types: [],
+    clearData: vi.fn(),
+    getData: (type: string) => entries.get(type) ?? '',
+    setData: (type: string, value: string) => {
+      entries.set(type, value);
+      (transfer.types as string[]).splice(0, transfer.types.length, ...entries.keys());
+    },
+    setDragImage: vi.fn()
+  } as unknown as DataTransfer;
+  return transfer;
+}
+
+function dragEvent(type: string, dataTransfer: DataTransfer): Event {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'dataTransfer', { value: dataTransfer });
+  return event;
+}
+
+function handlerSpies(): RenderHandlers {
+  return {
+    onToggle: vi.fn(),
+    onCategoryScaleChange: vi.fn(),
+    onDefaultScaleChange: vi.fn(),
+    onAddCustomItem: vi.fn(),
+    onRemoveCustomItem: vi.fn(),
+    onRemoveSelected: vi.fn(),
+    onSelectCategory: vi.fn(),
+    onClearCategory: vi.fn(),
+    onClearSelection: vi.fn(),
+    onReorderCategory: vi.fn(),
+    onReorderItem: vi.fn(),
+    onSearchChange: vi.fn(),
+    onOpenProductFormatModal: vi.fn(),
+    onCloseProductFormatModal: vi.fn(),
+    onProductFormatSearchChange: vi.fn(),
+    onToggleProductFormat: vi.fn(),
+    onDocumentTitleModeChange: vi.fn(),
+    onDocumentTitleCustomChange: vi.fn(),
+    onHeaderFieldLabelChange: vi.fn(),
+    onHeaderFieldValueChange: vi.fn(),
+    onAddHeaderField: vi.fn(),
+    onRemoveHeaderField: vi.fn(),
+    onFooterFieldToggle: vi.fn(),
+    onPreviewModeChange: vi.fn(),
+    onMobileViewChange: vi.fn()
+  };
+}

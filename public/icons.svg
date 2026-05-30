@@ -20,6 +20,12 @@
   <symbol id="icon-reorder" viewBox="0 0 24 24">
     <path fill="currentColor" d="M3 7h18v2H3V7Zm0 4h18v2H3v-2Zm0 4h18v2H3v-2Z"/>
   </symbol>
+  <symbol id="icon-undo" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M7.4 7H14a6 6 0 1 1 0 12h-4v-2h4a4 4 0 1 0 0-8H7.4l3.3 3.3-1.4 1.4L3.6 8l5.7-5.7 1.4 1.4L7.4 7Z"/>
+  </symbol>
+  <symbol id="icon-redo" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M16.6 7H10a6 6 0 1 0 0 12h4v-2h-4a4 4 0 1 1 0-8h6.6l-3.3 3.3 1.4 1.4L20.4 8l-5.7-5.7-1.4 1.4L16.6 7Z"/>
+  </symbol>
   <symbol id="icon-pdf" viewBox="0 0 24 24">
     <path fill="currentColor" d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V8h4.5L13 3.5Z"/>
   </symbol>
@@ -33,4 +39,3 @@
     <path fill="currentColor" d="M4 2h10l6 6v14H4V2Zm10 1.5V8h4.5L14 3.5Z"/>
   </symbol>
 </svg>
-

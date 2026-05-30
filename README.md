@@ -5,11 +5,11 @@ Der Feedbackbogen-Generator ist ein webbasiertes Open-Source-Werkzeug zur Erstel
 Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeldung und keine serverseitige Speicherung der eingegebenen Inhalte.
 
 - Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
-- Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.json` liefert Produktformat-Pakete für die Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
+- Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.yaml` ist die editierbare Quelle für Produktformat-Pakete. `content/format.json` wird daraus generiert. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
 - UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
-- Exporte lokal im Browser: PDF, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
-- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), respektiert `prefers-reduced-motion`.
+- Exporte lokal im Browser: PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODP (via ZIP+XML).
+- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), Strg/Cmd+Z (Undo), Strg/Cmd+Shift+Z (Redo), respektiert `prefers-reduced-motion`.
 - Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
@@ -24,6 +24,8 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 
 - Auswahl vorstrukturierter Feedback- und Bewertungskriterien
 - Ergänzung eigener Kriterien
+- Reihenfolge von Kategorien und Kriterien per Drag-and-drop oder Pfeiltasten
+- Undo, Redo und explizites Zurücksetzen trotz Autospeicherung
 - Auswahl produktspezifischer Kriterien für unterschiedliche Prüfungs- und Arbeitsformate
 - Konfigurierbare Skalen pro Kategorie
 - Vorschau als Bewertungsbogen oder Checkliste
@@ -43,14 +45,15 @@ Die App ist eine clientseitige Vite/TypeScript-Anwendung ohne Backend.
 
 - Framework: Vanilla TypeScript mit Vite
 - Datenquellen: YAML/JSON-Dateien im Ordner `content/`
-- Persistenz: JSON-Import und -Export
-- Exporte: Browser-Druckfunktion, `docx`, `xlsx`, `jszip`
+- Persistenz: `localStorage`, versionierter JSON-Import und -Export mit Migrationen
+- Exporte: Browser-Druckfunktion, `docx`, `write-excel-file`, `jszip`
 - Hosting: statische Auslieferung möglich
 
 Die Anwendung lädt die Kriterien und Produktformate zur Laufzeit aus:
 
 - `content/items.yaml`
-- `content/format.json`
+- `content/format.yaml`
+- `content/format.json` (generiert mit `npm run generate:formats`)
 
 ## Entwicklung
 
@@ -60,6 +63,8 @@ Voraussetzung: Node.js `>= 20.19.0` oder `>= 22.12.0`
 npm ci
 npm run dev
 npm run build
+npm run generate:formats
+npm run check:formats
 npm run preview
 npm run test
 npm run lint
@@ -70,6 +75,8 @@ Wichtige Skripte:
 
 - `npm run dev`: startet den lokalen Entwicklungsserver
 - `npm run build`: erstellt den Produktionsbuild in `dist/`
+- `npm run generate:formats`: erzeugt `content/format.json` aus `content/format.yaml`
+- `npm run check:formats`: prüft Aktualität und ID-Kollisionen der generierten Produktformate
 - `npm run preview`: zeigt den Produktionsbuild lokal an
 - `npm run test`: führt die Unit-Tests aus
 - `npm run lint`: prüft den Code mit ESLint
@@ -77,7 +84,7 @@ Wichtige Skripte:
 
 ## Konfiguration
 
-Die Standardkriterien werden in YAML gepflegt. Produktformatspezifische Kriterien liegen in JSON.
+Die Standardkriterien und produktformatspezifischen Kriterien werden in YAML gepflegt. `content/format.json` ist ein generiertes Laufzeitartefakt und darf nicht manuell bearbeitet werden.
 
 Vereinfachtes YAML-Schema:
 
@@ -102,29 +109,18 @@ scales:
       - trifft nicht zu
 ```
 
-Produktformate folgen diesem Grundaufbau:
+Produktformate folgen in `content/format.yaml` diesem Grundaufbau:
 
-```json
-{
-  "groups": [
-    {
-      "id": "fotoprodukte",
-      "title": "Fotoprodukte",
-      "formats": [
-        {
-          "id": "fotostory",
-          "title": "Fotostory",
-          "criteria": [
-            {
-              "id": "bildgestaltung",
-              "label": "ansprechende Bildgestaltung"
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+```yaml
+version: 1
+groups:
+  - id: fotoprodukte
+    title: Fotoprodukte
+    formats:
+      - id: fotostory
+        title: Fotostory
+        criteria:
+          - label: ansprechende Bildgestaltung
 ```
 
 ## Exportformate
@@ -132,9 +128,9 @@ Produktformate folgen diesem Grundaufbau:
 - PDF/Druck: über die Druckfunktion des Browsers
 - DOCX: editierbares Word-Dokument
 - XLSX: Tabelle mit Kriterien, Punkten und Notizen
-- ODP: einfache Präsentationsdatei mit Titelfolie und Tabelle
+- ODP: paginierte Präsentationsdatei mit Titelfolie, formatierten Tabellen und Feedbackfolie
 
-Der ODP-Export ist bewusst schlicht gehalten. Die Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt; PowerPoint kann je nach Version abweichen.
+Die ODP-Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt; PowerPoint kann je nach Version abweichen.
 
 ## Einbettung
 

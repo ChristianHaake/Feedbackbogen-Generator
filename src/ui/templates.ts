@@ -4,6 +4,7 @@ import { strings } from '@/strings';
 import { scaleDisplay } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
 import { contentPages } from '@/content-pages';
+import { orderByIds } from '@/config-order';
 import type {
   Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
@@ -31,6 +32,8 @@ export type RenderHandlers = {
   onSelectCategory: (categoryId: string) => void;
   onClearCategory: (categoryId: string) => void;
   onClearSelection: () => void;
+  onReorderCategory: (draggedCategoryId: string, targetCategoryId: string) => void;
+  onReorderItem: (categoryId: string, draggedItemId: string, targetItemId: string) => void;
   onSearchChange: (value: string) => void;
   onOpenProductFormatModal: () => void;
   onCloseProductFormatModal: () => void;
@@ -64,14 +67,16 @@ export function renderLayout(): HTMLElement {
       el('div', { class: 'actions' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
         toolbarButton('upload', strings.toolbar.loadConfig, 'config-load'),
+        toolbarButton('undo', strings.toolbar.undo, 'history-undo', { 'aria-keyshortcuts': 'Control+Z Meta+Z' }),
+        toolbarButton('redo', strings.toolbar.redo, 'history-redo', { 'aria-keyshortcuts': 'Control+Shift+Z Meta+Shift+Z' }),
+        toolbarButton('trash', strings.toolbar.reset, 'config-reset'),
         el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
           menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
           menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
           menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
           menuAction('odp', strings.toolbar.exportOdp, 'icon-odp')
-        ]),
-        toolbarLink(strings.toolbar.about, contentPages.about.path, 'about')
+        ])
       )
     )
   );
@@ -136,7 +141,10 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { class: 'mobile-secondary-actions' },
           toolbarButton('download', strings.toolbar.saveConfig, 'config-save-mobile'),
-          toolbarButton('upload', strings.toolbar.loadConfig, 'config-load-mobile')
+          toolbarButton('upload', strings.toolbar.loadConfig, 'config-load-mobile'),
+          toolbarButton('undo', strings.toolbar.undo, 'history-undo-mobile'),
+          toolbarButton('redo', strings.toolbar.redo, 'history-redo-mobile'),
+          toolbarButton('trash', strings.toolbar.reset, 'config-reset-mobile')
         )
       )
     )
@@ -151,9 +159,11 @@ export function renderLayout(): HTMLElement {
     )
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
+  const resetConfirmModal = el('div', { id: 'reset-confirm-modal-root' });
+  const configMessage = el('div', { id: 'config-message', class: 'config-message', role: 'alert', hidden: 'true' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, workspace, contentPage, appFooter, productFormatModal, live);
+  app.append(header, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
   return app;
 }
 
@@ -208,10 +218,6 @@ function menuAction(format: ExportFormat, label: string, iconId: string, extra: 
   const btn = el('button', { class: 'menu-item', type: 'button', 'data-export-format': format, ...extra });
   btn.append(icon(iconId), el('span', { text: label }));
   return btn;
-}
-
-function toolbarLink(label: string, href: string, route: string) {
-  return el('a', { class: 'btn toolbar-link', href, 'data-app-route': route, text: label });
 }
 
 function exportButton(format: ExportFormat, label: string, iconId: string) {
@@ -373,8 +379,58 @@ export function renderSelectedList(
     return;
   }
 
-  const list = el('ol', { class: 'selected-items' });
+  container.append(el('p', { class: 'selected-order-hint', text: strings.labels.reorderSelection }));
+  const categories = new Map<string, { id: string; title: string; items: SelectedSummary[] }>();
   selectedItems.forEach((item) => {
+    if (!categories.has(item.categoryId)) categories.set(item.categoryId, { id: item.categoryId, title: item.category, items: [] });
+    categories.get(item.categoryId)!.items.push(item);
+  });
+  const list = el('div', { class: 'selected-categories' });
+  const categoryEntries = Array.from(categories.values());
+  categoryEntries.forEach((category, categoryIndex) => {
+    const categoryHandle = dragHandle(
+      strings.labels.dragCategory(category.title),
+      (event) => {
+        const target = categoryEntries[categoryIndex + (event.key === 'ArrowUp' ? -1 : 1)];
+        if (target) handlers.onReorderCategory(category.id, target.id);
+      }
+    );
+    categoryHandle.draggable = true;
+    categoryHandle.addEventListener('dragstart', (event) => {
+      event.dataTransfer?.setData('application/x-feedback-category', category.id);
+      if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+    });
+    const categoryBlock = el('section', { class: 'selected-category', 'data-category-id': category.id },
+      el('div', { class: 'selected-category-head' }, categoryHandle, el('h3', { text: category.title }))
+    );
+    categoryBlock.addEventListener('dragover', (event) => {
+      if (!event.dataTransfer?.types.includes('application/x-feedback-category')) return;
+      event.preventDefault();
+      categoryBlock.classList.add('drag-over');
+    });
+    categoryBlock.addEventListener('dragleave', () => categoryBlock.classList.remove('drag-over'));
+    categoryBlock.addEventListener('drop', (event) => {
+      categoryBlock.classList.remove('drag-over');
+      const draggedId = event.dataTransfer?.getData('application/x-feedback-category');
+      if (!draggedId || draggedId === category.id) return;
+      event.preventDefault();
+      handlers.onReorderCategory(draggedId, category.id);
+    });
+    const categoryItems = el('ol', { class: 'selected-items' });
+    category.items.forEach((item, itemIndex) => {
+      const itemHandle = dragHandle(
+        strings.labels.dragCriterion(item.item),
+        (event) => {
+          const target = category.items[itemIndex + (event.key === 'ArrowUp' ? -1 : 1)];
+          if (target) handlers.onReorderItem(category.id, item.itemId, target.itemId);
+        }
+      );
+      itemHandle.draggable = true;
+      itemHandle.addEventListener('dragstart', (event) => {
+        event.stopPropagation();
+        event.dataTransfer?.setData('application/x-feedback-item', item.itemId);
+        if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+      });
     const removeBtn = el('button', {
       class: 'btn-icon quiet',
       type: 'button',
@@ -385,15 +441,45 @@ export function renderSelectedList(
     const meta = item.isCustom
       ? `${item.category} · ${strings.labels.customItemBadge} · ${item.scaleLabel}`
       : `${item.category} · ${item.scaleLabel}`;
-    list.append(el('li', { class: 'selected-item' },
+      const itemRow = el('li', { class: 'selected-item', 'data-item-id': item.itemId },
+      itemHandle,
       el('div', { class: 'selected-item-main' },
         el('span', { class: 'selected-item-label', text: item.item }),
         el('span', { class: 'selected-item-meta', text: meta })
       ),
       removeBtn
-    ));
+      );
+      itemRow.addEventListener('dragover', (event) => {
+        if (!event.dataTransfer?.types.includes('application/x-feedback-item')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        itemRow.classList.add('drag-over');
+      });
+      itemRow.addEventListener('dragleave', () => itemRow.classList.remove('drag-over'));
+      itemRow.addEventListener('drop', (event) => {
+        itemRow.classList.remove('drag-over');
+        const draggedId = event.dataTransfer?.getData('application/x-feedback-item');
+        if (!draggedId || draggedId === item.itemId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        handlers.onReorderItem(category.id, draggedId, item.itemId);
+      });
+      categoryItems.append(itemRow);
+    });
+    categoryBlock.append(categoryItems);
+    list.append(categoryBlock);
   });
   container.append(list);
+}
+
+function dragHandle(label: string, onMove: (event: KeyboardEvent) => void): HTMLButtonElement {
+  const handle = el('button', { class: 'drag-handle', type: 'button', title: label, 'aria-label': label, text: '⋮⋮' }) as HTMLButtonElement;
+  handle.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    event.preventDefault();
+    onMove(event);
+  });
+  return handle;
 }
 
 export function renderDefaultScaleSelect(
@@ -519,6 +605,48 @@ export function renderProductFormatModal(
   container.append(backdrop);
 }
 
+export function renderResetConfirmModal(
+  container: HTMLElement,
+  isOpen: boolean,
+  onCancel: () => void,
+  onConfirm: () => void
+) {
+  container.innerHTML = '';
+  if (!isOpen) return;
+
+  const cancel = el('button', { class: 'btn btn-small', type: 'button', text: strings.toolbar.cancel });
+  const confirm = el('button', { class: 'btn btn-small danger reset-confirm-action', type: 'button', text: strings.toolbar.resetConfirmAction });
+  cancel.addEventListener('click', onCancel);
+  confirm.addEventListener('click', onConfirm);
+  const dialog = el('div', { class: 'reset-confirm-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'reset-confirm-title' },
+    el('h2', { id: 'reset-confirm-title', class: 'reset-confirm-title', text: strings.toolbar.resetConfirmTitle }),
+    el('p', { class: 'reset-confirm-body', text: strings.toolbar.resetConfirmBody }),
+    el('div', { class: 'reset-confirm-actions' }, cancel, confirm)
+  );
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onCancel();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const first = cancel;
+    const last = confirm;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  const backdrop = el('div', { class: 'product-format-modal-backdrop' }, dialog);
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) onCancel();
+  });
+  container.append(backdrop);
+}
+
 function applyProductFormatFilter(body: HTMLElement, searchQuery: string) {
   const normalizedQuery = searchQuery.trim().toLowerCase();
   let visibleRows = 0;
@@ -548,6 +676,7 @@ export function renderCategories(
   scales: Scale[],
   scaleByCategory: Record<string, string>,
   defaultScaleId: string,
+  itemOrderByCategory: Record<string, string[]>,
   handlers: RenderHandlers,
   searchQuery = ''
 ) {
@@ -556,8 +685,8 @@ export function renderCategories(
   let renderedCategories = 0;
 
   categories.forEach((c) => {
-    const visibleRegular = visibleCategoryParts(c, normalizedQuery);
-    const catCustomItems = customItems.filter((ci) => ci.categoryId === c.id);
+    const visibleRegular = visibleCategoryParts(c, normalizedQuery, itemOrderByCategory[c.id] ?? []);
+    const catCustomItems = orderByIds(customItems.filter((ci) => ci.categoryId === c.id), itemOrderByCategory[c.id] ?? []);
     const visibleCustomItems = catCustomItems.filter((ci) => matchesItem(ci, normalizedQuery));
     const hasVisibleItems = visibleRegular.hasItems || visibleCustomItems.length > 0;
     if (normalizedQuery && !hasVisibleItems) return;
@@ -653,16 +782,16 @@ function smallActionButton(label: string, onClick: () => void) {
   return btn;
 }
 
-function visibleCategoryParts(c: Category, normalizedQuery: string) {
+function visibleCategoryParts(c: Category, normalizedQuery: string, itemOrder: string[]) {
   const matches = (it: Item) => matchesItem(it, normalizedQuery);
   if (Array.isArray(c.groups)) {
     const groups = c.groups
-      .map((g) => ({ ...g, items: normalizedQuery ? g.items.filter(matches) : g.items }))
+      .map((g) => ({ ...g, items: orderByIds(normalizedQuery ? g.items.filter(matches) : g.items, itemOrder) }))
       .filter((g) => g.items.length > 0);
     return { groups, items: [], hasItems: groups.length > 0 };
   }
   const items = Array.isArray(c.items)
-    ? (normalizedQuery ? c.items.filter(matches) : c.items)
+    ? orderByIds(normalizedQuery ? c.items.filter(matches) : c.items, itemOrder)
     : [];
   return { groups: [], items, hasItems: items.length > 0 };
 }

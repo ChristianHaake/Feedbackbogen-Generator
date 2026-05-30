@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { exportConfigJSON, importConfigJSON, loadConfig, saveConfig } from '@/storage';
+import { CONFIG_SCHEMA_VERSION, exportConfigJSON, importConfigJSON, loadConfig, parseConfig, saveConfig } from '@/storage';
 import type { AppConfig } from '@/types';
 
 const config: AppConfig = {
+  schemaVersion: CONFIG_SCHEMA_VERSION,
   selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
   selectedProductFormats: [],
   scaleByCategory: { allgemeine: 'punkte_10' },
@@ -17,7 +18,9 @@ const config: AppConfig = {
     signature: false,
     grade: true
   },
-  customItems: []
+  customItems: [],
+  categoryOrder: ['allgemeine'],
+  itemOrderByCategory: { allgemeine: ['abgabe'] }
 };
 
 describe('config storage', () => {
@@ -97,7 +100,7 @@ describe('config storage', () => {
       this.onchange?.(new Event('change'));
     });
 
-    await expect(importConfigJSON()).resolves.toEqual(config);
+    await expect(importConfigJSON()).resolves.toEqual({ status: 'success', config });
   });
 
   it('drops malformed nested values when loading a config', () => {
@@ -117,11 +120,14 @@ describe('config storage', () => {
     }));
 
     expect(loadConfig()).toMatchObject({
+      schemaVersion: CONFIG_SCHEMA_VERSION,
       selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
       selectedProductFormats: ['format:test'],
       scaleByCategory: { allgemeine: 'verbal_5' },
       defaultScaleId: undefined,
-      customItems: [{ id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true }]
+      customItems: [{ id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true }],
+      categoryOrder: ['allgemeine'],
+      itemOrderByCategory: { allgemeine: ['abgabe'] }
     });
   });
 
@@ -134,7 +140,39 @@ describe('config storage', () => {
       this.onchange?.(new Event('change'));
     });
 
-    await expect(importConfigJSON()).resolves.toBeNull();
+    await expect(importConfigJSON()).resolves.toEqual({
+      status: 'error',
+      message: 'Die Datei enthält kein gültiges JSON.'
+    });
+  });
+
+  it('migrates unversioned configs to the current schema', () => {
+    const result = parseConfig({
+      selectedItems: [
+        { categoryId: 'sachebene', itemId: 'tiefe' },
+        { categoryId: 'allgemeine', itemId: 'abgabe' },
+        { categoryId: 'sachebene', itemId: 'komplexitaet' }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        schemaVersion: CONFIG_SCHEMA_VERSION,
+        categoryOrder: ['sachebene', 'allgemeine'],
+        itemOrderByCategory: {
+          sachebene: ['tiefe', 'komplexitaet'],
+          allgemeine: ['abgabe']
+        }
+      }
+    });
+  });
+
+  it('rejects configs from unsupported future schema versions with a readable message', () => {
+    expect(parseConfig({ schemaVersion: 99, selectedItems: [] })).toEqual({
+      status: 'error',
+      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 2.'
+    });
   });
 });
 

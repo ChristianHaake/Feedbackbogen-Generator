@@ -6,7 +6,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --open",
+    "prebuild": "npm run check:formats",
     "build": "vite build",
+    "generate:formats": "node scripts/generate-formats.mjs",
+    "check:formats": "node scripts/generate-formats.mjs --check",
     "preview": "vite preview --port 4173",
     "lint": "eslint src tests vite.config.ts",
     "typecheck": "tsc --noEmit",

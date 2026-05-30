@@ -161,7 +161,8 @@ export function renderLayout(): HTMLElement {
       el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
       el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
       el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
-    )
+    ),
+    githubLink()
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const resetConfirmModal = el('div', { id: 'reset-confirm-modal-root' });
@@ -229,6 +230,35 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   const btn = el('button', { class: 'export-card-button', type: 'button', 'data-export-format': format });
   btn.append(icon(iconId), el('span', { text: label }));
   return btn;
+}
+
+function githubLink(): HTMLAnchorElement {
+  const link = el('a', {
+    class: 'github-link',
+    href: 'https://github.com/ChristianHaake/Feedbackbogen-Generator',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'GitHub Repository',
+    'aria-label': 'GitHub Repository'
+  });
+  link.append(githubIcon(), el('span', { class: 'github-link-label', text: 'GitHub' }));
+  return link;
+}
+
+function githubIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('width', '18');
+  svg.setAttribute('height', '18');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('fill', 'currentColor');
+  path.setAttribute(
+    'd',
+    'M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.2.8-.6v-2.1c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0C17.9 4.8 19 5.1 19 5.1c.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.4 5.9.4.4.8 1.1.8 2.2v3.7c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z'
+  );
+  svg.append(path);
+  return svg;
 }
 
 export function documentTitleText(config: DocumentTitleConfig): string {

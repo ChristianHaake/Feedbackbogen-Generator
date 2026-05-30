@@ -49,6 +49,7 @@ async function bootstrap() {
   let searchQuery = '';
   let productFormatModalOpen = false;
   let productFormatSearchQuery = '';
+  let productFormatModalReturnFocus: HTMLElement | null = null;
   let mobileView: MobileView = 'edit';
 
   const persisted = loadConfig();
@@ -130,14 +131,14 @@ async function bootstrap() {
     onSelectCategory: (categoryId: string) => {
       const ids = itemIdsOfCategory(categoryId);
       ids.forEach((itemId) => {
-        if (!selected.some((s) => s.itemId === itemId)) selected.push({ categoryId, itemId });
+        if (!selected.some((s) => s.categoryId === categoryId && s.itemId === itemId)) selected.push({ categoryId, itemId });
       });
       renderEditor();
       renderA4();
     },
     onClearCategory: (categoryId: string) => {
       const ids = new Set(itemIdsOfCategory(categoryId));
-      selected = selected.filter((s) => !ids.has(s.itemId));
+      selected = selected.filter((s) => s.categoryId !== categoryId || !ids.has(s.itemId));
       renderEditor();
       renderA4();
     },
@@ -151,6 +152,7 @@ async function bootstrap() {
       renderEditor();
     },
     onOpenProductFormatModal: () => {
+      productFormatModalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       productFormatModalOpen = true;
       renderProductFormatModalOnly(true);
     },
@@ -158,6 +160,13 @@ async function bootstrap() {
       productFormatModalOpen = false;
       productFormatSearchQuery = '';
       renderProductFormatModalOnly();
+      requestAnimationFrame(() => {
+        const returnFocus = productFormatModalReturnFocus?.isConnected
+          ? productFormatModalReturnFocus
+          : document.querySelector<HTMLElement>('.choose-product-formats-btn');
+        returnFocus?.focus();
+        productFormatModalReturnFocus = null;
+      });
     },
     onProductFormatSearchChange: (value: string) => {
       productFormatSearchQuery = value;
@@ -176,6 +185,7 @@ async function bootstrap() {
       }
       renderEditor();
       renderA4();
+      focusProductFormatToggle(categoryId);
     },
     onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
       documentTitle = { ...documentTitle, mode };
@@ -388,6 +398,14 @@ async function bootstrap() {
     });
   }
 
+  function focusProductFormatToggle(categoryId: string) {
+    requestAnimationFrame(() => {
+      const row = Array.from(productFormatModalEl.querySelectorAll<HTMLElement>('.product-format-row'))
+        .find((candidate) => candidate.dataset.categoryId === categoryId);
+      row?.querySelector<HTMLButtonElement>('button')?.focus();
+    });
+  }
+
   function renderA4() {
     autoPersist();
     renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
@@ -466,6 +484,8 @@ async function bootstrap() {
       renderEditor();
       renderA4();
       announce(strings.messages.imported);
+    } else {
+      announce(strings.messages.importError);
     }
   };
   document.querySelectorAll<HTMLButtonElement>('#config-save, #config-save-mobile').forEach((btn) => {
@@ -507,7 +527,7 @@ async function bootstrap() {
       exportXLSX(buildExportRows());
     } else if (fmt === 'odp') {
       const { exportODP } = await import('./export/export-odp');
-      exportODP(buildExportRows());
+      exportODP(buildExportRows(), documentTitleText(documentTitle), header, previewMode);
     }
   }
 

@@ -1,29 +1,48 @@
-import * as XLSX from 'xlsx';
+import writeExcelFile from 'write-excel-file/universal';
+import type { Cell, SheetData } from 'write-excel-file/universal';
 
-import type { ExportRow, Scale } from '@/types';
+import { downloadBlob, scaleLabel } from '@/export/export-utils';
+import type { ExportRow } from '@/types';
 
-function scaleLabel(scale: Scale | null): string {
-  if (!scale) return '';
-  switch (scale.kind) {
-    case 'verbal': return scale.labels.join(' | ');
-    case 'numeric': return `${scale.min}–${scale.max}`;
-    case 'emoji': return scale.set.join(' ');
-    case 'traffic': return 'Grün / Gelb / Rot';
-    case 'percent': return '0–100 %';
-  }
+const headerStyle = {
+  backgroundColor: '#1E88E5',
+  fontWeight: 'bold' as const,
+  textColor: '#FFFFFF',
+  align: 'center' as const,
+  alignVertical: 'center' as const,
+  wrap: true
+};
+
+function bodyCell(value: string, shaded: boolean): Cell {
+  return {
+    value,
+    alignVertical: 'top',
+    backgroundColor: shaded ? '#F7F8FA' : undefined,
+    wrap: true
+  };
 }
 
-export function exportXLSX(rows: ExportRow[]) {
-  const header = ['Kategorie', 'Kriterium', 'Skala', 'Bewertung'];
-  const data = rows.map((r) => [r.category, r.item, scaleLabel(r.scale), '']);
-  const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Bewertungsbogen');
-  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'bewertungsbogen.xlsx';
-  a.click();
-  URL.revokeObjectURL(a.href);
+export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
+  const data: SheetData = [
+    ['Kategorie', 'Kriterium', 'Skala', 'Bewertung'].map((value) => ({ value, ...headerStyle })),
+    ...rows.map((row, index) => {
+      const shaded = index % 2 === 1;
+      return [
+        bodyCell(row.category, shaded),
+        bodyCell(row.item, shaded),
+        bodyCell(scaleLabel(row.scale), shaded),
+        bodyCell('', shaded)
+      ];
+    })
+  ];
+  return writeExcelFile(data, {
+    sheet: 'Feedbackbogen',
+    stickyRowsCount: 1,
+    orientation: 'landscape',
+    columns: [{ width: 28 }, { width: 72 }, { width: 40 }, { width: 18 }]
+  }).toBlob();
+}
+
+export async function exportXLSX(rows: ExportRow[]) {
+  downloadBlob(await createXLSXBlob(rows), 'bewertungsbogen.xlsx');
 }

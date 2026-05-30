@@ -41,20 +41,23 @@ describe('config storage', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 4, 30, 12));
     let downloadedBlob: Blob | null = null;
+    let downloadedFilename = '';
     const createObjectURL = vi.fn((blob: Blob) => {
       downloadedBlob = blob;
       return 'blob:test-config';
     });
     const revokeObjectURL = vi.fn();
     vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloadedFilename = this.download;
+    });
 
     exportConfigJSON(config);
 
     expect(click).toHaveBeenCalledOnce();
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:test-config');
-    expect(click.mock.instances[0].download).toBe('2026-05-30_Feedbackbogen.json');
+    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen.json');
     expect(downloadedBlob).not.toBeNull();
     expect(JSON.parse(await downloadedBlob!.text())).toEqual(config);
   });
@@ -66,7 +69,10 @@ describe('config storage', () => {
       createObjectURL: () => 'blob:test-config',
       revokeObjectURL: () => {}
     });
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    let downloadedFilename = '';
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloadedFilename = this.download;
+    });
     const configWithTopic: AppConfig = {
       ...config,
       header: {
@@ -79,11 +85,11 @@ describe('config storage', () => {
 
     exportConfigJSON(configWithTopic);
 
-    expect(click.mock.instances[0].download).toBe('2026-05-30_Feedbackbogen_KI - Ethik- Chancen-.json');
+    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen_KI - Ethik- Chancen-.json');
   });
 
   it('loads and normalizes a config from an uploaded JSON file', async () => {
-    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function () {
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
       Object.defineProperty(this, 'files', {
         configurable: true,
         value: [{ text: async () => JSON.stringify(config) }]
@@ -92,6 +98,43 @@ describe('config storage', () => {
     });
 
     await expect(importConfigJSON()).resolves.toEqual(config);
+  });
+
+  it('drops malformed nested values when loading a config', () => {
+    localStorage.setItem('bbk:config', JSON.stringify({
+      selectedItems: [
+        { categoryId: 'allgemeine', itemId: 'abgabe' },
+        null,
+        { categoryId: 42, itemId: 'invalid' }
+      ],
+      selectedProductFormats: ['format:test', 42],
+      scaleByCategory: { allgemeine: 'verbal_5', invalid: 42 },
+      defaultScaleId: 42,
+      customItems: [
+        { id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true },
+        { id: 'custom_2', label: 42, categoryId: 'allgemeine', custom: true }
+      ]
+    }));
+
+    expect(loadConfig()).toMatchObject({
+      selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
+      selectedProductFormats: ['format:test'],
+      scaleByCategory: { allgemeine: 'verbal_5' },
+      defaultScaleId: undefined,
+      customItems: [{ id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true }]
+    });
+  });
+
+  it('rejects an uploaded file with invalid JSON', async () => {
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
+      Object.defineProperty(this, 'files', {
+        configurable: true,
+        value: [{ text: async () => '{invalid' }]
+      });
+      this.onchange?.(new Event('change'));
+    });
+
+    await expect(importConfigJSON()).resolves.toBeNull();
   });
 });
 

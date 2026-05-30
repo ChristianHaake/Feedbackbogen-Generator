@@ -9,7 +9,7 @@ Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeld
 - UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF, DOCX (docx), XLSX (xlsx), ODP (minimal, via ZIP+XML – siehe Limitierungen).
-- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Speichern), Alt+E (PDF), respektiert `prefers-reduced-motion`.
+- Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), respektiert `prefers-reduced-motion`.
 - Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
@@ -63,6 +63,7 @@ npm run build
 npm run preview
 npm run test
 npm run lint
+npm run typecheck
 ```
 
 Wichtige Skripte:
@@ -72,6 +73,7 @@ Wichtige Skripte:
 - `npm run preview`: zeigt den Produktionsbuild lokal an
 - `npm run test`: führt die Unit-Tests aus
 - `npm run lint`: prüft den Code mit ESLint
+- `npm run typecheck`: prüft die TypeScript-Typen ohne Build-Ausgabe
 
 ## Konfiguration
 

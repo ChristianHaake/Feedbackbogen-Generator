@@ -23,6 +23,12 @@ jobs:
           cache: npm
       - name: Install (CI)
         run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm run test -- --run
       - name: Build
         run: npm run build
       - name: Upload artifact

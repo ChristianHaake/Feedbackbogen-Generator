@@ -439,7 +439,9 @@ export function renderProductFormatModal(
   const closeBtn = el('button', { class: 'btn btn-small', type: 'button', text: strings.labels.close });
   closeBtn.addEventListener('click', handlers.onCloseProductFormatModal);
 
+  const searchInputId = 'product-format-search';
   const searchInput = el('input', {
+    id: searchInputId,
     type: 'search',
     class: 'criteria-search product-format-search',
     placeholder: strings.labels.productFormatSearchPlaceholder,
@@ -458,14 +460,15 @@ export function renderProductFormatModal(
       const toggleBtn = el('button', {
         class: `btn btn-small ${isSelected ? '' : 'btn-primary'}`,
         type: 'button',
+        'aria-label': `${isSelected ? strings.labels.removeProductFormat : strings.labels.addProductFormat}: ${format.title}`,
         text: isSelected ? strings.labels.removeProductFormat : strings.labels.addProductFormat
       });
       toggleBtn.addEventListener('click', () => handlers.onToggleProductFormat(categoryId, !isSelected));
       const searchText = `${group.title} ${format.title} ${format.criteria.map((criterion) => criterion.label).join(' ')}`.toLowerCase();
-      groupBlock.append(el('div', { class: 'product-format-row', 'data-search-text': searchText },
+      groupBlock.append(el('div', { class: 'product-format-row', 'data-search-text': searchText, 'data-category-id': categoryId },
         el('div', { class: 'product-format-row-main' },
           el('strong', { class: 'product-format-row-title', text: format.title }),
-          el('span', { class: 'product-format-row-meta', text: `${format.criteria.length} Kriterien` })
+          el('span', { class: 'product-format-row-meta', text: `${format.criteria.length} ${format.criteria.length === 1 ? 'Kriterium' : 'Kriterien'}` })
         ),
         toggleBtn
       ));
@@ -485,10 +488,30 @@ export function renderProductFormatModal(
       el('h2', { id: 'product-format-modal-title', class: 'product-format-modal-title', text: strings.labels.productFormatModalTitle }),
       closeBtn
     ),
-    el('label', { class: 'small-label', text: strings.labels.productFormatSearch }),
+    el('label', { class: 'small-label', for: searchInputId, text: strings.labels.productFormatSearch }),
     searchInput,
     body
   );
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      handlers.onCloseProductFormatModal();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button, input'))
+      .filter((element) => !element.hasAttribute('disabled') && !element.closest('[hidden]'));
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
   const backdrop = el('div', { class: 'product-format-modal-backdrop' }, dialog);
   backdrop.addEventListener('click', (event) => {
     if (event.target === backdrop) handlers.onCloseProductFormatModal();

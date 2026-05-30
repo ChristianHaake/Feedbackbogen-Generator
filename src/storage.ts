@@ -1,5 +1,8 @@
 import { strings } from './strings';
-import type { AppConfig, DocumentTitleConfig, DocumentTitleMode, FooterFields, HeaderData, HeaderField } from './types';
+import type {
+  AppConfig, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
+  HeaderData, HeaderField, SelectedItemRef
+} from './types';
 
 const KEY = 'bbk:config';
 
@@ -78,24 +81,52 @@ function normalizeFooterFields(value: unknown): FooterFields {
   };
 }
 
+function normalizeSelectedItem(value: unknown): SelectedItemRef | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const item = value as Partial<SelectedItemRef>;
+  if (typeof item.categoryId !== 'string' || typeof item.itemId !== 'string') return null;
+  return { categoryId: item.categoryId, itemId: item.itemId };
+}
+
+function normalizeCustomItem(value: unknown): CustomItem | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const item = value as Partial<CustomItem>;
+  if (typeof item.id !== 'string' || typeof item.label !== 'string' || typeof item.categoryId !== 'string') return null;
+  return {
+    id: item.id,
+    label: item.label,
+    description: typeof item.description === 'string' ? item.description : undefined,
+    categoryId: item.categoryId,
+    custom: true
+  };
+}
+
+function normalizeScaleByCategory(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+  );
+}
+
 function normalizeConfig(value: unknown): AppConfig | null {
-  if (!value || typeof value !== 'object') return null;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const cfg = value as Partial<AppConfig>;
   if (!Array.isArray(cfg.selectedItems)) return null;
-  const scaleByCategory = cfg.scaleByCategory && typeof cfg.scaleByCategory === 'object' && !Array.isArray(cfg.scaleByCategory)
-    ? cfg.scaleByCategory
-    : {};
   return {
-    selectedItems: cfg.selectedItems.filter((item) => item.categoryId !== 'produktebene'),
+    selectedItems: cfg.selectedItems
+      .map(normalizeSelectedItem)
+      .filter((item): item is SelectedItemRef => item !== null && item.categoryId !== 'produktebene'),
     selectedProductFormats: Array.isArray(cfg.selectedProductFormats)
       ? cfg.selectedProductFormats.filter((id): id is string => typeof id === 'string')
       : [],
-    scaleByCategory,
-    defaultScaleId: cfg.defaultScaleId,
+    scaleByCategory: normalizeScaleByCategory(cfg.scaleByCategory),
+    defaultScaleId: typeof cfg.defaultScaleId === 'string' ? cfg.defaultScaleId : undefined,
     documentTitle: normalizeDocumentTitle(cfg.documentTitle),
     header: normalizeHeader(cfg.header),
     footerFields: normalizeFooterFields(cfg.footerFields),
-    customItems: Array.isArray(cfg.customItems) ? cfg.customItems : []
+    customItems: Array.isArray(cfg.customItems)
+      ? cfg.customItems.map(normalizeCustomItem).filter((item): item is CustomItem => item !== null)
+      : []
   };
 }
 

@@ -86,6 +86,7 @@ export const strings = {
     saved: 'Konfiguration gespeichert.',
     loaded: 'Konfiguration geladen.',
     imported: 'JSON importiert.',
+    importError: 'JSON konnte nicht importiert werden. Bitte prüfen Sie die Datei.',
     exported: 'Export gestartet...',
     customItemAdded: 'Eigenes Kriterium hinzugefügt.',
     customItemRemoved: 'Eigenes Kriterium entfernt.',

@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 
+import { scaleOptionLabels } from '@/scale-utils';
 import { strings } from '@/strings';
 import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
 
@@ -330,20 +331,6 @@ function scaleLayout(scale: Scale | null): { labelWidth: number; scaleX: number;
 function scaleOptionWidth(scale: Scale): number {
   const { scaleWidth } = scaleLayout(scale);
   return scaleWidth / scaleOptionLabels(scale).length;
-}
-
-function scaleOptionLabels(scale: Scale): string[] {
-  switch (scale.kind) {
-    case 'verbal': return scale.labels;
-    case 'numeric': {
-      const out: string[] = [];
-      for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
-      return out;
-    }
-    case 'emoji': return scale.set;
-    case 'traffic': return ['Grün', 'Gelb', 'Rot'];
-    case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
-  }
 }
 
 function split(pdf: PdfDoc, text: string, width: number, fontSize: number): string[] {

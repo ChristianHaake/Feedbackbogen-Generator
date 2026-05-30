@@ -18,21 +18,26 @@ export type Category = {
 
 export type ScaleBase = {
   id: string;
-  kind: 'verbal' | 'numeric' | 'emoji' | 'traffic' | 'percent';
+  label: string;
+  kind: 'verbal' | 'numeric' | 'symbol' | 'traffic' | 'percent';
 };
 
 export type VerbalScale = ScaleBase & { kind: 'verbal'; labels: string[] };
-export type NumericScale = ScaleBase & { kind: 'numeric'; min: number; max: number };
-export type EmojiScale = ScaleBase & { kind: 'emoji'; set: string[] };
+export type NumericScale = ScaleBase & {
+  kind: 'numeric';
+  defaultMin: number;
+  defaultMax: number;
+  minLimit: number;
+  maxLimit: number;
+  maxSteps: number;
+  min?: number;
+  max?: number;
+};
+export type SymbolScale = ScaleBase & { kind: 'symbol'; set: string[] };
 export type TrafficScale = ScaleBase & { kind: 'traffic'; colors: string[] };
 export type PercentScale = ScaleBase & { kind: 'percent' };
 
-export type Scale = VerbalScale | NumericScale | EmojiScale | TrafficScale | PercentScale;
-
-export type YAMLData = {
-  categories: Category[];
-  scales: Scale[];
-};
+export type Scale = VerbalScale | NumericScale | SymbolScale | TrafficScale | PercentScale;
 
 export type ProductFormatCriterion = {
   id: string;
@@ -59,6 +64,11 @@ export type ProductFormatData = {
 export type SelectedItemRef = {
   categoryId: string;
   itemId: string;
+};
+
+export type NumericScaleSettings = {
+  min: number;
+  max: number;
 };
 
 export type CustomItem = Item & {
@@ -91,6 +101,7 @@ export type AppConfig = {
   selectedItems: SelectedItemRef[];
   selectedProductFormats: string[];
   scaleByCategory: Record<string, string>;
+  scaleSettingsByCategory: Record<string, NumericScaleSettings>;
   defaultScaleId?: string;
   documentTitle: DocumentTitleConfig;
   header: HeaderData;

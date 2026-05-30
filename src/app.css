@@ -641,6 +641,32 @@ body {
   font-size: 12px;
   background: #fff;
 }
+.numeric-scale-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.numeric-scale-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.numeric-scale-input {
+  width: 28px;
+  height: 26px;
+  padding: 3px 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  text-align: center;
+}
+.numeric-scale-help {
+  color: var(--muted);
+  font-size: 11px;
+}
 
 /* Item rows */
 .item-checkbox-row {

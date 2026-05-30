@@ -2,11 +2,11 @@ import { categoryOrderFromSelection, itemOrderFromSelection, uniqueStrings } fro
 import { strings } from './strings';
 import type {
   AppConfig, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
-  HeaderData, HeaderField, SelectedItemRef
+  HeaderData, HeaderField, NumericScaleSettings, SelectedItemRef
 } from './types';
 
 const KEY = 'bbk:config';
-export const CONFIG_SCHEMA_VERSION = 2;
+export const CONFIG_SCHEMA_VERSION = 3;
 
 export type ConfigImportResult =
   | { status: 'success'; config: AppConfig }
@@ -45,6 +45,7 @@ export function createDefaultConfig(defaultScaleId?: string): AppConfig {
     selectedItems: [],
     selectedProductFormats: [],
     scaleByCategory: {},
+    scaleSettingsByCategory: {},
     defaultScaleId,
     documentTitle: { ...DEFAULT_DOCUMENT_TITLE },
     header: { fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field })) },
@@ -135,6 +136,25 @@ function normalizeScaleByCategory(value: unknown): Record<string, string> {
   );
 }
 
+function normalizeNumericScaleSettings(value: unknown): NumericScaleSettings | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const settings = value as Partial<NumericScaleSettings>;
+  if (typeof settings.min !== 'number' || typeof settings.max !== 'number') return null;
+  return {
+    min: Math.trunc(settings.min),
+    max: Math.trunc(settings.max)
+  };
+}
+
+function normalizeScaleSettingsByCategory(value: unknown): Record<string, NumericScaleSettings> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([categoryId, settings]) => [categoryId, normalizeNumericScaleSettings(settings)] as const)
+      .filter((entry): entry is [string, NumericScaleSettings] => entry[1] !== null)
+  );
+}
+
 function normalizeStringArray(value: unknown): string[] {
   return Array.isArray(value) ? uniqueStrings(value.filter((item): item is string => typeof item === 'string')) : [];
 }
@@ -187,6 +207,7 @@ function normalizeConfig(value: Record<string, unknown>): ConfigParseResult {
       selectedItems,
       selectedProductFormats: normalizeStringArray(value.selectedProductFormats),
       scaleByCategory: normalizeScaleByCategory(value.scaleByCategory),
+      scaleSettingsByCategory: normalizeScaleSettingsByCategory(value.scaleSettingsByCategory),
       defaultScaleId: typeof value.defaultScaleId === 'string' ? value.defaultScaleId : undefined,
       documentTitle: normalizeDocumentTitle(value.documentTitle),
       header: normalizeHeader(value.header),

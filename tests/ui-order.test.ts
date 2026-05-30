@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { renderKopfdaten, renderSelectedList, type RenderHandlers, type SelectedSummary } from '@/ui/templates';
-import type { HeaderData } from '@/types';
+import {
+  renderCategories, renderKopfdaten, renderSelectedList, type RenderHandlers, type SelectedSummary
+} from '@/ui/templates';
+import type { Category, HeaderData, Scale } from '@/types';
 
 const items: SelectedSummary[] = [
   { categoryId: 'a', category: 'Kategorie A', itemId: 'a1', item: 'Kriterium A1', scaleLabel: 'Skala', isCustom: false },
@@ -62,6 +64,41 @@ describe('selected order UI', () => {
     source.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
     expect(handlers.onReorderHeaderField).toHaveBeenCalledWith('topic', 'name');
   });
+
+  it('filters and clamps numeric scale range inputs', () => {
+    const handlers = handlerSpies();
+    const container = document.createElement('div');
+    const categories: Category[] = [{ id: 'a', title: 'Kategorie A', items: [{ id: 'a1', label: 'Kriterium A1' }] }];
+    const scales: Scale[] = [{
+      id: 'points',
+      label: 'Punkte',
+      kind: 'numeric',
+      defaultMin: 0,
+      defaultMax: 10,
+      minLimit: 0,
+      maxLimit: 20,
+      maxSteps: 11
+    }];
+
+    renderCategories(container, categories, [], new Set(), scales, { a: 'points' }, {}, 'points', {}, handlers);
+    const minInput = container.querySelector<HTMLInputElement>('#a-scale-min')!;
+    const maxInput = container.querySelector<HTMLInputElement>('#a-scale-max')!;
+
+    minInput.value = '10';
+    minInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: '10' }));
+    maxInput.value = '99';
+    maxInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: '99' }));
+    expect(handlers.onNumericScaleRangeChange).toHaveBeenLastCalledWith('a', 10, 20);
+    expect(maxInput.value).toBe('20');
+
+    minInput.value = 'e.7';
+    minInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'e.7' }));
+    maxInput.value = '1.2e3';
+    maxInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: '1.2e3' }));
+    expect(handlers.onNumericScaleRangeChange).toHaveBeenLastCalledWith('a', 7, 12);
+    expect(minInput.value).toBe('7');
+    expect(maxInput.value).toBe('12');
+  });
 });
 
 function dataTransfer(): DataTransfer {
@@ -93,6 +130,7 @@ function handlerSpies(): RenderHandlers {
   return {
     onToggle: vi.fn(),
     onCategoryScaleChange: vi.fn(),
+    onNumericScaleRangeChange: vi.fn(),
     onDefaultScaleChange: vi.fn(),
     onAddCustomItem: vi.fn(),
     onRemoveCustomItem: vi.fn(),

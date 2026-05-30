@@ -11,7 +11,8 @@ export const strings = {
     resetConfirmAction: 'Jetzt zurücksetzen',
     cancel: 'Abbrechen',
     exportNow: 'Exportieren',
-    exportPdf: 'PDF',
+    exportPdfPrint: 'PDF (Druck)',
+    exportPdfFillable: 'PDF (Formular)',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT'

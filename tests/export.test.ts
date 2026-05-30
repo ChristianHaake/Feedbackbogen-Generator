@@ -1,8 +1,10 @@
 import JSZip from 'jszip';
+import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 
 import { createDOCXBlob } from '@/export/export-docx';
 import { createODTBlob } from '@/export/export-odt';
+import { createFillablePDFBlob } from '@/export/export-pdf-fillable';
 import { createXLSXBlob } from '@/export/export-xlsx';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
@@ -102,6 +104,24 @@ describe('document exports', () => {
     expect(checklistContent).toContain('>Erledigt</text:p>');
     expect(checklistContent).not.toContain('>1</text:p>');
     expect(emptyContent).toContain('Noch keine Kriterien ausgewählt');
+  });
+
+  it('creates a fillable PDF with real AcroForm widgets and appearances', async () => {
+    const blob = await createFillablePDFBlob(rows, 'Feedbackbogen', header, footerFields);
+    const bytes = await blob.arrayBuffer();
+    const rawPdf = new TextDecoder().decode(bytes);
+    const pdf = await PDFDocument.load(bytes);
+    const fieldNames = pdf.getForm().getFields().map((field) => field.getName());
+
+    expect(blob.type).toBe('application/pdf');
+    expect(fieldNames.some((name) => name.includes('header_topic'))).toBe(true);
+    expect(fieldNames.some((name) => name.includes('scale_general_1'))).toBe(true);
+    expect(fieldNames.some((name) => name.includes('feedback'))).toBe(true);
+    expect(fieldNames.some((name) => name.includes('footer_signature'))).toBe(true);
+    expect(rawPdf).toContain('/AcroForm');
+    expect(rawPdf).toContain('/Subtype /Widget');
+    expect(rawPdf).toContain('/AP');
+    expect(rawPdf).not.toContain('/ObjStm');
   });
 });
 

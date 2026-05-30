@@ -11,7 +11,7 @@ import type {
   ProductFormatData
 } from '@/types';
 
-export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odt';
+export type ExportFormat = 'pdf-print' | 'pdf-fillable' | 'docx' | 'xlsx' | 'odt';
 export type MobileView = 'edit' | 'preview' | 'export';
 export type SelectedSummary = {
   itemId: string;
@@ -74,7 +74,8 @@ export function renderLayout(): HTMLElement {
         toolbarButton('trash', strings.toolbar.reset, 'config-reset'),
         el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
-          menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
+          menuAction('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
+          menuAction('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
           menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
           menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
           menuAction('odt', strings.toolbar.exportOdt, 'icon-odt')
@@ -136,7 +137,8 @@ export function renderLayout(): HTMLElement {
     el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
       editorSection(strings.columns.export,
         el('div', { class: 'mobile-export-actions' },
-          exportButton('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
+          exportButton('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
+          exportButton('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
           exportButton('docx', strings.toolbar.exportDocx, 'icon-doc'),
           exportButton('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
           exportButton('odt', strings.toolbar.exportOdt, 'icon-odt')

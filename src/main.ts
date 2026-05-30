@@ -121,6 +121,7 @@ async function bootstrap() {
       const id = `custom_${categoryId}_${Date.now()}`;
       commitConfigChange(() => {
         customItems.push({ id, label: trimmed, custom: true, categoryId });
+        selected.push({ categoryId, itemId: id });
       });
       announce(strings.messages.customItemAdded);
     },

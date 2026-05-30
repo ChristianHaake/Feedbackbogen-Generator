@@ -307,7 +307,7 @@ function drawWatermarks(pdf: PdfDoc) {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
     pdf.setTextColor(170, 170, 170);
-    pdf.text('Made with Bewertungsbaukasten', pageWidth - 18, pageHeight - 14, { align: 'right' });
+    pdf.text('Erstellt mit Feedbackbogen-Generator', pageWidth - 18, pageHeight - 14, { align: 'right' });
   }
 }
 

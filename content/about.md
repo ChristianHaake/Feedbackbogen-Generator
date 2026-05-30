@@ -1,4 +1,4 @@
-# About
+# Über das Projekt
 
 Ein Open-Source-Werkzeug zur Entwicklung transparenter und systematischer Feedbackbögen für zukunftsorientierte Prüfungsformate.
 

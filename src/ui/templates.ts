@@ -62,7 +62,7 @@ export function renderLayout(): HTMLElement {
         el('img', { src: './icon_Feedbackgenerator.svg', alt: '', width: '24', height: '24' }),
         el('div', { class: 'title-wrap' },
           el('strong', { class: 'title', text: strings.appTitle }),
-          el('div', { class: 'subtitle', text: 'Baukasten für zukunftsorientierte Prüfungsformate' })
+          el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
         )
       ),
       el('div', { class: 'actions' },
@@ -229,7 +229,7 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
 
 export function documentTitleText(config: DocumentTitleConfig): string {
   if (config.mode === 'feedbackbogen') return strings.kopfdaten.titleFeedbackbogen;
-  if (config.mode === 'custom') return config.custom.trim() || strings.kopfdaten.titleBewertungsbogen;
+  if (config.mode === 'custom') return config.custom.trim() || strings.kopfdaten.titleFeedbackbogen;
   return strings.kopfdaten.titleBewertungsbogen;
 }
 
@@ -246,8 +246,8 @@ export function renderDocumentTitleForm(
     'aria-label': strings.kopfdaten.documentTitle
   }) as HTMLSelectElement;
   const options: { value: DocumentTitleMode; label: string }[] = [
-    { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
     { value: 'feedbackbogen', label: strings.kopfdaten.titleFeedbackbogen },
+    { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
     { value: 'custom', label: strings.kopfdaten.titleCustom }
   ];
   options.forEach(({ value, label }) => select.append(el('option', { value, text: label })));
@@ -947,7 +947,7 @@ export function renderPreview(
 
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
-  container.append(el('div', { class: 'a4-watermark', text: 'Made with Bewertungsbaukasten' }));
+  container.append(el('div', { class: 'a4-watermark', text: 'Erstellt mit Feedbackbogen-Generator' }));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {

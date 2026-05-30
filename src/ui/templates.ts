@@ -1,12 +1,12 @@
 import { el, icon } from './components';
 
 import { strings } from '@/strings';
-import { scaleDisplay } from '@/scale-utils';
+import { sanitizeNumericScaleSettings, scaleDisplay, scaleOptionLabels } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
 import { contentPages } from '@/content-pages';
 import { orderByIds } from '@/config-order';
 import type {
-  Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode, NumericScaleSettings,
   HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
   ProductFormatData
 } from '@/types';
@@ -25,6 +25,7 @@ export type SelectedSummary = {
 export type RenderHandlers = {
   onToggle: (categoryId: string, itemId: string, checked: boolean) => void;
   onCategoryScaleChange: (categoryId: string, scaleId: string) => void;
+  onNumericScaleRangeChange: (categoryId: string, min: number, max: number) => void;
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
   onRemoveCustomItem: (itemId: string) => void;
@@ -571,7 +572,7 @@ export function renderProductFormatModal(
       el('h3', { class: 'product-format-group-title', text: group.title })
     );
     group.formats.forEach((format) => {
-      const categoryId = productFormatCategoryId(group.id, format.id);
+      const categoryId = productFormatCategoryId(format.id);
       const isSelected = selectedFormatIds.has(categoryId);
       const toggleBtn = el('button', {
         class: `btn btn-small ${isSelected ? '' : 'btn-primary'}`,
@@ -705,6 +706,7 @@ export function renderCategories(
   selectedKeys: Set<string>,
   scales: Scale[],
   scaleByCategory: Record<string, string>,
+  scaleSettingsByCategory: Record<string, NumericScaleSettings>,
   defaultScaleId: string,
   itemOrderByCategory: Record<string, string[]>,
   handlers: RenderHandlers,
@@ -731,7 +733,7 @@ export function renderCategories(
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
-    panel.append(categoryScaleRow(c, scales, scaleByCategory[c.id] ?? defaultScaleId, handlers));
+    panel.append(categoryScaleRow(c, scales, scaleByCategory[c.id] ?? defaultScaleId, scaleSettingsByCategory[c.id], handlers));
     panel.append(el('div', { class: 'category-actions' },
       smallActionButton(strings.labels.selectCategory, () => handlers.onSelectCategory(c.id)),
       smallActionButton(strings.labels.clearCategory, () => handlers.onClearCategory(c.id))
@@ -791,7 +793,13 @@ export function renderCategories(
   }
 }
 
-function categoryScaleRow(category: Category, scales: Scale[], scaleId: string, handlers: RenderHandlers): HTMLElement {
+function categoryScaleRow(
+  category: Category,
+  scales: Scale[],
+  scaleId: string,
+  scaleSettings: NumericScaleSettings | undefined,
+  handlers: RenderHandlers
+): HTMLElement {
   const select = el('select', {
     class: 'category-scale-select',
     'aria-label': `${category.title} – ${strings.labels.scale}`
@@ -799,11 +807,70 @@ function categoryScaleRow(category: Category, scales: Scale[], scaleId: string, 
   scales.forEach((s) => select.append(el('option', { value: s.id, text: scaleDisplay(s) })));
   select.value = scaleId;
   select.addEventListener('change', () => handlers.onCategoryScaleChange(category.id, select.value));
+  const scale = scales.find((candidate) => candidate.id === scaleId);
 
-  return el('div', { class: 'category-scale-row' },
+  const row = el('div', { class: 'category-scale-row' },
     el('label', { class: 'small-label', text: strings.labels.scale }),
     select
   );
+  if (scale?.kind !== 'numeric') return row;
+
+  const bounds = sanitizeNumericScaleSettings(scale, scaleSettings);
+  const range = el('div', { class: 'numeric-scale-range' });
+  const minInput = numericRangeInput(`${category.id}-scale-min`, strings.labels.scaleMin, scale, bounds.min);
+  const maxInput = numericRangeInput(`${category.id}-scale-max`, strings.labels.scaleMax, scale, bounds.max);
+  const commitRange = (anchor: 'min' | 'max') => {
+    const settings = sanitizeNumericScaleSettings(scale, {
+      min: numericInputValue(minInput, bounds.min),
+      max: numericInputValue(maxInput, bounds.max)
+    }, anchor);
+    minInput.value = String(settings.min);
+    maxInput.value = String(settings.max);
+    handlers.onNumericScaleRangeChange(category.id, settings.min, settings.max);
+  };
+  [
+    { input: minInput, anchor: 'min' as const },
+    { input: maxInput, anchor: 'max' as const }
+  ].forEach(({ input, anchor }) => {
+    input.addEventListener('beforeinput', blockNonDigitInput);
+    input.addEventListener('input', () => {
+      input.value = onlyTwoDigits(input.value);
+      if (minInput.value !== '' && maxInput.value !== '') commitRange(anchor);
+    });
+    input.addEventListener('change', () => commitRange(anchor));
+  });
+  range.append(
+    el('label', { class: 'small-label numeric-scale-field', for: minInput.id }, el('span', { text: strings.labels.scaleMin }), minInput),
+    el('label', { class: 'small-label numeric-scale-field', for: maxInput.id }, el('span', { text: strings.labels.scaleMax }), maxInput),
+    el('span', { class: 'numeric-scale-help', text: strings.labels.scaleMaxSteps(scale.maxSteps) })
+  );
+  row.append(range);
+  return row;
+}
+
+function numericRangeInput(id: string, label: string, scale: Scale & { kind: 'numeric' }, value: number): HTMLInputElement {
+  return el('input', {
+    id,
+    class: 'numeric-scale-input',
+    type: 'text',
+    inputmode: 'numeric',
+    pattern: '[0-9]*',
+    maxlength: '2',
+    value: String(value),
+    'aria-label': label
+  }) as HTMLInputElement;
+}
+
+function blockNonDigitInput(event: InputEvent) {
+  if (event.data && /\D/.test(event.data)) event.preventDefault();
+}
+
+function onlyTwoDigits(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 2);
+}
+
+function numericInputValue(input: HTMLInputElement, fallback: number): number {
+  return input.value === '' ? fallback : Number(input.value);
 }
 
 function smallActionButton(label: string, onClick: () => void) {
@@ -1058,20 +1125,6 @@ function renderNumericScaleBoxes(scale: Scale & { kind: 'numeric' }): HTMLElemen
 function scaleGridStyle(scale: Scale): string {
   const minColumnWidth = scale.kind === 'numeric' ? '13pt' : '26pt';
   return `grid-template-columns: repeat(${scaleOptionLabels(scale).length}, minmax(${minColumnWidth}, 1fr))`;
-}
-
-function scaleOptionLabels(scale: Scale): string[] {
-  switch (scale.kind) {
-    case 'verbal': return scale.labels;
-    case 'numeric': {
-      const out: string[] = [];
-      for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
-      return out;
-    }
-    case 'emoji': return scale.set;
-    case 'traffic': return ['Grün', 'Gelb', 'Rot'];
-    case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
-  }
 }
 
 function renderA4Feedback(): HTMLElement {

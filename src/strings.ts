@@ -54,6 +54,9 @@ export const strings = {
   labels: {
     remove: 'Entfernen',
     scale: 'Skala',
+    scaleMin: 'Minimum',
+    scaleMax: 'Maximum',
+    scaleMaxSteps: (steps: number) => `max. ${steps} Stufen`,
     add: 'Hinzufügen',
     defaultScale: 'Standard-Skala',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
@@ -91,8 +94,7 @@ export const strings = {
     accordionToggle: 'Abschnitt umschalten'
   },
   messages: {
-    loadedYaml: 'YAML geladen.',
-    yamlError: 'Fehler beim Laden/Validieren von YAML. Fallback aktiviert.',
+    contentLoadError: 'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
     saved: 'Konfiguration gespeichert.',
     loaded: 'Konfiguration geladen.',
     imported: 'JSON importiert.',

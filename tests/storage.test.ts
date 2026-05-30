@@ -8,6 +8,7 @@ const config: AppConfig = {
   selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
   selectedProductFormats: [],
   scaleByCategory: { allgemeine: 'punkte_10' },
+  scaleSettingsByCategory: { allgemeine: { min: 0, max: 5 } },
   defaultScaleId: 'verbal_5',
   documentTitle: { mode: 'custom', custom: 'Testbogen' },
   header: {
@@ -110,8 +111,12 @@ describe('config storage', () => {
         null,
         { categoryId: 42, itemId: 'invalid' }
       ],
-      selectedProductFormats: ['format:test', 42],
+      selectedProductFormats: ['test', 42],
       scaleByCategory: { allgemeine: 'verbal_5', invalid: 42 },
+      scaleSettingsByCategory: {
+        allgemeine: { min: 1.8, max: 6.2 },
+        invalid: { min: 'a', max: 6 }
+      },
       defaultScaleId: 42,
       customItems: [
         { id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true },
@@ -122,8 +127,9 @@ describe('config storage', () => {
     expect(loadConfig()).toMatchObject({
       schemaVersion: CONFIG_SCHEMA_VERSION,
       selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
-      selectedProductFormats: ['format:test'],
+      selectedProductFormats: ['test'],
       scaleByCategory: { allgemeine: 'verbal_5' },
+      scaleSettingsByCategory: { allgemeine: { min: 1, max: 6 } },
       defaultScaleId: undefined,
       customItems: [{ id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true }],
       categoryOrder: ['allgemeine'],
@@ -171,7 +177,7 @@ describe('config storage', () => {
   it('rejects configs from unsupported future schema versions with a readable message', () => {
     expect(parseConfig({ schemaVersion: 99, selectedItems: [] })).toEqual({
       status: 'error',
-      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 2.'
+      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 3.'
     });
   });
 });

@@ -1,3 +1,4 @@
+import { scaleOptionLabels } from '@/scale-utils';
 import type { ExportRow, Scale } from '@/types';
 
 export type ExportRowGroup = {
@@ -7,19 +8,7 @@ export type ExportRowGroup = {
 };
 
 export function scaleOptions(scale: Scale | null): string[] {
-  if (!scale) return [];
-  switch (scale.kind) {
-    case 'verbal':
-      return scale.labels;
-    case 'numeric':
-      return Array.from({ length: scale.max - scale.min + 1 }, (_, index) => String(scale.min + index));
-    case 'emoji':
-      return scale.set;
-    case 'traffic':
-      return ['Grün', 'Gelb', 'Rot'];
-    case 'percent':
-      return ['0 %', '25 %', '50 %', '75 %', '100 %'];
-  }
+  return scale ? scaleOptionLabels(scale) : [];
 }
 
 export function scaleLabel(scale: Scale | null): string {

@@ -1,13 +1,13 @@
 import type { Category, ProductFormat, ProductFormatData, ProductFormatGroup } from './types';
 
-export function productFormatCategoryId(groupId: string, formatId: string): string {
-  return `format:${groupId}:${formatId}`;
+export function productFormatCategoryId(formatId: string): string {
+  return formatId;
 }
 
 export function findProductFormat(data: ProductFormatData, categoryId: string): { group: ProductFormatGroup; format: ProductFormat } | null {
   for (const group of data.groups) {
     for (const format of group.formats) {
-      if (productFormatCategoryId(group.id, format.id) === categoryId) return { group, format };
+      if (productFormatCategoryId(format.id) === categoryId) return { group, format };
     }
   }
   return null;
@@ -15,7 +15,7 @@ export function findProductFormat(data: ProductFormatData, categoryId: string): 
 
 export function productFormatToCategory(group: ProductFormatGroup, format: ProductFormat): Category {
   return {
-    id: productFormatCategoryId(group.id, format.id),
+    id: productFormatCategoryId(format.id),
     title: format.title,
     description: group.title,
     items: format.criteria.map((criterion) => ({
@@ -31,7 +31,7 @@ export function selectedProductFormatCategories(data: ProductFormatData, selecte
   const out: Category[] = [];
   data.groups.forEach((group) => {
     group.formats.forEach((format) => {
-      const categoryId = productFormatCategoryId(group.id, format.id);
+      const categoryId = productFormatCategoryId(format.id);
       if (selectedSet.has(categoryId)) out.push(productFormatToCategory(group, format));
     });
   });
@@ -56,7 +56,7 @@ export function validateProductFormats(value: unknown): value is ProductFormatDa
       if (formatIds.has(format.id)) return false;
       formatIds.add(format.id);
 
-      const categoryId = productFormatCategoryId(group.id, format.id);
+      const categoryId = productFormatCategoryId(format.id);
       if (categoryIds.has(categoryId)) return false;
       categoryIds.add(categoryId);
 
@@ -74,7 +74,7 @@ export function validateProductFormats(value: unknown): value is ProductFormatDa
 
 export async function loadProductFormats(baseUrl: string): Promise<ProductFormatData> {
   try {
-    const res = await fetch(baseUrl + 'content/format.json');
+    const res = await fetch(baseUrl + 'content/product-formats.json');
     if (!res.ok) throw new Error('fetch failed');
     const parsed = await res.json();
     if (!validateProductFormats(parsed)) throw new Error('invalid');

@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 
+import { groupRows } from '@/export/export-utils';
 import { scaleOptionLabels } from '@/scale-utils';
 import { strings } from '@/strings';
 import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
@@ -13,13 +14,14 @@ const contentWidth = pageWidth - marginX * 2;
 const bottomY = pageHeight - marginBottom;
 
 type PdfDoc = jsPDF;
-type RowGroup = {
-  title: string;
-  scale: Scale | null;
-  items: ExportRow[];
-};
 
-export function exportPDF(rows: ExportRow[], title: string, header: HeaderData, footerFields: FooterFields, mode: PrintMode = 'full') {
+export function exportPDF(
+  rows: ExportRow[],
+  title: string,
+  header: HeaderData,
+  footerFields: FooterFields,
+  mode: PrintMode = 'full'
+) {
   const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   let y = marginTop;
 
@@ -81,7 +83,7 @@ export function exportPDF(rows: ExportRow[], title: string, header: HeaderData, 
   }
 
   drawWatermarks(pdf);
-  pdf.save('bewertungsbogen.pdf');
+  pdf.save('bewertungsbogen-druck.pdf');
 }
 
 function drawTitle(pdf: PdfDoc, title: string, y: number): number {
@@ -130,17 +132,6 @@ function drawHeaderFields(pdf: PdfDoc, header: HeaderData, y: number): number {
   });
 
   return y + Math.ceil(header.fields.length / 2) * rowHeight + 22;
-}
-
-function groupRows(rows: ExportRow[]): RowGroup[] {
-  const groups = new Map<string, RowGroup>();
-  rows.forEach((row) => {
-    if (!groups.has(row.categoryId)) {
-      groups.set(row.categoryId, { title: row.category, scale: row.scale, items: [] });
-    }
-    groups.get(row.categoryId)!.items.push(row);
-  });
-  return Array.from(groups.values());
 }
 
 function categoryHeadingHeight(): number {
@@ -246,8 +237,16 @@ function drawItemRow(
   return y + height;
 }
 
-function drawScaleBoxes(pdf: PdfDoc, scale: Scale, x: number, width: number, y: number, rowHeight: number) {
-  const count = scaleOptionLabels(scale).length;
+function drawScaleBoxes(
+  pdf: PdfDoc,
+  scale: Scale,
+  x: number,
+  width: number,
+  y: number,
+  rowHeight: number
+) {
+  const options = scaleOptionLabels(scale);
+  const count = options.length;
   const optionWidth = width / count;
   const size = scale.kind === 'numeric' ? 8 : 9;
   const boxY = y + rowHeight / 2 - size / 2;
@@ -290,11 +289,12 @@ function drawFooterFields(pdf: PdfDoc, footerFields: FooterFields, y: number) {
   const fieldWidth = (contentWidth - gap * (enabled.length - 1)) / enabled.length;
   enabled.forEach(({ label }, index) => {
     const x = marginX + index * (fieldWidth + gap);
+    const labelText = `${label}:`;
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(10);
     pdf.setTextColor(51, 51, 51);
-    pdf.text(`${label}:`, x, y + 12);
-    const lineX = x + Math.min(pdf.getTextWidth(`${label}:`) + 7, fieldWidth * 0.55);
+    pdf.text(labelText, x, y + 12);
+    const lineX = x + Math.min(pdf.getTextWidth(labelText) + 7, fieldWidth * 0.55);
     pdf.setDrawColor(68, 68, 68);
     pdf.setLineWidth(0.7);
     pdf.line(lineX, y + 14, x + fieldWidth, y + 14);
@@ -308,7 +308,7 @@ function drawWatermarks(pdf: PdfDoc) {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
     pdf.setTextColor(170, 170, 170);
-    pdf.text('Erstellt mit Feedbackbogen-Generator', pageWidth - 18, pageHeight - 14, { align: 'right' });
+    pdf.text(strings.watermark, pageWidth - 18, pageHeight - 14, { align: 'right' });
   }
 }
 

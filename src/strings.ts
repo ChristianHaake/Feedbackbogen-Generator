@@ -66,6 +66,7 @@ export const strings = {
     reorderSelection: 'Reihenfolge für Vorschau und Export',
     dragCategory: (category: string) => `Kategorie verschieben: ${category}. Mit Pfeiltasten nach oben oder unten bewegen.`,
     dragCriterion: (criterion: string) => `Kriterium verschieben: ${criterion}. Mit Pfeiltasten nach oben oder unten bewegen.`,
+    dragHeaderField: (field: string) => `Kopffeld verschieben: ${field}. Mit Pfeiltasten nach oben oder unten bewegen.`,
     selectCategory: 'Kategorie auswählen',
     clearCategory: 'Kategorie abwählen',
     chooseProductFormats: 'Formate auswählen',
@@ -112,6 +113,7 @@ export const strings = {
     customItemRemoved: 'Eigenes Kriterium entfernt.',
     headerFieldAdded: 'Kopffeld hinzugefügt.',
     headerFieldRemoved: 'Kopffeld entfernt.',
+    headerFieldReordered: 'Kopffeld wurde verschoben.',
     productFormatAdded: 'Produktformat hinzugefügt.',
     productFormatRemoved: 'Produktformat entfernt.'
   }

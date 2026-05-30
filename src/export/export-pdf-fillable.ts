@@ -353,7 +353,7 @@ function addTextField(
 
 function drawWatermarks(ctx: FillableContext) {
   ctx.pdfDoc.getPages().forEach((page) => {
-    const text = 'Erstellt mit Feedbackbogen-Generator';
+    const text = strings.watermark;
     page.drawText(text, {
       x: pageWidth - 18 - textWidth(text, 7, ctx.fonts.regular),
       y: pageHeight - (pageHeight - 14),

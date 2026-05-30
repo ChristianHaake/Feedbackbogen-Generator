@@ -55,7 +55,7 @@ describe('document exports', () => {
     expect(documentXml).toContain('Inhalt vollständig');
     expect(documentXml).toContain('Feedback / Anmerkungen');
     expect(documentXml).toContain('Unterschrift: ____________________');
-    expect(footerXml).toContain('Erstellt mit Feedbackbogen-Generator');
+    expect(footerXml).toContain('Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de');
   });
 
   it('creates an editable ODT with structured tables, feedback area and footer', async () => {
@@ -83,7 +83,7 @@ describe('document exports', () => {
     expect(contentXml).toContain('Test &amp; Qualität');
     expect(contentXml).toContain('Feedback / Anmerkungen');
     expect(contentXml).toContain('Unterschrift: ____________________');
-    expect(stylesXml).toContain('Erstellt mit Feedbackbogen-Generator');
+    expect(stylesXml).toContain('Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de');
     expect(manifestXml).toContain(`manifest:media-type="${mimetype}" manifest:full-path="/"`);
     expect(manifestXml).toContain('manifest:full-path="content.xml"');
     expect(manifestXml).toContain('manifest:full-path="styles.xml"');

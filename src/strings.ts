@@ -1,5 +1,6 @@
 export const strings = {
   appTitle: 'Feedbackbogen-Generator',
+  watermark: 'Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de',
   toolbar: {
     saveConfig: 'Config speichern',
     loadConfig: 'Config laden',

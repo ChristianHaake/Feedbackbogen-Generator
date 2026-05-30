@@ -1017,7 +1017,7 @@ export function renderPreview(
 
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
-  container.append(el('div', { class: 'a4-watermark', text: 'Erstellt mit Feedbackbogen-Generator' }));
+  container.append(el('div', { class: 'a4-watermark', text: strings.watermark }));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {

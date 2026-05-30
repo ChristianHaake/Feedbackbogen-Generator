@@ -65,11 +65,18 @@ export function exportPDF(rows: ExportRow[], title: string, header: HeaderData, 
     });
   }
 
-  ensureSpace(128);
+  const feedbackTopGap = rows.length > 0 ? 18 : 0;
+  ensureSpace(feedbackTopGap + 128);
+  y += feedbackTopGap;
   y = drawFeedback(pdf, y);
   if (footerFieldOptions().some(({ id }) => footerFields[id])) {
-    ensureSpace(34);
-    drawFooterFields(pdf, footerFields, y);
+    const footerTopGap = 14;
+    const footerHeight = 24;
+    const footerY = bottomY - footerHeight;
+    if (y + footerTopGap > footerY) {
+      addPage();
+    }
+    drawFooterFields(pdf, footerFields, footerY);
   }
 
   drawWatermarks(pdf);
@@ -154,7 +161,8 @@ function drawCategoryHeading(pdf: PdfDoc, title: string, y: number): number {
 
 function scaleHeaderHeight(pdf: PdfDoc, scale: Scale): number {
   const labelWidth = scaleOptionWidth(scale);
-  const maxLines = Math.max(...scaleOptionLabels(scale).map((label) => split(pdf, label, labelWidth, 8.5).length));
+  const fontSize = scale.kind === 'numeric' ? 7.5 : 8;
+  const maxLines = Math.max(...scaleOptionLabels(scale).map((label) => split(pdf, label, labelWidth, fontSize).length));
   return Math.max(25, maxLines * 10 + 12);
 }
 
@@ -169,12 +177,12 @@ function drawScaleHeader(pdf: PdfDoc, scale: Scale, y: number): number {
   pdf.setLineWidth(0.6);
   pdf.rect(marginX, y, contentWidth, height, 'FD');
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(scale.kind === 'numeric' ? 8.5 : 9);
+  pdf.setFontSize(scale.kind === 'numeric' ? 7.5 : 8);
   pdf.setTextColor(34, 34, 34);
 
   options.forEach((label, index) => {
     const centerX = scaleX + index * optionWidth + optionWidth / 2;
-    const lines = split(pdf, label, Math.max(12, optionWidth - gap), scale.kind === 'numeric' ? 8.5 : 9);
+    const lines = split(pdf, label, Math.max(12, optionWidth - gap), scale.kind === 'numeric' ? 7.5 : 8);
     const firstY = y + height / 2 - ((lines.length - 1) * 9) / 2 + 3;
     lines.forEach((line, lineIndex) => pdf.text(line, centerX, firstY + lineIndex * 9, { align: 'center' }));
   });
@@ -213,7 +221,7 @@ function drawItemRow(
   if (mode === 'checklist') {
     drawCheckbox(pdf, marginX + 8, y + 12, 9);
     const lines = split(pdf, row.item, contentWidth - 34, 10);
-    lines.forEach((line, index) => pdf.text(line, marginX + 25, y + 16 + index * 13));
+    lines.forEach((line, index) => pdf.text(line, marginX + 25, y + 20 + index * 13));
     return y + height;
   }
 

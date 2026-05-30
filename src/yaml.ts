@@ -74,7 +74,6 @@ export async function loadYAML(): Promise<YAMLData> {
     if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
     const text = await res.text();
     const parsed = YAML.parse(text);
-    console.log('parsed YAML:', parsed);
     if (!validateYAML(parsed)) {
       console.error('Invalid YAML shape:', parsed);
       throw new Error('invalid');

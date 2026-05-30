@@ -54,6 +54,9 @@ export const strings = {
   labels: {
     remove: 'Entfernen',
     scale: 'Skala',
+    scaleMin: 'Minimum',
+    scaleMax: 'Maximum',
+    scaleMaxSteps: (steps: number) => `max. ${steps} Stufen`,
     add: 'Hinzufügen',
     defaultScale: 'Standard-Skala',
     addCustomItem: 'Eigenes Kriterium hinzufügen',

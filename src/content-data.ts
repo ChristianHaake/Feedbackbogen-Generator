@@ -20,7 +20,16 @@ export const FALLBACK_SCALES: Scale[] = [
     kind: 'verbal',
     labels: ['trifft voll zu', 'trifft eher zu', 'teils/teils', 'trifft eher nicht zu', 'trifft nicht zu']
   },
-  { id: 'punkte_10', label: 'Punktebewertung (0-10)', kind: 'numeric', min: 0, max: 10 },
+  {
+    id: 'punkte_10',
+    label: 'Punktebewertung',
+    kind: 'numeric',
+    defaultMin: 0,
+    defaultMax: 10,
+    minLimit: 0,
+    maxLimit: 20,
+    maxSteps: 11
+  },
   { id: 'ascii_3', label: 'ASCII-Feedback (3 Stufen)', kind: 'symbol', set: [':(', ':/', ':)'] },
   { id: 'ampel', label: 'Ampelbewertung', kind: 'traffic', colors: ['#2e7d32', '#fbc02d', '#c62828'] },
   { id: 'prozent', label: 'Prozentbewertung', kind: 'percent' }
@@ -92,7 +101,27 @@ export function validateScales(value: unknown): value is Scale[] {
         if (!Array.isArray(scale.labels) || scale.labels.length === 0 || !scale.labels.every(isNonEmptyString)) return false;
         break;
       case 'numeric':
-        if (typeof scale.min !== 'number' || typeof scale.max !== 'number' || scale.max < scale.min) return false;
+        if (
+          typeof scale.defaultMin !== 'number' ||
+          typeof scale.defaultMax !== 'number' ||
+          typeof scale.minLimit !== 'number' ||
+          typeof scale.maxLimit !== 'number' ||
+          !Number.isInteger(scale.maxSteps)
+        ) return false;
+        {
+          const defaultMin = scale.defaultMin as number;
+          const defaultMax = scale.defaultMax as number;
+          const minLimit = scale.minLimit as number;
+          const maxLimit = scale.maxLimit as number;
+          const maxSteps = scale.maxSteps as number;
+          if (
+            maxSteps < 2 ||
+            minLimit > defaultMin ||
+            defaultMin >= defaultMax ||
+            defaultMax > maxLimit ||
+            defaultMax - defaultMin + 1 > maxSteps
+          ) return false;
+        }
         break;
       case 'symbol':
         if (!Array.isArray(scale.set) || scale.set.length === 0 || !scale.set.every(isNonEmptyString)) return false;

@@ -96,8 +96,19 @@ function validateScales(scales) {
         });
         break;
       case 'numeric':
-        if (typeof scale.min !== 'number' || typeof scale.max !== 'number' || scale.max < scale.min) {
-          fail(file, `${scaleLocation} benötigt numerische min/max-Werte mit max >= min.`);
+        if (
+          typeof scale.defaultMin !== 'number' ||
+          typeof scale.defaultMax !== 'number' ||
+          typeof scale.minLimit !== 'number' ||
+          typeof scale.maxLimit !== 'number' ||
+          !Number.isInteger(scale.maxSteps) ||
+          scale.maxSteps < 2 ||
+          scale.minLimit > scale.defaultMin ||
+          scale.defaultMin >= scale.defaultMax ||
+          scale.defaultMax > scale.maxLimit ||
+          scale.defaultMax - scale.defaultMin + 1 > scale.maxSteps
+        ) {
+          fail(file, `${scaleLocation} benötigt gültige numeric-Grenzen: minLimit <= defaultMin < defaultMax <= maxLimit und maxSteps >= Anzahl Stufen.`);
         }
         break;
       case 'symbol':

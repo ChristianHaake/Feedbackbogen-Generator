@@ -19,10 +19,12 @@ import {
   createDefaultConfig
 } from './storage';
 import { mergeOrder, orderByIds, orderCategories, swapOrder } from './config-order';
-import { scaleDisplay } from './scale-utils';
+import {
+  applyNumericScaleSettings, normalizeScaleValue, sanitizeNumericScaleSettings, scaleDisplay
+} from './scale-utils';
 import type {
   SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
-  HeaderData, FooterFields, FooterFieldId, PrintMode, Category, AppConfig
+  HeaderData, FooterFields, FooterFieldId, PrintMode, Category, AppConfig, NumericScaleSettings
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
@@ -41,6 +43,7 @@ async function bootstrap() {
   let selected: SelectedItemRef[] = [];
   let selectedProductFormats: string[] = [];
   let scaleByCategoryMap: Record<string, string> = {};
+  let scaleSettingsByCategory: Record<string, NumericScaleSettings> = {};
   let defaultScaleId = scales[0]?.id ?? 'verbal_5';
   let documentTitle: DocumentTitleConfig = { ...DEFAULT_DOCUMENT_TITLE };
   let header: HeaderData = cloneHeader(EMPTY_HEADER);
@@ -63,6 +66,7 @@ async function bootstrap() {
     selected = persisted.selectedItems;
     selectedProductFormats = persisted.selectedProductFormats;
     scaleByCategoryMap = persisted.scaleByCategory;
+    scaleSettingsByCategory = persisted.scaleSettingsByCategory;
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
     documentTitle = { ...persisted.documentTitle };
     header = cloneHeader(persisted.header);
@@ -108,6 +112,16 @@ async function bootstrap() {
       commitConfigChange(() => {
         scaleByCategoryMap[categoryId] = scaleId;
       });
+    },
+    onNumericScaleRangeChange: (categoryId: string, min: number, max: number) => {
+      const scale = scaleById(scales, scaleByCategoryMap[categoryId] ?? defaultScaleId);
+      if (!scale || scale.kind !== 'numeric') return;
+      commitConfigChange(() => {
+        scaleSettingsByCategory = {
+          ...scaleSettingsByCategory,
+          [categoryId]: sanitizeNumericScaleSettings(scale, { min, max })
+        };
+      }, false);
     },
     onDefaultScaleChange: (scaleId: string) => {
       commitConfigChange(() => {
@@ -206,6 +220,8 @@ async function bootstrap() {
           customItems = customItems.filter((item) => item.categoryId !== categoryId);
           const { [categoryId]: _removed, ...rest } = scaleByCategoryMap;
           scaleByCategoryMap = rest;
+          const { [categoryId]: _removedSettings, ...settingsRest } = scaleSettingsByCategory;
+          scaleSettingsByCategory = settingsRest;
           announce(strings.messages.productFormatRemoved);
         }
       });
@@ -313,6 +329,9 @@ async function bootstrap() {
     selected = config.selectedItems.map((item) => ({ ...item }));
     selectedProductFormats = [...config.selectedProductFormats];
     scaleByCategoryMap = { ...config.scaleByCategory };
+    scaleSettingsByCategory = Object.fromEntries(
+      Object.entries(config.scaleSettingsByCategory).map(([categoryId, settings]) => [categoryId, { ...settings }])
+    );
     defaultScaleId = config.defaultScaleId ?? scales[0]?.id ?? 'verbal_5';
     documentTitle = { ...config.documentTitle };
     header = cloneHeader(config.header);
@@ -443,7 +462,7 @@ async function bootstrap() {
       flattenedCategoryItems(c).forEach(({ id, label }) => {
         if (!selectedKeys.has(selectionKey(c.id, id))) return;
         const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
-        const s = scaleById(scales, sId);
+        const s = applyNumericScaleSettings(scaleById(scales, sId), scaleSettingsByCategory[c.id]);
         out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
       });
     });
@@ -458,13 +477,16 @@ async function bootstrap() {
     merged.forEach((category) => {
       flattenedCategoryItems(category).forEach((item) => {
         if (!selectedKeys.has(selectionKey(category.id, item.id))) return;
-        const scale = scaleById(scales, scaleByCategoryMap[category.id] ?? defaultScaleId);
+        const scale = applyNumericScaleSettings(
+          scaleById(scales, scaleByCategoryMap[category.id] ?? defaultScaleId),
+          scaleSettingsByCategory[category.id]
+        );
         out.push({
           itemId: item.id,
           categoryId: category.id,
           category: category.title,
           item: item.label,
-          scaleLabel: scale ? scaleDisplay(scale) : strings.labels.scale,
+          scaleLabel: scale ? selectedScaleLabel(scale) : strings.labels.scale,
           isCustom: customIds.has(item.id)
         });
       });
@@ -479,12 +501,17 @@ async function bootstrap() {
     return flattenedCategoryItems(category).map((item) => item.id);
   }
 
+  function selectedScaleLabel(scale: NonNullable<ExportRow['scale']>): string {
+    return scale.kind === 'numeric' ? `${scaleDisplay(scale)} (${normalizeScaleValue(scale)})` : scaleDisplay(scale);
+  }
+
   function currentConfig(): AppConfig {
     return {
       schemaVersion: CONFIG_SCHEMA_VERSION,
       selectedItems: selected,
       selectedProductFormats,
       scaleByCategory: scaleByCategoryMap,
+      scaleSettingsByCategory,
       defaultScaleId, documentTitle, header, footerFields, customItems,
       categoryOrder, itemOrderByCategory
     };
@@ -513,11 +540,11 @@ async function bootstrap() {
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
+    renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
     const currentProductCategories = productCategories();
     renderProductFormatControls(productFormatControlsEl, currentProductCategories, handlers);
     if (currentProductCategories.length > 0) {
-      renderCategories(productFormatCategoriesEl, currentProductCategories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
+      renderCategories(productFormatCategoriesEl, currentProductCategories, customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
     } else {
       productFormatCategoriesEl.innerHTML = '';
     }

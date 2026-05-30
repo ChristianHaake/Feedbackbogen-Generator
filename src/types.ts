@@ -23,7 +23,16 @@ export type ScaleBase = {
 };
 
 export type VerbalScale = ScaleBase & { kind: 'verbal'; labels: string[] };
-export type NumericScale = ScaleBase & { kind: 'numeric'; min: number; max: number };
+export type NumericScale = ScaleBase & {
+  kind: 'numeric';
+  defaultMin: number;
+  defaultMax: number;
+  minLimit: number;
+  maxLimit: number;
+  maxSteps: number;
+  min?: number;
+  max?: number;
+};
 export type SymbolScale = ScaleBase & { kind: 'symbol'; set: string[] };
 export type TrafficScale = ScaleBase & { kind: 'traffic'; colors: string[] };
 export type PercentScale = ScaleBase & { kind: 'percent' };
@@ -57,6 +66,11 @@ export type SelectedItemRef = {
   itemId: string;
 };
 
+export type NumericScaleSettings = {
+  min: number;
+  max: number;
+};
+
 export type CustomItem = Item & {
   custom: true;
   categoryId: string;
@@ -87,6 +101,7 @@ export type AppConfig = {
   selectedItems: SelectedItemRef[];
   selectedProductFormats: string[];
   scaleByCategory: Record<string, string>;
+  scaleSettingsByCategory: Record<string, NumericScaleSettings>;
   defaultScaleId?: string;
   documentTitle: DocumentTitleConfig;
   header: HeaderData;

@@ -7,10 +7,13 @@
   },
   {
     "id": "punkte_10",
-    "label": "Punktebewertung (0-10)",
+    "label": "Punktebewertung",
     "kind": "numeric",
-    "min": 0,
-    "max": 10
+    "defaultMin": 0,
+    "defaultMax": 10,
+    "minLimit": 0,
+    "maxLimit": 20,
+    "maxSteps": 11
   },
   {
     "id": "ascii_3",

@@ -122,6 +122,21 @@ Vereinfachtes Schema für `content/scales.json`:
 ]
 ```
 
+Numerische Skalen definieren Standardwerte und Grenzen, innerhalb derer Kategorien eigene Bereiche setzen können:
+
+```json
+{
+  "id": "punkte_10",
+  "label": "Punktebewertung",
+  "kind": "numeric",
+  "defaultMin": 0,
+  "defaultMax": 10,
+  "minLimit": 0,
+  "maxLimit": 20,
+  "maxSteps": 11
+}
+```
+
 Produktformate folgen in `content/product-formats.json` diesem Grundaufbau:
 
 ```json

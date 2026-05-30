@@ -741,6 +741,8 @@ body {
    ═══════════════════════════════════════ */
 .a4-page {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 21cm; min-height: 29.7cm;
   padding: 2cm 2.2cm;
   background: white;
@@ -912,7 +914,8 @@ body {
   display: flex;
   gap: 18pt;
   align-items: flex-end;
-  margin-top: 18pt;
+  margin-top: auto;
+  padding-top: 18pt;
   page-break-inside: avoid;
 }
 .a4-footer-field {

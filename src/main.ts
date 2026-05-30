@@ -677,9 +677,9 @@ async function bootstrap() {
     } else if (fmt === 'xlsx') {
       const { exportXLSX } = await import('./export/export-xlsx');
       exportXLSX(buildExportRows());
-    } else if (fmt === 'odp') {
-      const { exportODP } = await import('./export/export-odp');
-      exportODP(buildExportRows(), documentTitleText(documentTitle), header, previewMode);
+    } else if (fmt === 'odt') {
+      const { exportODT } = await import('./export/export-odt');
+      exportODT(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
     }
   }
 

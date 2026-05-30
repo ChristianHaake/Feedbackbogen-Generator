@@ -35,7 +35,7 @@
   <symbol id="icon-xlsx" viewBox="0 0 24 24">
     <path fill="currentColor" d="M4 2h10l6 6v14H4V2Zm10 1.5V8h4.5L14 3.5Z"/>
   </symbol>
-  <symbol id="icon-odp" viewBox="0 0 24 24">
+  <symbol id="icon-odt" viewBox="0 0 24 24">
     <path fill="currentColor" d="M4 2h10l6 6v14H4V2Zm10 1.5V8h4.5L14 3.5Z"/>
   </symbol>
 </svg>

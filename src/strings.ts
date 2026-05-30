@@ -14,7 +14,7 @@ export const strings = {
     exportPdf: 'PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
-    exportOdp: 'ODP'
+    exportOdt: 'ODT'
   },
   keyboard: {
     save: 'Alt+S: Speichern',

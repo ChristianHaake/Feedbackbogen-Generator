@@ -1,10 +1,11 @@
 import { strings } from './strings';
 import { el } from './ui/components';
 
-export type ContentPageId = 'about' | 'imprint' | 'privacy';
+export type ContentPageId = 'help' | 'about' | 'imprint' | 'privacy';
 export type AppRoute = 'generator' | ContentPageId;
 
 export const contentPages: Record<ContentPageId, { title: string; file: string; path: string }> = {
+  help: { title: 'Hilfe', file: 'help.md', path: '/help' },
   about: { title: 'Über das Projekt', file: 'about.md', path: '/about' },
   imprint: { title: 'Impressum', file: 'imprint.md', path: '/imprint' },
   privacy: { title: 'Datenschutz', file: 'privacy.md', path: '/privacy' }
@@ -12,6 +13,7 @@ export const contentPages: Record<ContentPageId, { title: string; file: string; 
 
 export function routeFromPath(pathname: string): AppRoute {
   const normalized = pathname.replace(/\/+$/, '') || '/';
+  if (normalized === contentPages.help.path) return 'help';
   if (normalized === contentPages.about.path) return 'about';
   if (normalized === contentPages.imprint.path) return 'imprint';
   if (normalized === contentPages.privacy.path) return 'privacy';

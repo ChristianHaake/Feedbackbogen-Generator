@@ -11,7 +11,7 @@ import type {
   ProductFormatData
 } from '@/types';
 
-export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
+export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odt';
 export type MobileView = 'edit' | 'preview' | 'export';
 export type SelectedSummary = {
   itemId: string;
@@ -75,7 +75,7 @@ export function renderLayout(): HTMLElement {
           menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
           menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
           menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
-          menuAction('odp', strings.toolbar.exportOdp, 'icon-odp')
+          menuAction('odt', strings.toolbar.exportOdt, 'icon-odt')
         ])
       )
     )
@@ -137,7 +137,7 @@ export function renderLayout(): HTMLElement {
           exportButton('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
           exportButton('docx', strings.toolbar.exportDocx, 'icon-doc'),
           exportButton('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
-          exportButton('odp', strings.toolbar.exportOdp, 'icon-odp')
+          exportButton('odt', strings.toolbar.exportOdt, 'icon-odt')
         ),
         el('div', { class: 'mobile-secondary-actions' },
           toolbarButton('download', strings.toolbar.saveConfig, 'config-save-mobile'),
@@ -153,6 +153,7 @@ export function renderLayout(): HTMLElement {
   const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
   const appFooter = el('footer', { class: 'app-footer' },
     el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+      el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
       el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
       el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
       el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })

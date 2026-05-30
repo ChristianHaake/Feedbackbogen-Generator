@@ -6,7 +6,7 @@ import { createODTBlob } from '@/export/export-odt';
 import { createXLSXBlob } from '@/export/export-xlsx';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
-const scale: NumericScale = { id: 'points', kind: 'numeric', min: 1, max: 3 };
+const scale: NumericScale = { id: 'points', label: 'Punkte', kind: 'numeric', min: 1, max: 3 };
 const header: HeaderData = { fields: [{ id: 'topic', label: 'Thema', value: 'Test & Qualität' }] };
 const footerFields: FooterFields = { date: true, signature: true, grade: false };
 const rows: ExportRow[] = [

@@ -5,7 +5,7 @@ Der Feedbackbogen-Generator ist ein webbasiertes Open-Source-Werkzeug zur Erstel
 Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeldung und keine serverseitige Speicherung eingegebener Inhalte.
 
 - Clientseitig: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
-- Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.yaml` ist die editierbare Quelle für Produktformat-Pakete. `content/format.json` wird daraus generiert. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
+- Konfiguration via JSON: `content/categories.json` liefert allgemeine Bewertungskriterien, `content/scales.json` die Bewertungsskalen und `content/product-formats.json` die Kriterien der Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
 - UI: Zweigeteilter Generator – links konfigurierbare Kopffelder, Fußzeilenoptionen, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODT (via ZIP+XML).
@@ -44,16 +44,16 @@ Konfigurationen können als JSON-Datei exportiert und später wieder importiert 
 Die App ist eine clientseitige Vite/TypeScript-Anwendung ohne Backend.
 
 - Framework: Vanilla TypeScript mit Vite
-- Datenquellen: YAML/JSON-Dateien im Ordner `content/`
+- Datenquellen: JSON-Dateien im Ordner `content/`
 - Persistenz: `localStorage`, versionierter JSON-Import und -Export mit Migrationen
 - Exporte: Browser-Druckfunktion, `docx`, `write-excel-file`, `jszip`
 - Hosting: statische Auslieferung möglich
 
 Die Anwendung lädt die Kriterien und Produktformate zur Laufzeit aus:
 
-- `content/items.yaml`
-- `content/format.yaml`
-- `content/format.json` (generiert mit `npm run generate:formats`)
+- `content/categories.json`
+- `content/scales.json`
+- `content/product-formats.json`
 
 ## Entwicklung
 
@@ -63,8 +63,7 @@ Voraussetzung: Node.js `>= 20.19.0` oder `>= 22.12.0`
 npm ci
 npm run dev
 npm run build
-npm run generate:formats
-npm run check:formats
+npm run check:content
 npm run preview
 npm run test
 npm run lint
@@ -75,8 +74,7 @@ Wichtige Skripte:
 
 - `npm run dev`: startet den lokalen Entwicklungsserver
 - `npm run build`: erstellt den Produktionsbuild in `dist/`
-- `npm run generate:formats`: erzeugt `content/format.json` aus `content/format.yaml`
-- `npm run check:formats`: prüft Aktualität und ID-Kollisionen der generierten Produktformate
+- `npm run check:content`: validiert die Content-JSON-Dateien und prüft ID-Kollisionen
 - `npm run preview`: zeigt den Produktionsbuild lokal an
 - `npm run test`: führt die Unit-Tests aus
 - `npm run lint`: prüft den Code mit ESLint
@@ -84,43 +82,69 @@ Wichtige Skripte:
 
 ## Konfiguration
 
-Die Standardkriterien und produktformatspezifischen Kriterien werden in YAML gepflegt. `content/format.json` ist ein generiertes Laufzeitartefakt und darf nicht manuell bearbeitet werden.
+Die Standardkriterien, Skalen und produktformatspezifischen Kriterien werden in JSON gepflegt.
 
-Vereinfachtes YAML-Schema:
+Vereinfachtes Schema für `content/categories.json`:
 
-```yaml
-categories:
-  - id: <string>
-    title: <string>
-    description: <string?>
-    items:
-      - id: <string>
-        label: <string>
-        description: <string?>
-
-scales:
-  - id: verbal_5
-    kind: verbal
-    labels:
-      - trifft voll zu
-      - trifft eher zu
-      - teils/teils
-      - trifft eher nicht zu
-      - trifft nicht zu
+```json
+[
+  {
+    "id": "<string>",
+    "title": "<string>",
+    "description": "<string?>",
+    "items": [
+      {
+        "id": "<string>",
+        "label": "<string>",
+        "description": "<string?>"
+      }
+    ]
+  }
+]
 ```
 
-Produktformate folgen in `content/format.yaml` diesem Grundaufbau:
+Vereinfachtes Schema für `content/scales.json`:
 
-```yaml
-version: 1
-groups:
-  - id: fotoprodukte
-    title: Fotoprodukte
-    formats:
-      - id: fotostory
-        title: Fotostory
-        criteria:
-          - label: ansprechende Bildgestaltung
+```json
+[
+  {
+    "id": "verbal_5",
+    "label": "Zustimmungsskala (5 Stufen)",
+    "kind": "verbal",
+    "labels": [
+      "trifft voll zu",
+      "trifft eher zu",
+      "teils/teils",
+      "trifft eher nicht zu",
+      "trifft nicht zu"
+    ]
+  }
+]
+```
+
+Produktformate folgen in `content/product-formats.json` diesem Grundaufbau:
+
+```json
+{
+  "groups": [
+    {
+      "id": "fotoprodukte",
+      "title": "Fotoprodukte",
+      "formats": [
+        {
+          "id": "fotostory",
+          "title": "Fotostory",
+          "criteria": [
+            {
+              "id": "ansprechende-bildgestaltung",
+              "label": "ansprechende Bildgestaltung"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
 ```
 
 ## Exportformate

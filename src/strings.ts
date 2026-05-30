@@ -91,8 +91,7 @@ export const strings = {
     accordionToggle: 'Abschnitt umschalten'
   },
   messages: {
-    loadedYaml: 'YAML geladen.',
-    yamlError: 'Fehler beim Laden/Validieren von YAML. Fallback aktiviert.',
+    contentLoadError: 'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
     saved: 'Konfiguration gespeichert.',
     loaded: 'Konfiguration geladen.',
     imported: 'JSON importiert.',

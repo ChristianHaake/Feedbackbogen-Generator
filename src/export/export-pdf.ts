@@ -340,7 +340,7 @@ function scaleOptionLabels(scale: Scale): string[] {
       for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
       return out;
     }
-    case 'emoji': return scale.set;
+    case 'symbol': return scale.set;
     case 'traffic': return ['Grün', 'Gelb', 'Rot'];
     case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
   }

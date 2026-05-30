@@ -7,7 +7,7 @@ import {
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
-import { loadYAML, scaleById, buildCategoriesWithCustom } from './yaml';
+import { loadCategories, loadScales, scaleById, buildCategoriesWithCustom } from './content-data';
 import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
 import {
   contentPages, loadContentMarkdown, renderContentPage, routeFromPath,
@@ -33,10 +33,9 @@ async function bootstrap() {
   root.append(app);
 
   const baseUrl = import.meta.env.BASE_URL as string;
-  const data = await loadYAML();
+  const categories = await loadCategories(baseUrl);
+  const scales = await loadScales(baseUrl);
   const productFormats = await loadProductFormats(baseUrl);
-  const categories = data.categories;
-  const scales = data.scales;
 
   // State
   let selected: SelectedItemRef[] = [];

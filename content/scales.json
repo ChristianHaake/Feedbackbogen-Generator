@@ -1,0 +1,44 @@
+[
+  {
+    "id": "verbal_5",
+    "label": "Likert Skala",
+    "kind": "verbal",
+    "labels": ["trifft voll zu", "trifft eher zu", "teils/teils", "trifft eher nicht zu", "trifft nicht zu"]
+  },
+  {
+    "id": "punkte_10",
+    "label": "Punktebewertung (0-10)",
+    "kind": "numeric",
+    "min": 0,
+    "max": 10
+  },
+  {
+    "id": "ascii_3",
+    "label": "Emojis (3 Stufen)",
+    "kind": "symbol",
+    "set": [":(", ":/", ":)"]
+  },
+  {
+    "id": "ascii_5",
+    "label": "Emojis (5 Stufen)",
+    "kind": "symbol",
+    "set": [":'(", ":( ", ":/", ":)", ":D"]
+  },
+  {
+    "id": "ampel",
+    "label": "Ampelbewertung",
+    "kind": "traffic",
+    "colors": ["#2e7d32", "#fbc02d", "#c62828"]
+  },
+  {
+    "id": "prozent",
+    "label": "Prozentbewertung",
+    "kind": "percent"
+  },
+  {
+    "id": "yes-no",
+    "label": "Ja/Nein",
+    "kind": "verbal",
+    "labels": ["Ja", "Nein"]
+  }
+]

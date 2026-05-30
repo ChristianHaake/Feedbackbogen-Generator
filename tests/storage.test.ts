@@ -110,7 +110,7 @@ describe('config storage', () => {
         null,
         { categoryId: 42, itemId: 'invalid' }
       ],
-      selectedProductFormats: ['format:test', 42],
+      selectedProductFormats: ['test', 42],
       scaleByCategory: { allgemeine: 'verbal_5', invalid: 42 },
       defaultScaleId: 42,
       customItems: [
@@ -122,7 +122,7 @@ describe('config storage', () => {
     expect(loadConfig()).toMatchObject({
       schemaVersion: CONFIG_SCHEMA_VERSION,
       selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
-      selectedProductFormats: ['format:test'],
+      selectedProductFormats: ['test'],
       scaleByCategory: { allgemeine: 'verbal_5' },
       defaultScaleId: undefined,
       customItems: [{ id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true }],

@@ -571,7 +571,7 @@ export function renderProductFormatModal(
       el('h3', { class: 'product-format-group-title', text: group.title })
     );
     group.formats.forEach((format) => {
-      const categoryId = productFormatCategoryId(group.id, format.id);
+      const categoryId = productFormatCategoryId(format.id);
       const isSelected = selectedFormatIds.has(categoryId);
       const toggleBtn = el('button', {
         class: `btn btn-small ${isSelected ? '' : 'btn-primary'}`,
@@ -1068,7 +1068,7 @@ function scaleOptionLabels(scale: Scale): string[] {
       for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
       return out;
     }
-    case 'emoji': return scale.set;
+    case 'symbol': return scale.set;
     case 'traffic': return ['Grün', 'Gelb', 'Rot'];
     case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
   }

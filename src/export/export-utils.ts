@@ -13,7 +13,7 @@ export function scaleOptions(scale: Scale | null): string[] {
       return scale.labels;
     case 'numeric':
       return Array.from({ length: scale.max - scale.min + 1 }, (_, index) => String(scale.min + index));
-    case 'emoji':
+    case 'symbol':
       return scale.set;
     case 'traffic':
       return ['Grün', 'Gelb', 'Rot'];

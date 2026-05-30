@@ -87,6 +87,7 @@ export type FooterFieldId = 'date' | 'signature' | 'grade';
 export type FooterFields = Record<FooterFieldId, boolean>;
 
 export type AppConfig = {
+  schemaVersion: number;
   selectedItems: SelectedItemRef[];
   selectedProductFormats: string[];
   scaleByCategory: Record<string, string>;
@@ -95,6 +96,8 @@ export type AppConfig = {
   header: HeaderData;
   footerFields: FooterFields;
   customItems: CustomItem[];
+  categoryOrder: string[];
+  itemOrderByCategory: Record<string, string[]>;
 };
 
 export type ExportRow = {

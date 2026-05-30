@@ -9,7 +9,7 @@ export function announce(message: string) {
   }
 }
 
-export function setupKeyboardShortcuts(onSave: () => void, onExport: () => void) {
+export function setupKeyboardShortcuts(onSave: () => void, onExport: () => void, onUndo?: () => void, onRedo?: () => void) {
   window.addEventListener('keydown', (e) => {
     if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
       if (e.code === 'KeyS') {
@@ -21,6 +21,12 @@ export function setupKeyboardShortcuts(onSave: () => void, onExport: () => void)
         onExport();
       }
     }
+    const target = e.target as HTMLElement | null;
+    const isEditing = target?.matches('input, textarea, select, [contenteditable="true"]');
+    if (isEditing || (!e.ctrlKey && !e.metaKey) || e.altKey || e.code !== 'KeyZ') return;
+    e.preventDefault();
+    if (e.shiftKey) onRedo?.();
+    else onUndo?.();
   });
 }
 
@@ -48,4 +54,3 @@ export function focusVisiblePolyfill() {
     true
   );
 }
-

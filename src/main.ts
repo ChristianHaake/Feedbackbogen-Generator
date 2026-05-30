@@ -3,7 +3,7 @@ import {
   documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
   renderDefaultScaleSelect, renderPreview, renderModeSwitch, renderSelectedCounter,
   renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
-  renderProductFormatModal
+  renderProductFormatModal, renderResetConfirmModal
 } from './ui/templates';
 import { strings } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
@@ -15,12 +15,14 @@ import {
 } from './content-pages';
 import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
-  EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE
+  EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE, CONFIG_SCHEMA_VERSION,
+  createDefaultConfig
 } from './storage';
+import { mergeOrder, orderByIds, orderCategories, swapOrder } from './config-order';
 import { scaleDisplay } from './scale-utils';
 import type {
   SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
-  HeaderData, FooterFields, FooterFieldId, PrintMode, Category
+  HeaderData, FooterFields, FooterFieldId, PrintMode, Category, AppConfig
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
 
@@ -45,10 +47,16 @@ async function bootstrap() {
   let header: HeaderData = cloneHeader(EMPTY_HEADER);
   let footerFields: FooterFields = { ...DEFAULT_FOOTER_FIELDS };
   let customItems: CustomItem[] = [];
+  let categoryOrder: string[] = [];
+  let itemOrderByCategory: Record<string, string[]> = {};
+  const undoStack: AppConfig[] = [];
+  const redoStack: AppConfig[] = [];
   let previewMode: PrintMode = 'full';
   let searchQuery = '';
   let productFormatModalOpen = false;
   let productFormatSearchQuery = '';
+  let productFormatModalReturnFocus: HTMLElement | null = null;
+  let resetConfirmReturnFocus: HTMLElement | null = null;
   let mobileView: MobileView = 'edit';
 
   const persisted = loadConfig();
@@ -61,6 +69,8 @@ async function bootstrap() {
     header = cloneHeader(persisted.header);
     footerFields = persisted.footerFields;
     customItems = persisted.customItems ?? [];
+    categoryOrder = persisted.categoryOrder;
+    itemOrderByCategory = persisted.itemOrderByCategory;
     announce(strings.messages.loaded);
   }
 
@@ -70,6 +80,7 @@ async function bootstrap() {
   const productFormatControlsEl = document.getElementById('product-format-controls')!;
   const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
   const productFormatModalEl = document.getElementById('product-format-modal-root')!;
+  const resetConfirmModalEl = document.getElementById('reset-confirm-modal-root')!;
   const counterEl = document.getElementById('selected-counter')!;
   const selectedListEl = document.getElementById('selected-list')!;
   const documentTitleEl = document.getElementById('document-title-form')!;
@@ -82,75 +93,90 @@ async function bootstrap() {
   const toolbarActionsEl = document.querySelector('.toolbar .actions') as HTMLElement;
   const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
   const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
+  const configMessageEl = document.getElementById('config-message')!;
   const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
   let routeRenderId = 0;
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
-      const idx = selected.findIndex((s) => s.categoryId === categoryId && s.itemId === itemId);
-      if (checked && idx === -1) {
-        selected.push({ categoryId, itemId });
-      } else if (!checked && idx !== -1) {
-        selected.splice(idx, 1);
-      }
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        const idx = selected.findIndex((s) => s.categoryId === categoryId && s.itemId === itemId);
+        if (checked && idx === -1) selected.push({ categoryId, itemId });
+        if (!checked && idx !== -1) selected.splice(idx, 1);
+      });
     },
     onCategoryScaleChange: (categoryId: string, scaleId: string) => {
-      scaleByCategoryMap[categoryId] = scaleId;
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        scaleByCategoryMap[categoryId] = scaleId;
+      });
     },
     onDefaultScaleChange: (scaleId: string) => {
-      defaultScaleId = scaleId;
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        defaultScaleId = scaleId;
+      });
     },
     onAddCustomItem: (categoryId: string, label: string) => {
       const trimmed = label.trim();
       if (!trimmed) return;
       const id = `custom_${categoryId}_${Date.now()}`;
-      customItems.push({ id, label: trimmed, custom: true, categoryId });
-      autoPersist();
-      renderEditor();
+      commitConfigChange(() => {
+        customItems.push({ id, label: trimmed, custom: true, categoryId });
+      });
       announce(strings.messages.customItemAdded);
     },
     onRemoveCustomItem: (itemId: string) => {
-      customItems = customItems.filter((ci) => ci.id !== itemId);
-      selected = selected.filter((s) => s.itemId !== itemId);
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        customItems = customItems.filter((ci) => ci.id !== itemId);
+        selected = selected.filter((s) => s.itemId !== itemId);
+      });
       announce(strings.messages.customItemRemoved);
     },
     onRemoveSelected: (categoryId: string, itemId: string) => {
-      selected = selected.filter((s) => !(s.categoryId === categoryId && s.itemId === itemId));
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        selected = selected.filter((s) => !(s.categoryId === categoryId && s.itemId === itemId));
+      });
     },
     onSelectCategory: (categoryId: string) => {
-      const ids = itemIdsOfCategory(categoryId);
-      ids.forEach((itemId) => {
-        if (!selected.some((s) => s.itemId === itemId)) selected.push({ categoryId, itemId });
+      commitConfigChange(() => {
+        itemIdsOfCategory(categoryId).forEach((itemId) => {
+          if (!selected.some((s) => s.categoryId === categoryId && s.itemId === itemId)) selected.push({ categoryId, itemId });
+        });
       });
-      renderEditor();
-      renderA4();
     },
     onClearCategory: (categoryId: string) => {
-      const ids = new Set(itemIdsOfCategory(categoryId));
-      selected = selected.filter((s) => !ids.has(s.itemId));
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        const ids = new Set(itemIdsOfCategory(categoryId));
+        selected = selected.filter((s) => s.categoryId !== categoryId || !ids.has(s.itemId));
+      });
     },
     onClearSelection: () => {
-      selected = [];
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        selected = [];
+      });
+    },
+    onReorderCategory: (draggedCategoryId: string, targetCategoryId: string) => {
+      commitConfigChange(() => {
+        categoryOrder = swapOrder(categoryOrder, draggedCategoryId, targetCategoryId);
+      });
+      announce(strings.messages.categoryReordered);
+      focusDragHandle(`[data-category-id="${cssEscape(draggedCategoryId)}"] > .selected-category-head .drag-handle`);
+    },
+    onReorderItem: (categoryId: string, draggedItemId: string, targetItemId: string) => {
+      commitConfigChange(() => {
+        itemOrderByCategory = {
+          ...itemOrderByCategory,
+          [categoryId]: swapOrder(itemOrderByCategory[categoryId] ?? [], draggedItemId, targetItemId)
+        };
+      });
+      announce(strings.messages.criterionReordered);
+      focusDragHandle(`[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`);
     },
     onSearchChange: (value: string) => {
       searchQuery = value;
       renderEditor();
     },
     onOpenProductFormatModal: () => {
+      productFormatModalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       productFormatModalOpen = true;
       renderProductFormatModalOnly(true);
     },
@@ -158,69 +184,81 @@ async function bootstrap() {
       productFormatModalOpen = false;
       productFormatSearchQuery = '';
       renderProductFormatModalOnly();
+      requestAnimationFrame(() => {
+        const returnFocus = productFormatModalReturnFocus?.isConnected
+          ? productFormatModalReturnFocus
+          : document.querySelector<HTMLElement>('.choose-product-formats-btn');
+        returnFocus?.focus();
+        productFormatModalReturnFocus = null;
+      });
     },
     onProductFormatSearchChange: (value: string) => {
       productFormatSearchQuery = value;
     },
     onToggleProductFormat: (categoryId: string, isSelected: boolean) => {
-      if (isSelected && !selectedProductFormats.includes(categoryId)) {
-        selectedProductFormats = [...selectedProductFormats, categoryId];
-        announce(strings.messages.productFormatAdded);
-      } else if (!isSelected) {
-        selectedProductFormats = selectedProductFormats.filter((id) => id !== categoryId);
-        selected = selected.filter((item) => item.categoryId !== categoryId);
-        customItems = customItems.filter((item) => item.categoryId !== categoryId);
-        const { [categoryId]: _removed, ...rest } = scaleByCategoryMap;
-        scaleByCategoryMap = rest;
-        announce(strings.messages.productFormatRemoved);
-      }
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        if (isSelected && !selectedProductFormats.includes(categoryId)) {
+          selectedProductFormats = [...selectedProductFormats, categoryId];
+          announce(strings.messages.productFormatAdded);
+        } else if (!isSelected) {
+          selectedProductFormats = selectedProductFormats.filter((id) => id !== categoryId);
+          selected = selected.filter((item) => item.categoryId !== categoryId);
+          customItems = customItems.filter((item) => item.categoryId !== categoryId);
+          const { [categoryId]: _removed, ...rest } = scaleByCategoryMap;
+          scaleByCategoryMap = rest;
+          announce(strings.messages.productFormatRemoved);
+        }
+      });
+      focusProductFormatToggle(categoryId);
     },
     onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
-      documentTitle = { ...documentTitle, mode };
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        documentTitle = { ...documentTitle, mode };
+      });
     },
     onDocumentTitleCustomChange: (value: string) => {
-      documentTitle = { ...documentTitle, custom: value };
-      renderA4();
+      commitConfigChange(() => {
+        documentTitle = { ...documentTitle, custom: value };
+      }, false);
     },
     onHeaderFieldLabelChange: (fieldId: string, label: string) => {
-      header = {
-        ...header,
-        fields: header.fields.map((field) => field.id === fieldId ? { ...field, label } : field)
-      };
-      renderA4();
+      commitConfigChange(() => {
+        header = {
+          ...header,
+          fields: header.fields.map((field) => field.id === fieldId ? { ...field, label } : field)
+        };
+      }, false);
     },
     onHeaderFieldValueChange: (fieldId: string, value: string) => {
-      header = {
-        ...header,
-        fields: header.fields.map((field) => field.id === fieldId ? { ...field, value } : field)
-      };
-      renderA4();
+      commitConfigChange(() => {
+        header = {
+          ...header,
+          fields: header.fields.map((field) => field.id === fieldId ? { ...field, value } : field)
+        };
+      }, false);
     },
     onAddHeaderField: () => {
-      header = {
-        ...header,
-        fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
-      };
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        header = {
+          ...header,
+          fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
+        };
+      });
       announce(strings.messages.headerFieldAdded);
     },
     onRemoveHeaderField: (fieldId: string) => {
-      header = {
-        ...header,
-        fields: header.fields.filter((field) => field.id !== fieldId)
-      };
-      renderEditor();
-      renderA4();
+      commitConfigChange(() => {
+        header = {
+          ...header,
+          fields: header.fields.filter((field) => field.id !== fieldId)
+        };
+      });
       announce(strings.messages.headerFieldRemoved);
     },
     onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => {
-      footerFields = { ...footerFields, [field]: checked };
-      renderA4();
+      commitConfigChange(() => {
+        footerFields = { ...footerFields, [field]: checked };
+      }, false);
     },
     onPreviewModeChange: (mode: PrintMode) => {
       previewMode = mode;
@@ -242,11 +280,11 @@ async function bootstrap() {
   }
 
   function productCategories(): Category[] {
-    return selectedProductFormatCategories(productFormats, selectedProductFormats);
+    return orderCategories(selectedProductFormatCategories(productFormats, selectedProductFormats), categoryOrder);
   }
 
   function allActiveCategories(): Category[] {
-    return [...categories, ...productCategories()];
+    return orderCategories([...categories, ...productCategories()], categoryOrder);
   }
 
   function cloneHeader(value: HeaderData): HeaderData {
@@ -255,17 +293,142 @@ async function bootstrap() {
     };
   }
 
+  function cloneConfig(config: AppConfig): AppConfig {
+    return JSON.parse(JSON.stringify(config)) as AppConfig;
+  }
+
+  function restoreConfig(config: AppConfig) {
+    selected = config.selectedItems.map((item) => ({ ...item }));
+    selectedProductFormats = [...config.selectedProductFormats];
+    scaleByCategoryMap = { ...config.scaleByCategory };
+    defaultScaleId = config.defaultScaleId ?? scales[0]?.id ?? 'verbal_5';
+    documentTitle = { ...config.documentTitle };
+    header = cloneHeader(config.header);
+    footerFields = { ...config.footerFields };
+    customItems = config.customItems.map((item) => ({ ...item }));
+    categoryOrder = [...config.categoryOrder];
+    itemOrderByCategory = Object.fromEntries(
+      Object.entries(config.itemOrderByCategory).map(([categoryId, itemIds]) => [categoryId, [...itemIds]])
+    );
+    normalizeOrderState();
+  }
+
+  function normalizeOrderState() {
+    const selectedCategoryIds = Array.from(new Set(selected.map((item) => item.categoryId)));
+    categoryOrder = mergeOrder(categoryOrder, selectedCategoryIds);
+    itemOrderByCategory = Object.fromEntries(
+      selectedCategoryIds.map((categoryId) => [
+        categoryId,
+        mergeOrder(
+          itemOrderByCategory[categoryId] ?? [],
+          selected.filter((item) => item.categoryId === categoryId).map((item) => item.itemId)
+        )
+      ])
+    );
+  }
+
+  function commitConfigChange(mutator: () => void, rerenderEditor = true) {
+    const before = cloneConfig(currentConfig());
+    mutator();
+    normalizeOrderState();
+    if (JSON.stringify(before) === JSON.stringify(currentConfig())) return;
+    undoStack.push(before);
+    redoStack.length = 0;
+    if (rerenderEditor) renderEditor();
+    renderA4();
+    updateHistoryButtons();
+  }
+
+  function replaceConfig(config: AppConfig, rememberCurrent = true) {
+    if (rememberCurrent) {
+      undoStack.push(cloneConfig(currentConfig()));
+      redoStack.length = 0;
+    }
+    restoreConfig(config);
+    renderEditor();
+    renderA4();
+    updateHistoryButtons();
+  }
+
+  function undo() {
+    const previous = undoStack.pop();
+    if (!previous) return;
+    redoStack.push(cloneConfig(currentConfig()));
+    replaceConfig(previous, false);
+    announce(strings.messages.undoDone);
+  }
+
+  function redo() {
+    const next = redoStack.pop();
+    if (!next) return;
+    undoStack.push(cloneConfig(currentConfig()));
+    restoreConfig(next);
+    renderEditor();
+    renderA4();
+    updateHistoryButtons();
+    announce(strings.messages.redoDone);
+  }
+
+  function confirmResetConfig() {
+    replaceConfig(createDefaultConfig(scales[0]?.id ?? 'verbal_5'));
+    closeResetConfirm();
+    announce(strings.messages.resetDone);
+  }
+
+  function openResetConfirm() {
+    resetConfirmReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    renderResetConfirmModal(resetConfirmModalEl, true, closeResetConfirm, confirmResetConfig);
+    requestAnimationFrame(() => resetConfirmModalEl.querySelector<HTMLButtonElement>('.reset-confirm-action')?.focus());
+  }
+
+  function closeResetConfirm() {
+    renderResetConfirmModal(resetConfirmModalEl, false, closeResetConfirm, confirmResetConfig);
+    requestAnimationFrame(() => {
+      resetConfirmReturnFocus?.focus();
+      resetConfirmReturnFocus = null;
+    });
+  }
+
+  function updateHistoryButtons() {
+    document.querySelectorAll<HTMLButtonElement>('#history-undo, #history-undo-mobile').forEach((button) => {
+      button.disabled = undoStack.length === 0;
+    });
+    document.querySelectorAll<HTMLButtonElement>('#history-redo, #history-redo-mobile').forEach((button) => {
+      button.disabled = redoStack.length === 0;
+    });
+  }
+
+  let configMessageTimeout: number | undefined;
+  function showConfigMessage(message: string) {
+    configMessageEl.textContent = message;
+    configMessageEl.hidden = false;
+    if (configMessageTimeout) window.clearTimeout(configMessageTimeout);
+    configMessageTimeout = window.setTimeout(() => {
+      configMessageEl.hidden = true;
+    }, 8000);
+  }
+
+  function cssEscape(value: string): string {
+    return CSS.escape(value);
+  }
+
+  function focusDragHandle(selector: string) {
+    requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(selector)?.focus());
+  }
+
+  function flattenedCategoryItems(category: Category): { id: string; label: string }[] {
+    const items: { id: string; label: string }[] = [];
+    if (Array.isArray(category.items)) category.items.forEach((item) => items.push({ id: item.id, label: item.label }));
+    if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => items.push({ id: item.id, label: item.label })));
+    return orderByIds(items, itemOrderByCategory[category.id] ?? []);
+  }
+
   function buildExportRows(): ExportRow[] {
     const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
-    // Output: grouped by category (YAML category order), within category in YAML item order;
-    // only items that are selected appear.
     const selectedKeys = selectedKeySet();
     const out: ExportRow[] = [];
     merged.forEach((c) => {
-      const ids: { id: string; label: string }[] = [];
-      if (Array.isArray(c.items)) c.items.forEach((it) => ids.push({ id: it.id, label: it.label }));
-      if (Array.isArray(c.groups)) c.groups.forEach((g) => g.items.forEach((it) => ids.push({ id: it.id, label: it.label })));
-      ids.forEach(({ id, label }) => {
+      flattenedCategoryItems(c).forEach(({ id, label }) => {
         if (!selectedKeys.has(selectionKey(c.id, id))) return;
         const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = scaleById(scales, sId);
@@ -281,10 +444,7 @@ async function bootstrap() {
     const selectedKeys = selectedKeySet();
     const out: SelectedSummary[] = [];
     merged.forEach((category) => {
-      const items: { id: string; label: string }[] = [];
-      if (Array.isArray(category.items)) category.items.forEach((item) => items.push({ id: item.id, label: item.label }));
-      if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => items.push({ id: item.id, label: item.label })));
-      items.forEach((item) => {
+      flattenedCategoryItems(category).forEach((item) => {
         if (!selectedKeys.has(selectionKey(category.id, item.id))) return;
         const scale = scaleById(scales, scaleByCategoryMap[category.id] ?? defaultScaleId);
         out.push({
@@ -304,18 +464,17 @@ async function bootstrap() {
     const merged = buildCategoriesWithCustom(allActiveCategories(), customItems);
     const category = merged.find((c) => c.id === categoryId);
     if (!category) return [];
-    const ids: string[] = [];
-    if (Array.isArray(category.items)) category.items.forEach((item) => ids.push(item.id));
-    if (Array.isArray(category.groups)) category.groups.forEach((group) => group.items.forEach((item) => ids.push(item.id)));
-    return ids;
+    return flattenedCategoryItems(category).map((item) => item.id);
   }
 
-  function currentConfig() {
+  function currentConfig(): AppConfig {
     return {
+      schemaVersion: CONFIG_SCHEMA_VERSION,
       selectedItems: selected,
       selectedProductFormats,
       scaleByCategory: scaleByCategoryMap,
-      defaultScaleId, documentTitle, header, footerFields, customItems
+      defaultScaleId, documentTitle, header, footerFields, customItems,
+      categoryOrder, itemOrderByCategory
     };
   }
 
@@ -342,11 +501,11 @@ async function bootstrap() {
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, categories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+    renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
     const currentProductCategories = productCategories();
     renderProductFormatControls(productFormatControlsEl, currentProductCategories, handlers);
     if (currentProductCategories.length > 0) {
-      renderCategories(productFormatCategoriesEl, currentProductCategories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, handlers, searchQuery);
+      renderCategories(productFormatCategoriesEl, currentProductCategories, customItems, selectedKeySet(), scales, scaleByCategoryMap, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
     } else {
       productFormatCategoriesEl.innerHTML = '';
     }
@@ -385,6 +544,14 @@ async function bootstrap() {
       } catch {
         // Some browsers do not expose selection APIs for search inputs.
       }
+    });
+  }
+
+  function focusProductFormatToggle(categoryId: string) {
+    requestAnimationFrame(() => {
+      const row = Array.from(productFormatModalEl.querySelectorAll<HTMLElement>('.product-format-row'))
+        .find((candidate) => candidate.dataset.categoryId === categoryId);
+      row?.querySelector<HTMLButtonElement>('button')?.focus();
     });
   }
 
@@ -442,6 +609,7 @@ async function bootstrap() {
     });
   }
 
+  normalizeOrderState();
   renderEditor();
   renderModeSwitch(modeSwitchEl, previewMode, handlers);
   renderMobileTabs(mobileTabsEl, mobileView, handlers);
@@ -453,19 +621,13 @@ async function bootstrap() {
     exportConfigJSON(currentConfig());
   };
   const importJson = async () => {
-    const cfg = await importConfigJSON();
-    if (cfg) {
-      selected = cfg.selectedItems;
-      selectedProductFormats = cfg.selectedProductFormats;
-      scaleByCategoryMap = cfg.scaleByCategory;
-      if (cfg.defaultScaleId) defaultScaleId = cfg.defaultScaleId;
-      documentTitle = { ...cfg.documentTitle };
-      header = cloneHeader(cfg.header);
-      footerFields = cfg.footerFields;
-      customItems = cfg.customItems ?? [];
-      renderEditor();
-      renderA4();
+    const result = await importConfigJSON();
+    if (result.status === 'success') {
+      replaceConfig(result.config);
       announce(strings.messages.imported);
+    } else if (result.status === 'error') {
+      showConfigMessage(result.message);
+      announce(result.message);
     }
   };
   document.querySelectorAll<HTMLButtonElement>('#config-save, #config-save-mobile').forEach((btn) => {
@@ -477,6 +639,16 @@ async function bootstrap() {
       btn.focus();
     });
   });
+  document.querySelectorAll<HTMLButtonElement>('#history-undo, #history-undo-mobile').forEach((btn) => {
+    btn.addEventListener('click', undo);
+  });
+  document.querySelectorAll<HTMLButtonElement>('#history-redo, #history-redo-mobile').forEach((btn) => {
+    btn.addEventListener('click', redo);
+  });
+  document.querySelectorAll<HTMLButtonElement>('#config-reset, #config-reset-mobile').forEach((btn) => {
+    btn.addEventListener('click', openResetConfirm);
+  });
+  updateHistoryButtons();
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
   document.addEventListener('click', (event) => {
@@ -507,7 +679,7 @@ async function bootstrap() {
       exportXLSX(buildExportRows());
     } else if (fmt === 'odp') {
       const { exportODP } = await import('./export/export-odp');
-      exportODP(buildExportRows());
+      exportODP(buildExportRows(), documentTitleText(documentTitle), header, previewMode);
     }
   }
 
@@ -538,7 +710,7 @@ async function bootstrap() {
     });
   });
 
-  setupKeyboardShortcuts(exportJson, openExportMenu);
+  setupKeyboardShortcuts(exportJson, openExportMenu, undo, redo);
 }
 
 bootstrap();

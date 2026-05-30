@@ -159,7 +159,7 @@
           ]
         },
         {
-          "id": "ki-unterstutzte-stellungnahme-zu-einem-thema",
+          "id": "ki-unterstuetzte-stellungnahme-zu-einem-thema",
           "title": "KI-unterstützte Stellungnahme zu einem Thema",
           "criteria": [
             {
@@ -239,7 +239,7 @@
           ]
         },
         {
-          "id": "open-media-book-prufung",
+          "id": "open-media-book-pruefung",
           "title": "Open Media / Book Prüfung",
           "criteria": [
             {
@@ -423,7 +423,7 @@
               "label": "Einholung von Rückmeldungen durch Präsentation des Posts in der Gruppe"
             },
             {
-              "id": "sammlung-von-verbesserungsvorschlagen-und-lob-durch-mitschuler-z-b-like-",
+              "id": "sammlung-von-verbesserungsvorschlagen-und-lob-durch-mitschuler-z-b-like",
               "label": "Sammlung von Verbesserungsvorschlägen und Lob durch Mitschüler (z. B. Like / Dislike, Kommentare)"
             }
           ]
@@ -527,7 +527,7 @@
           ]
         },
         {
-          "id": "horspiel-und-horbuch",
+          "id": "hoerspiel-und-hoerbuch",
           "title": "Hörspiel und Hörbuch",
           "criteria": [
             {
@@ -673,7 +673,7 @@
           ]
         },
         {
-          "id": "erklarfilme-erstellen-verbessern-und-remixen",
+          "id": "erklaerfilme-erstellen-verbessern-und-remixen",
           "title": "Erklärfilme erstellen, verbessern und remixen",
           "criteria": [
             {
@@ -811,7 +811,7 @@
       ]
     },
     {
-      "id": "prasentations-und-darstellungsformen",
+      "id": "praesentations-und-darstellungsformen",
       "title": "Präsentations- und Darstellungsformen",
       "formats": [
         {
@@ -833,7 +833,7 @@
           ]
         },
         {
-          "id": "multimediale-prasentation",
+          "id": "multimediale-praesentation",
           "title": "Multimediale Präsentation",
           "criteria": [
             {
@@ -895,7 +895,7 @@
           ]
         },
         {
-          "id": "virtuelle-rundgange",
+          "id": "virtuelle-rundgaenge",
           "title": "Virtuelle Rundgänge",
           "criteria": [
             {
@@ -943,7 +943,7 @@
           "title": "Challenges",
           "criteria": [
             {
-              "id": "empfehlung-zum-verzicht-auf-eine-formale-prozessdokumentation-zugunsten-",
+              "id": "empfehlung-zum-verzicht-auf-eine-formale-prozessdokumentation-zugunsten",
               "label": "Empfehlung zum Verzicht auf eine formale Prozessdokumentation zugunsten des kreativen und spontanen Arbeitsprozesses. (Die inhaltlichen Kriterien werden je nach konkreter Aufgabenstellung flexibel über das Schieberegler-Modell definiert)."
             }
           ]
@@ -1005,7 +1005,7 @@
           ]
         },
         {
-          "id": "modellprasentation",
+          "id": "modellpraesentation",
           "title": "Modellpräsentation",
           "criteria": [
             {

@@ -6,9 +6,13 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --open",
+    "prebuild": "npm run check:formats",
     "build": "vite build",
+    "generate:formats": "node scripts/generate-formats.mjs",
+    "check:formats": "node scripts/generate-formats.mjs --check",
     "preview": "vite preview --port 4173",
     "lint": "eslint src tests vite.config.ts",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest"
   },
@@ -16,7 +20,7 @@
     "docx": "^8.5.0",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
-    "xlsx": "^0.18.5",
+    "write-excel-file": "^4.0.7",
     "yaml": "^2.4.2"
   },
   "devDependencies": {

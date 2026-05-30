@@ -1,35 +1,131 @@
 import {
-  Document, Packer, Paragraph, HeadingLevel, TextRun
+  AlignmentType,
+  BorderStyle,
+  Document,
+  Footer,
+  HeadingLevel,
+  Packer,
+  Paragraph,
+  ShadingType,
+  Table,
+  TableCell,
+  TableLayoutType,
+  TableRow,
+  TextRun,
+  VerticalAlign,
+  WidthType
 } from 'docx';
 
-import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
+import { downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
 import { strings } from '@/strings';
+import type { ExportRow, FooterFieldId, FooterFields, HeaderData, PrintMode } from '@/types';
 
-function scaleOptions(scale: Scale | null): string[] {
-  if (!scale) return [];
-  switch (scale.kind) {
-    case 'verbal': return scale.labels;
-    case 'numeric': {
-      const out: string[] = [];
-      for (let i = scale.min; i <= scale.max; i++) out.push(String(i));
-      return out;
-    }
-    case 'emoji': return scale.set;
-    case 'traffic': return ['Grün', 'Gelb', 'Rot'];
-    case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
-  }
+const contentWidth = 10440;
+const border = { style: BorderStyle.SINGLE, size: 4, color: 'D5D9E0' };
+const borders = { top: border, right: border, bottom: border, left: border };
+const cellMargins = { top: 80, right: 100, bottom: 80, left: 100 };
+
+function textParagraph(text: string, bold = false, alignment?: (typeof AlignmentType)[keyof typeof AlignmentType]) {
+  return new Paragraph({
+    children: [new TextRun({ text, bold })],
+    alignment,
+    spacing: { after: 0 }
+  });
 }
 
-function headerLine(label: string, value: string): Paragraph {
-  const safeLabel = label.trim() || strings.kopfdaten.fallbackField;
-  const valueStr = value || '____________________________________';
-  return new Paragraph({
-    children: [
-      new TextRun({ text: `${safeLabel}: `, bold: true }),
-      new TextRun({ text: valueStr, underline: { type: 'single' } })
-    ],
-    spacing: { after: 80 }
+function cell(
+  text: string,
+  options: {
+    bold?: boolean;
+    width?: number;
+    fill?: string;
+    columnSpan?: number;
+    alignment?: (typeof AlignmentType)[keyof typeof AlignmentType];
+  } = {}
+) {
+  return new TableCell({
+    children: [textParagraph(text, options.bold, options.alignment)],
+    borders,
+    columnSpan: options.columnSpan,
+    margins: cellMargins,
+    shading: options.fill ? { type: ShadingType.CLEAR, fill: options.fill } : undefined,
+    verticalAlign: VerticalAlign.CENTER,
+    width: options.width ? { size: options.width, type: WidthType.DXA } : undefined
   });
+}
+
+function table(rows: TableRow[], columnWidths: number[]) {
+  return new Table({
+    rows,
+    columnWidths,
+    layout: TableLayoutType.FIXED,
+    width: { size: contentWidth, type: WidthType.DXA }
+  });
+}
+
+function headerTable(header: HeaderData): Table | null {
+  if (header.fields.length === 0) return null;
+  const width = contentWidth / 2;
+  const rows: TableRow[] = [];
+  for (let index = 0; index < header.fields.length; index += 2) {
+    const rowFields = header.fields.slice(index, index + 2);
+    while (rowFields.length < 2) rowFields.push({ id: '', label: '', value: '' });
+    rows.push(
+      new TableRow({
+        cantSplit: true,
+        children: rowFields.map((field) => {
+          const label = field.label.trim() || strings.kopfdaten.fallbackField;
+          return cell(`${label}: ${field.value || '________________________________'}`, { width });
+        })
+      })
+    );
+  }
+  return table(rows, [width, width]);
+}
+
+function categoryTable(items: ExportRow[], category: string, mode: PrintMode): Table {
+  const scale = items[0]?.scale ?? null;
+  const options = mode === 'full' ? scaleOptions(scale) : [];
+  const criterionWidth = mode === 'checklist' || options.length === 0 ? 8700 : 5400;
+  const ratingWidth = mode === 'checklist' || options.length === 0 ? contentWidth - criterionWidth : 0;
+  const optionWidth = options.length > 0 ? Math.floor((contentWidth - criterionWidth) / options.length) : 0;
+  const columnWidths =
+    options.length > 0 ? [criterionWidth, ...options.map(() => optionWidth)] : [criterionWidth, ratingWidth];
+
+  const rows = [
+    new TableRow({
+      tableHeader: true,
+      children: [cell(category.toUpperCase(), { bold: true, fill: 'E9EEF3', columnSpan: columnWidths.length })]
+    }),
+    new TableRow({
+      tableHeader: true,
+      children: [
+        cell('Kriterium', { bold: true, fill: 'F7F8FA', width: criterionWidth }),
+        ...(options.length > 0
+          ? options.map((option) =>
+              cell(option, { bold: true, fill: 'F7F8FA', width: optionWidth, alignment: AlignmentType.CENTER })
+            )
+          : [cell(mode === 'checklist' ? 'Erledigt' : 'Bewertung', { bold: true, fill: 'F7F8FA', width: ratingWidth })])
+      ]
+    })
+  ];
+
+  items.forEach((row, index) => {
+    const fill = index % 2 === 1 ? 'FBFBFC' : undefined;
+    rows.push(
+      new TableRow({
+        cantSplit: true,
+        children: [
+          cell(`${index + 1}. ${row.item}`, { width: criterionWidth, fill }),
+          ...(options.length > 0
+            ? options.map(() => cell('☐', { width: optionWidth, fill, alignment: AlignmentType.CENTER }))
+            : [cell('☐', { width: ratingWidth, fill, alignment: AlignmentType.CENTER })])
+        ]
+      })
+    );
+  });
+
+  return table(rows, columnWidths);
 }
 
 function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
@@ -40,96 +136,80 @@ function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
   ];
 }
 
-export async function exportDOCX(rows: ExportRow[], title: string, header: HeaderData, footerFields: FooterFields, mode: PrintMode = 'full') {
-  const children: Paragraph[] = [
-    new Paragraph({
-      text: title,
-      heading: HeadingLevel.TITLE,
-      spacing: { after: 240 }
-    }),
-    ...header.fields.map((field) => headerLine(field.label, field.value)),
-    new Paragraph({ text: '' })
+function footerFieldsTable(footerFields: FooterFields): Table | null {
+  const enabledFields = footerFieldOptions().filter(({ id }) => footerFields[id]);
+  if (enabledFields.length === 0) return null;
+  const width = Math.floor(contentWidth / enabledFields.length);
+  return table(
+    [
+      new TableRow({
+        cantSplit: true,
+        children: enabledFields.map(({ label }) => cell(`${label}: ____________________`, { bold: true, width }))
+      })
+    ],
+    enabledFields.map(() => width)
+  );
+}
+
+export async function createDOCXBlob(
+  rows: ExportRow[],
+  title: string,
+  header: HeaderData,
+  footerFields: FooterFields,
+  mode: PrintMode = 'full'
+): Promise<Blob> {
+  const children: (Paragraph | Table)[] = [
+    new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 180 } })
   ];
+  const metadata = headerTable(header);
+  if (metadata) children.push(metadata, new Paragraph({ text: '', spacing: { after: 120 } }));
 
-  // Group rows by category
-  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
-  rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
-    groups.get(r.categoryId)!.items.push(r);
+  groupRows(rows).forEach((group) => {
+    children.push(categoryTable(group.items, group.title, mode), new Paragraph({ text: '', spacing: { after: 120 } }));
   });
 
-  let counter = 0;
-  groups.forEach(({ title, scale, items }) => {
-    children.push(new Paragraph({
-      text: title.toUpperCase(),
-      heading: HeadingLevel.HEADING_2,
-      spacing: { before: 200, after: 100 }
-    }));
-    const opts = scaleOptions(scale);
-    if (mode === 'full' && opts.length > 0) {
-      children.push(new Paragraph({
-        children: [new TextRun({ text: opts.join('     '), bold: true })],
-        spacing: { after: 80 }
-      }));
-    }
-    items.forEach((r) => {
-      counter++;
-      children.push(new Paragraph({
-        children: [new TextRun({ text: `${counter}. ${r.item}`, bold: true })],
-        spacing: { after: 60 }
-      }));
-      if (mode === 'checklist') {
-        children.push(new Paragraph({
-          children: [new TextRun({ text: '☐  erledigt' })],
-          spacing: { after: 100 }
-        }));
-      } else {
-        if (opts.length > 0) {
-          children.push(new Paragraph({
-            children: [new TextRun({ text: opts.map(() => '☐').join('     ') })],
-            spacing: { after: 120 }
-          }));
-        } else {
-          children.push(new Paragraph({
-            children: [new TextRun({ text: '____________________________________________' })],
-            spacing: { after: 120 }
-          }));
-        }
+  if (rows.length === 0) {
+    children.push(new Paragraph({ text: strings.labels.previewEmpty, spacing: { after: 180 } }));
+  }
+
+  children.push(
+    new Paragraph({ text: strings.kopfdaten.feedback, heading: HeadingLevel.HEADING_2, spacing: { before: 120, after: 80 } }),
+    table(
+      Array.from(
+        { length: 5 },
+        () => new TableRow({ cantSplit: true, children: [cell(' ', { width: contentWidth })] })
+      ),
+      [contentWidth]
+    )
+  );
+
+  const selectedFooterFields = footerFieldsTable(footerFields);
+  if (selectedFooterFields) {
+    children.push(new Paragraph({ text: '', spacing: { after: 120 } }), selectedFooterFields);
+  }
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720, footer: 360 } } },
+        footers: {
+          default: new Footer({
+            children: [textParagraph('Erstellt mit Feedbackbogen-Generator', false, AlignmentType.CENTER)]
+          })
+        },
+        children
       }
-    });
+    ]
   });
+  return Packer.toBlob(doc);
+}
 
-  // Feedback
-  children.push(new Paragraph({ text: '' }));
-  children.push(new Paragraph({
-    children: [new TextRun({ text: strings.kopfdaten.feedback, bold: true })],
-    heading: HeadingLevel.HEADING_2,
-    spacing: { before: 200, after: 100 }
-  }));
-  for (let i = 0; i < 5; i++) {
-    children.push(new Paragraph({
-      children: [new TextRun({ text: '____________________________________________________________________' })],
-      spacing: { after: 80 }
-    }));
-  }
-
-  const enabledFooterFields = footerFieldOptions().filter(({ id }) => footerFields[id]);
-  if (enabledFooterFields.length > 0) {
-    children.push(new Paragraph({ text: '' }));
-    children.push(new Paragraph({
-      children: [new TextRun({
-        text: enabledFooterFields.map(({ label }) => `${label}: ____________________`).join('     '),
-        bold: true
-      })],
-      spacing: { before: 200, after: 80 }
-    }));
-  }
-
-  const doc = new Document({ sections: [{ properties: {}, children }] });
-  const blob = await Packer.toBlob(doc);
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'bewertungsbogen.docx';
-  a.click();
-  URL.revokeObjectURL(a.href);
+export async function exportDOCX(
+  rows: ExportRow[],
+  title: string,
+  header: HeaderData,
+  footerFields: FooterFields,
+  mode: PrintMode = 'full'
+) {
+  downloadBlob(await createDOCXBlob(rows, title, header, footerFields, mode), 'bewertungsbogen.docx');
 }

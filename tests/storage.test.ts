@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { exportConfigJSON, importConfigJSON, loadConfig, saveConfig } from '@/storage';
+import { CONFIG_SCHEMA_VERSION, exportConfigJSON, importConfigJSON, loadConfig, parseConfig, saveConfig } from '@/storage';
 import type { AppConfig } from '@/types';
 
 const config: AppConfig = {
+  schemaVersion: CONFIG_SCHEMA_VERSION,
   selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
   selectedProductFormats: [],
   scaleByCategory: { allgemeine: 'punkte_10' },
@@ -17,7 +18,9 @@ const config: AppConfig = {
     signature: false,
     grade: true
   },
-  customItems: []
+  customItems: [],
+  categoryOrder: ['allgemeine'],
+  itemOrderByCategory: { allgemeine: ['abgabe'] }
 };
 
 describe('config storage', () => {
@@ -41,20 +44,23 @@ describe('config storage', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 4, 30, 12));
     let downloadedBlob: Blob | null = null;
+    let downloadedFilename = '';
     const createObjectURL = vi.fn((blob: Blob) => {
       downloadedBlob = blob;
       return 'blob:test-config';
     });
     const revokeObjectURL = vi.fn();
     vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloadedFilename = this.download;
+    });
 
     exportConfigJSON(config);
 
     expect(click).toHaveBeenCalledOnce();
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:test-config');
-    expect(click.mock.instances[0].download).toBe('2026-05-30_Feedbackbogen.json');
+    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen.json');
     expect(downloadedBlob).not.toBeNull();
     expect(JSON.parse(await downloadedBlob!.text())).toEqual(config);
   });
@@ -66,7 +72,10 @@ describe('config storage', () => {
       createObjectURL: () => 'blob:test-config',
       revokeObjectURL: () => {}
     });
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    let downloadedFilename = '';
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloadedFilename = this.download;
+    });
     const configWithTopic: AppConfig = {
       ...config,
       header: {
@@ -79,11 +88,11 @@ describe('config storage', () => {
 
     exportConfigJSON(configWithTopic);
 
-    expect(click.mock.instances[0].download).toBe('2026-05-30_Feedbackbogen_KI - Ethik- Chancen-.json');
+    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen_KI - Ethik- Chancen-.json');
   });
 
   it('loads and normalizes a config from an uploaded JSON file', async () => {
-    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function () {
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
       Object.defineProperty(this, 'files', {
         configurable: true,
         value: [{ text: async () => JSON.stringify(config) }]
@@ -91,7 +100,79 @@ describe('config storage', () => {
       this.onchange?.(new Event('change'));
     });
 
-    await expect(importConfigJSON()).resolves.toEqual(config);
+    await expect(importConfigJSON()).resolves.toEqual({ status: 'success', config });
+  });
+
+  it('drops malformed nested values when loading a config', () => {
+    localStorage.setItem('bbk:config', JSON.stringify({
+      selectedItems: [
+        { categoryId: 'allgemeine', itemId: 'abgabe' },
+        null,
+        { categoryId: 42, itemId: 'invalid' }
+      ],
+      selectedProductFormats: ['format:test', 42],
+      scaleByCategory: { allgemeine: 'verbal_5', invalid: 42 },
+      defaultScaleId: 42,
+      customItems: [
+        { id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true },
+        { id: 'custom_2', label: 42, categoryId: 'allgemeine', custom: true }
+      ]
+    }));
+
+    expect(loadConfig()).toMatchObject({
+      schemaVersion: CONFIG_SCHEMA_VERSION,
+      selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
+      selectedProductFormats: ['format:test'],
+      scaleByCategory: { allgemeine: 'verbal_5' },
+      defaultScaleId: undefined,
+      customItems: [{ id: 'custom_1', label: 'Eigenes Kriterium', categoryId: 'allgemeine', custom: true }],
+      categoryOrder: ['allgemeine'],
+      itemOrderByCategory: { allgemeine: ['abgabe'] }
+    });
+  });
+
+  it('rejects an uploaded file with invalid JSON', async () => {
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
+      Object.defineProperty(this, 'files', {
+        configurable: true,
+        value: [{ text: async () => '{invalid' }]
+      });
+      this.onchange?.(new Event('change'));
+    });
+
+    await expect(importConfigJSON()).resolves.toEqual({
+      status: 'error',
+      message: 'Die Datei enthält kein gültiges JSON.'
+    });
+  });
+
+  it('migrates unversioned configs to the current schema', () => {
+    const result = parseConfig({
+      selectedItems: [
+        { categoryId: 'sachebene', itemId: 'tiefe' },
+        { categoryId: 'allgemeine', itemId: 'abgabe' },
+        { categoryId: 'sachebene', itemId: 'komplexitaet' }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        schemaVersion: CONFIG_SCHEMA_VERSION,
+        categoryOrder: ['sachebene', 'allgemeine'],
+        itemOrderByCategory: {
+          sachebene: ['tiefe', 'komplexitaet'],
+          allgemeine: ['abgabe']
+        }
+      }
+    });
+  });
+
+  it('rejects configs from unsupported future schema versions with a readable message', () => {
+    expect(parseConfig({ schemaVersion: 99, selectedItems: [] })).toEqual({
+      status: 'error',
+      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 2.'
+    });
   });
 });
 

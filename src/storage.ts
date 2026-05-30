@@ -1,7 +1,21 @@
+import { categoryOrderFromSelection, itemOrderFromSelection, uniqueStrings } from './config-order';
 import { strings } from './strings';
-import type { AppConfig, DocumentTitleConfig, DocumentTitleMode, FooterFields, HeaderData, HeaderField } from './types';
+import type {
+  AppConfig, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
+  HeaderData, HeaderField, SelectedItemRef
+} from './types';
 
 const KEY = 'bbk:config';
+export const CONFIG_SCHEMA_VERSION = 2;
+
+export type ConfigImportResult =
+  | { status: 'success'; config: AppConfig }
+  | { status: 'cancelled' }
+  | { status: 'error'; message: string };
+
+type ConfigParseResult =
+  | { status: 'success'; config: AppConfig }
+  | { status: 'error'; message: string };
 
 export const DEFAULT_HEADER_FIELDS: HeaderField[] = [
   { id: 'name', label: strings.kopfdaten.learner, value: '' },
@@ -24,6 +38,22 @@ export const DEFAULT_DOCUMENT_TITLE: DocumentTitleConfig = {
 export const EMPTY_HEADER: HeaderData = {
   fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field }))
 };
+
+export function createDefaultConfig(defaultScaleId?: string): AppConfig {
+  return {
+    schemaVersion: CONFIG_SCHEMA_VERSION,
+    selectedItems: [],
+    selectedProductFormats: [],
+    scaleByCategory: {},
+    defaultScaleId,
+    documentTitle: { ...DEFAULT_DOCUMENT_TITLE },
+    header: { fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field })) },
+    footerFields: { ...DEFAULT_FOOTER_FIELDS },
+    customItems: [],
+    categoryOrder: [],
+    itemOrderByCategory: {}
+  };
+}
 
 function normalizeDocumentTitle(value: unknown): DocumentTitleConfig {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_DOCUMENT_TITLE };
@@ -49,9 +79,9 @@ function normalizeHeaderField(field: unknown, index: number): HeaderField | null
 }
 
 function normalizeHeader(headerValue: unknown): HeaderData {
-  if (!headerValue || typeof headerValue !== 'object') return {
-    fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field }))
-  };
+  if (!headerValue || typeof headerValue !== 'object') {
+    return { fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field })) };
+  }
 
   const header = headerValue as Partial<HeaderData> & Record<string, unknown>;
   const fields = Array.isArray(header.fields)
@@ -78,25 +108,103 @@ function normalizeFooterFields(value: unknown): FooterFields {
   };
 }
 
-function normalizeConfig(value: unknown): AppConfig | null {
-  if (!value || typeof value !== 'object') return null;
-  const cfg = value as Partial<AppConfig>;
-  if (!Array.isArray(cfg.selectedItems)) return null;
-  const scaleByCategory = cfg.scaleByCategory && typeof cfg.scaleByCategory === 'object' && !Array.isArray(cfg.scaleByCategory)
-    ? cfg.scaleByCategory
-    : {};
+function normalizeSelectedItem(value: unknown): SelectedItemRef | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const item = value as Partial<SelectedItemRef>;
+  if (typeof item.categoryId !== 'string' || typeof item.itemId !== 'string') return null;
+  return { categoryId: item.categoryId, itemId: item.itemId };
+}
+
+function normalizeCustomItem(value: unknown): CustomItem | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const item = value as Partial<CustomItem>;
+  if (typeof item.id !== 'string' || typeof item.label !== 'string' || typeof item.categoryId !== 'string') return null;
   return {
-    selectedItems: cfg.selectedItems.filter((item) => item.categoryId !== 'produktebene'),
-    selectedProductFormats: Array.isArray(cfg.selectedProductFormats)
-      ? cfg.selectedProductFormats.filter((id): id is string => typeof id === 'string')
-      : [],
-    scaleByCategory,
-    defaultScaleId: cfg.defaultScaleId,
-    documentTitle: normalizeDocumentTitle(cfg.documentTitle),
-    header: normalizeHeader(cfg.header),
-    footerFields: normalizeFooterFields(cfg.footerFields),
-    customItems: Array.isArray(cfg.customItems) ? cfg.customItems : []
+    id: item.id,
+    label: item.label,
+    description: typeof item.description === 'string' ? item.description : undefined,
+    categoryId: item.categoryId,
+    custom: true
   };
+}
+
+function normalizeScaleByCategory(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+  );
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? uniqueStrings(value.filter((item): item is string => typeof item === 'string')) : [];
+}
+
+function normalizeItemOrder(value: unknown): Record<string, string[]> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]))
+      .map(([categoryId, itemIds]) => [categoryId, normalizeStringArray(itemIds)])
+  );
+}
+
+function migrateConfig(value: Record<string, unknown>): ConfigParseResult {
+  const rawVersion = value.schemaVersion;
+  const schemaVersion = rawVersion === undefined ? 1 : rawVersion;
+  if (!Number.isInteger(schemaVersion) || typeof schemaVersion !== 'number' || schemaVersion < 1) {
+    return { status: 'error', message: strings.messages.importInvalidVersion };
+  }
+  if (schemaVersion > CONFIG_SCHEMA_VERSION) {
+    return {
+      status: 'error',
+      message: strings.messages.importUnsupportedVersion(schemaVersion, CONFIG_SCHEMA_VERSION)
+    };
+  }
+  if (schemaVersion === CONFIG_SCHEMA_VERSION) return normalizeConfig(value);
+
+  const selectedItems = Array.isArray(value.selectedItems)
+    ? value.selectedItems.map(normalizeSelectedItem).filter((item): item is SelectedItemRef => item !== null)
+    : [];
+  return normalizeConfig({
+    ...value,
+    schemaVersion: CONFIG_SCHEMA_VERSION,
+    categoryOrder: categoryOrderFromSelection(selectedItems),
+    itemOrderByCategory: itemOrderFromSelection(selectedItems)
+  });
+}
+
+function normalizeConfig(value: Record<string, unknown>): ConfigParseResult {
+  if (!Array.isArray(value.selectedItems)) {
+    return { status: 'error', message: strings.messages.importMissingSelection };
+  }
+  const selectedItems = value.selectedItems
+    .map(normalizeSelectedItem)
+    .filter((item): item is SelectedItemRef => item !== null && item.categoryId !== 'produktebene');
+  return {
+    status: 'success',
+    config: {
+      schemaVersion: CONFIG_SCHEMA_VERSION,
+      selectedItems,
+      selectedProductFormats: normalizeStringArray(value.selectedProductFormats),
+      scaleByCategory: normalizeScaleByCategory(value.scaleByCategory),
+      defaultScaleId: typeof value.defaultScaleId === 'string' ? value.defaultScaleId : undefined,
+      documentTitle: normalizeDocumentTitle(value.documentTitle),
+      header: normalizeHeader(value.header),
+      footerFields: normalizeFooterFields(value.footerFields),
+      customItems: Array.isArray(value.customItems)
+        ? value.customItems.map(normalizeCustomItem).filter((item): item is CustomItem => item !== null)
+        : [],
+      categoryOrder: normalizeStringArray(value.categoryOrder),
+      itemOrderByCategory: normalizeItemOrder(value.itemOrderByCategory)
+    }
+  };
+}
+
+export function parseConfig(value: unknown): ConfigParseResult {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { status: 'error', message: strings.messages.importInvalidShape };
+  }
+  return migrateConfig(value as Record<string, unknown>);
 }
 
 export function saveConfig(config: AppConfig) {
@@ -105,10 +213,15 @@ export function saveConfig(config: AppConfig) {
 
 export function loadConfig(): AppConfig | null {
   const raw = localStorage.getItem(KEY);
-  if (raw) {
-    try {
-      return normalizeConfig(JSON.parse(raw));
-    } catch { /* ignore */ }
+  if (!raw) return null;
+  try {
+    const result = parseConfig(JSON.parse(raw));
+    if (result.status === 'success') {
+      saveConfig(result.config);
+      return result.config;
+    }
+  } catch {
+    // Ignore invalid local state and use defaults.
   }
   return null;
 }
@@ -141,20 +254,21 @@ function configDownloadFilename(config: AppConfig): string {
   return `${date}_Feedbackbogen${topic ? `_${topic}` : ''}.json`;
 }
 
-export async function importConfigJSON(): Promise<AppConfig | null> {
+export async function importConfigJSON(): Promise<ConfigImportResult> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json';
     input.onchange = async () => {
       const file = input.files?.[0];
-      if (!file) return resolve(null);
-      const text = await file.text();
+      if (!file) return resolve({ status: 'cancelled' });
       try {
-        resolve(normalizeConfig(JSON.parse(text)));
-      } catch { resolve(null); }
+        resolve(parseConfig(JSON.parse(await file.text())));
+      } catch {
+        resolve({ status: 'error', message: strings.messages.importInvalidJson });
+      }
     };
-    input.oncancel = () => resolve(null);
+    input.oncancel = () => resolve({ status: 'cancelled' });
     input.click();
   });
 }

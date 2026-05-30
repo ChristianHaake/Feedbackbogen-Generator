@@ -790,7 +790,7 @@ body {
 }
 .a4-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 14pt;
   padding: 8pt 8pt;
@@ -882,8 +882,12 @@ body {
 
 /* Checkliste mode — item with a single ☐ before the label */
 .a4-item-checklist {
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 8pt;
+}
+.a4-item-checklist > .a4-cbox {
+  line-height: 1.35;
 }
 .a4-item-checklist .a4-item-label {
   display: block;

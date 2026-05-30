@@ -2,7 +2,7 @@ import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 
 import { createDOCXBlob } from '@/export/export-docx';
-import { createODPBlob } from '@/export/export-odp';
+import { createODTBlob } from '@/export/export-odt';
 import { createXLSXBlob } from '@/export/export-xlsx';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
@@ -47,29 +47,56 @@ describe('document exports', () => {
     expect(footerXml).toContain('Erstellt mit Feedbackbogen-Generator');
   });
 
-  it('creates a paginated ODP with styled criteria and feedback slides', async () => {
-    const manyRows = Array.from({ length: 9 }, (_, index) => ({
-      ...rows[0],
-      item: `Kriterium ${index + 1}`
-    }));
-    const blob = await createODPBlob(manyRows, 'Feedbackbogen', header);
+  it('creates an editable ODT with structured tables, feedback area and footer', async () => {
+    const blob = await createODTBlob(rows, 'Feedbackbogen', header, footerFields);
     const archive = await blob.arrayBuffer();
     const zip = await JSZip.loadAsync(archive);
     const mimetype = await zip.file('mimetype')!.async('text');
     const contentXml = await zip.file('content.xml')!.async('text');
+    const stylesXml = await zip.file('styles.xml')!.async('text');
+    const manifestXml = await zip.file('META-INF/manifest.xml')!.async('text');
+    const metaXml = await zip.file('meta.xml')!.async('text');
     const bytes = new Uint8Array(archive);
     const firstFilenameLength = bytes[26] + bytes[27] * 256;
     const firstFilename = new TextDecoder().decode(bytes.slice(30, 30 + firstFilenameLength));
     const parsedXml = new DOMParser().parseFromString(contentXml, 'application/xml');
+    const parsedStylesXml = new DOMParser().parseFromString(stylesXml, 'application/xml');
 
-    expect(mimetype).toBe('application/vnd.oasis.opendocument.presentation');
+    expect(mimetype).toBe('application/vnd.oasis.opendocument.text');
     expect(firstFilename).toBe('mimetype');
-    expect(contentXml.match(/<draw:page /g)).toHaveLength(4);
-    expect(contentXml).toContain('Allgemein (1/2)');
-    expect(contentXml).toContain('Allgemein (2/2)');
+    expect(bytes[8]).toBe(0);
+    expect(bytes[9]).toBe(0);
+    expect(contentXml).toContain('Feedbackbogen');
+    expect(contentXml).toContain('ALLGEMEIN');
+    expect(contentXml).toContain('Inhalt vollständig');
     expect(contentXml).toContain('Test &amp; Qualität');
     expect(contentXml).toContain('Feedback / Anmerkungen');
-    expect(contentXml).toContain('style:name="header-cell"');
+    expect(contentXml).toContain('Unterschrift: ____________________');
+    expect(stylesXml).toContain('Erstellt mit Feedbackbogen-Generator');
+    expect(manifestXml).toContain(`manifest:media-type="${mimetype}" manifest:full-path="/"`);
+    expect(manifestXml).toContain('manifest:full-path="content.xml"');
+    expect(manifestXml).toContain('manifest:full-path="styles.xml"');
+    expect(manifestXml).toContain('manifest:full-path="meta.xml"');
+    expect(metaXml).toContain('<meta:generator>Feedbackbogen-Generator</meta:generator>');
     expect(parsedXml.querySelector('parsererror')).toBeNull();
+    expect(parsedStylesXml.querySelector('parsererror')).toBeNull();
+  });
+
+  it('creates ODT scale columns, checklist mode and empty state', async () => {
+    const fullContent = await odtContentXml(await createODTBlob(rows, 'Feedbackbogen', header, footerFields));
+    const checklistContent = await odtContentXml(await createODTBlob(rows, 'Feedbackbogen', header, footerFields, 'checklist'));
+    const emptyContent = await odtContentXml(await createODTBlob([], 'Feedbackbogen', header, footerFields));
+
+    expect(fullContent).toContain('>1</text:p>');
+    expect(fullContent).toContain('>2</text:p>');
+    expect(fullContent).toContain('>3</text:p>');
+    expect(checklistContent).toContain('>Erledigt</text:p>');
+    expect(checklistContent).not.toContain('>1</text:p>');
+    expect(emptyContent).toContain('Noch keine Kriterien ausgewählt');
   });
 });
+
+async function odtContentXml(blob: Blob) {
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer());
+  return zip.file('content.xml')!.async('text');
+}

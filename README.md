@@ -2,13 +2,13 @@
 
 Der Feedbackbogen-Generator ist ein webbasiertes Open-Source-Werkzeug zur Erstellung strukturierter Feedback- und Bewertungsbögen für Unterricht, Fortbildungen, Workshops und weitere Lernkontexte.
 
-Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeldung und keine serverseitige Speicherung der eingegebenen Inhalte.
+Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeldung und keine serverseitige Speicherung eingegebener Inhalte.
 
-- Client-Side-Only: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
+- Clientseitig: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
 - Konfiguration via YAML/JSON: Datei `content/items.yaml` liefert allgemeine Bewertungskriterien und Skalen; `content/format.yaml` ist die editierbare Quelle für Produktformat-Pakete. `content/format.json` wird daraus generiert. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
-- UI: Zweigeteilter Builder – links konfigurierbare Kopffelder, Fußzeilen-Toggles, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
+- UI: Zweigeteilter Generator – links konfigurierbare Kopffelder, Fußzeilenoptionen, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
-- Exporte lokal im Browser: PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODP (via ZIP+XML).
+- Exporte lokal im Browser: PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODT (via ZIP+XML).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), Strg/Cmd+Z (Undo), Strg/Cmd+Shift+Z (Redo), respektiert `prefers-reduced-motion`.
 - Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
 
@@ -16,7 +16,7 @@ Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 
 ## Wofür ist das Tool gedacht?
 
-Der Generator unterstützt dabei, Feedbackbögen systematisch aufzubauen und Bewertungskriterien transparent zu machen. Er richtet sich insbesondere an Lehrkräfte, Fortbildende, Schulentwicklungs- und Beratungsteams sowie weitere Personen, die Feedback- und Bewertungsprozesse nachvollziehbarer gestalten wollen.
+Der Feedbackbogen-Generator unterstützt dabei, Feedbackbögen systematisch aufzubauen und Bewertungskriterien transparent zu machen. Er richtet sich insbesondere an Lehrkräfte, Fortbildende, Schulentwicklungs- und Beratungsteams sowie weitere Personen, die Feedback- und Bewertungsprozesse nachvollziehbarer gestalten wollen.
 
 Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback als Teil von Lern-, Reflexions- und Entwicklungsprozessen.
 
@@ -24,14 +24,14 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 
 - Auswahl vorstrukturierter Feedback- und Bewertungskriterien
 - Ergänzung eigener Kriterien
-- Reihenfolge von Kategorien und Kriterien per Drag-and-drop oder Pfeiltasten
+- Reihenfolge von Kopffeldern, Kategorien und Kriterien per Drag-and-drop oder Pfeiltasten
 - Undo, Redo und explizites Zurücksetzen trotz Autospeicherung
 - Auswahl produktspezifischer Kriterien für unterschiedliche Prüfungs- und Arbeitsformate
 - Konfigurierbare Skalen pro Kategorie
-- Vorschau als Bewertungsbogen oder Checkliste
-- Frei anpassbare Kopffelder und optionale Fußzeile
+- Vorschau als Feedbackbogen oder Checkliste
+- Frei anpassbare Kopffelder und konfigurierbare Fußzeile
 - Import und Export der Konfiguration als JSON
-- Export als PDF/Druckansicht, DOCX, XLSX und ODP
+- Export als PDF/Druckansicht, DOCX, XLSX und ODT
 
 ## Datenschutz
 
@@ -128,9 +128,9 @@ groups:
 - PDF/Druck: über die Druckfunktion des Browsers
 - DOCX: editierbares Word-Dokument
 - XLSX: Tabelle mit Kriterien, Punkten und Notizen
-- ODP: paginierte Präsentationsdatei mit Titelfolie, formatierten Tabellen und Feedbackfolie
+- ODT: editierbares Textdokument mit Kopfdaten, formatierten Tabellen und Feedbackbereich
 
-Die ODP-Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt; PowerPoint kann je nach Version abweichen.
+Die ODT-Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt.
 
 ## Einbettung
 
@@ -144,7 +144,7 @@ Da die Anwendung statisch ausgeliefert wird, kann sie grundsätzlich per `iframe
 
 Der Feedbackbogen-Generator basiert auf Arbeiten zur Systematisierung zukunftsorientierter Prüfungsformate und zur Entwicklung transparenter Feedback- und Bewertungsprozesse.
 
-Weiterführende Informationen stehen in der Anwendung unter „About“.
+Weiterführende Informationen stehen in der Anwendung unter „Über das Projekt“.
 
 ## Repository
 

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { renderSelectedList, type RenderHandlers, type SelectedSummary } from '@/ui/templates';
+import { renderKopfdaten, renderSelectedList, type RenderHandlers, type SelectedSummary } from '@/ui/templates';
+import type { HeaderData } from '@/types';
 
 const items: SelectedSummary[] = [
   { categoryId: 'a', category: 'Kategorie A', itemId: 'a1', item: 'Kriterium A1', scaleLabel: 'Skala', isCustom: false },
@@ -38,6 +39,28 @@ describe('selected order UI', () => {
 
     source.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
     expect(handlers.onReorderItem).toHaveBeenCalledWith('a', 'a2', 'a1');
+  });
+
+  it('moves header fields through the drag-and-drop and keyboard handlers', () => {
+    const handlers = handlerSpies();
+    const header: HeaderData = {
+      fields: [
+        { id: 'name', label: 'Name', value: '' },
+        { id: 'topic', label: 'Thema', value: '' }
+      ]
+    };
+    const container = document.createElement('div');
+    renderKopfdaten(container, header, handlers);
+    const source = container.querySelector<HTMLButtonElement>('[aria-label^="Kopffeld verschieben: Thema"]')!;
+    const target = container.querySelector<HTMLElement>('[data-header-field-id="name"]')!;
+    const transfer = dataTransfer();
+
+    source.dispatchEvent(dragEvent('dragstart', transfer));
+    target.dispatchEvent(dragEvent('drop', transfer));
+    expect(handlers.onReorderHeaderField).toHaveBeenCalledWith('topic', 'name');
+
+    source.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    expect(handlers.onReorderHeaderField).toHaveBeenCalledWith('topic', 'name');
   });
 });
 
@@ -90,6 +113,7 @@ function handlerSpies(): RenderHandlers {
     onHeaderFieldValueChange: vi.fn(),
     onAddHeaderField: vi.fn(),
     onRemoveHeaderField: vi.fn(),
+    onReorderHeaderField: vi.fn(),
     onFooterFieldToggle: vi.fn(),
     onPreviewModeChange: vi.fn(),
     onMobileViewChange: vi.fn()

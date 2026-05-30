@@ -31,7 +31,7 @@ export const DEFAULT_FOOTER_FIELDS: FooterFields = {
 };
 
 export const DEFAULT_DOCUMENT_TITLE: DocumentTitleConfig = {
-  mode: 'bewertungsbogen',
+  mode: 'feedbackbogen',
   custom: ''
 };
 

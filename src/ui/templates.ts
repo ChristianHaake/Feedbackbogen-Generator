@@ -11,7 +11,7 @@ import type {
   ProductFormatData
 } from '@/types';
 
-export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odp';
+export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odt';
 export type MobileView = 'edit' | 'preview' | 'export';
 export type SelectedSummary = {
   itemId: string;
@@ -45,6 +45,7 @@ export type RenderHandlers = {
   onHeaderFieldValueChange: (fieldId: string, value: string) => void;
   onAddHeaderField: () => void;
   onRemoveHeaderField: (fieldId: string) => void;
+  onReorderHeaderField: (draggedFieldId: string, targetFieldId: string) => void;
   onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
   onMobileViewChange: (view: MobileView) => void;
@@ -61,7 +62,7 @@ export function renderLayout(): HTMLElement {
         el('img', { src: './icon_Feedbackgenerator.svg', alt: '', width: '24', height: '24' }),
         el('div', { class: 'title-wrap' },
           el('strong', { class: 'title', text: strings.appTitle }),
-          el('div', { class: 'subtitle', text: 'Baukasten für zukunftsorientierte Prüfungsformate' })
+          el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
         )
       ),
       el('div', { class: 'actions' },
@@ -75,7 +76,7 @@ export function renderLayout(): HTMLElement {
           menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
           menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
           menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
-          menuAction('odp', strings.toolbar.exportOdp, 'icon-odp')
+          menuAction('odt', strings.toolbar.exportOdt, 'icon-odt')
         ])
       )
     )
@@ -137,7 +138,7 @@ export function renderLayout(): HTMLElement {
           exportButton('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
           exportButton('docx', strings.toolbar.exportDocx, 'icon-doc'),
           exportButton('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
-          exportButton('odp', strings.toolbar.exportOdp, 'icon-odp')
+          exportButton('odt', strings.toolbar.exportOdt, 'icon-odt')
         ),
         el('div', { class: 'mobile-secondary-actions' },
           toolbarButton('download', strings.toolbar.saveConfig, 'config-save-mobile'),
@@ -153,6 +154,7 @@ export function renderLayout(): HTMLElement {
   const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
   const appFooter = el('footer', { class: 'app-footer' },
     el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+      el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
       el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
       el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
       el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
@@ -228,7 +230,7 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
 
 export function documentTitleText(config: DocumentTitleConfig): string {
   if (config.mode === 'feedbackbogen') return strings.kopfdaten.titleFeedbackbogen;
-  if (config.mode === 'custom') return config.custom.trim() || strings.kopfdaten.titleBewertungsbogen;
+  if (config.mode === 'custom') return config.custom.trim() || strings.kopfdaten.titleFeedbackbogen;
   return strings.kopfdaten.titleBewertungsbogen;
 }
 
@@ -245,16 +247,15 @@ export function renderDocumentTitleForm(
     'aria-label': strings.kopfdaten.documentTitle
   }) as HTMLSelectElement;
   const options: { value: DocumentTitleMode; label: string }[] = [
-    { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
     { value: 'feedbackbogen', label: strings.kopfdaten.titleFeedbackbogen },
+    { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
     { value: 'custom', label: strings.kopfdaten.titleCustom }
   ];
   options.forEach(({ value, label }) => select.append(el('option', { value, text: label })));
   select.value = documentTitle.mode;
   select.addEventListener('change', () => handlers.onDocumentTitleModeChange(select.value as DocumentTitleMode));
 
-  container.append(el('div', { class: 'kd-field' },
-    el('label', { for: selectId, class: 'kd-label', text: strings.kopfdaten.documentTitle }),
+  container.append(el('div', { class: 'kd-field document-title-field' },
     select
   ));
 
@@ -278,18 +279,19 @@ export function renderDocumentTitleForm(
 export function renderKopfdaten(
   container: HTMLElement,
   header: HeaderData,
-  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onAddHeaderField' | 'onRemoveHeaderField'>
+  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onAddHeaderField' | 'onRemoveHeaderField' | 'onReorderHeaderField'>
 ) {
   container.innerHTML = '';
 
   container.append(el('div', { class: 'header-field-head', 'aria-hidden': 'true' },
+    el('span'),
     el('span', { text: strings.kopfdaten.fieldLabel }),
     el('span', { text: strings.kopfdaten.fieldValue }),
     el('span')
   ));
 
-  header.fields.forEach((field) => {
-    container.append(renderHeaderFieldEditor(field, handlers));
+  header.fields.forEach((field, index) => {
+    container.append(renderHeaderFieldEditor(field, header.fields, index, handlers));
   });
 
   const addFieldBtn = el('button', { class: 'btn btn-small btn-primary add-header-field-btn', type: 'button' });
@@ -300,10 +302,23 @@ export function renderKopfdaten(
 
 function renderHeaderFieldEditor(
   field: HeaderField,
-  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onRemoveHeaderField'>
+  fields: HeaderField[],
+  index: number,
+  handlers: Pick<RenderHandlers, 'onHeaderFieldLabelChange' | 'onHeaderFieldValueChange' | 'onRemoveHeaderField' | 'onReorderHeaderField'>
 ): HTMLElement {
   const labelInputId = `kd-label-${field.id}`;
   const valueInputId = `kd-value-${field.id}`;
+  const dragLabel = strings.labels.dragHeaderField(field.label.trim() || strings.kopfdaten.fallbackField);
+  const handle = dragHandle(dragLabel, (event) => {
+    const target = fields[index + (event.key === 'ArrowUp' ? -1 : 1)];
+    if (target) handlers.onReorderHeaderField(field.id, target.id);
+  });
+  handle.classList.add('header-field-drag-handle');
+  handle.draggable = true;
+  handle.addEventListener('dragstart', (event) => {
+    event.dataTransfer?.setData('application/x-feedback-header-field', field.id);
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  });
   const labelInput = el('input', {
     type: 'text',
     id: labelInputId,
@@ -324,13 +339,14 @@ function renderHeaderFieldEditor(
     'aria-label': strings.labels.removeHeaderField,
     title: strings.labels.removeHeaderField
   });
-  removeBtn.append(el('span', { class: 'remove-header-field-mark', text: 'x' }));
+  removeBtn.append(icon('icon-trash'));
 
   labelInput.addEventListener('input', () => handlers.onHeaderFieldLabelChange(field.id, labelInput.value));
   valueInput.addEventListener('input', () => handlers.onHeaderFieldValueChange(field.id, valueInput.value));
   removeBtn.addEventListener('click', () => handlers.onRemoveHeaderField(field.id));
 
-  return el('div', { class: 'header-field-row' },
+  const row = el('div', { class: 'header-field-row', 'data-header-field-id': field.id },
+    handle,
     el('div', { class: 'kd-field' },
       el('label', { for: labelInputId, class: 'kd-label sr-only', text: strings.kopfdaten.fieldLabel }),
       labelInput
@@ -341,6 +357,20 @@ function renderHeaderFieldEditor(
     ),
     removeBtn
   );
+  row.addEventListener('dragover', (event) => {
+    if (!event.dataTransfer?.types.includes('application/x-feedback-header-field')) return;
+    event.preventDefault();
+    row.classList.add('drag-over');
+  });
+  row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+  row.addEventListener('drop', (event) => {
+    row.classList.remove('drag-over');
+    const draggedId = event.dataTransfer?.getData('application/x-feedback-header-field');
+    if (!draggedId || draggedId === field.id) return;
+    event.preventDefault();
+    handlers.onReorderHeaderField(draggedId, field.id);
+  });
+  return row;
 }
 
 export function renderFooterFields(
@@ -444,8 +474,8 @@ export function renderSelectedList(
       const itemRow = el('li', { class: 'selected-item', 'data-item-id': item.itemId },
       itemHandle,
       el('div', { class: 'selected-item-main' },
-        el('span', { class: 'selected-item-label', text: item.item }),
-        el('span', { class: 'selected-item-meta', text: meta })
+        el('span', { class: 'selected-item-label', title: item.item, text: item.item }),
+        el('span', { class: 'selected-item-meta', title: meta, text: meta })
       ),
       removeBtn
       );
@@ -918,7 +948,7 @@ export function renderPreview(
 
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
-  container.append(el('div', { class: 'a4-watermark', text: 'Made with Bewertungsbaukasten' }));
+  container.append(el('div', { class: 'a4-watermark', text: 'Erstellt mit Feedbackbogen-Generator' }));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {

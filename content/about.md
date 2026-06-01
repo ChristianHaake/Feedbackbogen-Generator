@@ -46,8 +46,7 @@ DOI: https://doi.org/10.5281/zenodo.15383616
 Haake, C., & Hegermann, A. (2025). Aufgabengestaltung im Kontext zukunftsorientierter Prüfungsformate (Version 1). Zenodo.  
 DOI: https://doi.org/10.5281/zenodo.15384229
 
-Haake, C., & Hegermann, A. (2025). Zukunftsorientierte Prüfungsformate und deren systematische Entwicklung – Transparentes und systematisches Feedback (Version 1). Zenodo.  
-DOI: https://doi.org/10.5281/zenodo.15385769
+Haake, C., & Hegermann, A. (2025). Zukunftsorientierte Prüfungsformate und deren systematische Entwicklung – Transparentes und systematisches Feedback (Version 1). Zenodo. DOI: https://doi.org/10.5281/zenodo.15385769
 
 ## Zielsetzung
 

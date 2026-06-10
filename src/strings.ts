@@ -53,6 +53,7 @@ export const strings = {
   },
   labels: {
     remove: 'Entfernen',
+    itemDescription: (item: string) => `Beschreibung zu ${item}`,
     scale: 'Skala',
     scaleMin: 'Minimum',
     scaleMax: 'Maximum',

@@ -10,19 +10,23 @@
           "criteria": [
             {
               "id": "thematisch-klare-und-uberzeugende-rede",
-              "label": "thematisch klare und überzeugende Rede"
+              "label": "thematisch klare und überzeugende Rede",
+              "description": ""
             },
             {
               "id": "nutzung-typischer-merkmale-einer-rede",
-              "label": "Nutzung typischer Merkmale einer Rede"
+              "label": "Nutzung typischer Merkmale einer Rede",
+              "description": ""
             },
             {
               "id": "originelle-filmische-umsetzung",
-              "label": "originelle filmische Umsetzung"
+              "label": "originelle filmische Umsetzung",
+              "description": ""
             },
             {
               "id": "technische-qualitat-des-videoclips-kombination-aus-klarem-verstandlichem",
-              "label": "technische Qualität des Videoclips (Kombination aus klarem, verständlichem Ton, sauberem/ruhigem Bild und strukturiertem Schnitt)"
+              "label": "technische Qualität des Videoclips (Kombination aus klarem, verständlichem Ton, sauberem/ruhigem Bild und strukturiertem Schnitt)",
+              "description": ""
             }
           ]
         },
@@ -32,79 +36,98 @@
           "criteria": [
             {
               "id": "prazision-und-klarheit-der-prompts",
-              "label": "Präzision und Klarheit der Prompts"
+              "label": "Präzision und Klarheit der Prompts",
+              "description": ""
             },
             {
               "id": "effektive-nutzung-der-ki-antworten",
-              "label": "effektive Nutzung der KI-Antworten"
+              "label": "effektive Nutzung der KI-Antworten",
+              "description": ""
             },
             {
               "id": "klare-und-adressatengerechte-rollenbeschreibung",
-              "label": "klare und adressatengerechte Rollenbeschreibung"
+              "label": "klare und adressatengerechte Rollenbeschreibung",
+              "description": ""
             },
             {
               "id": "strukturierte-speicherung-der-ki-antworten",
-              "label": "strukturierte Speicherung der KI-Antworten"
+              "label": "strukturierte Speicherung der KI-Antworten",
+              "description": ""
             },
             {
               "id": "verstandliche-zusammenfassung-der-ki-antworten",
-              "label": "verständliche Zusammenfassung der KI-Antworten"
+              "label": "verständliche Zusammenfassung der KI-Antworten",
+              "description": ""
             },
             {
               "id": "fachlich-korrekte-und-angemessene-dokumentation",
-              "label": "fachlich korrekte und angemessene Dokumentation"
+              "label": "fachlich korrekte und angemessene Dokumentation",
+              "description": ""
             },
             {
               "id": "kreativer-umgang-mit-der-simulierten-ki-rolle",
-              "label": "kreativer Umgang mit der simulierten KI-Rolle"
+              "label": "kreativer Umgang mit der simulierten KI-Rolle",
+              "description": ""
             },
             {
               "id": "rollenadaquate-nutzung-der-ki-funktion",
-              "label": "rollenadäquate Nutzung der KI-Funktion"
+              "label": "rollenadäquate Nutzung der KI-Funktion",
+              "description": ""
             },
             {
               "id": "einbindung-relevanter-und-zusatzlicher-inhalte-uber-die-ki-antworten-hin",
-              "label": "Einbindung relevanter und zusätzlicher Inhalte über die KI-Antworten hinaus"
+              "label": "Einbindung relevanter und zusätzlicher Inhalte über die KI-Antworten hinaus",
+              "description": ""
             },
             {
               "id": "eigenstandige-entwicklung-von-fragen-und-prompts",
-              "label": "eigenständige Entwicklung von Fragen und Prompts"
+              "label": "eigenständige Entwicklung von Fragen und Prompts",
+              "description": ""
             },
             {
               "id": "kritische-prufung-der-ki-antworten",
-              "label": "kritische Prüfung der KI-Antworten"
+              "label": "kritische Prüfung der KI-Antworten",
+              "description": ""
             },
             {
               "id": "reflexiver-umgang-mit-der-qualitat-der-ki-antworten",
-              "label": "reflexiver Umgang mit der Qualität der KI-Antworten"
+              "label": "reflexiver Umgang mit der Qualität der KI-Antworten",
+              "description": ""
             },
             {
               "id": "bewertung-von-mehrwert-und-limitationen-des-ki-einsatzes",
-              "label": "Bewertung von Mehrwert und Limitationen des KI-Einsatzes"
+              "label": "Bewertung von Mehrwert und Limitationen des KI-Einsatzes",
+              "description": ""
             },
             {
               "id": "personlicher-erkenntnisgewinn-durch-die-arbeit-mit-der-ki",
-              "label": "persönlicher Erkenntnisgewinn durch die Arbeit mit der KI"
+              "label": "persönlicher Erkenntnisgewinn durch die Arbeit mit der KI",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-dokumentation-der-verwendeten-prompts-und-deren-wirkung",
-              "label": "nachvollziehbare Dokumentation der verwendeten Prompts und deren Wirkung"
+              "label": "nachvollziehbare Dokumentation der verwendeten Prompts und deren Wirkung",
+              "description": ""
             },
             {
               "id": "angabe-der-genutzten-tools-und-deren-funktion-im-arbeitsprozess",
-              "label": "Angabe der genutzten Tools und deren Funktion im Arbeitsprozess"
+              "label": "Angabe der genutzten Tools und deren Funktion im Arbeitsprozess",
+              "description": ""
             },
             {
               "id": "kritische-reflexion-der-starken-und-schwachen-der-ki",
-              "label": "kritische Reflexion der Stärken und Schwächen der KI"
+              "label": "kritische Reflexion der Stärken und Schwächen der KI",
+              "description": ""
             },
             {
               "id": "darstellung-von-erkenntnissen-zu-steuerung-und-limitierungen-der-ki",
-              "label": "Darstellung von Erkenntnissen zu Steuerung und Limitierungen der KI"
+              "label": "Darstellung von Erkenntnissen zu Steuerung und Limitierungen der KI",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-begrundung-fur-auswahl-und-anpassung-der-prompts",
-              "label": "nachvollziehbare Begründung für Auswahl und Anpassung der Prompts"
+              "label": "nachvollziehbare Begründung für Auswahl und Anpassung der Prompts",
+              "description": ""
             }
           ]
         },
@@ -114,47 +137,58 @@
           "criteria": [
             {
               "id": "treffende-darstellung-der-hauptfigur-aussehen-haltung-und-kleidung-entsp",
-              "label": "treffende Darstellung der Hauptfigur (Aussehen, Haltung und Kleidung entsprechend der Buchbeschreibung)"
+              "label": "treffende Darstellung der Hauptfigur (Aussehen, Haltung und Kleidung entsprechend der Buchbeschreibung)",
+              "description": ""
             },
             {
               "id": "monologische-darstellung-mit-bezug-zur-buchvorlage",
-              "label": "monologische Darstellung mit Bezug zur Buchvorlage"
+              "label": "monologische Darstellung mit Bezug zur Buchvorlage",
+              "description": ""
             },
             {
               "id": "vertieftes-verstandnis-der-figur-gedanken-gefuhle-motive",
-              "label": "vertieftes Verständnis der Figur (Gedanken, Gefühle, Motive)"
+              "label": "vertieftes Verständnis der Figur (Gedanken, Gefühle, Motive)",
+              "description": ""
             },
             {
               "id": "origineller-und-glaubwurdiger-monolog-in-bezug-auf-die-figur",
-              "label": "origineller und glaubwürdiger Monolog in Bezug auf die Figur"
+              "label": "origineller und glaubwürdiger Monolog in Bezug auf die Figur",
+              "description": ""
             },
             {
               "id": "passgenaue-umsetzung-der-buchbeschreibung-im-generierten-bild",
-              "label": "passgenaue Umsetzung der Buchbeschreibung im generierten Bild"
+              "label": "passgenaue Umsetzung der Buchbeschreibung im generierten Bild",
+              "description": ""
             },
             {
               "id": "berucksichtigte-details-zeit-ort-epoche",
-              "label": "berücksichtigte Details (Zeit, Ort, Epoche)"
+              "label": "berücksichtigte Details (Zeit, Ort, Epoche)",
+              "description": ""
             },
             {
               "id": "begrundete-wahl-der-bildeingaben",
-              "label": "begründete Wahl der Bildeingaben"
+              "label": "begründete Wahl der Bildeingaben",
+              "description": ""
             },
             {
               "id": "uberzeugende-stimmfuhrung-und-sprachgestaltung-betonung-ausdruck",
-              "label": "überzeugende Stimmführung und Sprachgestaltung (Betonung, Ausdruck)"
+              "label": "überzeugende Stimmführung und Sprachgestaltung (Betonung, Ausdruck)",
+              "description": ""
             },
             {
               "id": "gezielter-einsatz-von-mimik-gestik-und-gegebenenfalls-ki-animation",
-              "label": "gezielter Einsatz von Mimik, Gestik und gegebenenfalls KI-Animation"
+              "label": "gezielter Einsatz von Mimik, Gestik und gegebenenfalls KI-Animation",
+              "description": ""
             },
             {
               "id": "technische-qualitat-von-bild-und-ton",
-              "label": "technische Qualität von Bild und Ton"
+              "label": "technische Qualität von Bild und Ton",
+              "description": ""
             },
             {
               "id": "angemessener-einsatz-von-tools-avatar-animation-hintergrundgestaltung",
-              "label": "angemessener Einsatz von Tools (Avatar-Animation, Hintergrundgestaltung)"
+              "label": "angemessener Einsatz von Tools (Avatar-Animation, Hintergrundgestaltung)",
+              "description": ""
             }
           ]
         },
@@ -164,27 +198,33 @@
           "criteria": [
             {
               "id": "transparente-dokumentation-der-ki-nutzung-prompts-und-tools",
-              "label": "transparente Dokumentation der KI-Nutzung (Prompts und Tools)"
+              "label": "transparente Dokumentation der KI-Nutzung (Prompts und Tools)",
+              "description": ""
             },
             {
               "id": "nachvollziehbarer-einsatz-der-ki-im-arbeitsprozess",
-              "label": "nachvollziehbarer Einsatz der KI im Arbeitsprozess"
+              "label": "nachvollziehbarer Einsatz der KI im Arbeitsprozess",
+              "description": ""
             },
             {
               "id": "differenzierte-reflexion-uber-die-leistungen-der-ki",
-              "label": "differenzierte Reflexion über die Leistungen der KI"
+              "label": "differenzierte Reflexion über die Leistungen der KI",
+              "description": ""
             },
             {
               "id": "kennzeichnung-eigenstandiger-arbeitsanteile",
-              "label": "Kennzeichnung eigenständiger Arbeitsanteile"
+              "label": "Kennzeichnung eigenständiger Arbeitsanteile",
+              "description": ""
             },
             {
               "id": "vollstandige-markierung-aller-ki-generierten-textteile",
-              "label": "vollständige Markierung aller KI-generierten Textteile"
+              "label": "vollständige Markierung aller KI-generierten Textteile",
+              "description": ""
             },
             {
               "id": "kreative-kombination-von-ki-inhalten-mit-eigenem-transfer-z-b-lokale-fal",
-              "label": "kreative Kombination von KI-Inhalten mit eigenem Transfer (z. B. lokale Fallbeispiele)"
+              "label": "kreative Kombination von KI-Inhalten mit eigenem Transfer (z. B. lokale Fallbeispiele)",
+              "description": ""
             }
           ]
         },
@@ -194,47 +234,58 @@
           "criteria": [
             {
               "id": "klare-verstandliche-und-angemessen-anspruchsvolle-aufgaben",
-              "label": "klare, verständliche und angemessen anspruchsvolle Aufgaben"
+              "label": "klare, verständliche und angemessen anspruchsvolle Aufgaben",
+              "description": ""
             },
             {
               "id": "berucksichtigung-verschiedener-anforderungsniveaus",
-              "label": "Berücksichtigung verschiedener Anforderungsniveaus"
+              "label": "Berücksichtigung verschiedener Anforderungsniveaus",
+              "description": ""
             },
             {
               "id": "fachlich-korrekte-und-nachvollziehbare-losungen",
-              "label": "fachlich korrekte und nachvollziehbare Lösungen"
+              "label": "fachlich korrekte und nachvollziehbare Lösungen",
+              "description": ""
             },
             {
               "id": "verstandliche-erlauterung-der-losungswege",
-              "label": "verständliche Erläuterung der Lösungswege"
+              "label": "verständliche Erläuterung der Lösungswege",
+              "description": ""
             },
             {
               "id": "sinnvolle-begrundung-der-aufgabenwahl",
-              "label": "sinnvolle Begründung der Aufgabenwahl"
+              "label": "sinnvolle Begründung der Aufgabenwahl",
+              "description": ""
             },
             {
               "id": "transparente-darstellung-der-gepruften-kompetenzen",
-              "label": "transparente Darstellung der geprüften Kompetenzen"
+              "label": "transparente Darstellung der geprüften Kompetenzen",
+              "description": ""
             },
             {
               "id": "durchfuhrung-eines-testlaufs-mit-lernenden",
-              "label": "Durchführung eines Testlaufs mit Lernenden"
+              "label": "Durchführung eines Testlaufs mit Lernenden",
+              "description": ""
             },
             {
               "id": "berucksichtigung-von-konstruktivem-feedback-bei-der-uberarbeitung",
-              "label": "Berücksichtigung von konstruktivem Feedback bei der Überarbeitung"
+              "label": "Berücksichtigung von konstruktivem Feedback bei der Überarbeitung",
+              "description": ""
             },
             {
               "id": "kritische-reflexion-des-eigenen-vorgehens",
-              "label": "kritische Reflexion des eigenen Vorgehens"
+              "label": "kritische Reflexion des eigenen Vorgehens",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-beschreibung-von-herausforderungen-und-losungsansatzen",
-              "label": "nachvollziehbare Beschreibung von Herausforderungen und Lösungsansätzen"
+              "label": "nachvollziehbare Beschreibung von Herausforderungen und Lösungsansätzen",
+              "description": ""
             },
             {
               "id": "reflektierter-einsatz-der-ki-im-erstellungsprozess",
-              "label": "reflektierter Einsatz der KI im Erstellungsprozess"
+              "label": "reflektierter Einsatz der KI im Erstellungsprozess",
+              "description": ""
             }
           ]
         },
@@ -244,19 +295,23 @@
           "criteria": [
             {
               "id": "ubertragung-von-wissen-auf-neue-fragestellungen",
-              "label": "Übertragung von Wissen auf neue Fragestellungen"
+              "label": "Übertragung von Wissen auf neue Fragestellungen",
+              "description": ""
             },
             {
               "id": "leistungsverbesserung-gegenuber-der-klassischen-arbeit",
-              "label": "Leistungsverbesserung gegenüber der klassischen Arbeit"
+              "label": "Leistungsverbesserung gegenüber der klassischen Arbeit",
+              "description": ""
             },
             {
               "id": "einhaltung-aller-vorgaben-zur-hilfsmittelnutzung",
-              "label": "Einhaltung aller Vorgaben zur Hilfsmittelnutzung"
+              "label": "Einhaltung aller Vorgaben zur Hilfsmittelnutzung",
+              "description": ""
             },
             {
               "id": "uberprufung-identischer-kompetenzbereiche-in-beiden-prufungsformaten",
-              "label": "Überprüfung identischer Kompetenzbereiche in beiden Prüfungsformaten"
+              "label": "Überprüfung identischer Kompetenzbereiche in beiden Prüfungsformaten",
+              "description": ""
             }
           ]
         },
@@ -266,35 +321,43 @@
           "criteria": [
             {
               "id": "vollstandige-bearbeitung-aller-gewahlten-aufgaben",
-              "label": "vollständige Bearbeitung aller gewählten Aufgaben"
+              "label": "vollständige Bearbeitung aller gewählten Aufgaben",
+              "description": ""
             },
             {
               "id": "durchdachte-logisch-aufgebaute-und-gut-begrundete-antworten",
-              "label": "durchdachte, logisch aufgebaute und gut begründete Antworten"
+              "label": "durchdachte, logisch aufgebaute und gut begründete Antworten",
+              "description": ""
             },
             {
               "id": "personliche-note-und-eigenstandige-losungswege",
-              "label": "persönliche Note und eigenständige Lösungswege"
+              "label": "persönliche Note und eigenständige Lösungswege",
+              "description": ""
             },
             {
               "id": "angemessene-rechtschreibung-grammatik-und-struktur",
-              "label": "angemessene Rechtschreibung, Grammatik und Struktur"
+              "label": "angemessene Rechtschreibung, Grammatik und Struktur",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-begrundung-der-aufgabenauswahl",
-              "label": "nachvollziehbare Begründung der Aufgabenauswahl"
+              "label": "nachvollziehbare Begründung der Aufgabenauswahl",
+              "description": ""
             },
             {
               "id": "einhaltung-aller-vorgaben",
-              "label": "Einhaltung aller Vorgaben"
+              "label": "Einhaltung aller Vorgaben",
+              "description": ""
             },
             {
               "id": "gewahrleistung-einer-fairen-leistungsbewertung-trotz-individueller-auswa",
-              "label": "Gewährleistung einer fairen Leistungsbewertung trotz individueller Auswahl (Vergleichbarkeit)"
+              "label": "Gewährleistung einer fairen Leistungsbewertung trotz individueller Auswahl (Vergleichbarkeit)",
+              "description": ""
             },
             {
               "id": "kreative-zusatzleistung-z-b-nachspeise",
-              "label": "kreative Zusatzleistung (z. B. Nachspeise)"
+              "label": "kreative Zusatzleistung (z. B. Nachspeise)",
+              "description": ""
             }
           ]
         },
@@ -304,15 +367,18 @@
           "criteria": [
             {
               "id": "auswahl-und-bewertung-besonders-gelungener-beitrage-nach-festgelegten-kr",
-              "label": "Auswahl und Bewertung besonders gelungener Beiträge nach festgelegten Kriterien (Portfolio-Ansatz)"
+              "label": "Auswahl und Bewertung besonders gelungener Beiträge nach festgelegten Kriterien (Portfolio-Ansatz)",
+              "description": ""
             },
             {
               "id": "bewertung-des-gesamten-blogs-anhand-transparenter-kriterien",
-              "label": "Bewertung des gesamten Blogs anhand transparenter Kriterien"
+              "label": "Bewertung des gesamten Blogs anhand transparenter Kriterien",
+              "description": ""
             },
             {
               "id": "eigenstandige-selbstbewertung-durch-die-lernenden-als-teil-des-verfahren",
-              "label": "eigenständige Selbstbewertung durch die Lernenden als Teil des Verfahrens"
+              "label": "eigenständige Selbstbewertung durch die Lernenden als Teil des Verfahrens",
+              "description": ""
             }
           ]
         },
@@ -322,15 +388,18 @@
           "criteria": [
             {
               "id": "auswahl-und-bewertung-besonders-gelungener-beitrage-im-wiki-nach-festgel",
-              "label": "Auswahl und Bewertung besonders gelungener Beiträge im Wiki nach festgelegten Kriterien (Portfolio-Ansatz)"
+              "label": "Auswahl und Bewertung besonders gelungener Beiträge im Wiki nach festgelegten Kriterien (Portfolio-Ansatz)",
+              "description": ""
             },
             {
               "id": "bewertung-des-gesamten-wikis-anhand-transparenter-kriterien",
-              "label": "Bewertung des gesamten Wikis anhand transparenter Kriterien"
+              "label": "Bewertung des gesamten Wikis anhand transparenter Kriterien",
+              "description": ""
             },
             {
               "id": "eigenstandige-selbstbewertung-durch-die-lernenden-als-teil-des-bewertung",
-              "label": "eigenständige Selbstbewertung durch die Lernenden als Teil des Bewertungsverfahrens"
+              "label": "eigenständige Selbstbewertung durch die Lernenden als Teil des Bewertungsverfahrens",
+              "description": ""
             }
           ]
         }
@@ -346,47 +415,58 @@
           "criteria": [
             {
               "id": "inhaltliche-tiefe-und-fachlicher-bezug-zum-thema",
-              "label": "inhaltliche Tiefe und fachlicher Bezug zum Thema"
+              "label": "inhaltliche Tiefe und fachlicher Bezug zum Thema",
+              "description": ""
             },
             {
               "id": "klarer-und-nachvollziehbarer-handlungsaufbau",
-              "label": "klarer und nachvollziehbarer Handlungsaufbau"
+              "label": "klarer und nachvollziehbarer Handlungsaufbau",
+              "description": ""
             },
             {
               "id": "strukturierter-verlauf-der-prasentation-oder-des-beitrags",
-              "label": "strukturierter Verlauf der Präsentation oder des Beitrags"
+              "label": "strukturierter Verlauf der Präsentation oder des Beitrags",
+              "description": ""
             },
             {
               "id": "ansprechende-bildgestaltung",
-              "label": "ansprechende Bildgestaltung"
+              "label": "ansprechende Bildgestaltung",
+              "description": ""
             },
             {
               "id": "technische-qualitat-der-bildumsetzung",
-              "label": "technische Qualität der Bildumsetzung"
+              "label": "technische Qualität der Bildumsetzung",
+              "description": ""
             },
             {
               "id": "praziser-und-adressatengerechter-sprachgebrauch",
-              "label": "präziser und adressatengerechter Sprachgebrauch"
+              "label": "präziser und adressatengerechter Sprachgebrauch",
+              "description": ""
             },
             {
               "id": "verstandliche-und-strukturierte-textgestaltung",
-              "label": "verständliche und strukturierte Textgestaltung"
+              "label": "verständliche und strukturierte Textgestaltung",
+              "description": ""
             },
             {
               "id": "kreative-gestaltungsideen",
-              "label": "kreative Gestaltungsideen"
+              "label": "kreative Gestaltungsideen",
+              "description": ""
             },
             {
               "id": "uberzeugender-personlicher-ausdruck",
-              "label": "überzeugender persönlicher Ausdruck"
+              "label": "überzeugender persönlicher Ausdruck",
+              "description": ""
             },
             {
               "id": "adressatengerechte-prasentation",
-              "label": "adressatengerechte Präsentation"
+              "label": "adressatengerechte Präsentation",
+              "description": ""
             },
             {
               "id": "reflektierter-umgang-mit-dem-eigenen-beitrag-oder-produkt",
-              "label": "reflektierter Umgang mit dem eigenen Beitrag oder Produkt"
+              "label": "reflektierter Umgang mit dem eigenen Beitrag oder Produkt",
+              "description": ""
             }
           ]
         },
@@ -396,35 +476,43 @@
           "criteria": [
             {
               "id": "attraktives-und-ansprechendes-design-farben-schriftart-bilder",
-              "label": "attraktives und ansprechendes Design (Farben, Schriftart, Bilder)"
+              "label": "attraktives und ansprechendes Design (Farben, Schriftart, Bilder)",
+              "description": ""
             },
             {
               "id": "verstandliche-und-pragnante-formulierung-der-botschaft",
-              "label": "verständliche und prägnante Formulierung der Botschaft"
+              "label": "verständliche und prägnante Formulierung der Botschaft",
+              "description": ""
             },
             {
               "id": "sinnvolle-aufteilung-in-bild-und-textelemente-slides",
-              "label": "sinnvolle Aufteilung in Bild- und Textelemente (Slides)"
+              "label": "sinnvolle Aufteilung in Bild- und Textelemente (Slides)",
+              "description": ""
             },
             {
               "id": "korrekte-umsetzung-der-bildformate-und-zeichenbegrenzungen",
-              "label": "korrekte Umsetzung der Bildformate und Zeichenbegrenzungen"
+              "label": "korrekte Umsetzung der Bildformate und Zeichenbegrenzungen",
+              "description": ""
             },
             {
               "id": "passende-auswahl-relevanter-hashtags-mindestens-3-maximal-10",
-              "label": "passende Auswahl relevanter Hashtags (mindestens 3, maximal 10)"
+              "label": "passende Auswahl relevanter Hashtags (mindestens 3, maximal 10)",
+              "description": ""
             },
             {
               "id": "gezielte-aufforderung-an-die-zielgruppe-z-b-like-teile-kommentiere",
-              "label": "gezielte Aufforderung an die Zielgruppe (z. B. Like / Teile / Kommentiere)"
+              "label": "gezielte Aufforderung an die Zielgruppe (z. B. Like / Teile / Kommentiere)",
+              "description": ""
             },
             {
               "id": "einholung-von-ruckmeldungen-durch-prasentation-des-posts-in-der-gruppe",
-              "label": "Einholung von Rückmeldungen durch Präsentation des Posts in der Gruppe"
+              "label": "Einholung von Rückmeldungen durch Präsentation des Posts in der Gruppe",
+              "description": ""
             },
             {
               "id": "sammlung-von-verbesserungsvorschlagen-und-lob-durch-mitschuler-z-b-like",
-              "label": "Sammlung von Verbesserungsvorschlägen und Lob durch Mitschüler (z. B. Like / Dislike, Kommentare)"
+              "label": "Sammlung von Verbesserungsvorschlägen und Lob durch Mitschüler (z. B. Like / Dislike, Kommentare)",
+              "description": ""
             }
           ]
         },
@@ -434,31 +522,38 @@
           "criteria": [
             {
               "id": "konsistente-und-ansprechende-profil-asthetik",
-              "label": "konsistente und ansprechende Profil-Ästhetik"
+              "label": "konsistente und ansprechende Profil-Ästhetik",
+              "description": ""
             },
             {
               "id": "klare-und-ubersichtliche-struktur-der-inhalte",
-              "label": "klare und übersichtliche Struktur der Inhalte"
+              "label": "klare und übersichtliche Struktur der Inhalte",
+              "description": ""
             },
             {
               "id": "authentische-und-zielgruppenrelevante-darstellung-der-inhalte",
-              "label": "authentische und zielgruppenrelevante Darstellung der Inhalte"
+              "label": "authentische und zielgruppenrelevante Darstellung der Inhalte",
+              "description": ""
             },
             {
               "id": "gezielte-ansprache-und-einbindung-potenzieller-follower",
-              "label": "gezielte Ansprache und Einbindung potenzieller Follower"
+              "label": "gezielte Ansprache und Einbindung potenzieller Follower",
+              "description": ""
             },
             {
               "id": "analyse-und-sinnvolle-nutzung-von-hashtags",
-              "label": "Analyse und sinnvolle Nutzung von Hashtags"
+              "label": "Analyse und sinnvolle Nutzung von Hashtags",
+              "description": ""
             },
             {
               "id": "kreative-und-inhaltlich-passende-bildunterschriften",
-              "label": "kreative und inhaltlich passende Bildunterschriften"
+              "label": "kreative und inhaltlich passende Bildunterschriften",
+              "description": ""
             },
             {
               "id": "gezielter-einsatz-von-stories-zur-erganzung-der-profilinhalte",
-              "label": "gezielter Einsatz von Stories zur Ergänzung der Profilinhalte"
+              "label": "gezielter Einsatz von Stories zur Ergänzung der Profilinhalte",
+              "description": ""
             }
           ]
         }
@@ -474,55 +569,68 @@
           "criteria": [
             {
               "id": "wirkungsvolle-eroffnung-catching-ear-opener",
-              "label": "wirkungsvolle Eröffnung (catching ear opener)"
+              "label": "wirkungsvolle Eröffnung (catching ear opener)",
+              "description": ""
             },
             {
               "id": "klar-erkennbare-sinnvolle-struktur-der-einzelnen-teile",
-              "label": "klar erkennbare, sinnvolle Struktur der einzelnen Teile"
+              "label": "klar erkennbare, sinnvolle Struktur der einzelnen Teile",
+              "description": ""
             },
             {
               "id": "logischer-und-zusammenhangender-verlauf-fragestellung-spannungsbogen-inh",
-              "label": "logischer und zusammenhängender Verlauf (Fragestellung, Spannungsbogen, Inhalt, Diskussion, Fazit)"
+              "label": "logischer und zusammenhängender Verlauf (Fragestellung, Spannungsbogen, Inhalt, Diskussion, Fazit)",
+              "description": ""
             },
             {
               "id": "ausgewogener-anteil-der-einzelnen-sprecher",
-              "label": "ausgewogener Anteil der einzelnen Sprecher"
+              "label": "ausgewogener Anteil der einzelnen Sprecher",
+              "description": ""
             },
             {
               "id": "auditive-effekte",
-              "label": "auditive Effekte"
+              "label": "auditive Effekte",
+              "description": ""
             },
             {
               "id": "soundauswahl",
-              "label": "Soundauswahl"
+              "label": "Soundauswahl",
+              "description": ""
             },
             {
               "id": "sauberer-schnitt",
-              "label": "sauberer Schnitt"
+              "label": "sauberer Schnitt",
+              "description": ""
             },
             {
               "id": "angemessene-bearbeitung",
-              "label": "angemessene Bearbeitung"
+              "label": "angemessene Bearbeitung",
+              "description": ""
             },
             {
               "id": "aussprache",
-              "label": "Aussprache"
+              "label": "Aussprache",
+              "description": ""
             },
             {
               "id": "intonation",
-              "label": "Intonation"
+              "label": "Intonation",
+              "description": ""
             },
             {
               "id": "tempo",
-              "label": "Tempo"
+              "label": "Tempo",
+              "description": ""
             },
             {
               "id": "modulation",
-              "label": "Modulation"
+              "label": "Modulation",
+              "description": ""
             },
             {
               "id": "freies-sprechen",
-              "label": "freies Sprechen"
+              "label": "freies Sprechen",
+              "description": ""
             }
           ]
         },
@@ -532,39 +640,48 @@
           "criteria": [
             {
               "id": "einhaltung-der-maximalen-horspiel-dauer-10-minuten-zuzuglich-intro-und-a",
-              "label": "Einhaltung der maximalen Hörspiel-Dauer (10 Minuten zuzüglich Intro und Abspann)"
+              "label": "Einhaltung der maximalen Hörspiel-Dauer (10 Minuten zuzüglich Intro und Abspann)",
+              "description": ""
             },
             {
               "id": "eigenstandig-entwickelte-oder-rechtlich-einwandfrei-vertonte-geschichte",
-              "label": "eigenständig entwickelte oder rechtlich einwandfrei vertonte Geschichte"
+              "label": "eigenständig entwickelte oder rechtlich einwandfrei vertonte Geschichte",
+              "description": ""
             },
             {
               "id": "beachtung-des-urheberrechts-und-einholung-erforderlicher-einwilligungen",
-              "label": "Beachtung des Urheberrechts und Einholung erforderlicher Einwilligungen"
+              "label": "Beachtung des Urheberrechts und Einholung erforderlicher Einwilligungen",
+              "description": ""
             },
             {
               "id": "selbst-hergestellte-gerausche-und-musik",
-              "label": "selbst hergestellte Geräusche und Musik"
+              "label": "selbst hergestellte Geräusche und Musik",
+              "description": ""
             },
             {
               "id": "nutzung-und-kennzeichnung-offizieller-quellen-bei-bedarf",
-              "label": "Nutzung und Kennzeichnung offizieller Quellen bei Bedarf"
+              "label": "Nutzung und Kennzeichnung offizieller Quellen bei Bedarf",
+              "description": ""
             },
             {
               "id": "gute-tonqualitat-und-sauberer-schnitt-entfernung-von-nebengerauschen-und",
-              "label": "gute Tonqualität und sauberer Schnitt (Entfernung von Nebengeräuschen und Versprechern)"
+              "label": "gute Tonqualität und sauberer Schnitt (Entfernung von Nebengeräuschen und Versprechern)",
+              "description": ""
             },
             {
               "id": "pragnante-beschreibung-des-horspiels",
-              "label": "prägnante Beschreibung des Hörspiels"
+              "label": "prägnante Beschreibung des Hörspiels",
+              "description": ""
             },
             {
               "id": "eigenstandige-durchfuhrung-der-produktion-durch-die-lernenden-zuruckhalt",
-              "label": "eigenständige Durchführung der Produktion durch die Lernenden (zurückhaltende Unterstützung durch Erwachsene)"
+              "label": "eigenständige Durchführung der Produktion durch die Lernenden (zurückhaltende Unterstützung durch Erwachsene)",
+              "description": ""
             },
             {
               "id": "freie-und-empathische-gestaltung-der-dialoge",
-              "label": "freie und empathische Gestaltung der Dialoge"
+              "label": "freie und empathische Gestaltung der Dialoge",
+              "description": ""
             }
           ]
         },
@@ -574,35 +691,43 @@
           "criteria": [
             {
               "id": "originalitat-der-musikalischen-interpretation",
-              "label": "Originalität der musikalischen Interpretation"
+              "label": "Originalität der musikalischen Interpretation",
+              "description": ""
             },
             {
               "id": "technische-qualitat-der-umsetzung",
-              "label": "technische Qualität der Umsetzung"
+              "label": "technische Qualität der Umsetzung",
+              "description": ""
             },
             {
               "id": "innovative-nutzung-der-ki-technologie-im-kreativen-prozess",
-              "label": "innovative Nutzung der KI-Technologie im kreativen Prozess"
+              "label": "innovative Nutzung der KI-Technologie im kreativen Prozess",
+              "description": ""
             },
             {
               "id": "uberzeugende-und-adressatengerechte-prasentation",
-              "label": "überzeugende und adressatengerechte Präsentation"
+              "label": "überzeugende und adressatengerechte Präsentation",
+              "description": ""
             },
             {
               "id": "reflektierter-umgang-mit-dem-eigenen-kreativen-prozess",
-              "label": "reflektierter Umgang mit dem eigenen kreativen Prozess"
+              "label": "reflektierter Umgang mit dem eigenen kreativen Prozess",
+              "description": ""
             },
             {
               "id": "angemessene-komplexitat-des-projekts",
-              "label": "angemessene Komplexität des Projekts"
+              "label": "angemessene Komplexität des Projekts",
+              "description": ""
             },
             {
               "id": "ausdrucksstarke-musikalische-gestaltung",
-              "label": "ausdrucksstarke musikalische Gestaltung"
+              "label": "ausdrucksstarke musikalische Gestaltung",
+              "description": ""
             },
             {
               "id": "klare-und-nachvollziehbare-verbindung-zwischen-text-und-musik",
-              "label": "klare und nachvollziehbare Verbindung zwischen Text und Musik"
+              "label": "klare und nachvollziehbare Verbindung zwischen Text und Musik",
+              "description": ""
             }
           ]
         }
@@ -618,19 +743,23 @@
           "criteria": [
             {
               "id": "sinnvoller-einsatz-filmischer-mittel-in-produktion-und-nachbearbeitung-e",
-              "label": "sinnvoller Einsatz filmischer Mittel in Produktion und Nachbearbeitung (Einstellungen, Kameraperspektiven, Schnitt/Montage, Ton)"
+              "label": "sinnvoller Einsatz filmischer Mittel in Produktion und Nachbearbeitung (Einstellungen, Kameraperspektiven, Schnitt/Montage, Ton)",
+              "description": ""
             },
             {
               "id": "kreative-umsetzung",
-              "label": "kreative Umsetzung"
+              "label": "kreative Umsetzung",
+              "description": ""
             },
             {
               "id": "angemessenes-verhaltnis-und-zusammenspiel-auf-inhaltlicher-und-filmische",
-              "label": "angemessenes Verhältnis und Zusammenspiel auf inhaltlicher und filmischer Ebene"
+              "label": "angemessenes Verhältnis und Zusammenspiel auf inhaltlicher und filmischer Ebene",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-erkennbare-umsetzung-der-wirkungsabsicht",
-              "label": "nachvollziehbare/erkennbare Umsetzung der Wirkungsabsicht"
+              "label": "nachvollziehbare/erkennbare Umsetzung der Wirkungsabsicht",
+              "description": ""
             }
           ]
         },
@@ -640,35 +769,43 @@
           "criteria": [
             {
               "id": "uberzeugende-qualitat-der-aufnahmen-z-b-stabilitat",
-              "label": "überzeugende Qualität der Aufnahmen (z. B. Stabilität)"
+              "label": "überzeugende Qualität der Aufnahmen (z. B. Stabilität)",
+              "description": ""
             },
             {
               "id": "korrekte-nutzung-der-kamerafunktionen",
-              "label": "korrekte Nutzung der Kamerafunktionen"
+              "label": "korrekte Nutzung der Kamerafunktionen",
+              "description": ""
             },
             {
               "id": "passgenaue-auswahl-der-zeitlupen-oder-zeitrafferfunktion-fur-den-jeweili",
-              "label": "passgenaue Auswahl der Zeitlupen- oder Zeitrafferfunktion für den jeweiligen Vorgang"
+              "label": "passgenaue Auswahl der Zeitlupen- oder Zeitrafferfunktion für den jeweiligen Vorgang",
+              "description": ""
             },
             {
               "id": "angemessene-tiefe-der-analyse",
-              "label": "angemessene Tiefe der Analyse"
+              "label": "angemessene Tiefe der Analyse",
+              "description": ""
             },
             {
               "id": "prazise-analyse",
-              "label": "präzise Analyse"
+              "label": "präzise Analyse",
+              "description": ""
             },
             {
               "id": "nachvollziehbarkeit-der-beschriebenen-beobachtungen",
-              "label": "Nachvollziehbarkeit der beschriebenen Beobachtungen"
+              "label": "Nachvollziehbarkeit der beschriebenen Beobachtungen",
+              "description": ""
             },
             {
               "id": "innovative-und-anschauliche-prasentation-der-ergebnisse",
-              "label": "innovative und anschauliche Präsentation der Ergebnisse"
+              "label": "innovative und anschauliche Präsentation der Ergebnisse",
+              "description": ""
             },
             {
               "id": "adressatenangemessene-visuelle-und-didaktische-aufbereitung-z-b-diagramm",
-              "label": "adressatenangemessene visuelle und didaktische Aufbereitung (z. B. Diagramme, Standbilder, Vergleiche)"
+              "label": "adressatenangemessene visuelle und didaktische Aufbereitung (z. B. Diagramme, Standbilder, Vergleiche)",
+              "description": ""
             }
           ]
         },
@@ -678,19 +815,23 @@
           "criteria": [
             {
               "id": "logischer-aufbau",
-              "label": "logischer Aufbau"
+              "label": "logischer Aufbau",
+              "description": ""
             },
             {
               "id": "zusammenhangende-struktur",
-              "label": "zusammenhängende Struktur"
+              "label": "zusammenhängende Struktur",
+              "description": ""
             },
             {
               "id": "sinnhafte-gestaltung",
-              "label": "sinnhafte Gestaltung"
+              "label": "sinnhafte Gestaltung",
+              "description": ""
             },
             {
               "id": "angemessene-und-ubersichtliche-bearbeitung",
-              "label": "angemessene und übersichtliche Bearbeitung"
+              "label": "angemessene und übersichtliche Bearbeitung",
+              "description": ""
             }
           ]
         }
@@ -706,27 +847,33 @@
           "criteria": [
             {
               "id": "klare-und-nachvollziehbare-fragestellung",
-              "label": "klare und nachvollziehbare Fragestellung"
+              "label": "klare und nachvollziehbare Fragestellung",
+              "description": ""
             },
             {
               "id": "zeitokonomische-planung",
-              "label": "zeitökonomische Planung"
+              "label": "zeitökonomische Planung",
+              "description": ""
             },
             {
               "id": "wissenschaftliche-methodik",
-              "label": "wissenschaftliche Methodik"
+              "label": "wissenschaftliche Methodik",
+              "description": ""
             },
             {
               "id": "sorgfaltige-und-genaue-datenerfassung",
-              "label": "sorgfältige und genaue Datenerfassung"
+              "label": "sorgfältige und genaue Datenerfassung",
+              "description": ""
             },
             {
               "id": "fundierte-datenanalyse",
-              "label": "fundierte Datenanalyse"
+              "label": "fundierte Datenanalyse",
+              "description": ""
             },
             {
               "id": "gewissenhafte-dateninterpretation",
-              "label": "gewissenhafte Dateninterpretation"
+              "label": "gewissenhafte Dateninterpretation",
+              "description": ""
             }
           ]
         },
@@ -736,23 +883,28 @@
           "criteria": [
             {
               "id": "angemessene-inhaltliche-tiefe",
-              "label": "angemessene inhaltliche Tiefe"
+              "label": "angemessene inhaltliche Tiefe",
+              "description": ""
             },
             {
               "id": "sinnhafte-struktur-und-ordnung",
-              "label": "sinnhafte Struktur und Ordnung"
+              "label": "sinnhafte Struktur und Ordnung",
+              "description": ""
             },
             {
               "id": "sorgfaltige-dokumentation",
-              "label": "sorgfältige Dokumentation"
+              "label": "sorgfältige Dokumentation",
+              "description": ""
             },
             {
               "id": "ansprechende-gestaltung",
-              "label": "ansprechende Gestaltung"
+              "label": "ansprechende Gestaltung",
+              "description": ""
             },
             {
               "id": "eigenstandigkeit-und-kreativitat-individuelle-formulierungen-themenspezi",
-              "label": "Eigenständigkeit und Kreativität (individuelle Formulierungen, themenspezifische Auswahl)"
+              "label": "Eigenständigkeit und Kreativität (individuelle Formulierungen, themenspezifische Auswahl)",
+              "description": ""
             }
           ]
         },
@@ -762,23 +914,28 @@
           "criteria": [
             {
               "id": "sorgfaltige-dokumentation",
-              "label": "sorgfältige Dokumentation"
+              "label": "sorgfältige Dokumentation",
+              "description": ""
             },
             {
               "id": "sinnhafte-struktur-ordnung-und-nachvollziehbarkeit",
-              "label": "sinnhafte Struktur, Ordnung und Nachvollziehbarkeit"
+              "label": "sinnhafte Struktur, Ordnung und Nachvollziehbarkeit",
+              "description": ""
             },
             {
               "id": "fachliche-klarheit-und-angemessener-einsatz-von-fachbegriffen",
-              "label": "fachliche Klarheit und angemessener Einsatz von Fachbegriffen"
+              "label": "fachliche Klarheit und angemessener Einsatz von Fachbegriffen",
+              "description": ""
             },
             {
               "id": "kreative-problemlosekompetenz",
-              "label": "kreative Problemlösekompetenz"
+              "label": "kreative Problemlösekompetenz",
+              "description": ""
             },
             {
               "id": "wissenschaftliche-sprache-und-ausdrucksweise",
-              "label": "wissenschaftliche Sprache und Ausdrucksweise"
+              "label": "wissenschaftliche Sprache und Ausdrucksweise",
+              "description": ""
             }
           ]
         },
@@ -788,23 +945,28 @@
           "criteria": [
             {
               "id": "angemessene-funktionalitat",
-              "label": "angemessene Funktionalität"
+              "label": "angemessene Funktionalität",
+              "description": ""
             },
             {
               "id": "kreative-problemlosekompetenz",
-              "label": "kreative Problemlösekompetenz"
+              "label": "kreative Problemlösekompetenz",
+              "description": ""
             },
             {
               "id": "sorgfaltige-umsetzung",
-              "label": "sorgfältige Umsetzung"
+              "label": "sorgfältige Umsetzung",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-darstellung-des-arbeitsprozesses-z-b-fotos-videos-arbei",
-              "label": "nachvollziehbare Darstellung des Arbeitsprozesses (z. B. Fotos, Videos, Arbeitsprotokolle)"
+              "label": "nachvollziehbare Darstellung des Arbeitsprozesses (z. B. Fotos, Videos, Arbeitsprotokolle)",
+              "description": ""
             },
             {
               "id": "kombination-aus-produktbewertung-gestalterische-qualitat-angemessene-ums",
-              "label": "Kombination aus Produktbewertung (gestalterische Qualität, angemessene Umsetzung der Anleitung, vorgenommene Verbesserungen) und Reflexion (Darstellung der Lerneffekte, sinnvolle Problemlösungsstrategien)"
+              "label": "Kombination aus Produktbewertung (gestalterische Qualität, angemessene Umsetzung der Anleitung, vorgenommene Verbesserungen) und Reflexion (Darstellung der Lerneffekte, sinnvolle Problemlösungsstrategien)",
+              "description": ""
             }
           ]
         }
@@ -820,15 +982,18 @@
           "criteria": [
             {
               "id": "kreative-gestaltung-und-einbindung-passender-visueller-elemente",
-              "label": "kreative Gestaltung und Einbindung passender visueller Elemente"
+              "label": "kreative Gestaltung und Einbindung passender visueller Elemente",
+              "description": ""
             },
             {
               "id": "multimediale-umsetzung-und-korrekte-technische-einbindung-von-medien",
-              "label": "multimediale Umsetzung und korrekte technische Einbindung von Medien"
+              "label": "multimediale Umsetzung und korrekte technische Einbindung von Medien",
+              "description": ""
             },
             {
               "id": "zielgruppenorientierte-gestalterische-umsetzung",
-              "label": "zielgruppenorientierte gestalterische Umsetzung"
+              "label": "zielgruppenorientierte gestalterische Umsetzung",
+              "description": ""
             }
           ]
         },
@@ -838,19 +1003,23 @@
           "criteria": [
             {
               "id": "sinnhafter-und-abwechslungsreicher-einsatz-medialer-elemente",
-              "label": "sinnhafter und abwechslungsreicher Einsatz medialer Elemente"
+              "label": "sinnhafter und abwechslungsreicher Einsatz medialer Elemente",
+              "description": ""
             },
             {
               "id": "adressaten-und-formatangemessene-inhaltliche-aufbereitung-des-themas",
-              "label": "adressaten- und formatangemessene inhaltliche Aufbereitung des Themas"
+              "label": "adressaten- und formatangemessene inhaltliche Aufbereitung des Themas",
+              "description": ""
             },
             {
               "id": "sinnvolle-reduktion-der-inhalte-und-quellen",
-              "label": "sinnvolle Reduktion der Inhalte und Quellen"
+              "label": "sinnvolle Reduktion der Inhalte und Quellen",
+              "description": ""
             },
             {
               "id": "kenntlichmachung-der-zustandigkeiten-bei-gruppenarbeit",
-              "label": "Kenntlichmachung der Zuständigkeiten bei Gruppenarbeit"
+              "label": "Kenntlichmachung der Zuständigkeiten bei Gruppenarbeit",
+              "description": ""
             }
           ]
         },
@@ -860,15 +1029,18 @@
           "criteria": [
             {
               "id": "passende-vernetzung-der-inhalte",
-              "label": "passende Vernetzung der Inhalte"
+              "label": "passende Vernetzung der Inhalte",
+              "description": ""
             },
             {
               "id": "klare-strukturierung",
-              "label": "klare Strukturierung"
+              "label": "klare Strukturierung",
+              "description": ""
             },
             {
               "id": "sinnvoller-einsatz-von-medien",
-              "label": "sinnvoller Einsatz von Medien"
+              "label": "sinnvoller Einsatz von Medien",
+              "description": ""
             }
           ]
         },
@@ -878,19 +1050,23 @@
           "criteria": [
             {
               "id": "passende-vernetzung-der-inhalte",
-              "label": "passende Vernetzung der Inhalte"
+              "label": "passende Vernetzung der Inhalte",
+              "description": ""
             },
             {
               "id": "nachvollziehbares-storytelling",
-              "label": "nachvollziehbares Storytelling"
+              "label": "nachvollziehbares Storytelling",
+              "description": ""
             },
             {
               "id": "zuverlassige-funktionalitat-des-programms",
-              "label": "zuverlässige Funktionalität des Programms"
+              "label": "zuverlässige Funktionalität des Programms",
+              "description": ""
             },
             {
               "id": "niveauangemessene-komplexitat-der-verwendeten-codeblocke-z-b-schleifen-b",
-              "label": "niveauangemessene Komplexität der verwendeten Codeblöcke (z. B. Schleifen, Bedingungen, Interaktivität)"
+              "label": "niveauangemessene Komplexität der verwendeten Codeblöcke (z. B. Schleifen, Bedingungen, Interaktivität)",
+              "description": ""
             }
           ]
         },
@@ -900,19 +1076,23 @@
           "criteria": [
             {
               "id": "angemessene-recherche",
-              "label": "angemessene Recherche"
+              "label": "angemessene Recherche",
+              "description": ""
             },
             {
               "id": "passende-vernetzung-der-inhalte",
-              "label": "passende Vernetzung der Inhalte"
+              "label": "passende Vernetzung der Inhalte",
+              "description": ""
             },
             {
               "id": "funktionaler-aufbau-des-rundgangs",
-              "label": "funktionaler Aufbau des Rundgangs"
+              "label": "funktionaler Aufbau des Rundgangs",
+              "description": ""
             },
             {
               "id": "kreative-einbindung-eigener-multimedialer-elemente",
-              "label": "kreative Einbindung (eigener) multimedialer Elemente"
+              "label": "kreative Einbindung (eigener) multimedialer Elemente",
+              "description": ""
             }
           ]
         },
@@ -922,19 +1102,23 @@
           "criteria": [
             {
               "id": "klare-strukturierung-der-szenen",
-              "label": "klare Strukturierung der Szenen"
+              "label": "klare Strukturierung der Szenen",
+              "description": ""
             },
             {
               "id": "uberzeugende-schauspielerische-leistung",
-              "label": "überzeugende schauspielerische Leistung"
+              "label": "überzeugende schauspielerische Leistung",
+              "description": ""
             },
             {
               "id": "wirkungsvoller-einsatz-von-kostumen-requisiten-buhnenbild-licht-und-musi",
-              "label": "wirkungsvoller Einsatz von Kostümen, Requisiten, Bühnenbild, Licht und Musik"
+              "label": "wirkungsvoller Einsatz von Kostümen, Requisiten, Bühnenbild, Licht und Musik",
+              "description": ""
             },
             {
               "id": "sinnvolle-raumnutzung",
-              "label": "sinnvolle Raumnutzung"
+              "label": "sinnvolle Raumnutzung",
+              "description": ""
             }
           ]
         },
@@ -944,7 +1128,8 @@
           "criteria": [
             {
               "id": "empfehlung-zum-verzicht-auf-eine-formale-prozessdokumentation-zugunsten",
-              "label": "Empfehlung zum Verzicht auf eine formale Prozessdokumentation zugunsten des kreativen und spontanen Arbeitsprozesses. (Die inhaltlichen Kriterien werden je nach konkreter Aufgabenstellung flexibel über das Schieberegler-Modell definiert)."
+              "label": "Empfehlung zum Verzicht auf eine formale Prozessdokumentation zugunsten des kreativen und spontanen Arbeitsprozesses. (Die inhaltlichen Kriterien werden je nach konkreter Aufgabenstellung flexibel über das Schieberegler-Modell definiert).",
+              "description": ""
             }
           ]
         },
@@ -954,23 +1139,28 @@
           "criteria": [
             {
               "id": "uberzeugende-sachkenntnis",
-              "label": "überzeugende Sachkenntnis"
+              "label": "überzeugende Sachkenntnis",
+              "description": ""
             },
             {
               "id": "klares-ausdrucksvermogen",
-              "label": "klares Ausdrucksvermögen"
+              "label": "klares Ausdrucksvermögen",
+              "description": ""
             },
             {
               "id": "angemessene-gesprachsfahigkeit",
-              "label": "angemessene Gesprächsfähigkeit"
+              "label": "angemessene Gesprächsfähigkeit",
+              "description": ""
             },
             {
               "id": "hinreichende-uberzeugungskraft",
-              "label": "hinreichende Überzeugungskraft"
+              "label": "hinreichende Überzeugungskraft",
+              "description": ""
             },
             {
               "id": "nicht-bewertet-werden-die-reinen-deutschkenntnisse-oder-die-politische-a",
-              "label": "Nicht bewertet werden die reinen Deutschkenntnisse oder die politische Aussage, sondern die Beachtung der Regeln und das Stellen der Auseinandersetzung."
+              "label": "Nicht bewertet werden die reinen Deutschkenntnisse oder die politische Aussage, sondern die Beachtung der Regeln und das Stellen der Auseinandersetzung.",
+              "description": ""
             }
           ]
         },
@@ -980,27 +1170,33 @@
           "criteria": [
             {
               "id": "zielfuhrende-vorbereitung",
-              "label": "zielführende Vorbereitung"
+              "label": "zielführende Vorbereitung",
+              "description": ""
             },
             {
               "id": "sinnvolle-strukturierung",
-              "label": "sinnvolle Strukturierung"
+              "label": "sinnvolle Strukturierung",
+              "description": ""
             },
             {
               "id": "klare-kommunikationsfahigkeit",
-              "label": "klare Kommunikationsfähigkeit"
+              "label": "klare Kommunikationsfähigkeit",
+              "description": ""
             },
             {
               "id": "aktivierender-einbezug-der-teilnehmenden",
-              "label": "aktivierender Einbezug der Teilnehmenden"
+              "label": "aktivierender Einbezug der Teilnehmenden",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-zusammenfassung",
-              "label": "nachvollziehbare Zusammenfassung"
+              "label": "nachvollziehbare Zusammenfassung",
+              "description": ""
             },
             {
               "id": "gelungenes-zeitmanagement",
-              "label": "gelungenes Zeitmanagement"
+              "label": "gelungenes Zeitmanagement",
+              "description": ""
             }
           ]
         },
@@ -1010,39 +1206,48 @@
           "criteria": [
             {
               "id": "klare-themenabgrenzung-und-umsetzung",
-              "label": "klare Themenabgrenzung und -umsetzung"
+              "label": "klare Themenabgrenzung und -umsetzung",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-zweckerfullung",
-              "label": "nachvollziehbare Zweckerfüllung"
+              "label": "nachvollziehbare Zweckerfüllung",
+              "description": ""
             },
             {
               "id": "stabile-und-saubere-bauweise",
-              "label": "stabile und saubere Bauweise"
+              "label": "stabile und saubere Bauweise",
+              "description": ""
             },
             {
               "id": "hohe-detailsorgfalt",
-              "label": "hohe Detailsorgfalt"
+              "label": "hohe Detailsorgfalt",
+              "description": ""
             },
             {
               "id": "angemessene-materialauswahl",
-              "label": "angemessene Materialauswahl"
+              "label": "angemessene Materialauswahl",
+              "description": ""
             },
             {
               "id": "kreative-umsetzung",
-              "label": "kreative Umsetzung"
+              "label": "kreative Umsetzung",
+              "description": ""
             },
             {
               "id": "losungsorientierter-umgang-mit-herausforderungen",
-              "label": "lösungsorientierter Umgang mit Herausforderungen"
+              "label": "lösungsorientierter Umgang mit Herausforderungen",
+              "description": ""
             },
             {
               "id": "hohe-eigenstandigkeit",
-              "label": "hohe Eigenständigkeit"
+              "label": "hohe Eigenständigkeit",
+              "description": ""
             },
             {
               "id": "nutzen-von-skizzen-bauplanen-zur-transparenz-der-planung",
-              "label": "Nutzen von Skizzen/Bauplänen zur Transparenz der Planung"
+              "label": "Nutzen von Skizzen/Bauplänen zur Transparenz der Planung",
+              "description": ""
             }
           ]
         },
@@ -1052,27 +1257,33 @@
           "criteria": [
             {
               "id": "authentische-verkorperung",
-              "label": "authentische Verkörperung"
+              "label": "authentische Verkörperung",
+              "description": ""
             },
             {
               "id": "effektive-kommunikation",
-              "label": "effektive Kommunikation"
+              "label": "effektive Kommunikation",
+              "description": ""
             },
             {
               "id": "umfangreiche-analyse-des-simulierten-prozesses",
-              "label": "umfangreiche Analyse des simulierten Prozesses"
+              "label": "umfangreiche Analyse des simulierten Prozesses",
+              "description": ""
             },
             {
               "id": "nachvollziehbare-und-fundierte-entscheidungen",
-              "label": "nachvollziehbare und fundierte Entscheidungen"
+              "label": "nachvollziehbare und fundierte Entscheidungen",
+              "description": ""
             },
             {
               "id": "berucksichtigung-der-reflexion-zu-erfahrungen-wahrend-der-simulation",
-              "label": "Berücksichtigung der Reflexion zu Erfahrungen während der Simulation"
+              "label": "Berücksichtigung der Reflexion zu Erfahrungen während der Simulation",
+              "description": ""
             },
             {
               "id": "ableitung-von-erkenntnissen-aus-dem-rollenspiel-fur-die-reale-situation",
-              "label": "Ableitung von Erkenntnissen aus dem Rollenspiel für die reale Situation"
+              "label": "Ableitung von Erkenntnissen aus dem Rollenspiel für die reale Situation",
+              "description": ""
             }
           ]
         }

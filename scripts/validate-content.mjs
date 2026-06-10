@@ -43,6 +43,9 @@ function validateItems(items, file, location, itemIds) {
     requireObject(item, file, itemLocation);
     const itemId = requireString(item.id, file, `${itemLocation}.id`);
     requireString(item.label, file, `${itemLocation}.label`);
+    if (item.description !== undefined && typeof item.description !== 'string') {
+      fail(file, `${itemLocation}.description muss ein Text sein.`);
+    }
     assertUnique(itemIds, itemId, file, itemLocation);
   });
 }
@@ -155,6 +158,9 @@ function validateProductFormats(data, baseCategoryIds) {
         requireObject(criterion, file, criterionLocation);
         const criterionId = requireString(criterion.id, file, `${criterionLocation}.id`);
         requireString(criterion.label, file, `${criterionLocation}.label`);
+        if (criterion.description !== undefined && typeof criterion.description !== 'string') {
+          fail(file, `${criterionLocation}.description muss ein Text sein.`);
+        }
         assertUnique(criterionIds, criterionId, file, criterionLocation);
       });
     });

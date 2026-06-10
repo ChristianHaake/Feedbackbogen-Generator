@@ -23,6 +23,43 @@
     ]
   },
   {
+    "id": "sprachgebrauch",
+    "title": "Sprachgebrauch",
+    "description": "Kriterien zur Bewertung der sprachlichen Gestaltung und Wirkung.",
+    "items": [
+      {
+        "id": "sprachliche-richtigkeit",
+        "label": "Sprachliche Richtigkeit",
+        "description": "Grammatik, Rechtschreibung und Zeichensetzung"
+      },
+      {
+        "id": "ausdrucksfaehigkeit",
+        "label": "Ausdrucksfähigkeit",
+        "description": "Präzision der Wortwahl, Anschaulichkeit und Lebendigkeit der Sprache sowie Vermeidung von Wiederholungen"
+      },
+      {
+        "id": "stilistische-angemessenheit",
+        "label": "Stilistische Angemessenheit",
+        "description": "Anpassung an Adressaten und Situation, passender Sprachstil (sachlich, argumentativ, kreativ usw.) sowie Einheitlichkeit des Stils"
+      },
+      {
+        "id": "kohaerenz-und-kohaesion",
+        "label": "Kohärenz und Kohäsion",
+        "description": "Logischer Aufbau der Gedanken, sinnvolle Verknüpfung von Sätzen und Abschnitten sowie Verwendung von Übergängen und Konnektoren"
+      },
+      {
+        "id": "kommunikative-wirksamkeit",
+        "label": "Kommunikative Wirksamkeit",
+        "description": "Verständlichkeit, Klarheit der Aussagen sowie Überzeugungskraft beziehungsweise Wirkung auf die Lesenden"
+      },
+      {
+        "id": "sprachliche-vielfalt",
+        "label": "Sprachliche Vielfalt",
+        "description": "Abwechslungsreiche Satzanfänge, unterschiedliche Satzarten und Satzlängen sowie variabler Wortschatz"
+      }
+    ]
+  },
+  {
     "id": "praesentation",
     "title": "Präsentation",
     "description": "Parameter für Bewertung der Präsentation.",

@@ -63,6 +63,7 @@ export function validateProductFormats(value: unknown): value is ProductFormatDa
       const criterionIds = new Set<string>();
       for (const criterion of format.criteria) {
         if (typeof criterion.id !== 'string' || typeof criterion.label !== 'string') return false;
+        if (criterion.description !== undefined && typeof criterion.description !== 'string') return false;
         if (criterionIds.has(criterion.id)) return false;
         criterionIds.add(criterion.id);
       }

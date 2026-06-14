@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FALLBACK_CATEGORIES, FALLBACK_SCALES, validateCategories, validateScales
 } from '@/content-data';
+import { validateProductFormats } from '@/product-formats';
 
 describe('content data validation', () => {
   it('accepts valid fallback categories and scales', () => {
@@ -13,6 +14,37 @@ describe('content data validation', () => {
   it('rejects invalid category data', () => {
     expect(validateCategories({ categories: [] })).toBe(false);
     expect(validateCategories([{ id: 'a', title: 'A' }])).toBe(false);
+    expect(validateCategories([
+      { id: 'a', title: 'A', items: [{ id: 'x', label: 'X', description: 42 }] }
+    ])).toBe(false);
+  });
+
+  it('accepts empty descriptions', () => {
+    expect(validateCategories([
+      { id: 'a', title: 'A', items: [{ id: 'x', label: 'X', description: '' }] }
+    ])).toBe(true);
+    expect(validateProductFormats({
+      groups: [{
+        id: 'group',
+        title: 'Gruppe',
+        formats: [{
+          id: 'format',
+          title: 'Format',
+          criteria: [{ id: 'criterion', label: 'Kriterium', description: '' }]
+        }]
+      }]
+    })).toBe(true);
+    expect(validateProductFormats({
+      groups: [{
+        id: 'group',
+        title: 'Gruppe',
+        formats: [{
+          id: 'format',
+          title: 'Format',
+          criteria: [{ id: 'criterion', label: 'Kriterium', description: 42 }]
+        }]
+      }]
+    })).toBe(false);
   });
 
   it('rejects duplicate ids', () => {

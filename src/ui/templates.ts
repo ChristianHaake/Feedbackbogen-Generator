@@ -980,6 +980,33 @@ function itemCheckboxRow(
   }
 
   const main = el('div', { class: 'item-main' }, cb, label);
+  const description = item.description?.trim();
+  if (description) {
+    const tooltipId = `item-description-${domSafeId(categoryId)}-${domSafeId(item.id)}`;
+    const descriptionLabel = strings.labels.itemDescription(item.label);
+    const descriptionButton = el('button', {
+      class: 'item-description-button',
+      type: 'button',
+      'aria-label': descriptionLabel,
+      'aria-describedby': tooltipId
+    }, el('span', { 'aria-hidden': 'true', text: 'i' }));
+    const tooltip = el('span', {
+      class: 'item-description-tooltip',
+      id: tooltipId,
+      role: 'tooltip',
+      text: description
+    });
+    const descriptionControl = el(
+      'span',
+      { class: 'item-description-control' },
+      descriptionButton,
+      tooltip
+    );
+    descriptionButton.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') descriptionButton.blur();
+    });
+    main.append(descriptionControl);
+  }
   row.append(main);
 
   row.append(el('div', { class: 'item-actions' }));

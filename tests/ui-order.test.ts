@@ -12,6 +12,36 @@ const items: SelectedSummary[] = [
 ];
 
 describe('selected order UI', () => {
+  it('renders an accessible item description tooltip only for non-empty descriptions', () => {
+    const handlers = handlerSpies();
+    const container = document.createElement('div');
+    document.body.append(container);
+    const categories: Category[] = [{
+      id: 'a',
+      title: 'Kategorie A',
+      items: [
+        { id: 'with-description', label: 'Mit Beschreibung', description: 'Eine längere Erklärung zum Kriterium.' },
+        { id: 'empty-description', label: 'Leere Beschreibung', description: '   ' },
+        { id: 'without-description', label: 'Ohne Beschreibung' }
+      ]
+    }];
+    const scales: Scale[] = [{ id: 'percent', label: 'Prozent', kind: 'percent' }];
+
+    renderCategories(container, categories, [], new Set(), scales, {}, {}, 'percent', {}, handlers);
+
+    const button = container.querySelector<HTMLButtonElement>('.item-description-button');
+    const tooltip = container.querySelector<HTMLElement>('.item-description-tooltip');
+    expect(container.querySelectorAll('.item-description-button')).toHaveLength(1);
+    expect(button?.getAttribute('aria-label')).toBe('Beschreibung zu Mit Beschreibung');
+    expect(button?.getAttribute('aria-describedby')).toBe(tooltip?.id);
+    expect(tooltip?.getAttribute('role')).toBe('tooltip');
+    expect(tooltip?.textContent).toBe('Eine längere Erklärung zum Kriterium.');
+
+    button?.focus();
+    expect(document.activeElement).toBe(button);
+    container.remove();
+  });
+
   it('moves categories through the drag-and-drop handler', () => {
     const handlers = handlerSpies();
     const container = document.createElement('div');

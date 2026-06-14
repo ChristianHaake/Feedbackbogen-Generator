@@ -98,6 +98,14 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const onboardingHint = el('aside', { id: 'onboarding-hint', class: 'onboarding-hint', 'aria-label': strings.onboarding.intro, hidden: 'true' },
+    el('span', { class: 'onboarding-hint__intro', text: strings.onboarding.intro }),
+    el('ol', { class: 'onboarding-hint__steps' },
+      ...strings.onboarding.steps.map((step) => el('li', { text: step }))
+    ),
+    el('button', { id: 'onboarding-dismiss', class: 'onboarding-hint__dismiss', type: 'button', 'aria-label': strings.onboarding.dismiss, title: strings.onboarding.dismiss, text: '✕' })
+  );
+
   const workspace = el('div', { class: 'workspace' },
     el('nav', { class: 'mobile-tabs', role: 'tablist', 'aria-label': 'Arbeitsbereich' },
       mobileTab('edit', strings.labels.mobileEdit, true),
@@ -1104,7 +1112,8 @@ export function renderPreview(
   documentTitle: DocumentTitleConfig,
   header: HeaderData,
   footerFields: FooterFields,
-  mode: PrintMode
+  mode: PrintMode,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
 ) {
   container.innerHTML = '';
 
@@ -1116,7 +1125,7 @@ export function renderPreview(
   if (rows.length === 0) {
     container.append(el('p', { class: 'a4-empty', text: strings.labels.previewEmpty }));
   } else {
-    container.append(renderA4Body(rows, mode));
+    container.append(renderA4Body(rows, mode, onRemoveItem));
   }
 
   container.append(renderA4Feedback());
@@ -1140,7 +1149,11 @@ function renderA4Header(header: HeaderData): HTMLElement {
   return wrap;
 }
 
-function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
+function renderA4Body(
+  rows: ExportRow[],
+  mode: PrintMode,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
   const wrap = el('div', { class: 'a4-body' });
 
   // Group rows by categoryId, preserve category order from first appearance
@@ -1155,7 +1168,7 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
     section.append(el('h2', { class: 'a4-cat-heading', text: title }));
     if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
     const list = el('ol', { class: 'a4-items' });
-    items.forEach((r) => list.append(renderA4Item(r, mode, scale)));
+    items.forEach((r) => list.append(renderA4Item(r, mode, scale, onRemoveItem)));
     section.append(list);
     wrap.append(section);
   });
@@ -1163,26 +1176,46 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   return wrap;
 }
 
-function renderA4Item(row: ExportRow, mode: PrintMode, scale: Scale | null): HTMLElement {
+function a4RemoveButton(row: ExportRow, onRemoveItem: (categoryId: string, itemId: string) => void): HTMLButtonElement {
+  const btn = el('button', {
+    class: 'a4-item-remove',
+    type: 'button',
+    'aria-label': strings.labels.removeFromPreview(row.item),
+    title: strings.labels.removeFromPreview(row.item)
+  }) as HTMLButtonElement;
+  btn.append(icon('icon-trash'));
+  btn.addEventListener('click', () => onRemoveItem(row.categoryId, row.itemId!));
+  return btn;
+}
+
+function renderA4Item(
+  row: ExportRow,
+  mode: PrintMode,
+  scale: Scale | null,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
   const itemClasses = ['a4-item'];
   if (mode === 'checklist') itemClasses.push('a4-item-checklist');
   if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
 
   const li = el('li', { class: itemClasses.join(' ') });
+  const canRemove = Boolean(onRemoveItem && row.itemId);
+  if (canRemove) li.classList.add('a4-item-removable');
   const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {
     li.append(el('span', { class: 'a4-cbox', text: '☐' }));
     li.append(label);
-    return li;
+  } else {
+    li.append(label);
+    if (scale) {
+      li.append(renderScaleBoxes(scale));
+    } else {
+      li.append(el('div', { class: 'a4-scale-line' }));
+    }
   }
 
-  li.append(label);
-  if (scale) {
-    li.append(renderScaleBoxes(scale));
-  } else {
-    li.append(el('div', { class: 'a4-scale-line' }));
-  }
+  if (canRemove) li.append(a4RemoveButton(row, onRemoveItem!));
   return li;
 }
 

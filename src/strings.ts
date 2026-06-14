@@ -61,6 +61,7 @@ export const strings = {
   },
   labels: {
     remove: 'Entfernen',
+    removeFromPreview: (item: string) => `${item} aus der Auswahl entfernen`,
     itemDescription: (item: string) => `Beschreibung zu ${item}`,
     scale: 'Skala',
     scaleMin: 'Minimum',
@@ -141,6 +142,11 @@ export const strings = {
     headerFieldReordered: 'Kopffeld wurde verschoben.',
     productFormatAdded: 'Produktformat hinzugefügt.',
     productFormatRemoved: 'Produktformat entfernt.'
+  },
+  onboarding: {
+    intro: 'So funktioniert es:',
+    steps: ['Kopfdaten festlegen', 'Kriterien auswählen', 'Formate ergänzen', 'Exportieren'],
+    dismiss: 'Hinweis ausblenden'
   },
   history: {
     generic: 'Änderung',

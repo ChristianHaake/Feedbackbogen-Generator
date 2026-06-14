@@ -1054,6 +1054,30 @@ body {
 }
 .a4-item:last-child { border-bottom: none; }
 .a4-item:nth-child(even) { background: #fbfbfc; }
+.a4-item-removable { position: relative; }
+.a4-item-remove {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--danger);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.a4-item-remove svg { width: 14px; height: 14px; display: block; }
+.a4-item-removable:hover .a4-item-remove,
+.a4-item-removable:focus-within .a4-item-remove,
+.a4-item-remove:focus-visible {
+  opacity: 1;
+}
+.a4-item-remove:hover { background: var(--danger-soft); border-color: var(--danger); }
 .a4-item-numeric {
   gap: 9pt;
 }
@@ -1290,7 +1314,7 @@ body {
   @page { size: A4; margin: 0; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast { display: none !important; }
+  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
   .workspace { display: block; }
   .preview-pane { background: white; overflow: visible; }
   .preview-pane-inner { padding: 0; }

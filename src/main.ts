@@ -505,7 +505,7 @@ async function bootstrap() {
         if (!selectedKeys.has(selectionKey(c.id, id))) return;
         const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = applyNumericScaleSettings(scaleById(scales, sId), scaleSettingsByCategory[c.id]);
-        out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
+        out.push({ categoryId: c.id, category: c.title, item: label, scale: s, itemId: id });
       });
     });
     return out;
@@ -642,7 +642,7 @@ async function bootstrap() {
 
   function renderA4() {
     autoPersist();
-    renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
+    renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode, handlers.onRemoveSelected);
   }
 
   function isContentRoute(route: AppRoute): route is ContentPageId {

@@ -106,7 +106,7 @@ export function renderLayout(): HTMLElement {
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
       editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
-      editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
       editorSection(strings.columns.selected,
         el('div', { class: 'selected-head' },
           el('div', { id: 'selected-counter', class: 'selected-counter' }),
@@ -114,7 +114,7 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { id: 'selected-list', class: 'selected-list' })
       ),
-      editorSection(strings.columns.categories,
+      editorSectionCounted(strings.columns.categories, 'criteria-count',
         el('div', { class: 'search-wrap' },
           el('label', { for: 'criteria-search', class: 'small-label', text: strings.labels.searchCriteria }),
           el('input', {
@@ -131,11 +131,11 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
-      editorSection(strings.columns.productFormats,
+      editorSectionCounted(strings.columns.productFormats, 'product-format-count',
         el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
         el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
       ),
-      editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
+      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -199,6 +199,16 @@ export function renderLayout(): HTMLElement {
 function editorSection(title: string, ...children: (HTMLElement | null)[]): HTMLElement {
   const section = el('section', { class: 'editor-section' });
   section.append(el('h2', { class: 'editor-section-title', text: title }));
+  children.forEach((c) => { if (c) section.append(c); });
+  return section;
+}
+
+function editorSectionCounted(title: string, countId: string, ...children: (HTMLElement | null)[]): HTMLElement {
+  const section = el('section', { class: 'editor-section' });
+  section.append(el('h2', { class: 'editor-section-title' },
+    el('span', { class: 'editor-section-title-text', text: title }),
+    el('span', { id: countId, class: 'editor-section-count', hidden: 'true' })
+  ));
   children.forEach((c) => { if (c) section.append(c); });
   return section;
 }

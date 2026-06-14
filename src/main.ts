@@ -99,6 +99,10 @@ async function bootstrap() {
   const productFormatModalEl = requireById('product-format-modal-root');
   const resetConfirmModalEl = requireById('reset-confirm-modal-root');
   const counterEl = requireById('selected-counter');
+  const criteriaCountEl = requireById('criteria-count');
+  const productFormatCountEl = requireById('product-format-count');
+  const headerFieldCountEl = requireById('header-field-count');
+  const footerFieldCountEl = requireById('footer-field-count');
   const selectedListEl = requireById('selected-list');
   const documentTitleEl = requireById('document-title-form');
   const kopfdatenEl = requireById('kopfdaten-form');
@@ -468,6 +472,11 @@ async function bootstrap() {
     }
   }
 
+  function setSectionCount(element: HTMLElement, count: number, label: (n: number) => string) {
+    element.textContent = label(count);
+    element.hidden = count === 0;
+  }
+
   function cssEscape(value: string): string {
     return CSS.escape(value);
   }
@@ -568,6 +577,10 @@ async function bootstrap() {
     renderFooterFields(footerFieldsEl, footerFields, handlers);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
+    setSectionCount(criteriaCountEl, selected.length, strings.labels.sectionCountSelected);
+    setSectionCount(productFormatCountEl, selectedProductFormats.length, strings.labels.sectionCountFormats);
+    setSectionCount(headerFieldCountEl, header.fields.length, strings.labels.sectionCountFields);
+    setSectionCount(footerFieldCountEl, Object.values(footerFields).filter(Boolean).length, strings.labels.sectionCountActive);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
     renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
     const currentProductCategories = productCategories();

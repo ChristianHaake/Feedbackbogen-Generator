@@ -99,7 +99,11 @@ export const strings = {
     mobileEdit: 'Bearbeiten',
     mobilePreview: 'Vorschau',
     mobileExport: 'Export',
-    selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`
+    selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`,
+    sectionCountSelected: (n: number) => `${n} ausgewählt`,
+    sectionCountFormats: (n: number) => `${n} ${n === 1 ? 'Format' : 'Formate'}`,
+    sectionCountFields: (n: number) => `${n} ${n === 1 ? 'Feld' : 'Felder'}`,
+    sectionCountActive: (n: number) => `${n} aktiv`
   },
   a11y: {
     status: 'Statusmeldungen',

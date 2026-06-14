@@ -94,7 +94,7 @@ async function bootstrap() {
   const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
   const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
   const clearSelectionEl = document.getElementById('clear-selection') as HTMLButtonElement;
-  const toolbarActionsEl = document.querySelector('.toolbar .actions') as HTMLElement;
+  const toolbarActionsEl = document.querySelector('.action-bar') as HTMLElement;
   const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
   const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
   const configMessageEl = document.getElementById('config-message')!;

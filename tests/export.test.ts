@@ -1,8 +1,10 @@
 import JSZip from 'jszip';
+import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 
 import { createDOCXBlob } from '@/export/export-docx';
 import { createODTBlob } from '@/export/export-odt';
+import { createFillablePDFBlob } from '@/export/export-pdf-fillable';
 import { createXLSXBlob } from '@/export/export-xlsx';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
@@ -38,7 +40,7 @@ describe('document exports', () => {
     expect(sharedStringsXml).toContain('Kategorie');
     expect(sharedStringsXml).toContain('Inhalt vollständig');
     expect(sharedStringsXml).toContain('1 | 2 | 3');
-    expect(stylesXml).toContain('FF1E88E5');
+    expect(stylesXml).toContain('FF245DCC');
   });
 
   it('creates a DOCX with structured tables, feedback area and footer', async () => {
@@ -53,7 +55,7 @@ describe('document exports', () => {
     expect(documentXml).toContain('Inhalt vollständig');
     expect(documentXml).toContain('Feedback / Anmerkungen');
     expect(documentXml).toContain('Unterschrift: ____________________');
-    expect(footerXml).toContain('Erstellt mit Feedbackbogen-Generator');
+    expect(footerXml).toContain('Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de');
   });
 
   it('creates an editable ODT with structured tables, feedback area and footer', async () => {
@@ -81,7 +83,7 @@ describe('document exports', () => {
     expect(contentXml).toContain('Test &amp; Qualität');
     expect(contentXml).toContain('Feedback / Anmerkungen');
     expect(contentXml).toContain('Unterschrift: ____________________');
-    expect(stylesXml).toContain('Erstellt mit Feedbackbogen-Generator');
+    expect(stylesXml).toContain('Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de');
     expect(manifestXml).toContain(`manifest:media-type="${mimetype}" manifest:full-path="/"`);
     expect(manifestXml).toContain('manifest:full-path="content.xml"');
     expect(manifestXml).toContain('manifest:full-path="styles.xml"');
@@ -102,6 +104,24 @@ describe('document exports', () => {
     expect(checklistContent).toContain('>Erledigt</text:p>');
     expect(checklistContent).not.toContain('>1</text:p>');
     expect(emptyContent).toContain('Noch keine Kriterien ausgewählt');
+  });
+
+  it('creates a fillable PDF with real AcroForm widgets and appearances', async () => {
+    const blob = await createFillablePDFBlob(rows, 'Feedbackbogen', header, footerFields);
+    const bytes = await blob.arrayBuffer();
+    const rawPdf = new TextDecoder().decode(bytes);
+    const pdf = await PDFDocument.load(bytes);
+    const fieldNames = pdf.getForm().getFields().map((field) => field.getName());
+
+    expect(blob.type).toBe('application/pdf');
+    expect(fieldNames.some((name) => name.includes('header_topic'))).toBe(true);
+    expect(fieldNames.some((name) => name.includes('scale_general_1'))).toBe(true);
+    expect(fieldNames.some((name) => name.includes('feedback'))).toBe(true);
+    expect(fieldNames.some((name) => name.includes('footer_signature'))).toBe(true);
+    expect(rawPdf).toContain('/AcroForm');
+    expect(rawPdf).toContain('/Subtype /Widget');
+    expect(rawPdf).toContain('/AP');
+    expect(rawPdf).not.toContain('/ObjStm');
   });
 });
 

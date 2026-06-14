@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite --open",
     "prebuild": "npm run check:content",
@@ -13,12 +16,15 @@
     "lint": "eslint src tests vite.config.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "vitest"
+    "test": "vitest",
+    "verify": "npm run check:content && npm run lint && npm run typecheck && npm test -- --run && npm run build"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "docx": "^8.5.0",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
     "write-excel-file": "^4.0.7"
   },
   "devDependencies": {

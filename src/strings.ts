@@ -1,5 +1,12 @@
 export const strings = {
   appTitle: 'Feedbackbogen-Generator',
+  appTagline: 'Feedbackbögen für zukunftsorientierte Prüfungsformate',
+  localProcessing: 'Lokale Verarbeitung im Browser',
+  localProcessingHint: 'Alle Eingaben bleiben lokal im Browser. Keine Serverübertragung.',
+  previewLive: 'Live',
+  previewLiveNote: 'Lokal im Browser gerendert',
+  footerNote: 'Alle Daten bleiben lokal im Browser. Keine Serverübertragung.',
+  watermark: 'Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de',
   toolbar: {
     saveConfig: 'Config speichern',
     loadConfig: 'Config laden',
@@ -11,7 +18,8 @@ export const strings = {
     resetConfirmAction: 'Jetzt zurücksetzen',
     cancel: 'Abbrechen',
     exportNow: 'Exportieren',
-    exportPdf: 'PDF',
+    exportPdfPrint: 'PDF (Druck)',
+    exportPdfFillable: 'PDF (Formular)',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT'

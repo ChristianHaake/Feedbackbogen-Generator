@@ -11,7 +11,7 @@ import type {
   ProductFormatData
 } from '@/types';
 
-export type ExportFormat = 'pdf' | 'docx' | 'xlsx' | 'odt';
+export type ExportFormat = 'pdf-print' | 'pdf-fillable' | 'docx' | 'xlsx' | 'odt';
 export type MobileView = 'edit' | 'preview' | 'export';
 export type SelectedSummary = {
   itemId: string;
@@ -57,24 +57,39 @@ export function renderLayout(): HTMLElement {
 
   const header = el(
     'header',
-    { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
-    el('div', { class: 'toolbar-inner' },
-      el('div', { class: 'left' },
-        el('img', { src: './icon_Feedbackgenerator.svg', alt: '', width: '24', height: '24' }),
-        el('div', { class: 'title-wrap' },
-          el('strong', { class: 'title', text: strings.appTitle }),
-          el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
-        )
+    { class: 'app-header' },
+    el('div', { class: 'brand' },
+      el('span', { class: 'brand__mark' },
+        el('img', { src: './logo.svg', alt: '', width: '42', height: '42' })
       ),
-      el('div', { class: 'actions' },
+      el('span', { class: 'brand__text' },
+        el('strong', { class: 'brand__title', text: strings.appTitle }),
+        el('small', { class: 'brand__tagline', text: strings.appTagline })
+      )
+    ),
+    el('div', { class: 'header-meta' },
+      el('span', { class: 'local-badge', title: strings.localProcessingHint },
+        el('span', { class: 'local-badge__dot', 'aria-hidden': 'true' }),
+        el('span', { text: strings.localProcessing })
+      )
+    )
+  );
+
+  const actionBar = el(
+    'div',
+    { class: 'action-bar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
+    el('div', { class: 'action-bar-inner' },
+      el('div', { class: 'action-group' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
         toolbarButton('upload', strings.toolbar.loadConfig, 'config-load'),
         toolbarButton('undo', strings.toolbar.undo, 'history-undo', { 'aria-keyshortcuts': 'Control+Z Meta+Z' }),
         toolbarButton('redo', strings.toolbar.redo, 'history-redo', { 'aria-keyshortcuts': 'Control+Shift+Z Meta+Shift+Z' }),
-        toolbarButton('trash', strings.toolbar.reset, 'config-reset'),
-        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
+        toolbarButton('trash', strings.toolbar.reset, 'config-reset')
+      ),
+      el('div', { class: 'action-group' },
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
-          menuAction('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
+          menuAction('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
+          menuAction('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
           menuAction('docx', strings.toolbar.exportDocx, 'icon-doc'),
           menuAction('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
           menuAction('odt', strings.toolbar.exportOdt, 'icon-odt')
@@ -124,6 +139,11 @@ export function renderLayout(): HTMLElement {
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
+        el('div', { class: 'preview-live' },
+          el('span', { class: 'preview-live__dot', 'aria-hidden': 'true' }),
+          el('strong', { class: 'preview-live__label', text: strings.previewLive }),
+          el('span', { class: 'preview-live__note', text: strings.previewLiveNote })
+        ),
         el('div', { class: 'mode-switch', role: 'tablist', 'aria-label': strings.labels.previewMode },
           modeTab('full', strings.modes.full, true),
           modeTab('checklist', strings.modes.checklist, false)
@@ -136,7 +156,8 @@ export function renderLayout(): HTMLElement {
     el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
       editorSection(strings.columns.export,
         el('div', { class: 'mobile-export-actions' },
-          exportButton('pdf', strings.toolbar.exportPdf, 'icon-pdf'),
+          exportButton('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
+          exportButton('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
           exportButton('docx', strings.toolbar.exportDocx, 'icon-doc'),
           exportButton('xlsx', strings.toolbar.exportXlsx, 'icon-xlsx'),
           exportButton('odt', strings.toolbar.exportOdt, 'icon-odt')
@@ -154,11 +175,15 @@ export function renderLayout(): HTMLElement {
 
   const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
   const appFooter = el('footer', { class: 'app-footer' },
-    el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
-      el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
-      el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
-      el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
-      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+    el('span', { class: 'app-footer-note', text: strings.footerNote }),
+    el('div', { class: 'app-footer-links' },
+      el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+        el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
+        el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
+        el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
+        el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+      ),
+      githubLink()
     )
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
@@ -166,7 +191,7 @@ export function renderLayout(): HTMLElement {
   const configMessage = el('div', { id: 'config-message', class: 'config-message', role: 'alert', hidden: 'true' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
+  app.append(header, actionBar, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
   return app;
 }
 
@@ -227,6 +252,35 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   const btn = el('button', { class: 'export-card-button', type: 'button', 'data-export-format': format });
   btn.append(icon(iconId), el('span', { text: label }));
   return btn;
+}
+
+function githubLink(): HTMLAnchorElement {
+  const link = el('a', {
+    class: 'github-link',
+    href: 'https://github.com/ChristianHaake/Feedbackbogen-Generator',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'GitHub Repository',
+    'aria-label': 'GitHub Repository'
+  });
+  link.append(githubIcon(), el('span', { class: 'github-link-label', text: 'GitHub' }));
+  return link;
+}
+
+function githubIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('width', '18');
+  svg.setAttribute('height', '18');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('fill', 'currentColor');
+  path.setAttribute(
+    'd',
+    'M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.2.8-.6v-2.1c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0C17.9 4.8 19 5.1 19 5.1c.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.4 5.9.4.4.8 1.1.8 2.2v3.7c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z'
+  );
+  svg.append(path);
+  return svg;
 }
 
 export function documentTitleText(config: DocumentTitleConfig): string {
@@ -1042,7 +1096,7 @@ export function renderPreview(
 
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
-  container.append(el('div', { class: 'a4-watermark', text: 'Erstellt mit Feedbackbogen-Generator' }));
+  container.append(el('div', { class: 'a4-watermark', text: strings.watermark }));
 }
 
 function renderA4Header(header: HeaderData): HTMLElement {

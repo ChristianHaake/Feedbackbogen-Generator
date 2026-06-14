@@ -191,4 +191,4 @@ Weiterführende Informationen stehen in der Anwendung unter „Über das Projekt
 
 ## Lizenz
 
-MIT, siehe `LICENSE`.
+GPL-3.0-only, siehe `LICENSE`.

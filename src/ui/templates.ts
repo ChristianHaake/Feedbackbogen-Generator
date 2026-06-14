@@ -60,11 +60,16 @@ export function renderLayout(): HTMLElement {
     { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
     el('div', { class: 'toolbar-inner' },
       el('div', { class: 'left' },
-        el('img', { src: './icon_Feedbackgenerator.svg', alt: '', width: '24', height: '24' }),
+        el('img', { src: './logo.svg', alt: 'Feedbackbogen-Generator Logo', width: '28', height: '28' }),
         el('div', { class: 'title-wrap' },
           el('strong', { class: 'title', text: strings.appTitle }),
           el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
-        )
+        ),
+        el('span', {
+          class: 'local-badge',
+          text: 'Lokale Verarbeitung im Browser',
+          title: 'Alle Eingaben bleiben lokal im Browser. Keine Serverübertragung.'
+        })
       ),
       el('div', { class: 'actions' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),

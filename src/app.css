@@ -74,6 +74,42 @@ body {
   font-weight: 650;
 }
 
+/* ─────── Export toast ─────── */
+.app-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 50;
+  max-width: min(420px, calc(100vw - 32px));
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 650;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+.app-toast::before {
+  content: '';
+  width: 10px; height: 10px; border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--text-muted);
+}
+.app-toast--loading::before {
+  background: var(--primary);
+  animation: toast-pulse 1s ease-in-out infinite;
+}
+.app-toast--success { border-color: var(--success-soft); background: var(--success-soft); color: var(--success); }
+.app-toast--success::before { background: var(--success); }
+.app-toast--error { border-color: var(--danger-soft); background: var(--danger-soft); color: var(--danger); }
+.app-toast--error::before { background: var(--danger); }
+@keyframes toast-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
 /* ─────── App header (identity) ─────── */
 .app-header {
   position: relative;
@@ -1239,7 +1275,7 @@ body {
   @page { size: A4; margin: 0; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live { display: none !important; }
+  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast { display: none !important; }
   .workspace { display: block; }
   .preview-pane { background: white; overflow: visible; }
   .preview-pane-inner { padding: 0; }

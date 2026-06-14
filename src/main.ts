@@ -1,4 +1,3 @@
-import '@fontsource-variable/inter/wght.css';
 import './app.css';
 import {
   documentTitleText, renderLayout, renderDocumentTitleForm, renderKopfdaten, renderCategories,
@@ -28,6 +27,20 @@ import type {
   HeaderData, FooterFields, FooterFieldId, PrintMode, Category, AppConfig, NumericScaleSettings
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
+
+/** Look up a required element by id, failing loud (and naming it) instead of a silent null cast. */
+function requireById<T extends HTMLElement = HTMLElement>(id: string): T {
+  const node = document.getElementById(id);
+  if (!node) throw new Error(`Missing required element #${id}`);
+  return node as T;
+}
+
+/** Look up a required element by selector, failing loud (and naming it) instead of a silent null cast. */
+function requireEl<T extends HTMLElement = HTMLElement>(selector: string, root: ParentNode = document): T {
+  const node = root.querySelector<T>(selector);
+  if (!node) throw new Error(`Missing required element matching "${selector}"`);
+  return node;
+}
 
 async function bootstrap() {
   focusVisiblePolyfill();
@@ -78,26 +91,33 @@ async function bootstrap() {
     announce(strings.messages.loaded);
   }
 
-  const categoriesEl = document.getElementById('categories')!;
-  const workspaceEl = document.querySelector('.workspace') as HTMLElement;
-  const contentPageEl = document.getElementById('content-page')!;
-  const productFormatControlsEl = document.getElementById('product-format-controls')!;
-  const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
-  const productFormatModalEl = document.getElementById('product-format-modal-root')!;
-  const resetConfirmModalEl = document.getElementById('reset-confirm-modal-root')!;
-  const counterEl = document.getElementById('selected-counter')!;
-  const selectedListEl = document.getElementById('selected-list')!;
-  const documentTitleEl = document.getElementById('document-title-form')!;
-  const kopfdatenEl = document.getElementById('kopfdaten-form')!;
-  const footerFieldsEl = document.getElementById('footer-fields')!;
-  const a4El = document.getElementById('a4-page')!;
-  const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
-  const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
-  const clearSelectionEl = document.getElementById('clear-selection') as HTMLButtonElement;
-  const toolbarActionsEl = document.querySelector('.toolbar .actions') as HTMLElement;
-  const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
-  const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
-  const configMessageEl = document.getElementById('config-message')!;
+  const categoriesEl = requireById('categories');
+  const workspaceEl = requireEl('.workspace');
+  const contentPageEl = requireById('content-page');
+  const productFormatControlsEl = requireById('product-format-controls');
+  const productFormatCategoriesEl = requireById('product-format-categories');
+  const productFormatModalEl = requireById('product-format-modal-root');
+  const resetConfirmModalEl = requireById('reset-confirm-modal-root');
+  const counterEl = requireById('selected-counter');
+  const criteriaCountEl = requireById('criteria-count');
+  const productFormatCountEl = requireById('product-format-count');
+  const headerFieldCountEl = requireById('header-field-count');
+  const footerFieldCountEl = requireById('footer-field-count');
+  const selectedListEl = requireById('selected-list');
+  const documentTitleEl = requireById('document-title-form');
+  const kopfdatenEl = requireById('kopfdaten-form');
+  const footerFieldsEl = requireById('footer-fields');
+  const a4El = requireById('a4-page');
+  const defaultScaleSelectEl = requireById<HTMLSelectElement>('default-scale');
+  const criteriaSearchEl = requireById<HTMLInputElement>('criteria-search');
+  const clearSelectionEl = requireById<HTMLButtonElement>('clear-selection');
+  const toolbarActionsEl = requireEl('.action-bar');
+  const modeSwitchEl = requireEl('.mode-switch');
+  const mobileTabsEl = requireEl('.mobile-tabs');
+  const configMessageEl = requireById('config-message');
+  const toastEl = requireById('app-toast');
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  let exportInFlight = false;
   const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
   let routeRenderId = 0;
 
@@ -261,7 +281,7 @@ async function bootstrap() {
           fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
         };
       });
-      announce(strings.messages.headerFieldReordered);
+      announce(strings.messages.headerFieldAdded);
     },
     onRemoveHeaderField: (fieldId: string) => {
       commitConfigChange(() => {
@@ -281,7 +301,7 @@ async function bootstrap() {
           fields: order.map((fieldId) => fieldsById.get(fieldId)).filter((field): field is HeaderData['fields'][number] => Boolean(field))
         };
       });
-      announce(strings.messages.headerFieldAdded);
+      announce(strings.messages.headerFieldReordered);
       focusDragHandle(`[data-header-field-id="${cssEscape(draggedFieldId)}"] .header-field-drag-handle`);
     },
     onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => {
@@ -440,6 +460,23 @@ async function bootstrap() {
     }, 8000);
   }
 
+  function showToast(message: string, kind: 'loading' | 'success' | 'error') {
+    if (toastTimer) clearTimeout(toastTimer);
+    toastEl.textContent = message;
+    toastEl.className = `app-toast app-toast--${kind}`;
+    toastEl.hidden = false;
+    if (kind !== 'loading') {
+      toastTimer = setTimeout(() => {
+        toastEl.hidden = true;
+      }, kind === 'error' ? 6000 : 3500);
+    }
+  }
+
+  function setSectionCount(element: HTMLElement, count: number, label: (n: number) => string) {
+    element.textContent = label(count);
+    element.hidden = count === 0;
+  }
+
   function cssEscape(value: string): string {
     return CSS.escape(value);
   }
@@ -540,6 +577,10 @@ async function bootstrap() {
     renderFooterFields(footerFieldsEl, footerFields, handlers);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
+    setSectionCount(criteriaCountEl, selected.length, strings.labels.sectionCountSelected);
+    setSectionCount(productFormatCountEl, selectedProductFormats.length, strings.labels.sectionCountFormats);
+    setSectionCount(headerFieldCountEl, header.fields.length, strings.labels.sectionCountFields);
+    setSectionCount(footerFieldCountEl, Object.values(footerFields).filter(Boolean).length, strings.labels.sectionCountActive);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
     renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
     const currentProductCategories = productCategories();
@@ -706,23 +747,45 @@ async function bootstrap() {
   });
   window.addEventListener('popstate', renderRoute);
 
+  const exportLabels: Record<ExportFormat, string> = {
+    'pdf-print': strings.toolbar.exportPdfPrint,
+    'pdf-fillable': strings.toolbar.exportPdfFillable,
+    docx: strings.toolbar.exportDocx,
+    xlsx: strings.toolbar.exportXlsx,
+    odt: strings.toolbar.exportOdt
+  };
+
   async function exportFormat(fmt: ExportFormat) {
-    announce(strings.messages.exported);
-    if (fmt === 'pdf-print') {
-      const { exportPDF } = await import('./export/export-pdf');
-      exportPDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
-    } else if (fmt === 'pdf-fillable') {
-      const { exportFillablePDF } = await import('./export/export-pdf-fillable');
-      await exportFillablePDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
-    } else if (fmt === 'docx') {
-      const { exportDOCX } = await import('./export/export-docx');
-      exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
-    } else if (fmt === 'xlsx') {
-      const { exportXLSX } = await import('./export/export-xlsx');
-      exportXLSX(buildExportRows());
-    } else if (fmt === 'odt') {
-      const { exportODT } = await import('./export/export-odt');
-      exportODT(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+    if (exportInFlight) return;
+    exportInFlight = true;
+    const label = exportLabels[fmt];
+    showToast(strings.messages.exporting(label), 'loading');
+    announce(strings.messages.exporting(label));
+    try {
+      if (fmt === 'pdf-print') {
+        const { exportPDF } = await import('./export/export-pdf');
+        exportPDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      } else if (fmt === 'pdf-fillable') {
+        const { exportFillablePDF } = await import('./export/export-pdf-fillable');
+        await exportFillablePDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      } else if (fmt === 'docx') {
+        const { exportDOCX } = await import('./export/export-docx');
+        exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      } else if (fmt === 'xlsx') {
+        const { exportXLSX } = await import('./export/export-xlsx');
+        exportXLSX(buildExportRows());
+      } else if (fmt === 'odt') {
+        const { exportODT } = await import('./export/export-odt');
+        exportODT(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      }
+      showToast(strings.messages.exportSuccess(label), 'success');
+      announce(strings.messages.exportSuccess(label));
+    } catch (error) {
+      console.error('Export fehlgeschlagen', error);
+      showToast(strings.messages.exportError(label), 'error');
+      announce(strings.messages.exportError(label));
+    } finally {
+      exportInFlight = false;
     }
   }
 

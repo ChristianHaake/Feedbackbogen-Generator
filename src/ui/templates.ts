@@ -58,7 +58,7 @@ export function renderLayout(): HTMLElement {
   const header = el(
     'header',
     { class: 'app-header' },
-    el('div', { class: 'brand' },
+    el('a', { class: 'brand', href: '/', 'data-app-route': 'generator', 'aria-label': `${strings.appTitle} – Startseite` },
       el('span', { class: 'brand__mark' },
         el('img', { src: './logo.svg', alt: '', width: '42', height: '42' })
       ),
@@ -106,7 +106,7 @@ export function renderLayout(): HTMLElement {
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
       editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
-      editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
       editorSection(strings.columns.selected,
         el('div', { class: 'selected-head' },
           el('div', { id: 'selected-counter', class: 'selected-counter' }),
@@ -114,7 +114,7 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { id: 'selected-list', class: 'selected-list' })
       ),
-      editorSection(strings.columns.categories,
+      editorSectionCounted(strings.columns.categories, 'criteria-count',
         el('div', { class: 'search-wrap' },
           el('label', { for: 'criteria-search', class: 'small-label', text: strings.labels.searchCriteria }),
           el('input', {
@@ -127,15 +127,16 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { class: 'scale-default-wrap' },
           el('label', { for: 'default-scale', class: 'small-label', text: strings.labels.defaultScale }),
-          el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
+          el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale }),
+          el('p', { class: 'scale-hint', text: strings.labels.defaultScaleHint })
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
-      editorSection(strings.columns.productFormats,
+      editorSectionCounted(strings.columns.productFormats, 'product-format-count',
         el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
         el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
       ),
-      editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
+      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -190,14 +191,25 @@ export function renderLayout(): HTMLElement {
   const resetConfirmModal = el('div', { id: 'reset-confirm-modal-root' });
   const configMessage = el('div', { id: 'config-message', class: 'config-message', role: 'alert', hidden: 'true' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
+  const toast = el('div', { id: 'app-toast', class: 'app-toast', role: 'status', 'aria-live': 'polite', hidden: 'true' });
 
-  app.append(header, actionBar, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
+  app.append(header, actionBar, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
   return app;
 }
 
 function editorSection(title: string, ...children: (HTMLElement | null)[]): HTMLElement {
   const section = el('section', { class: 'editor-section' });
   section.append(el('h2', { class: 'editor-section-title', text: title }));
+  children.forEach((c) => { if (c) section.append(c); });
+  return section;
+}
+
+function editorSectionCounted(title: string, countId: string, ...children: (HTMLElement | null)[]): HTMLElement {
+  const section = el('section', { class: 'editor-section' });
+  section.append(el('h2', { class: 'editor-section-title' },
+    el('span', { class: 'editor-section-title-text', text: title }),
+    el('span', { id: countId, class: 'editor-section-count', hidden: 'true' })
+  ));
   children.forEach((c) => { if (c) section.append(c); });
   return section;
 }
@@ -654,6 +666,17 @@ export function renderProductFormatModal(
     applyProductFormatFilter(body, searchInput.value);
   });
 
+  const doneBtn = el('button', { class: 'btn btn-primary product-format-done-btn', type: 'button', text: strings.labels.productFormatDone });
+  doneBtn.addEventListener('click', handlers.onCloseProductFormatModal);
+  const modalFoot = el('div', { class: 'product-format-modal-foot' },
+    el('span', {
+      class: 'product-format-selected-count',
+      'aria-live': 'polite',
+      text: strings.labels.productFormatSelectedCount(selectedFormatIds.size)
+    }),
+    doneBtn
+  );
+
   dialog.append(
     el('div', { class: 'product-format-modal-head' },
       el('h2', { id: 'product-format-modal-title', class: 'product-format-modal-title', text: strings.labels.productFormatModalTitle }),
@@ -661,7 +684,8 @@ export function renderProductFormatModal(
     ),
     el('label', { class: 'small-label', for: searchInputId, text: strings.labels.productFormatSearch }),
     searchInput,
-    body
+    body,
+    modalFoot
   );
   dialog.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -865,7 +889,8 @@ function categoryScaleRow(
 
   const row = el('div', { class: 'category-scale-row' },
     el('label', { class: 'small-label', text: strings.labels.scale }),
-    select
+    select,
+    el('p', { class: 'scale-hint', text: strings.labels.categoryScaleHint })
   );
   if (scale?.kind !== 'numeric') return row;
 

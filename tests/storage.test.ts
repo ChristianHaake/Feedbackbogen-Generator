@@ -41,6 +41,28 @@ describe('config storage', () => {
     expect(loadConfig()).toEqual(config);
   });
 
+  it('preserves custom header field labels, order and values verbatim through save/load and JSON round-trips', () => {
+    const withCustomHeaders: AppConfig = {
+      ...config,
+      header: {
+        fields: [
+          { id: 'field_1', label: 'Lehrperson', value: '' },
+          { id: 'field_2', label: 'Prüfung ä ö ü ß "Test"', value: 'Wert mit Leerzeichen' },
+          { id: 'field_3', label: 'Lerngruppe', value: '8b' }
+        ]
+      }
+    };
+
+    saveConfig(withCustomHeaders);
+    expect(loadConfig()?.header.fields).toEqual(withCustomHeaders.header.fields);
+
+    const reparsed = parseConfig(JSON.parse(JSON.stringify(withCustomHeaders)));
+    expect(reparsed.status).toBe('success');
+    if (reparsed.status === 'success') {
+      expect(reparsed.config.header.fields).toEqual(withCustomHeaders.header.fields);
+    }
+  });
+
   it('downloads the current config as JSON', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 4, 30, 12));

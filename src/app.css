@@ -1,3 +1,15 @@
+/* Inter Variable — latin subset only (German needs no cyrillic/greek/vietnamese/latin-ext) */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
 :root {
   /* Shared haak3 web app standard design tokens */
   --app-bg: #f3f5f8;
@@ -62,6 +74,42 @@ body {
   font-weight: 650;
 }
 
+/* ─────── Export toast ─────── */
+.app-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 50;
+  max-width: min(420px, calc(100vw - 32px));
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 650;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+.app-toast::before {
+  content: '';
+  width: 10px; height: 10px; border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--text-muted);
+}
+.app-toast--loading::before {
+  background: var(--primary);
+  animation: toast-pulse 1s ease-in-out infinite;
+}
+.app-toast--success { border-color: var(--success-soft); background: var(--success-soft); color: var(--success); }
+.app-toast--success::before { background: var(--success); }
+.app-toast--error { border-color: var(--danger-soft); background: var(--danger-soft); color: var(--danger); }
+.app-toast--error::before { background: var(--danger); }
+@keyframes toast-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
 /* ─────── App header (identity) ─────── */
 .app-header {
   position: relative;
@@ -77,7 +125,8 @@ body {
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(14px);
 }
-.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
+.brand:hover .brand__title { color: var(--primary); }
 .brand__mark {
   display: grid; place-items: center;
   width: 42px; height: 42px; flex-shrink: 0;
@@ -147,10 +196,10 @@ body {
   border-radius: 6px; background: #fff; border: 1px solid var(--border);
   cursor: pointer; padding: 0; flex-shrink: 0;
 }
-.btn-icon:hover { background: #f5f6f7; }
+.btn-icon:hover { background: var(--surface-subtle); }
 .btn-icon.danger { background: var(--danger-soft); color: var(--danger); }
 .btn-icon.quiet { color: var(--text-muted); border-color: transparent; background: transparent; }
-.btn-icon.quiet:hover { background: #f1f3f5; color: var(--danger); }
+.btn-icon.quiet:hover { background: var(--surface-subtle); color: var(--danger); }
 .btn-icon.btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
 
 .action-menu { position: relative; }
@@ -192,7 +241,7 @@ body {
   font: inherit;
   font-size: 13px;
 }
-.menu-item:hover { background: #f3f5f7; }
+.menu-item:hover { background: var(--surface-subtle); }
 
 /* ─────── Workspace ─────── */
 .workspace {
@@ -246,7 +295,7 @@ body {
 }
 .content-page-card p,
 .content-page-card li {
-  color: #222;
+  color: var(--text);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -313,7 +362,7 @@ body {
   flex: 0 0 auto;
 }
 .github-link:hover {
-  background: #f1f3f5;
+  background: var(--surface-subtle);
   color: var(--text);
 }
 .mobile-tabs { display: none; }
@@ -335,11 +384,20 @@ body {
   box-shadow: var(--shadow-sm);
 }
 .editor-section-title {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
   margin: 0 0 var(--space-3) 0;
   font-size: 0.69rem; font-weight: 750;
   text-transform: uppercase; letter-spacing: 0.07em;
   color: var(--text-muted);
   padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.editor-section-count {
+  flex-shrink: 0;
+  text-transform: none; letter-spacing: 0;
+  font-size: 0.7rem; font-weight: 650;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 2px 8px; border-radius: 999px;
 }
 
 .search-wrap { display: flex; flex-direction: column; gap: 3px; margin-bottom: var(--space-3); }
@@ -413,7 +471,7 @@ body {
   font-weight: 400;
 }
 .remove-header-field-btn:hover {
-  background: #f1f3f5;
+  background: var(--surface-subtle);
   border-color: transparent;
   color: var(--danger);
 }
@@ -511,6 +569,20 @@ body {
   min-height: 0;
   overflow-y: auto;
   padding-top: var(--space-2);
+}
+.product-format-modal-foot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.product-format-selected-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
 }
 .product-format-group {
   padding: var(--space-2) 0;
@@ -672,7 +744,7 @@ body {
   font-size: 13px; font-weight: 600; cursor: pointer;
   display: flex; justify-content: space-between; align-items: center;
 }
-.accordion-header:hover { background: #f5f6f7; }
+.accordion-header:hover { background: var(--surface-subtle); }
 .accordion-header[aria-expanded="true"] { background: #eef4fb; border-color: #bcd5f0; color: var(--primary); }
 .accordion-header[aria-expanded="true"]::after { content: '−'; font-size: 16px; line-height: 1; margin-left: 6px; }
 .accordion-header[aria-expanded="false"]::after { content: '+'; font-size: 16px; line-height: 1; margin-left: 6px; }
@@ -710,6 +782,12 @@ body {
 .group-block { margin-bottom: var(--space-2); }
 .group-title { margin: var(--space-2) 0 4px 0; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 4px; }
 
+.scale-hint {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
 .category-scale-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -874,7 +952,7 @@ body {
   padding: 6px 16px; font-size: 13px;
   cursor: pointer; color: var(--text-muted); font-weight: 500;
 }
-.mode-tab:hover { background: #f5f6f7; }
+.mode-tab:hover { background: var(--surface-subtle); }
 .mode-tab.active { background: var(--primary); color: white; }
 .mode-tab + .mode-tab { border-left: 1px solid var(--border); }
 
@@ -1131,8 +1209,9 @@ body {
 @media (max-width: 900px) {
   body { overflow: hidden; }
   .app { height: 100vh; height: 100dvh; }
-  .app-header { min-height: 0; padding: var(--space-3); }
+  .app-header { min-height: 0; padding: var(--space-3); gap: var(--space-2); }
   .brand__tagline { display: none; }
+  .header-meta { display: none; } /* local-processing note still shown in the footer */
   .action-bar-inner { padding: var(--space-2) var(--space-3); }
   .divider { display: none; }
   .content-page { padding: var(--space-3); }
@@ -1192,9 +1271,14 @@ body {
   }
   .btn-label { display: none; }
   .menu-panel { right: 0; }
-  .app-footer { justify-content: flex-start; padding: 7px calc(var(--space-3) + 36px) 7px var(--space-3); }
+  .app-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+  .app-footer-links { justify-content: flex-start; gap: var(--space-3); }
   .app-footer-nav { gap: var(--space-3); }
-  .github-link { right: var(--space-3); padding-inline: 6px; }
   .github-link-label { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -1206,7 +1290,7 @@ body {
   @page { size: A4; margin: 0; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live { display: none !important; }
+  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast { display: none !important; }
   .workspace { display: block; }
   .preview-pane { background: white; overflow: visible; }
   .preview-pane-inner { padding: 0; }

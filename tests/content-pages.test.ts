@@ -29,4 +29,20 @@ describe('help content page', () => {
     expect(repoLink!.target).toBe('_blank');
     expect(repoLink!.rel).toContain('noopener');
   });
+
+  it('exposes the workflow action bar that routing toggles per route', () => {
+    // main.ts queries '.action-bar' and toggles its `hidden` on route change;
+    // this guards that selector contract (a mismatch crashes at load, not in unit tests).
+    const layout = renderLayout();
+    const actionBar = layout.querySelector('.action-bar');
+    expect(actionBar).not.toBeNull();
+    expect(actionBar!.querySelector('#config-save')).not.toBeNull();
+    expect(actionBar!.querySelector('#export-menu')).not.toBeNull();
+  });
+
+  it('links the header brand back to the generator route', () => {
+    const brand = renderLayout().querySelector<HTMLAnchorElement>('.app-header .brand');
+    expect(brand).not.toBeNull();
+    expect(brand!.dataset.appRoute).toBe('generator');
+  });
 });

@@ -707,9 +707,12 @@ async function bootstrap() {
 
   async function exportFormat(fmt: ExportFormat) {
     announce(strings.messages.exported);
-    if (fmt === 'pdf') {
+    if (fmt === 'pdf-print') {
       const { exportPDF } = await import('./export/export-pdf');
       exportPDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+    } else if (fmt === 'pdf-fillable') {
+      const { exportFillablePDF } = await import('./export/export-pdf-fillable');
+      await exportFillablePDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
     } else if (fmt === 'docx') {
       const { exportDOCX } = await import('./export/export-docx');
       exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);

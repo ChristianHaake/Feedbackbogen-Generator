@@ -11,20 +11,22 @@ describe('help content page', () => {
   });
 
   it('renders the help link before project information in the footer', () => {
-    const footerLinks = Array.from(renderLayout().querySelectorAll<HTMLAnchorElement>('.app-footer-nav a'));
+    const layout = renderLayout();
+    const footerLinks = Array.from(layout.querySelectorAll<HTMLAnchorElement>('.app-footer-nav a'));
 
     expect(footerLinks.map((link) => link.textContent)).toEqual([
       'Hilfe',
       'Über das Projekt',
       'Impressum',
-      'Datenschutz',
-      'Quellcode'
+      'Datenschutz'
     ]);
     expect(footerLinks[0].href).toMatch(/\/help$/);
     expect(footerLinks[0].dataset.appRoute).toBe('help');
-    const repoLink = footerLinks[footerLinks.length - 1];
-    expect(repoLink.href).toMatch(/github\.com\/ChristianHaake\/Feedbackbogen-Generator$/);
-    expect(repoLink.target).toBe('_blank');
-    expect(repoLink.rel).toContain('noopener');
+
+    const repoLink = layout.querySelector<HTMLAnchorElement>('.app-footer .github-link');
+    expect(repoLink).not.toBeNull();
+    expect(repoLink!.href).toMatch(/github\.com\/ChristianHaake\/Feedbackbogen-Generator$/);
+    expect(repoLink!.target).toBe('_blank');
+    expect(repoLink!.rel).toContain('noopener');
   });
 });

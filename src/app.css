@@ -86,9 +86,6 @@ body {
   content: ''; width: 7px; height: 7px; border-radius: 50%;
   background: var(--success); flex: 0 0 auto;
 }
-.app-footer-repo[target="_blank"]::after {
-  content: '↗'; margin-left: 4px; font-size: 0.85em;
-}
 @media (max-width: 760px) {
   .local-badge { display: none; }
 }
@@ -239,6 +236,11 @@ body {
 }
 .app-footer {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  position: relative;
   border-top: 1px solid var(--border);
   background: #fff;
   padding: 8px var(--space-4);
@@ -259,6 +261,29 @@ body {
 .app-footer-nav a[aria-current="page"] {
   color: var(--primary);
   text-decoration: underline;
+}
+.github-link {
+  position: absolute;
+  right: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.github-link svg {
+  display: block;
+  flex: 0 0 auto;
+}
+.github-link:hover {
+  background: #f1f3f5;
+  color: var(--text);
 }
 .mobile-tabs { display: none; }
 .mobile-export-pane { display: none; }
@@ -1122,8 +1147,10 @@ body {
   }
   .btn-label { display: none; }
   .menu-panel { right: 0; }
-  .app-footer { padding: 7px var(--space-3); }
+  .app-footer { justify-content: flex-start; padding: 7px calc(var(--space-3) + 36px) 7px var(--space-3); }
   .app-footer-nav { gap: var(--space-3); }
+  .github-link { right: var(--space-3); padding-inline: 6px; }
+  .github-link-label { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 

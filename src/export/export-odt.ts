@@ -188,7 +188,7 @@ function stylesXml() {
   </office:automatic-styles>
   <office:master-styles>
     <style:master-page style:name="Standard" style:page-layout-name="PageLayout">
-      <style:footer>${paragraph('Erstellt mit Feedbackbogen-Generator', 'Footer')}</style:footer>
+      <style:footer>${paragraph(strings.watermark, 'Footer')}</style:footer>
     </style:master-page>
   </office:master-styles>
 </office:document-styles>`;

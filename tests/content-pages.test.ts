@@ -17,9 +17,14 @@ describe('help content page', () => {
       'Hilfe',
       'Über das Projekt',
       'Impressum',
-      'Datenschutz'
+      'Datenschutz',
+      'Quellcode'
     ]);
     expect(footerLinks[0].href).toMatch(/\/help$/);
     expect(footerLinks[0].dataset.appRoute).toBe('help');
+    const repoLink = footerLinks[footerLinks.length - 1];
+    expect(repoLink.href).toMatch(/github\.com\/ChristianHaake\/Feedbackbogen-Generator$/);
+    expect(repoLink.target).toBe('_blank');
+    expect(repoLink.rel).toContain('noopener');
   });
 });

@@ -64,7 +64,12 @@ export function renderLayout(): HTMLElement {
         el('div', { class: 'title-wrap' },
           el('strong', { class: 'title', text: strings.appTitle }),
           el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
-        )
+        ),
+        el('span', {
+          class: 'local-badge',
+          text: 'Lokale Verarbeitung im Browser',
+          title: 'Alle Eingaben bleiben lokal im Browser. Keine Serverübertragung.'
+        })
       ),
       el('div', { class: 'actions' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
@@ -158,7 +163,14 @@ export function renderLayout(): HTMLElement {
       el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
       el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
       el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
-      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title }),
+      el('a', {
+        class: 'app-footer-repo',
+        href: 'https://github.com/ChristianHaake/Feedbackbogen-Generator',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        text: 'Quellcode'
+      })
     )
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });

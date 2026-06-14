@@ -75,6 +75,23 @@ body {
 .title-wrap { display: flex; flex-direction: column; }
 .toolbar .title { font-size: 14px; }
 .subtitle { color: var(--text-muted); font-size: 11px; line-height: 1.2; }
+.local-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--success-soft); color: var(--success);
+  border: 1px solid var(--success);
+  font-size: 11px; font-weight: 650; white-space: nowrap;
+}
+.local-badge::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--success); flex: 0 0 auto;
+}
+.app-footer-repo[target="_blank"]::after {
+  content: '↗'; margin-left: 4px; font-size: 0.85em;
+}
+@media (max-width: 760px) {
+  .local-badge { display: none; }
+}
 .toolbar .actions { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
 .divider { width: 1px; background: var(--border); height: 24px; flex-shrink: 0; }
 .export-controls { display: inline-flex; gap: var(--space-2); align-items: center; }

@@ -40,7 +40,7 @@ describe('document exports', () => {
     expect(sharedStringsXml).toContain('Kategorie');
     expect(sharedStringsXml).toContain('Inhalt vollständig');
     expect(sharedStringsXml).toContain('1 | 2 | 3');
-    expect(stylesXml).toContain('FF245DCC');
+    expect(stylesXml).toContain('FF1E88E5');
   });
 
   it('creates a DOCX with structured tables, feedback area and footer', async () => {

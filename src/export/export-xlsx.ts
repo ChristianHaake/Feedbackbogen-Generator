@@ -5,7 +5,7 @@ import { downloadBlob, scaleLabel } from '@/export/export-utils';
 import type { ExportRow } from '@/types';
 
 const headerStyle = {
-  backgroundColor: '#245DCC',
+  backgroundColor: '#1E88E5',
   fontWeight: 'bold' as const,
   textColor: '#FFFFFF',
   align: 'center' as const,

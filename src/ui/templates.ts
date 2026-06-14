@@ -57,27 +57,36 @@ export function renderLayout(): HTMLElement {
 
   const header = el(
     'header',
-    { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
-    el('div', { class: 'toolbar-inner' },
-      el('div', { class: 'left' },
-        el('img', { src: './logo.svg', alt: 'Feedbackbogen-Generator Logo', width: '28', height: '28' }),
-        el('div', { class: 'title-wrap' },
-          el('strong', { class: 'title', text: strings.appTitle }),
-          el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
-        ),
-        el('span', {
-          class: 'local-badge',
-          text: 'Lokale Verarbeitung im Browser',
-          title: 'Alle Eingaben bleiben lokal im Browser. Keine Serverübertragung.'
-        })
+    { class: 'app-header' },
+    el('div', { class: 'brand' },
+      el('span', { class: 'brand__mark' },
+        el('img', { src: './logo.svg', alt: '', width: '42', height: '42' })
       ),
-      el('div', { class: 'actions' },
+      el('span', { class: 'brand__text' },
+        el('strong', { class: 'brand__title', text: strings.appTitle }),
+        el('small', { class: 'brand__tagline', text: strings.appTagline })
+      )
+    ),
+    el('div', { class: 'header-meta' },
+      el('span', { class: 'local-badge', title: strings.localProcessingHint },
+        el('span', { class: 'local-badge__dot', 'aria-hidden': 'true' }),
+        el('span', { text: strings.localProcessing })
+      )
+    )
+  );
+
+  const actionBar = el(
+    'div',
+    { class: 'action-bar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
+    el('div', { class: 'action-bar-inner' },
+      el('div', { class: 'action-group' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
         toolbarButton('upload', strings.toolbar.loadConfig, 'config-load'),
         toolbarButton('undo', strings.toolbar.undo, 'history-undo', { 'aria-keyshortcuts': 'Control+Z Meta+Z' }),
         toolbarButton('redo', strings.toolbar.redo, 'history-redo', { 'aria-keyshortcuts': 'Control+Shift+Z Meta+Shift+Z' }),
-        toolbarButton('trash', strings.toolbar.reset, 'config-reset'),
-        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
+        toolbarButton('trash', strings.toolbar.reset, 'config-reset')
+      ),
+      el('div', { class: 'action-group' },
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
           menuAction('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
           menuAction('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
@@ -130,6 +139,11 @@ export function renderLayout(): HTMLElement {
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
+        el('div', { class: 'preview-live' },
+          el('span', { class: 'preview-live__dot', 'aria-hidden': 'true' }),
+          el('strong', { class: 'preview-live__label', text: strings.previewLive }),
+          el('span', { class: 'preview-live__note', text: strings.previewLiveNote })
+        ),
         el('div', { class: 'mode-switch', role: 'tablist', 'aria-label': strings.labels.previewMode },
           modeTab('full', strings.modes.full, true),
           modeTab('checklist', strings.modes.checklist, false)
@@ -161,20 +175,23 @@ export function renderLayout(): HTMLElement {
 
   const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
   const appFooter = el('footer', { class: 'app-footer' },
-    el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
-      el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
-      el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
-      el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
-      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
-    ),
-    githubLink()
+    el('span', { class: 'app-footer-note', text: strings.footerNote }),
+    el('div', { class: 'app-footer-links' },
+      el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+        el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
+        el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
+        el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
+        el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+      ),
+      githubLink()
+    )
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const resetConfirmModal = el('div', { id: 'reset-confirm-modal-root' });
   const configMessage = el('div', { id: 'config-message', class: 'config-message', role: 'alert', hidden: 'true' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
 
-  app.append(header, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
+  app.append(header, actionBar, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
   return app;
 }
 

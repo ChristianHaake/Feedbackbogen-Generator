@@ -68,6 +68,8 @@ export const strings = {
     scaleMaxSteps: (steps: number) => `max. ${steps} Stufen`,
     add: 'Hinzufügen',
     defaultScale: 'Standard-Skala',
+    categoryScaleHint: 'Diese Skala gilt für alle Kriterien dieser Kategorie.',
+    defaultScaleHint: 'Vorbelegung für Kategorien ohne eigene Skala.',
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',
     customItemBadge: 'Eigenes Kriterium',

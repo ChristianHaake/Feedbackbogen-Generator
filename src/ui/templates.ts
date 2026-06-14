@@ -127,7 +127,8 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { class: 'scale-default-wrap' },
           el('label', { for: 'default-scale', class: 'small-label', text: strings.labels.defaultScale }),
-          el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
+          el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale }),
+          el('p', { class: 'scale-hint', text: strings.labels.defaultScaleHint })
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
@@ -888,7 +889,8 @@ function categoryScaleRow(
 
   const row = el('div', { class: 'category-scale-row' },
     el('label', { class: 'small-label', text: strings.labels.scale }),
-    select
+    select,
+    el('p', { class: 'scale-hint', text: strings.labels.categoryScaleHint })
   );
   if (scale?.kind !== 'numeric') return row;
 

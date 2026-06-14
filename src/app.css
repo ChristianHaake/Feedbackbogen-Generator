@@ -782,6 +782,12 @@ body {
 .group-block { margin-bottom: var(--space-2); }
 .group-title { margin: var(--space-2) 0 4px 0; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 4px; }
 
+.scale-hint {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
 .category-scale-row {
   display: grid;
   grid-template-columns: 1fr;

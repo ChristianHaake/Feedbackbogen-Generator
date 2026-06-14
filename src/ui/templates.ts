@@ -654,6 +654,17 @@ export function renderProductFormatModal(
     applyProductFormatFilter(body, searchInput.value);
   });
 
+  const doneBtn = el('button', { class: 'btn btn-primary product-format-done-btn', type: 'button', text: strings.labels.productFormatDone });
+  doneBtn.addEventListener('click', handlers.onCloseProductFormatModal);
+  const modalFoot = el('div', { class: 'product-format-modal-foot' },
+    el('span', {
+      class: 'product-format-selected-count',
+      'aria-live': 'polite',
+      text: strings.labels.productFormatSelectedCount(selectedFormatIds.size)
+    }),
+    doneBtn
+  );
+
   dialog.append(
     el('div', { class: 'product-format-modal-head' },
       el('h2', { id: 'product-format-modal-title', class: 'product-format-modal-title', text: strings.labels.productFormatModalTitle }),
@@ -661,7 +672,8 @@ export function renderProductFormatModal(
     ),
     el('label', { class: 'small-label', for: searchInputId, text: strings.labels.productFormatSearch }),
     searchInput,
-    body
+    body,
+    modalFoot
   );
   dialog.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {

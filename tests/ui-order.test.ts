@@ -95,6 +95,19 @@ describe('selected order UI', () => {
     expect(handlers.onReorderHeaderField).toHaveBeenCalledWith('topic', 'name');
   });
 
+  it('passes the exact header field label to the change handler without mutation', () => {
+    const handlers = handlerSpies();
+    const header: HeaderData = { fields: [{ id: 'name', label: '', value: '' }] };
+    const container = document.createElement('div');
+    renderKopfdaten(container, header, handlers);
+    const labelInput = container.querySelector<HTMLInputElement>('#kd-label-name')!;
+
+    labelInput.value = 'Lehrperson ä ö ü ß';
+    labelInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+    expect(handlers.onHeaderFieldLabelChange).toHaveBeenCalledWith('name', 'Lehrperson ä ö ü ß');
+  });
+
   it('filters and clamps numeric scale range inputs', () => {
     const handlers = handlerSpies();
     const container = document.createElement('div');

@@ -525,6 +525,20 @@ body {
   overflow-y: auto;
   padding-top: var(--space-2);
 }
+.product-format-modal-foot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.product-format-selected-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
 .product-format-group {
   padding: var(--space-2) 0;
   border-top: 1px solid var(--border);

@@ -75,7 +75,7 @@ export const strings = {
     searchCriteria: 'Kriterien suchen',
     searchPlaceholder: 'Suchen…',
     clearSelection: 'Auswahl leeren',
-    reorderSelection: 'Reihenfolge für Vorschau und Export',
+    reorderSelection: 'Reihenfolge per Drag-and-drop oder Pfeiltasten ändern',
     dragCategory: (category: string) => `Kategorie verschieben: ${category}. Mit Pfeiltasten nach oben oder unten bewegen.`,
     dragCriterion: (criterion: string) => `Kriterium verschieben: ${criterion}. Mit Pfeiltasten nach oben oder unten bewegen.`,
     dragHeaderField: (field: string) => `Kopffeld verschieben: ${field}. Mit Pfeiltasten nach oben oder unten bewegen.`,
@@ -88,6 +88,9 @@ export const strings = {
     productFormatSearchPlaceholder: 'Format oder Kriterium suchen...',
     addProductFormat: 'Hinzufügen',
     removeProductFormat: 'Entfernen',
+    productFormatDone: 'Fertig',
+    productFormatSelectedCount: (count: number) =>
+      count === 1 ? '1 Format ausgewählt' : `${count} Formate ausgewählt`,
     close: 'Schließen',
     previewMode: 'Ansicht',
     previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',

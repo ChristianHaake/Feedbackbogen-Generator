@@ -274,7 +274,7 @@ async function bootstrap() {
           fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
         };
       });
-      announce(strings.messages.headerFieldReordered);
+      announce(strings.messages.headerFieldAdded);
     },
     onRemoveHeaderField: (fieldId: string) => {
       commitConfigChange(() => {
@@ -294,7 +294,7 @@ async function bootstrap() {
           fields: order.map((fieldId) => fieldsById.get(fieldId)).filter((field): field is HeaderData['fields'][number] => Boolean(field))
         };
       });
-      announce(strings.messages.headerFieldAdded);
+      announce(strings.messages.headerFieldReordered);
       focusDragHandle(`[data-header-field-id="${cssEscape(draggedFieldId)}"] .header-field-drag-handle`);
     },
     onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => {

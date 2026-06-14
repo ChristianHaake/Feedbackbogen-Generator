@@ -39,4 +39,10 @@ describe('help content page', () => {
     expect(actionBar!.querySelector('#config-save')).not.toBeNull();
     expect(actionBar!.querySelector('#export-menu')).not.toBeNull();
   });
+
+  it('links the header brand back to the generator route', () => {
+    const brand = renderLayout().querySelector<HTMLAnchorElement>('.app-header .brand');
+    expect(brand).not.toBeNull();
+    expect(brand!.dataset.appRoute).toBe('generator');
+  });
 });

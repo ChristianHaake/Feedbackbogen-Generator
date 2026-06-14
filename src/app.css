@@ -77,7 +77,8 @@ body {
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(14px);
 }
-.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
+.brand:hover .brand__title { color: var(--primary); }
 .brand__mark {
   display: grid; place-items: center;
   width: 42px; height: 42px; flex-shrink: 0;

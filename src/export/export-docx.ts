@@ -194,7 +194,7 @@ export async function createDOCXBlob(
         properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720, footer: 360 } } },
         footers: {
           default: new Footer({
-            children: [textParagraph('Erstellt mit Feedbackbogen-Generator', false, AlignmentType.CENTER)]
+            children: [textParagraph(strings.watermark, false, AlignmentType.CENTER)]
           })
         },
         children

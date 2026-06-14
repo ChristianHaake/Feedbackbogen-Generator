@@ -23,6 +23,7 @@
     "docx": "^8.5.0",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
     "write-excel-file": "^4.0.7"
   },
   "devDependencies": {

@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "license": "GPL-3.0-only",
-  "engines": {
-    "node": ">=20.19.0 || >=22.12.0"
-  },
+  "license": "MIT",
   "scripts": {
     "dev": "vite --open",
     "prebuild": "npm run check:content",
@@ -16,8 +13,7 @@
     "lint": "eslint src tests vite.config.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "vitest",
-    "verify": "npm run check:content && npm run lint && npm run typecheck && npm test -- --run && npm run build"
+    "test": "vitest"
   },
   "dependencies": {
     "docx": "^8.5.0",

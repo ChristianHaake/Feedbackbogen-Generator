@@ -65,8 +65,9 @@ async function bootstrap() {
   let customItems: CustomItem[] = [];
   let categoryOrder: string[] = [];
   let itemOrderByCategory: Record<string, string[]> = {};
-  const undoStack: AppConfig[] = [];
-  const redoStack: AppConfig[] = [];
+  type HistoryEntry = { config: AppConfig; label: string };
+  const undoStack: HistoryEntry[] = [];
+  const redoStack: HistoryEntry[] = [];
   let previewMode: PrintMode = 'full';
   let searchQuery = '';
   let productFormatModalOpen = false;
@@ -127,12 +128,12 @@ async function bootstrap() {
         const idx = selected.findIndex((s) => s.categoryId === categoryId && s.itemId === itemId);
         if (checked && idx === -1) selected.push({ categoryId, itemId });
         if (!checked && idx !== -1) selected.splice(idx, 1);
-      });
+      }, true, checked ? strings.history.criterionAdded : strings.history.criterionRemoved);
     },
     onCategoryScaleChange: (categoryId: string, scaleId: string) => {
       commitConfigChange(() => {
         scaleByCategoryMap[categoryId] = scaleId;
-      });
+      }, true, strings.history.scaleChanged);
     },
     onNumericScaleRangeChange: (categoryId: string, min: number, max: number) => {
       const scale = scaleById(scales, scaleByCategoryMap[categoryId] ?? defaultScaleId);
@@ -156,20 +157,20 @@ async function bootstrap() {
       commitConfigChange(() => {
         customItems.push({ id, label: trimmed, custom: true, categoryId });
         selected.push({ categoryId, itemId: id });
-      });
+      }, true, strings.history.customAdded);
       announce(strings.messages.customItemAdded);
     },
     onRemoveCustomItem: (itemId: string) => {
       commitConfigChange(() => {
         customItems = customItems.filter((ci) => ci.id !== itemId);
         selected = selected.filter((s) => s.itemId !== itemId);
-      });
+      }, true, strings.history.customRemoved);
       announce(strings.messages.customItemRemoved);
     },
     onRemoveSelected: (categoryId: string, itemId: string) => {
       commitConfigChange(() => {
         selected = selected.filter((s) => !(s.categoryId === categoryId && s.itemId === itemId));
-      });
+      }, true, strings.history.criterionRemoved);
     },
     onSelectCategory: (categoryId: string) => {
       commitConfigChange(() => {
@@ -187,12 +188,12 @@ async function bootstrap() {
     onClearSelection: () => {
       commitConfigChange(() => {
         selected = [];
-      });
+      }, true, strings.history.selectionCleared);
     },
     onReorderCategory: (draggedCategoryId: string, targetCategoryId: string) => {
       commitConfigChange(() => {
         categoryOrder = swapOrder(categoryOrder, draggedCategoryId, targetCategoryId);
-      });
+      }, true, strings.history.categoryReordered);
       announce(strings.messages.categoryReordered);
       focusDragHandle(`[data-category-id="${cssEscape(draggedCategoryId)}"] > .selected-category-head .drag-handle`);
     },
@@ -202,7 +203,7 @@ async function bootstrap() {
           ...itemOrderByCategory,
           [categoryId]: swapOrder(itemOrderByCategory[categoryId] ?? [], draggedItemId, targetItemId)
         };
-      });
+      }, true, strings.history.criterionReordered);
       announce(strings.messages.criterionReordered);
       focusDragHandle(`[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`);
     },
@@ -245,7 +246,7 @@ async function bootstrap() {
           scaleSettingsByCategory = settingsRest;
           announce(strings.messages.productFormatRemoved);
         }
-      });
+      }, true, strings.history.productFormatChanged);
       focusProductFormatToggle(categoryId);
     },
     onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
@@ -280,7 +281,7 @@ async function bootstrap() {
           ...header,
           fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
         };
-      });
+      }, true, strings.history.headerFieldAdded);
       announce(strings.messages.headerFieldAdded);
     },
     onRemoveHeaderField: (fieldId: string) => {
@@ -289,7 +290,7 @@ async function bootstrap() {
           ...header,
           fields: header.fields.filter((field) => field.id !== fieldId)
         };
-      });
+      }, true, strings.history.headerFieldRemoved);
       announce(strings.messages.headerFieldRemoved);
     },
     onReorderHeaderField: (draggedFieldId: string, targetFieldId: string) => {
@@ -300,7 +301,7 @@ async function bootstrap() {
           ...header,
           fields: order.map((fieldId) => fieldsById.get(fieldId)).filter((field): field is HeaderData['fields'][number] => Boolean(field))
         };
-      });
+      }, true, strings.history.headerFieldReordered);
       announce(strings.messages.headerFieldReordered);
       focusDragHandle(`[data-header-field-id="${cssEscape(draggedFieldId)}"] .header-field-drag-handle`);
     },
@@ -379,21 +380,21 @@ async function bootstrap() {
     );
   }
 
-  function commitConfigChange(mutator: () => void, rerenderEditor = true) {
+  function commitConfigChange(mutator: () => void, rerenderEditor = true, label: string = strings.history.generic) {
     const before = cloneConfig(currentConfig());
     mutator();
     normalizeOrderState();
     if (JSON.stringify(before) === JSON.stringify(currentConfig())) return;
-    undoStack.push(before);
+    undoStack.push({ config: before, label });
     redoStack.length = 0;
     if (rerenderEditor) renderEditor();
     renderA4();
     updateHistoryButtons();
   }
 
-  function replaceConfig(config: AppConfig, rememberCurrent = true) {
+  function replaceConfig(config: AppConfig, rememberCurrent = true, label: string = strings.history.generic) {
     if (rememberCurrent) {
-      undoStack.push(cloneConfig(currentConfig()));
+      undoStack.push({ config: cloneConfig(currentConfig()), label });
       redoStack.length = 0;
     }
     restoreConfig(config);
@@ -405,24 +406,27 @@ async function bootstrap() {
   function undo() {
     const previous = undoStack.pop();
     if (!previous) return;
-    redoStack.push(cloneConfig(currentConfig()));
-    replaceConfig(previous, false);
-    announce(strings.messages.undoDone);
+    redoStack.push({ config: cloneConfig(currentConfig()), label: previous.label });
+    restoreConfig(previous.config);
+    renderEditor();
+    renderA4();
+    updateHistoryButtons();
+    announce(strings.messages.undoLabeled(previous.label));
   }
 
   function redo() {
     const next = redoStack.pop();
     if (!next) return;
-    undoStack.push(cloneConfig(currentConfig()));
-    restoreConfig(next);
+    undoStack.push({ config: cloneConfig(currentConfig()), label: next.label });
+    restoreConfig(next.config);
     renderEditor();
     renderA4();
     updateHistoryButtons();
-    announce(strings.messages.redoDone);
+    announce(strings.messages.redoLabeled(next.label));
   }
 
   function confirmResetConfig() {
-    replaceConfig(createDefaultConfig(scales[0]?.id ?? 'verbal_5'));
+    replaceConfig(createDefaultConfig(scales[0]?.id ?? 'verbal_5'), true, strings.history.reset);
     closeResetConfirm();
     announce(strings.messages.resetDone);
   }
@@ -704,7 +708,7 @@ async function bootstrap() {
   const importJson = async () => {
     const result = await importConfigJSON();
     if (result.status === 'success') {
-      replaceConfig(result.config);
+      replaceConfig(result.config, true, strings.history.configLoaded);
       announce(strings.messages.imported);
     } else if (result.status === 'error') {
       showConfigMessage(result.message);

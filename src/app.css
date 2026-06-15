@@ -110,6 +110,52 @@ body {
 .app-toast--error::before { background: var(--danger); }
 @keyframes toast-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+/* ─────── Onboarding hint ─────── */
+.onboarding-hint {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 8px clamp(16px, 4vw, 64px);
+  background: var(--primary-soft);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.8rem;
+}
+.onboarding-hint__intro { flex-shrink: 0; font-weight: 700; color: var(--primary); }
+.onboarding-hint__steps {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--space-1) var(--space-4);
+  margin: 0; padding: 0;
+  list-style: none;
+  counter-reset: ob;
+}
+.onboarding-hint__steps li {
+  counter-increment: ob;
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text-muted);
+}
+.onboarding-hint__steps li::before {
+  content: counter(ob);
+  display: inline-grid; place-items: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--primary); color: #fff;
+  font-size: 0.68rem; font-weight: 700;
+}
+.onboarding-hint__dismiss {
+  margin-left: auto; flex-shrink: 0;
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 6px;
+  background: transparent; color: var(--text-muted);
+  cursor: pointer; font-size: 0.95rem; line-height: 1;
+}
+.onboarding-hint__dismiss:hover { background: rgb(255 255 255 / 60%); color: var(--text); }
+@media (max-width: 700px) {
+  .onboarding-hint__intro { display: none; }
+}
+
 /* ─────── App header (identity) ─────── */
 .app-header {
   position: relative;
@@ -1314,7 +1360,7 @@ body {
   @page { size: A4; margin: 0; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
+  .app-header, .action-bar, .onboarding-hint, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
   .workspace { display: block; }
   .preview-pane { background: white; overflow: visible; }
   .preview-pane-inner { padding: 0; }

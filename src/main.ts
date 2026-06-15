@@ -117,6 +117,8 @@ async function bootstrap() {
   const mobileTabsEl = requireEl('.mobile-tabs');
   const configMessageEl = requireById('config-message');
   const toastEl = requireById('app-toast');
+  const onboardingHintEl = requireById('onboarding-hint');
+  const onboardingDismissEl = requireById('onboarding-dismiss');
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
   let exportInFlight = false;
   const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
@@ -818,6 +820,23 @@ async function bootstrap() {
       closeExportMenu(true);
       exportFormat(btn.dataset.exportFormat as ExportFormat);
     });
+  });
+
+  // Compact onboarding hint: shown once until dismissed (persisted in localStorage).
+  const ONBOARDING_KEY = 'bbk:onboarding-dismissed';
+  try {
+    if (localStorage.getItem(ONBOARDING_KEY) !== '1') onboardingHintEl.hidden = false;
+  } catch {
+    /* localStorage unavailable — keep the hint hidden */
+  }
+  onboardingDismissEl.addEventListener('click', () => {
+    onboardingHintEl.hidden = true;
+    try {
+      localStorage.setItem(ONBOARDING_KEY, '1');
+    } catch {
+      /* ignore persistence failure */
+    }
+    onboardingDismissEl.blur();
   });
 
   setupKeyboardShortcuts(exportJson, openExportMenu, undo, redo);

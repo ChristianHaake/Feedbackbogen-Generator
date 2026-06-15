@@ -201,7 +201,7 @@ export function renderLayout(): HTMLElement {
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
   const toast = el('div', { id: 'app-toast', class: 'app-toast', role: 'status', 'aria-live': 'polite', hidden: 'true' });
 
-  app.append(header, actionBar, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
+  app.append(header, actionBar, onboardingHint, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
   return app;
 }
 

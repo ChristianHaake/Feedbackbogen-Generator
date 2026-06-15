@@ -54,6 +54,14 @@ describe('config storage', () => {
     };
 
     saveConfig(withCustomHeaders);
+
+    // Inspect the raw stored bytes to isolate serialization from the load path:
+    // a write-side bug must show up here even if loadConfig() normalizes it away.
+    const rawStored = localStorage.getItem('bbk:config');
+    expect(rawStored).not.toBeNull();
+    expect(rawStored).toContain('Prüfung ä ö ü ß \\"Test\\"');
+    expect((JSON.parse(rawStored!) as AppConfig).header.fields).toEqual(withCustomHeaders.header.fields);
+
     expect(loadConfig()?.header.fields).toEqual(withCustomHeaders.header.fields);
 
     const reparsed = parseConfig(JSON.parse(JSON.stringify(withCustomHeaders)));

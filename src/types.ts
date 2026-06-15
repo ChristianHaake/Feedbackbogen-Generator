@@ -116,6 +116,7 @@ export type ExportRow = {
   category: string;
   item: string;
   scale: Scale | null;
+  itemId?: string;
 };
 
 export type PrintMode = 'full' | 'checklist';

@@ -46,3 +46,33 @@ describe('help content page', () => {
     expect(brand!.dataset.appRoute).toBe('generator');
   });
 });
+
+describe('collapsible editor sections', () => {
+  it('renders a collapse toggle wired to its panel for each of the six editor blocks', () => {
+    const layout = renderLayout();
+    const sections = Array.from(layout.querySelectorAll<HTMLElement>('.editor-pane [data-section-id]'));
+
+    expect(sections.map((s) => s.dataset.sectionId)).toEqual([
+      'title', 'kopfdaten', 'selected', 'criteria', 'formats', 'footer'
+    ]);
+
+    for (const section of sections) {
+      const id = section.dataset.sectionId!;
+      const toggle = section.querySelector<HTMLButtonElement>('.section-toggle');
+      const panel = section.querySelector<HTMLElement>('.editor-section-panel');
+      expect(toggle, id).not.toBeNull();
+      expect(panel, id).not.toBeNull();
+      expect(toggle!.getAttribute('aria-expanded')).toBe('true');
+      expect(toggle!.getAttribute('aria-controls')).toBe(`sec-${id}-panel`);
+      expect(panel!.id).toBe(`sec-${id}-panel`);
+      expect(panel!.getAttribute('aria-labelledby')).toBe(toggle!.id);
+    }
+  });
+
+  it('leaves the mobile export block non-collapsible', () => {
+    const exportPane = renderLayout().querySelector<HTMLElement>('.mobile-export-pane');
+    expect(exportPane).not.toBeNull();
+    expect(exportPane!.querySelector('.section-toggle')).toBeNull();
+    expect(exportPane!.querySelector('[data-section-id]')).toBeNull();
+  });
+});

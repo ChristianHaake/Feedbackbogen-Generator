@@ -61,6 +61,7 @@ export const strings = {
   },
   labels: {
     remove: 'Entfernen',
+    removeFromPreview: (item: string) => `${item} aus der Auswahl entfernen`,
     itemDescription: (item: string) => `Beschreibung zu ${item}`,
     scale: 'Skala',
     scaleMin: 'Minimum',
@@ -126,6 +127,8 @@ export const strings = {
     resetDone: 'Konfiguration wurde zurückgesetzt.',
     undoDone: 'Änderung wurde rückgängig gemacht.',
     redoDone: 'Änderung wurde wiederhergestellt.',
+    undoLabeled: (label: string) => `Rückgängig: ${label}.`,
+    redoLabeled: (label: string) => `Wiederhergestellt: ${label}.`,
     categoryReordered: 'Kategorie wurde verschoben.',
     criterionReordered: 'Kriterium wurde verschoben.',
     exported: 'Export gestartet...',
@@ -139,5 +142,27 @@ export const strings = {
     headerFieldReordered: 'Kopffeld wurde verschoben.',
     productFormatAdded: 'Produktformat hinzugefügt.',
     productFormatRemoved: 'Produktformat entfernt.'
+  },
+  onboarding: {
+    intro: 'So funktioniert es:',
+    steps: ['Kopfdaten festlegen', 'Kriterien auswählen', 'Formate ergänzen', 'Exportieren'],
+    dismiss: 'Hinweis ausblenden'
+  },
+  history: {
+    generic: 'Änderung',
+    criterionAdded: 'Kriterium hinzugefügt',
+    criterionRemoved: 'Kriterium entfernt',
+    selectionCleared: 'Auswahl geleert',
+    customAdded: 'eigenes Kriterium hinzugefügt',
+    customRemoved: 'eigenes Kriterium entfernt',
+    categoryReordered: 'Kategorie verschoben',
+    criterionReordered: 'Kriterium verschoben',
+    productFormatChanged: 'Produktformat geändert',
+    headerFieldAdded: 'Kopffeld hinzugefügt',
+    headerFieldRemoved: 'Kopffeld entfernt',
+    headerFieldReordered: 'Kopffeld verschoben',
+    scaleChanged: 'Skala geändert',
+    reset: 'Zurücksetzen',
+    configLoaded: 'Konfiguration geladen'
   }
 } as const;

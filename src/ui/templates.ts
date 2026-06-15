@@ -98,6 +98,14 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const onboardingHint = el('aside', { id: 'onboarding-hint', class: 'onboarding-hint', 'aria-label': strings.onboarding.intro, hidden: 'true' },
+    el('span', { class: 'onboarding-hint__intro', text: strings.onboarding.intro }),
+    el('ol', { class: 'onboarding-hint__steps' },
+      ...strings.onboarding.steps.map((step) => el('li', { text: step }))
+    ),
+    el('button', { id: 'onboarding-dismiss', class: 'onboarding-hint__dismiss', type: 'button', 'aria-label': strings.onboarding.dismiss, title: strings.onboarding.dismiss, text: '✕' })
+  );
+
   const workspace = el('div', { class: 'workspace' },
     el('nav', { class: 'mobile-tabs', role: 'tablist', 'aria-label': 'Arbeitsbereich' },
       mobileTab('edit', strings.labels.mobileEdit, true),
@@ -105,16 +113,16 @@ export function renderLayout(): HTMLElement {
       mobileTab('export', strings.labels.mobileExport, false)
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
-      editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
-      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
-      editorSection(strings.columns.selected,
+      editorSection(strings.kopfdaten.documentTitleSection, 'title', el('div', { id: 'document-title-form', class: 'document-title-fields' })),
+      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', 'kopfdaten', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSection(strings.columns.selected, 'selected',
         el('div', { class: 'selected-head' },
           el('div', { id: 'selected-counter', class: 'selected-counter' }),
           toolbarButton('trash', strings.labels.clearSelection, 'clear-selection', { class: 'btn btn-small' })
         ),
         el('div', { id: 'selected-list', class: 'selected-list' })
       ),
-      editorSectionCounted(strings.columns.categories, 'criteria-count',
+      editorSectionCounted(strings.columns.categories, 'criteria-count', 'criteria',
         el('div', { class: 'search-wrap' },
           el('label', { for: 'criteria-search', class: 'small-label', text: strings.labels.searchCriteria }),
           el('input', {
@@ -132,11 +140,11 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
-      editorSectionCounted(strings.columns.productFormats, 'product-format-count',
+      editorSectionCounted(strings.columns.productFormats, 'product-format-count', 'formats',
         el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
         el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
       ),
-      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', el('div', { id: 'footer-fields', class: 'footer-fields' }))
+      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', 'footer', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -155,7 +163,7 @@ export function renderLayout(): HTMLElement {
       )
     ),
     el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
-      editorSection(strings.columns.export,
+      editorSection(strings.columns.export, undefined,
         el('div', { class: 'mobile-export-actions' },
           exportButton('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
           exportButton('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
@@ -184,6 +192,7 @@ export function renderLayout(): HTMLElement {
         el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
         el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
       ),
+      coffeeLink(),
       githubLink()
     )
   );
@@ -193,24 +202,47 @@ export function renderLayout(): HTMLElement {
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
   const toast = el('div', { id: 'app-toast', class: 'app-toast', role: 'status', 'aria-live': 'polite', hidden: 'true' });
 
-  app.append(header, actionBar, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
+  app.append(header, actionBar, onboardingHint, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
   return app;
 }
 
-function editorSection(title: string, ...children: (HTMLElement | null)[]): HTMLElement {
-  const section = el('section', { class: 'editor-section' });
-  section.append(el('h2', { class: 'editor-section-title', text: title }));
-  children.forEach((c) => { if (c) section.append(c); });
-  return section;
+function editorSection(title: string, sectionId: string | undefined, ...children: (HTMLElement | null)[]): HTMLElement {
+  return buildEditorSection(sectionId, [el('span', { class: 'editor-section-title-text', text: title })], children);
 }
 
-function editorSectionCounted(title: string, countId: string, ...children: (HTMLElement | null)[]): HTMLElement {
-  const section = el('section', { class: 'editor-section' });
-  section.append(el('h2', { class: 'editor-section-title' },
+function editorSectionCounted(title: string, countId: string, sectionId: string | undefined, ...children: (HTMLElement | null)[]): HTMLElement {
+  return buildEditorSection(sectionId, [
     el('span', { class: 'editor-section-title-text', text: title }),
     el('span', { id: countId, class: 'editor-section-count', hidden: 'true' })
-  ));
-  children.forEach((c) => { if (c) section.append(c); });
+  ], children);
+}
+
+// Builds an editor block. With a sectionId the heading becomes a collapse toggle
+// (aria-expanded button) controlling a wrapped panel; without one it stays a flat
+// section (used by the mobile export pane). See setupSectionToggles in main.ts.
+function buildEditorSection(
+  sectionId: string | undefined,
+  headingContent: HTMLElement[],
+  children: (HTMLElement | null)[]
+): HTMLElement {
+  const section = el('section', { class: 'editor-section' });
+  if (!sectionId) {
+    section.append(el('h2', { class: 'editor-section-title' }, ...headingContent));
+    children.forEach((c) => { if (c) section.append(c); });
+    return section;
+  }
+  const btnId = `sec-${sectionId}-btn`;
+  const panelId = `sec-${sectionId}-panel`;
+  section.setAttribute('data-section-id', sectionId);
+  const toggle = el('button', {
+    type: 'button', class: 'section-toggle', id: btnId,
+    'aria-expanded': 'true', 'aria-controls': panelId
+  }, ...headingContent);
+  const panel = el('div', {
+    id: panelId, class: 'editor-section-panel', role: 'region', 'aria-labelledby': btnId
+  });
+  children.forEach((c) => { if (c) panel.append(c); });
+  section.append(el('h2', { class: 'editor-section-title' }, toggle), panel);
   return section;
 }
 
@@ -264,6 +296,36 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   const btn = el('button', { class: 'export-card-button', type: 'button', 'data-export-format': format });
   btn.append(icon(iconId), el('span', { text: label }));
   return btn;
+}
+
+function coffeeLink(): HTMLAnchorElement {
+  const link = el('a', {
+    class: 'bmc-link',
+    href: 'https://www.buymeacoffee.com/Haake',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'Buy me a coffee',
+    'aria-label': 'Buy me a coffee'
+  });
+  link.append(coffeeIcon(), el('span', { class: 'bmc-link-label', text: 'Buy me a coffee' }));
+  return link;
+}
+
+function coffeeIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('width', '18');
+  svg.setAttribute('height', '18');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3');
+  svg.append(path);
+  return svg;
 }
 
 function githubLink(): HTMLAnchorElement {
@@ -1104,7 +1166,8 @@ export function renderPreview(
   documentTitle: DocumentTitleConfig,
   header: HeaderData,
   footerFields: FooterFields,
-  mode: PrintMode
+  mode: PrintMode,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
 ) {
   container.innerHTML = '';
 
@@ -1116,7 +1179,7 @@ export function renderPreview(
   if (rows.length === 0) {
     container.append(el('p', { class: 'a4-empty', text: strings.labels.previewEmpty }));
   } else {
-    container.append(renderA4Body(rows, mode));
+    container.append(renderA4Body(rows, mode, onRemoveItem));
   }
 
   container.append(renderA4Feedback());
@@ -1140,7 +1203,11 @@ function renderA4Header(header: HeaderData): HTMLElement {
   return wrap;
 }
 
-function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
+function renderA4Body(
+  rows: ExportRow[],
+  mode: PrintMode,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
   const wrap = el('div', { class: 'a4-body' });
 
   // Group rows by categoryId, preserve category order from first appearance
@@ -1155,7 +1222,7 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
     section.append(el('h2', { class: 'a4-cat-heading', text: title }));
     if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
     const list = el('ol', { class: 'a4-items' });
-    items.forEach((r) => list.append(renderA4Item(r, mode, scale)));
+    items.forEach((r) => list.append(renderA4Item(r, mode, scale, onRemoveItem)));
     section.append(list);
     wrap.append(section);
   });
@@ -1163,26 +1230,46 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   return wrap;
 }
 
-function renderA4Item(row: ExportRow, mode: PrintMode, scale: Scale | null): HTMLElement {
+function a4RemoveButton(row: ExportRow, onRemoveItem: (categoryId: string, itemId: string) => void): HTMLButtonElement {
+  const btn = el('button', {
+    class: 'a4-item-remove',
+    type: 'button',
+    'aria-label': strings.labels.removeFromPreview(row.item),
+    title: strings.labels.removeFromPreview(row.item)
+  }) as HTMLButtonElement;
+  btn.append(icon('icon-trash'));
+  btn.addEventListener('click', () => onRemoveItem(row.categoryId, row.itemId!));
+  return btn;
+}
+
+function renderA4Item(
+  row: ExportRow,
+  mode: PrintMode,
+  scale: Scale | null,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
   const itemClasses = ['a4-item'];
   if (mode === 'checklist') itemClasses.push('a4-item-checklist');
   if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
 
   const li = el('li', { class: itemClasses.join(' ') });
+  const canRemove = Boolean(onRemoveItem && row.itemId);
+  if (canRemove) li.classList.add('a4-item-removable');
   const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {
     li.append(el('span', { class: 'a4-cbox', text: '☐' }));
     li.append(label);
-    return li;
+  } else {
+    li.append(label);
+    if (scale) {
+      li.append(renderScaleBoxes(scale));
+    } else {
+      li.append(el('div', { class: 'a4-scale-line' }));
+    }
   }
 
-  li.append(label);
-  if (scale) {
-    li.append(renderScaleBoxes(scale));
-  } else {
-    li.append(el('div', { class: 'a4-scale-line' }));
-  }
+  if (canRemove) li.append(a4RemoveButton(row, onRemoveItem!));
   return li;
 }
 

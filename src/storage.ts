@@ -1,13 +1,13 @@
 import { categoryOrderFromSelection, itemOrderFromSelection, uniqueStrings } from './config-order';
 import { strings } from './strings';
 import type {
-  AppConfig, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
+  AppConfig, CustomCategory, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
   HeaderData, HeaderField, NumericScaleSettings, SelectedItemRef
 } from './types';
 
 const KEY = 'bbk:config';
 const SECTIONS_KEY = 'bbk:sections';
-export const CONFIG_SCHEMA_VERSION = 3;
+export const CONFIG_SCHEMA_VERSION = 4;
 
 export type SectionState = Record<string, boolean>;
 
@@ -86,7 +86,10 @@ export function createDefaultConfig(defaultScaleId?: string): AppConfig {
     footerFields: { ...DEFAULT_FOOTER_FIELDS },
     customItems: [],
     categoryOrder: [],
-    itemOrderByCategory: {}
+    itemOrderByCategory: {},
+    categoryTitleOverrides: {},
+    customCategories: [],
+    categoryWeights: {}
   };
 }
 
@@ -202,6 +205,39 @@ function normalizeItemOrder(value: unknown): Record<string, string[]> {
   );
 }
 
+function normalizeStringMap(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1].trim() !== '')
+      .map(([key, val]) => [key, val.trim()])
+  );
+}
+
+function normalizeCustomCategories(value: unknown): CustomCategory[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry): CustomCategory | null => {
+      if (!entry || typeof entry !== 'object') return null;
+      const cat = entry as Partial<CustomCategory>;
+      if (typeof cat.id !== 'string' || typeof cat.title !== 'string') return null;
+      const title = cat.title.trim();
+      if (!cat.id || !title) return null;
+      return { id: cat.id, title };
+    })
+    .filter((cat): cat is CustomCategory => cat !== null);
+}
+
+function normalizeWeights(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter((entry): entry is [string, number] =>
+        typeof entry[1] === 'number' && Number.isFinite(entry[1]) && entry[1] > 0)
+      .map(([key, val]) => [key, Math.min(100, Math.max(0, val))])
+  );
+}
+
 function migrateConfig(value: Record<string, unknown>): ConfigParseResult {
   const rawVersion = value.schemaVersion;
   const schemaVersion = rawVersion === undefined ? 1 : rawVersion;
@@ -216,14 +252,18 @@ function migrateConfig(value: Record<string, unknown>): ConfigParseResult {
   }
   if (schemaVersion === CONFIG_SCHEMA_VERSION) return normalizeConfig(value);
 
+  // Older config: derive ordering from selection only when the fields are absent
+  // (pre-v3). v3 configs already carry explicit order — preserve it, just add the
+  // v4 fields (which normalizeConfig defaults from missing). New fields need no
+  // special migration: their normalizers return empty defaults when absent.
   const selectedItems = Array.isArray(value.selectedItems)
     ? value.selectedItems.map(normalizeSelectedItem).filter((item): item is SelectedItemRef => item !== null)
     : [];
   return normalizeConfig({
     ...value,
     schemaVersion: CONFIG_SCHEMA_VERSION,
-    categoryOrder: categoryOrderFromSelection(selectedItems),
-    itemOrderByCategory: itemOrderFromSelection(selectedItems)
+    categoryOrder: value.categoryOrder ?? categoryOrderFromSelection(selectedItems),
+    itemOrderByCategory: value.itemOrderByCategory ?? itemOrderFromSelection(selectedItems)
   });
 }
 
@@ -250,7 +290,10 @@ function normalizeConfig(value: Record<string, unknown>): ConfigParseResult {
         ? value.customItems.map(normalizeCustomItem).filter((item): item is CustomItem => item !== null)
         : [],
       categoryOrder: normalizeStringArray(value.categoryOrder),
-      itemOrderByCategory: normalizeItemOrder(value.itemOrderByCategory)
+      itemOrderByCategory: normalizeItemOrder(value.itemOrderByCategory),
+      categoryTitleOverrides: normalizeStringMap(value.categoryTitleOverrides),
+      customCategories: normalizeCustomCategories(value.customCategories),
+      categoryWeights: normalizeWeights(value.categoryWeights)
     }
   };
 }
@@ -297,16 +340,28 @@ function configDownloadFilename(config: AppConfig): string {
     String(now.getMonth() + 1).padStart(2, '0'),
     String(now.getDate()).padStart(2, '0')
   ].join('-');
-  const topic = config.header.fields
-    .find((field) => field.id === 'topic')
-    ?.value.trim()
+  const sanitize = (value: string): string => value.trim()
     .split('')
     .filter((character) => character.charCodeAt(0) >= 32)
     .join('')
     .replace(/[<>:"/\\|?*]/g, '-')
-    .replace(/\s+/g, ' ');
+    .replace(/\s+/g, ' ')
+    .trim();
 
-  return `${date}_Feedbackbogen${topic ? `_${topic}` : ''}.json`;
+  const titleByMode: Record<DocumentTitleMode, string> = {
+    bewertungsbogen: 'Bewertungsbogen',
+    feedbackbogen: 'Feedbackbogen',
+    custom: ''
+  };
+  const base = sanitize(
+    config.documentTitle.mode === 'custom'
+      ? config.documentTitle.custom
+      : titleByMode[config.documentTitle.mode]
+  ) || 'Feedbackbogen';
+
+  const topic = sanitize(config.header.fields.find((field) => field.id === 'topic')?.value ?? '');
+
+  return `${date}_${base}${topic ? `_${topic}` : ''}.json`;
 }
 
 export async function importConfigJSON(): Promise<ConfigImportResult> {

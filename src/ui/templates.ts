@@ -5,6 +5,7 @@ import { sanitizeNumericScaleSettings, scaleDisplay, scaleOptionLabels } from '@
 import { productFormatCategoryId } from '@/product-formats';
 import { contentPages } from '@/content-pages';
 import { orderByIds } from '@/config-order';
+import { categoryHeadingText } from '@/export/export-utils';
 import type {
   Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode, NumericScaleSettings,
   HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
@@ -28,12 +29,17 @@ export type RenderHandlers = {
   onNumericScaleRangeChange: (categoryId: string, min: number, max: number) => void;
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
+  onBulkAddCustomItems: (categoryId: string, labels: string[]) => void;
   onRemoveCustomItem: (itemId: string) => void;
   onRemoveSelected: (categoryId: string, itemId: string) => void;
   onSelectCategory: (categoryId: string) => void;
   onClearCategory: (categoryId: string) => void;
   onClearSelection: () => void;
   onReorderCategory: (draggedCategoryId: string, targetCategoryId: string) => void;
+  onCategoryTitleChange: (categoryId: string, title: string) => void;
+  onAddCategory: (title: string) => void;
+  onRemoveCategory: (categoryId: string) => void;
+  onCategoryWeightChange: (categoryId: string, weight: number | null) => void;
   onReorderItem: (categoryId: string, draggedItemId: string, targetItemId: string) => void;
   onSearchChange: (value: string) => void;
   onOpenProductFormatModal: () => void;
@@ -850,7 +856,9 @@ export function renderCategories(
   defaultScaleId: string,
   itemOrderByCategory: Record<string, string[]>,
   handlers: RenderHandlers,
-  searchQuery = ''
+  searchQuery = '',
+  editable = false,
+  categoryWeights: Record<string, number> = {}
 ) {
   container.innerHTML = '';
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -873,6 +881,45 @@ export function renderCategories(
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
+    if (editable) {
+      const titleInput = el('input', {
+        type: 'text', class: 'category-title-input', 'data-cat': c.id, value: c.title,
+        'aria-label': strings.labels.renameCategory
+      }) as HTMLInputElement;
+      const commitTitle = () => handlers.onCategoryTitleChange(c.id, titleInput.value);
+      titleInput.addEventListener('blur', commitTitle);
+      titleInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+      });
+      const renameRow = el('div', { class: 'category-edit-row' },
+        el('label', { class: 'small-label', text: strings.labels.renameCategory }), titleInput);
+      if (c.id.startsWith('custom_cat_')) {
+        const delBtn = el('button', {
+          class: 'btn-icon danger', type: 'button',
+          title: strings.labels.removeCategory, 'aria-label': strings.labels.removeCategory
+        }, icon('icon-trash'));
+        delBtn.addEventListener('click', () => handlers.onRemoveCategory(c.id));
+        renameRow.append(delBtn);
+      }
+      panel.append(renameRow);
+
+      const weightInput = el('input', {
+        type: 'number', class: 'category-weight-input', 'data-cat': c.id, min: '0', max: '100', step: '5',
+        value: categoryWeights[c.id] != null ? String(categoryWeights[c.id]) : '',
+        placeholder: '—', 'aria-label': strings.labels.categoryWeight
+      }) as HTMLInputElement;
+      const commitWeight = () => {
+        const raw = weightInput.value.trim();
+        handlers.onCategoryWeightChange(c.id, raw === '' ? null : Number(raw));
+      };
+      weightInput.addEventListener('change', commitWeight);
+      weightInput.addEventListener('blur', commitWeight);
+      panel.append(el('div', { class: 'category-edit-row' },
+        el('label', { class: 'small-label', text: strings.labels.categoryWeight }),
+        weightInput,
+        el('span', { class: 'weight-unit', text: '%' })
+      ));
+    }
     panel.append(categoryScaleRow(c, scales, scaleByCategory[c.id] ?? defaultScaleId, scaleSettingsByCategory[c.id], handlers));
     panel.append(el('div', { class: 'category-actions' },
       smallActionButton(strings.labels.selectCategory, () => handlers.onSelectCategory(c.id)),
@@ -915,6 +962,21 @@ export function renderCategories(
     });
     panel.append(el('div', { class: 'add-custom-row' }, customInput, addCustomBtn));
 
+    const bulkInput = el('textarea', {
+      class: 'bulk-add-input', 'data-cat': c.id, rows: '3',
+      placeholder: strings.labels.bulkAddPlaceholder, 'aria-label': strings.labels.bulkAdd
+    }) as HTMLTextAreaElement;
+    const bulkBtn = el('button', { class: 'btn btn-small add-bulk-btn', type: 'button' });
+    bulkBtn.append(icon('icon-plus'), el('span', { text: strings.labels.bulkAddButton }));
+    const commitBulk = () => {
+      const labels = bulkInput.value.split('\n').map((line) => line.trim()).filter(Boolean);
+      if (!labels.length) return;
+      handlers.onBulkAddCustomItems(c.id, labels);
+      bulkInput.value = '';
+    };
+    bulkBtn.addEventListener('click', commitBulk);
+    panel.append(el('div', { class: 'bulk-add-row' }, bulkInput, bulkBtn));
+
     headerBtn.addEventListener('click', () => {
       const expanded = headerBtn.getAttribute('aria-expanded') === 'true';
       const next = !expanded;
@@ -930,6 +992,28 @@ export function renderCategories(
   refreshCategoryCounts(container, categories, customItems, selectedKeys);
   if (renderedCategories === 0) {
     container.append(el('p', { class: 'search-empty', text: 'Keine passenden Kriterien gefunden.' }));
+  }
+
+  // Weight-sum hint: warn (non-blocking) when set weights don't total 100 %.
+  if (editable && !normalizedQuery) {
+    const sum = Object.values(categoryWeights).reduce((acc, w) => acc + w, 0);
+    if (sum > 0 && Math.round(sum) !== 100) {
+      container.append(el('p', { class: 'weight-sum-note', text: strings.labels.weightSumWarn(Math.round(sum)) }));
+    }
+  }
+
+  // Add-category affordance: only on the editable main list, hidden while searching.
+  if (editable && !normalizedQuery) {
+    const input = el('input', {
+      type: 'text', class: 'add-category-input',
+      placeholder: strings.labels.addCategoryPlaceholder, 'aria-label': strings.labels.addCategory
+    }) as HTMLInputElement;
+    const btn = el('button', { class: 'btn btn-small btn-primary add-category-btn', type: 'button', 'aria-label': strings.labels.addCategory });
+    btn.append(icon('icon-plus'), el('span', { text: strings.labels.addCategory }));
+    const commit = () => { if (input.value.trim()) { handlers.onAddCategory(input.value); input.value = ''; } };
+    btn.addEventListener('click', commit);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+    container.append(el('div', { class: 'add-category-row' }, input, btn));
   }
 }
 
@@ -1211,15 +1295,15 @@ function renderA4Body(
   const wrap = el('div', { class: 'a4-body' });
 
   // Group rows by categoryId, preserve category order from first appearance
-  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
+  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[]; weight?: number }>();
   rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [], weight: r.weight });
     groups.get(r.categoryId)!.items.push(r);
   });
 
-  groups.forEach(({ title, scale, items }) => {
+  groups.forEach(({ title, scale, items, weight }) => {
     const section = el('section', { class: 'a4-cat-section' });
-    section.append(el('h2', { class: 'a4-cat-heading', text: title }));
+    section.append(el('h2', { class: 'a4-cat-heading', text: categoryHeadingText(title, weight) }));
     if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
     const list = el('ol', { class: 'a4-items' });
     items.forEach((r) => list.append(renderA4Item(r, mode, scale, onRemoveItem)));
@@ -1255,6 +1339,8 @@ function renderA4Item(
   const li = el('li', { class: itemClasses.join(' ') });
   const canRemove = Boolean(onRemoveItem && row.itemId);
   if (canRemove) li.classList.add('a4-item-removable');
+  // Numbering in the preview comes from the CSS counter on .a4-item-label::before
+  // (resets per section). Exports use row.number instead — same 1-based sequence.
   const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {

@@ -23,7 +23,7 @@ import {
   applyNumericScaleSettings, normalizeScaleValue, sanitizeNumericScaleSettings, scaleDisplay
 } from './scale-utils';
 import type {
-  SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  SelectedItemRef, ExportRow, CustomItem, CustomCategory, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, FooterFields, FooterFieldId, PrintMode, Category, AppConfig, NumericScaleSettings
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
@@ -65,6 +65,9 @@ async function bootstrap() {
   let customItems: CustomItem[] = [];
   let categoryOrder: string[] = [];
   let itemOrderByCategory: Record<string, string[]> = {};
+  let categoryTitleOverrides: Record<string, string> = {};
+  let customCategories: CustomCategory[] = [];
+  let categoryWeights: Record<string, number> = {};
   type HistoryEntry = { config: AppConfig; label: string };
   const undoStack: HistoryEntry[] = [];
   const redoStack: HistoryEntry[] = [];
@@ -89,6 +92,9 @@ async function bootstrap() {
     customItems = persisted.customItems ?? [];
     categoryOrder = persisted.categoryOrder;
     itemOrderByCategory = persisted.itemOrderByCategory;
+    categoryTitleOverrides = persisted.categoryTitleOverrides ?? {};
+    customCategories = persisted.customCategories ?? [];
+    categoryWeights = persisted.categoryWeights ?? {};
     announce(strings.messages.loaded);
   }
 
@@ -162,6 +168,19 @@ async function bootstrap() {
       }, true, strings.history.customAdded);
       announce(strings.messages.customItemAdded);
     },
+    onBulkAddCustomItems: (categoryId: string, labels: string[]) => {
+      const trimmed = labels.map((label) => label.trim()).filter(Boolean);
+      if (!trimmed.length) return;
+      const stamp = Date.now();
+      commitConfigChange(() => {
+        trimmed.forEach((label, i) => {
+          const id = `custom_${categoryId}_${stamp}_${i}`;
+          customItems.push({ id, label, custom: true, categoryId });
+          selected.push({ categoryId, itemId: id });
+        });
+      }, true, strings.history.bulkAdded);
+      announce(strings.messages.bulkAdded(trimmed.length));
+    },
     onRemoveCustomItem: (itemId: string) => {
       commitConfigChange(() => {
         customItems = customItems.filter((ci) => ci.id !== itemId);
@@ -208,6 +227,69 @@ async function bootstrap() {
       }, true, strings.history.criterionReordered);
       announce(strings.messages.criterionReordered);
       focusDragHandle(`[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`);
+    },
+    onCategoryTitleChange: (categoryId: string, title: string) => {
+      const trimmed = title.trim();
+      const custom = customCategories.find((cc) => cc.id === categoryId);
+      if (custom) {
+        if (!trimmed || trimmed === custom.title) return;
+        commitConfigChange(() => {
+          customCategories = customCategories.map((cc) => (cc.id === categoryId ? { ...cc, title: trimmed } : cc));
+        }, true, strings.history.categoryRenamed);
+      } else {
+        const original = categories.find((c) => c.id === categoryId)?.title ?? '';
+        if (trimmed === (categoryTitleOverrides[categoryId] ?? original)) return;
+        commitConfigChange(() => {
+          if (!trimmed || trimmed === original) {
+            const { [categoryId]: _drop, ...rest } = categoryTitleOverrides;
+            categoryTitleOverrides = rest;
+          } else {
+            categoryTitleOverrides = { ...categoryTitleOverrides, [categoryId]: trimmed };
+          }
+        }, true, strings.history.categoryRenamed);
+      }
+      announce(strings.messages.categoryRenamed);
+    },
+    onAddCategory: (title: string) => {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+      const id = `custom_cat_${Date.now()}`;
+      commitConfigChange(() => {
+        customCategories = [...customCategories, { id, title: trimmed }];
+      }, true, strings.history.categoryAdded);
+      announce(strings.messages.categoryAdded);
+    },
+    onRemoveCategory: (categoryId: string) => {
+      if (!customCategories.some((cc) => cc.id === categoryId)) return;
+      commitConfigChange(() => {
+        customCategories = customCategories.filter((cc) => cc.id !== categoryId);
+        customItems = customItems.filter((ci) => ci.categoryId !== categoryId);
+        selected = selected.filter((s) => s.categoryId !== categoryId);
+        categoryOrder = categoryOrder.filter((id) => id !== categoryId);
+        const { [categoryId]: _scale, ...restScale } = scaleByCategoryMap;
+        scaleByCategoryMap = restScale;
+        const { [categoryId]: _settings, ...restSettings } = scaleSettingsByCategory;
+        scaleSettingsByCategory = restSettings;
+        const { [categoryId]: _weight, ...restWeights } = categoryWeights;
+        categoryWeights = restWeights;
+        const { [categoryId]: _order, ...restOrder } = itemOrderByCategory;
+        itemOrderByCategory = restOrder;
+      }, true, strings.history.categoryRemoved);
+      announce(strings.messages.categoryRemoved);
+    },
+    onCategoryWeightChange: (categoryId: string, weight: number | null) => {
+      const next = weight == null || !Number.isFinite(weight) || weight <= 0
+        ? undefined
+        : Math.min(100, Math.max(0, Math.round(weight)));
+      if (categoryWeights[categoryId] === next || (next === undefined && categoryWeights[categoryId] === undefined)) return;
+      commitConfigChange(() => {
+        if (next === undefined) {
+          const { [categoryId]: _drop, ...rest } = categoryWeights;
+          categoryWeights = rest;
+        } else {
+          categoryWeights = { ...categoryWeights, [categoryId]: next };
+        }
+      }, true, strings.history.weightChanged);
     },
     onSearchChange: (value: string) => {
       searchQuery = value;
@@ -335,8 +417,23 @@ async function bootstrap() {
     return orderCategories(selectedProductFormatCategories(productFormats, selectedProductFormats), categoryOrder);
   }
 
+  // Stufe 1: apply per-category title overrides; user-defined categories carry no
+  // built-in items (only custom items attach to them via categoryId).
+  function withTitleOverrides(cats: Category[]): Category[] {
+    return cats.map((c) => (categoryTitleOverrides[c.id] ? { ...c, title: categoryTitleOverrides[c.id] } : c));
+  }
+
+  function customCategoryList(): Category[] {
+    return customCategories.map((cc) => ({ id: cc.id, title: cc.title, items: [] as Category['items'] }));
+  }
+
+  // The editable list shown in the editor: built-ins + user categories, titles overridden.
+  function editorCategories(): Category[] {
+    return orderCategories(withTitleOverrides([...categories, ...customCategoryList()]), categoryOrder);
+  }
+
   function allActiveCategories(): Category[] {
-    return orderCategories([...categories, ...productCategories()], categoryOrder);
+    return orderCategories(withTitleOverrides([...categories, ...customCategoryList(), ...productCategories()]), categoryOrder);
   }
 
   function cloneHeader(value: HeaderData): HeaderData {
@@ -365,6 +462,9 @@ async function bootstrap() {
     itemOrderByCategory = Object.fromEntries(
       Object.entries(config.itemOrderByCategory).map(([categoryId, itemIds]) => [categoryId, [...itemIds]])
     );
+    categoryTitleOverrides = { ...(config.categoryTitleOverrides ?? {}) };
+    customCategories = (config.customCategories ?? []).map((cat) => ({ ...cat }));
+    categoryWeights = { ...(config.categoryWeights ?? {}) };
     normalizeOrderState();
   }
 
@@ -503,11 +603,13 @@ async function bootstrap() {
     const selectedKeys = selectedKeySet();
     const out: ExportRow[] = [];
     merged.forEach((c) => {
+      let number = 0;
       flattenedCategoryItems(c).forEach(({ id, label }) => {
         if (!selectedKeys.has(selectionKey(c.id, id))) return;
+        number += 1;
         const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = applyNumericScaleSettings(scaleById(scales, sId), scaleSettingsByCategory[c.id]);
-        out.push({ categoryId: c.id, category: c.title, item: label, scale: s, itemId: id });
+        out.push({ categoryId: c.id, category: c.title, item: label, scale: s, itemId: id, number, weight: categoryWeights[c.id] });
       });
     });
     return out;
@@ -557,7 +659,8 @@ async function bootstrap() {
       scaleByCategory: scaleByCategoryMap,
       scaleSettingsByCategory,
       defaultScaleId, documentTitle, header, footerFields, customItems,
-      categoryOrder, itemOrderByCategory
+      categoryOrder, itemOrderByCategory,
+      categoryTitleOverrides, customCategories, categoryWeights
     };
   }
 
@@ -571,6 +674,11 @@ async function bootstrap() {
     document.querySelectorAll<HTMLInputElement>('.custom-item-input[data-cat]').forEach((el) => {
       if (el.dataset.cat) savedInputs[el.dataset.cat] = el.value;
     });
+    const savedBulk: Record<string, string> = {};
+    document.querySelectorAll<HTMLTextAreaElement>('.bulk-add-input[data-cat]').forEach((el) => {
+      if (el.dataset.cat) savedBulk[el.dataset.cat] = el.value;
+    });
+    const savedAddCategory = document.querySelector<HTMLInputElement>('.add-category-input')?.value ?? '';
     // Preserve accordion open state
     const openCats = new Set<string>();
     document.querySelectorAll<HTMLButtonElement>('.accordion-header[aria-expanded="true"]').forEach((h) => {
@@ -588,7 +696,7 @@ async function bootstrap() {
     setSectionCount(headerFieldCountEl, header.fields.length, strings.labels.sectionCountFields);
     setSectionCount(footerFieldCountEl, Object.values(footerFields).filter(Boolean).length, strings.labels.sectionCountActive);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
+    renderCategories(categoriesEl, editorCategories(), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery, true, categoryWeights);
     const currentProductCategories = productCategories();
     renderProductFormatControls(productFormatControlsEl, currentProductCategories, handlers);
     if (currentProductCategories.length > 0) {
@@ -605,6 +713,14 @@ async function bootstrap() {
       const el = document.querySelector<HTMLInputElement>(`.custom-item-input[data-cat="${catId}"]`);
       if (el) el.value = val;
     });
+    Object.entries(savedBulk).forEach(([catId, val]) => {
+      const el = document.querySelector<HTMLTextAreaElement>(`.bulk-add-input[data-cat="${catId}"]`);
+      if (el) el.value = val;
+    });
+    if (savedAddCategory) {
+      const addCatEl = document.querySelector<HTMLInputElement>('.add-category-input');
+      if (addCatEl) addCatEl.value = savedAddCategory;
+    }
     // Restore accordion state
     openCats.forEach((catId) => {
       const header = document.getElementById(`acc-${catId}`);

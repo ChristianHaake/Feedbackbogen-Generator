@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 
-import { groupRows } from '@/export/export-utils';
+import { categoryHeadingText, groupRows } from '@/export/export-utils';
 import { scaleOptionLabels } from '@/scale-utils';
 import { strings } from '@/strings';
 import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
@@ -52,17 +52,17 @@ export function exportPDF(
       const scaleHeight = mode === 'full' && group.scale ? scaleHeaderHeight(pdf, group.scale) : 0;
 
       ensureSpace(headingHeight + scaleHeight + 34);
-      y = drawCategoryHeading(pdf, group.title, y);
+      y = drawCategoryHeading(pdf, categoryHeadingText(group.title, group.weight), y);
       if (mode === 'full' && group.scale) y = drawScaleHeader(pdf, group.scale, y);
 
       group.items.forEach((row, index) => {
         const rowHeight = itemRowHeight(pdf, row, group.scale, mode);
         if (y + rowHeight > bottomY) {
           addPage();
-          y = drawCategoryHeading(pdf, group.title, y);
+          y = drawCategoryHeading(pdf, categoryHeadingText(group.title, group.weight), y);
           if (mode === 'full' && group.scale) y = drawScaleHeader(pdf, group.scale, y);
         }
-        y = drawItemRow(pdf, row, group.scale, mode, index + 1, y, index % 2 === 1, rowHeight);
+        y = drawItemRow(pdf, row, group.scale, mode, row.number, y, index % 2 === 1, rowHeight);
       });
       y += 18;
     });

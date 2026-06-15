@@ -29,7 +29,7 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
       const shaded = index % 2 === 1;
       return [
         bodyCell(row.category, shaded),
-        bodyCell(row.item, shaded),
+        bodyCell(`${row.number}. ${row.item}`, shaded),
         bodyCell(scaleLabel(row.scale), shaded),
         bodyCell('', shaded)
       ];

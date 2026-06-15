@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 
-import { downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
+import { categoryHeadingText, downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
 import { strings } from '@/strings';
 import type { ExportRow, FooterFieldId, FooterFields, HeaderData, PrintMode } from '@/types';
 
@@ -72,7 +72,7 @@ function categoryTable(items: ExportRow[], category: string, mode: PrintMode, in
   const rows = items.map((row, rowIndex) =>
     tableRow(
       [
-        tableCell(`${rowIndex + 1}. ${row.item}`, rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell'),
+        tableCell(`${row.number}. ${row.item}`, rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell'),
         ...(options.length > 0
           ? options.map(() => tableCell('☐', rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell', 'Center'))
           : [tableCell('☐', rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell', 'Center')])
@@ -115,7 +115,7 @@ function feedbackTable() {
 }
 
 function contentXml(rows: ExportRow[], title: string, header: HeaderData, footerFields: FooterFields, mode: PrintMode) {
-  const categories = groupRows(rows).map((group, index) => categoryTable(group.items, group.title, mode, index)).join('');
+  const categories = groupRows(rows).map((group, index) => categoryTable(group.items, categoryHeadingText(group.title, group.weight), mode, index)).join('');
   const emptyState = rows.length === 0 ? paragraph(strings.labels.previewEmpty) : '';
   return `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-content

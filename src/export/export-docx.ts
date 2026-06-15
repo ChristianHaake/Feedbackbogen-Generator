@@ -16,7 +16,7 @@ import {
   WidthType
 } from 'docx';
 
-import { downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
+import { categoryHeadingText, downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
 import { strings } from '@/strings';
 import type { ExportRow, FooterFieldId, FooterFields, HeaderData, PrintMode } from '@/types';
 
@@ -116,7 +116,7 @@ function categoryTable(items: ExportRow[], category: string, mode: PrintMode): T
       new TableRow({
         cantSplit: true,
         children: [
-          cell(`${index + 1}. ${row.item}`, { width: criterionWidth, fill }),
+          cell(`${row.number}. ${row.item}`, { width: criterionWidth, fill }),
           ...(options.length > 0
             ? options.map(() => cell('☐', { width: optionWidth, fill, alignment: AlignmentType.CENTER }))
             : [cell('☐', { width: ratingWidth, fill, alignment: AlignmentType.CENTER })])
@@ -165,7 +165,7 @@ export async function createDOCXBlob(
   if (metadata) children.push(metadata, new Paragraph({ text: '', spacing: { after: 120 } }));
 
   groupRows(rows).forEach((group) => {
-    children.push(categoryTable(group.items, group.title, mode), new Paragraph({ text: '', spacing: { after: 120 } }));
+    children.push(categoryTable(group.items, categoryHeadingText(group.title, group.weight), mode), new Paragraph({ text: '', spacing: { after: 120 } }));
   });
 
   if (rows.length === 0) {

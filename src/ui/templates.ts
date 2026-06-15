@@ -113,16 +113,16 @@ export function renderLayout(): HTMLElement {
       mobileTab('export', strings.labels.mobileExport, false)
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
-      editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
-      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
-      editorSection(strings.columns.selected,
+      editorSection(strings.kopfdaten.documentTitleSection, 'title', el('div', { id: 'document-title-form', class: 'document-title-fields' })),
+      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', 'kopfdaten', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSection(strings.columns.selected, 'selected',
         el('div', { class: 'selected-head' },
           el('div', { id: 'selected-counter', class: 'selected-counter' }),
           toolbarButton('trash', strings.labels.clearSelection, 'clear-selection', { class: 'btn btn-small' })
         ),
         el('div', { id: 'selected-list', class: 'selected-list' })
       ),
-      editorSectionCounted(strings.columns.categories, 'criteria-count',
+      editorSectionCounted(strings.columns.categories, 'criteria-count', 'criteria',
         el('div', { class: 'search-wrap' },
           el('label', { for: 'criteria-search', class: 'small-label', text: strings.labels.searchCriteria }),
           el('input', {
@@ -140,11 +140,11 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
-      editorSectionCounted(strings.columns.productFormats, 'product-format-count',
+      editorSectionCounted(strings.columns.productFormats, 'product-format-count', 'formats',
         el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
         el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
       ),
-      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', el('div', { id: 'footer-fields', class: 'footer-fields' }))
+      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', 'footer', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
@@ -163,7 +163,7 @@ export function renderLayout(): HTMLElement {
       )
     ),
     el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
-      editorSection(strings.columns.export,
+      editorSection(strings.columns.export, undefined,
         el('div', { class: 'mobile-export-actions' },
           exportButton('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
           exportButton('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
@@ -206,20 +206,43 @@ export function renderLayout(): HTMLElement {
   return app;
 }
 
-function editorSection(title: string, ...children: (HTMLElement | null)[]): HTMLElement {
-  const section = el('section', { class: 'editor-section' });
-  section.append(el('h2', { class: 'editor-section-title', text: title }));
-  children.forEach((c) => { if (c) section.append(c); });
-  return section;
+function editorSection(title: string, sectionId: string | undefined, ...children: (HTMLElement | null)[]): HTMLElement {
+  return buildEditorSection(sectionId, [el('span', { class: 'editor-section-title-text', text: title })], children);
 }
 
-function editorSectionCounted(title: string, countId: string, ...children: (HTMLElement | null)[]): HTMLElement {
-  const section = el('section', { class: 'editor-section' });
-  section.append(el('h2', { class: 'editor-section-title' },
+function editorSectionCounted(title: string, countId: string, sectionId: string | undefined, ...children: (HTMLElement | null)[]): HTMLElement {
+  return buildEditorSection(sectionId, [
     el('span', { class: 'editor-section-title-text', text: title }),
     el('span', { id: countId, class: 'editor-section-count', hidden: 'true' })
-  ));
-  children.forEach((c) => { if (c) section.append(c); });
+  ], children);
+}
+
+// Builds an editor block. With a sectionId the heading becomes a collapse toggle
+// (aria-expanded button) controlling a wrapped panel; without one it stays a flat
+// section (used by the mobile export pane). See setupSectionToggles in main.ts.
+function buildEditorSection(
+  sectionId: string | undefined,
+  headingContent: HTMLElement[],
+  children: (HTMLElement | null)[]
+): HTMLElement {
+  const section = el('section', { class: 'editor-section' });
+  if (!sectionId) {
+    section.append(el('h2', { class: 'editor-section-title' }, ...headingContent));
+    children.forEach((c) => { if (c) section.append(c); });
+    return section;
+  }
+  const btnId = `sec-${sectionId}-btn`;
+  const panelId = `sec-${sectionId}-panel`;
+  section.setAttribute('data-section-id', sectionId);
+  const toggle = el('button', {
+    type: 'button', class: 'section-toggle', id: btnId,
+    'aria-expanded': 'true', 'aria-controls': panelId
+  }, ...headingContent);
+  const panel = el('div', {
+    id: panelId, class: 'editor-section-panel', role: 'region', 'aria-labelledby': btnId
+  });
+  children.forEach((c) => { if (c) panel.append(c); });
+  section.append(el('h2', { class: 'editor-section-title' }, toggle), panel);
   return section;
 }
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CONFIG_SCHEMA_VERSION, exportConfigJSON, importConfigJSON, loadConfig, parseConfig, saveConfig } from '@/storage';
+import { CONFIG_SCHEMA_VERSION, exportConfigJSON, importConfigJSON, loadConfig, parseConfig, resolveSectionState, saveConfig } from '@/storage';
 import type { AppConfig } from '@/types';
 
 const config: AppConfig = {
@@ -209,6 +209,25 @@ describe('config storage', () => {
       status: 'error',
       message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 3.'
     });
+  });
+});
+
+describe('section state', () => {
+  const defaults = ['title', 'kopfdaten', 'criteria'];
+
+  it('returns all defaults open when nothing is stored', () => {
+    expect(resolveSectionState(null, defaults)).toEqual({ title: true, kopfdaten: true, criteria: true });
+  });
+
+  it('ignores invalid stored values and falls back to defaults', () => {
+    expect(resolveSectionState('garbage', defaults)).toEqual({ title: true, kopfdaten: true, criteria: true });
+    expect(resolveSectionState({ title: 'yes', kopfdaten: 1 }, defaults))
+      .toEqual({ title: true, kopfdaten: true, criteria: true });
+  });
+
+  it('merges persisted booleans over the defaults', () => {
+    expect(resolveSectionState({ title: false, footer: true }, defaults))
+      .toEqual({ title: false, kopfdaten: true, criteria: true, footer: true });
   });
 });
 

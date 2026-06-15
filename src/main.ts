@@ -16,7 +16,7 @@ import {
 import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
   EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE, CONFIG_SCHEMA_VERSION,
-  createDefaultConfig
+  createDefaultConfig, loadSectionState, saveSectionState
 } from './storage';
 import { mergeOrder, orderByIds, orderCategories, swapOrder } from './config-order';
 import {
@@ -839,7 +839,40 @@ async function bootstrap() {
     onboardingDismissEl.blur();
   });
 
+  setupSectionToggles();
   setupKeyboardShortcuts(exportJson, openExportMenu, undo, redo);
+}
+
+// Section ids open by default on first load (no persisted state yet).
+const DEFAULT_OPEN_SECTIONS = ['title', 'kopfdaten', 'criteria'];
+
+// Wires the collapse/expand toggles on the editor blocks. Sections are built
+// once in renderLayout, so this is a one-time DOM-state setup: child re-renders
+// happen inside the panels and never touch the toggle state. State persists to
+// localStorage (bbk:sections) and is restored here on load.
+function setupSectionToggles(): void {
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-section-id]'));
+  const state = loadSectionState(DEFAULT_OPEN_SECTIONS);
+
+  for (const section of sections) {
+    const id = section.dataset.sectionId!;
+    const toggle = section.querySelector<HTMLButtonElement>('.section-toggle');
+    const panel = section.querySelector<HTMLElement>('.editor-section-panel');
+    if (!toggle || !panel) continue;
+
+    const apply = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+    };
+    apply(state[id] ?? false);
+
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      apply(open);
+      state[id] = open;
+      saveSectionState(state);
+    });
+  }
 }
 
 bootstrap();

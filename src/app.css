@@ -467,6 +467,25 @@ body {
   padding: 2px 8px; border-radius: 999px;
 }
 
+/* Collapse toggle: the section header becomes a full-width button. It reuses the
+   uppercase/bold .editor-section-title look (set on the wrapping h2) and stays
+   visually heavier than the nested .accordion-header inside KRITERIEN/FORMATE. */
+.section-toggle {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  background: none; border: 0; padding: 0; margin: 0;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.section-toggle .editor-section-title-text { flex: 1; }
+.section-toggle::after {
+  content: '−'; flex-shrink: 0;
+  font-size: 1rem; line-height: 1; color: var(--text-muted);
+}
+.section-toggle[aria-expanded="false"]::after { content: '+'; }
+.section-toggle:hover { color: var(--text); }
+/* Tighten the divider when the panel is collapsed. */
+.editor-section:has(.section-toggle[aria-expanded="false"]) .editor-section-title { margin-bottom: 0; }
+
 .search-wrap { display: flex; flex-direction: column; gap: 3px; margin-bottom: var(--space-3); }
 .criteria-search {
   width: 100%;
@@ -1288,7 +1307,7 @@ body {
 }
 
 /* ─────── A11y ─────── */
-.focus-visible, .btn:focus-visible, .menu-item:focus-visible, .export-card-button:focus-visible, .btn-mini:focus-visible, .accordion-header:focus-visible, select:focus-visible, .mode-tab:focus-visible, .mobile-tab:focus-visible, .item-checkbox:focus-visible, .item-description-button:focus-visible, .drag-handle:focus-visible {
+.focus-visible, .btn:focus-visible, .menu-item:focus-visible, .export-card-button:focus-visible, .btn-mini:focus-visible, .accordion-header:focus-visible, .section-toggle:focus-visible, select:focus-visible, .mode-tab:focus-visible, .mobile-tab:focus-visible, .item-checkbox:focus-visible, .item-description-button:focus-visible, .drag-handle:focus-visible {
   outline: 3px solid var(--focus); outline-offset: 2px;
 }
 .sr-only { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }

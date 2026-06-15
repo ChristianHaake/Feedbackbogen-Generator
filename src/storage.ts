@@ -6,7 +6,41 @@ import type {
 } from './types';
 
 const KEY = 'bbk:config';
+const SECTIONS_KEY = 'bbk:sections';
 export const CONFIG_SCHEMA_VERSION = 3;
+
+export type SectionState = Record<string, boolean>;
+
+// Pure: merge a persisted open/closed map onto the defaults so unknown/garbage
+// values are ignored and any section not present yet falls back to its default.
+// `defaults` lists the section ids that are open by default.
+export function resolveSectionState(stored: unknown, defaults: string[]): SectionState {
+  const state: SectionState = {};
+  for (const id of defaults) state[id] = true;
+  if (stored && typeof stored === 'object') {
+    for (const [id, open] of Object.entries(stored as Record<string, unknown>)) {
+      if (typeof open === 'boolean') state[id] = open;
+    }
+  }
+  return state;
+}
+
+export function loadSectionState(defaults: string[]): SectionState {
+  try {
+    const raw = localStorage.getItem(SECTIONS_KEY);
+    return resolveSectionState(raw ? JSON.parse(raw) : null, defaults);
+  } catch {
+    return resolveSectionState(null, defaults);
+  }
+}
+
+export function saveSectionState(state: SectionState): void {
+  try {
+    localStorage.setItem(SECTIONS_KEY, JSON.stringify(state));
+  } catch {
+    /* localStorage unavailable — section state is non-critical UI state */
+  }
+}
 
 export type ConfigImportResult =
   | { status: 'success'; config: AppConfig }

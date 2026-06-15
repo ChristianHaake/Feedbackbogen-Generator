@@ -411,6 +411,27 @@ body {
   background: var(--surface-subtle);
   color: var(--text);
 }
+.bmc-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 12px;
+  border: 1px solid #000;
+  border-radius: 999px;
+  background: #FFDD00;
+  color: #000;
+  font-weight: 700;
+  text-decoration: none;
+}
+.bmc-link svg {
+  display: block;
+  flex: 0 0 auto;
+}
+.bmc-link:hover {
+  filter: brightness(0.95);
+}
 .mobile-tabs { display: none; }
 .mobile-export-pane { display: none; }
 
@@ -1350,6 +1371,7 @@ body {
   .app-footer-links { justify-content: flex-start; gap: var(--space-3); }
   .app-footer-nav { gap: var(--space-3); }
   .github-link-label { display: none; }
+  .bmc-link-label { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 

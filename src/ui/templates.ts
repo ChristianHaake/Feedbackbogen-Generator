@@ -192,6 +192,7 @@ export function renderLayout(): HTMLElement {
         el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
         el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
       ),
+      coffeeLink(),
       githubLink()
     )
   );
@@ -272,6 +273,36 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   const btn = el('button', { class: 'export-card-button', type: 'button', 'data-export-format': format });
   btn.append(icon(iconId), el('span', { text: label }));
   return btn;
+}
+
+function coffeeLink(): HTMLAnchorElement {
+  const link = el('a', {
+    class: 'bmc-link',
+    href: 'https://www.buymeacoffee.com/Haake',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'Buy me a coffee',
+    'aria-label': 'Buy me a coffee'
+  });
+  link.append(coffeeIcon(), el('span', { class: 'bmc-link-label', text: 'Buy me a coffee' }));
+  return link;
+}
+
+function coffeeIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('width', '18');
+  svg.setAttribute('height', '18');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3');
+  svg.append(path);
+  return svg;
 }
 
 function githubLink(): HTMLAnchorElement {

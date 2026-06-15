@@ -21,7 +21,10 @@ const config: AppConfig = {
   },
   customItems: [],
   categoryOrder: ['allgemeine'],
-  itemOrderByCategory: { allgemeine: ['abgabe'] }
+  itemOrderByCategory: { allgemeine: ['abgabe'] },
+  categoryTitleOverrides: {},
+  customCategories: [],
+  categoryWeights: {}
 };
 
 describe('config storage', () => {
@@ -91,7 +94,7 @@ describe('config storage', () => {
     expect(click).toHaveBeenCalledOnce();
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:test-config');
-    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen.json');
+    expect(downloadedFilename).toBe('2026-05-30_Testbogen.json');
     expect(downloadedBlob).not.toBeNull();
     expect(JSON.parse(await downloadedBlob!.text())).toEqual(config);
   });
@@ -119,7 +122,7 @@ describe('config storage', () => {
 
     exportConfigJSON(configWithTopic);
 
-    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen_KI - Ethik- Chancen-.json');
+    expect(downloadedFilename).toBe('2026-05-30_Testbogen_KI - Ethik- Chancen-.json');
   });
 
   it('loads and normalizes a config from an uploaded JSON file', async () => {
@@ -207,7 +210,50 @@ describe('config storage', () => {
   it('rejects configs from unsupported future schema versions with a readable message', () => {
     expect(parseConfig({ schemaVersion: 99, selectedItems: [] })).toEqual({
       status: 'error',
-      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 3.'
+      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 4.'
+    });
+  });
+
+  it('adds v4 fields with empty defaults when migrating a v3 config and preserves its order', () => {
+    const result = parseConfig({
+      schemaVersion: 3,
+      selectedItems: [{ categoryId: 'sachebene', itemId: 'tiefe' }],
+      categoryOrder: ['allgemeine', 'sachebene'],
+      itemOrderByCategory: { sachebene: ['tiefe'] }
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        schemaVersion: CONFIG_SCHEMA_VERSION,
+        categoryOrder: ['allgemeine', 'sachebene'],
+        categoryTitleOverrides: {},
+        customCategories: [],
+        categoryWeights: {}
+      }
+    });
+  });
+
+  it('normalizes v4 fields: trims titles, drops blanks, clamps weights', () => {
+    const result = parseConfig({
+      schemaVersion: 4,
+      selectedItems: [],
+      categoryTitleOverrides: { sachebene: '  Inhalt  ', praesentation: '   ', allgemeine: 42 },
+      customCategories: [
+        { id: 'custom_cat_1', title: '  Vortrag ' },
+        { id: '', title: 'no id' },
+        { id: 'x', title: '   ' }
+      ],
+      categoryWeights: { sachebene: 40, praesentation: 150, allgemeine: 0, sprachgebrauch: 'x' }
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        categoryTitleOverrides: { sachebene: 'Inhalt' },
+        customCategories: [{ id: 'custom_cat_1', title: 'Vortrag' }],
+        categoryWeights: { sachebene: 40, praesentation: 100 }
+      }
     });
   });
 });

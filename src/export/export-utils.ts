@@ -5,7 +5,13 @@ export type ExportRowGroup = {
   title: string;
   scale: Scale | null;
   items: ExportRow[];
+  weight?: number;
 };
+
+// Section heading text with an optional weight badge, e.g. "Sachebene — 40 %".
+export function categoryHeadingText(title: string, weight?: number): string {
+  return weight ? `${title} — ${Math.round(weight)} %` : title;
+}
 
 export function scaleOptions(scale: Scale | null): string[] {
   return scale ? scaleOptionLabels(scale) : [];
@@ -20,7 +26,7 @@ export function groupRows(rows: ExportRow[]): ExportRowGroup[] {
   const groups = new Map<string, ExportRowGroup>();
   rows.forEach((row) => {
     if (!groups.has(row.categoryId)) {
-      groups.set(row.categoryId, { title: row.category, scale: row.scale, items: [] });
+      groups.set(row.categoryId, { title: row.category, scale: row.scale, items: [], weight: row.weight });
     }
     groups.get(row.categoryId)!.items.push(row);
   });

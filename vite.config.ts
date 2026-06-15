@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // __dirname replacement for ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -72,7 +73,45 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src')
     }
   },
-  plugins: [contentPlugin()],
+  plugins: [
+    contentPlugin(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'icons.svg', 'logo.svg'],
+      manifest: {
+        name: 'Feedbackbogen-Generator',
+        short_name: 'Feedbackbogen',
+        description: 'Feedbackbögen für zukunftsorientierte Prüfungsformate — lokal im Browser.',
+        lang: 'de',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        theme_color: '#245DCC',
+        background_color: '#ffffff',
+        icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ]
+      },
+      workbox: {
+        // App shell is precached; runtime-fetched /content/* (markdown + JSON) is
+        // cached on first online visit so it stays available offline afterwards.
+        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        navigateFallback: '/index.html',
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/content/'),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'content',
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 }
+            }
+          }
+        ]
+      }
+    })
+  ],
   test: {
     root: __dirname,
     environment: 'jsdom',

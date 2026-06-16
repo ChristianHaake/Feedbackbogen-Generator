@@ -913,7 +913,6 @@ export function renderCategories(
         handlers.onCategoryWeightChange(c.id, raw === '' ? null : Number(raw));
       };
       weightInput.addEventListener('change', commitWeight);
-      weightInput.addEventListener('blur', commitWeight);
       panel.append(el('div', { class: 'category-edit-row' },
         el('label', { class: 'small-label', text: strings.labels.categoryWeight }),
         weightInput,
@@ -995,8 +994,10 @@ export function renderCategories(
   }
 
   // Weight-sum hint: warn (non-blocking) when set weights don't total 100 %.
+  // Only count categories present in this list — orphan weights from removed
+  // product formats or unshown built-ins would otherwise skew the sum.
   if (editable && !normalizedQuery) {
-    const sum = Object.values(categoryWeights).reduce((acc, w) => acc + w, 0);
+    const sum = categories.reduce((acc, c) => acc + (categoryWeights[c.id] ?? 0), 0);
     if (sum > 0 && Math.round(sum) !== 100) {
       container.append(el('p', { class: 'weight-sum-note', text: strings.labels.weightSumWarn(Math.round(sum)) }));
     }
@@ -1322,7 +1323,7 @@ function a4RemoveButton(row: ExportRow, onRemoveItem: (categoryId: string, itemI
     title: strings.labels.removeFromPreview(row.item)
   }) as HTMLButtonElement;
   btn.append(icon('icon-trash'));
-  btn.addEventListener('click', () => onRemoveItem(row.categoryId, row.itemId!));
+  btn.addEventListener('click', () => onRemoveItem(row.categoryId, row.itemId));
   return btn;
 }
 
@@ -1337,8 +1338,7 @@ function renderA4Item(
   if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
 
   const li = el('li', { class: itemClasses.join(' ') });
-  const canRemove = Boolean(onRemoveItem && row.itemId);
-  if (canRemove) li.classList.add('a4-item-removable');
+  if (onRemoveItem) li.classList.add('a4-item-removable');
   // Numbering in the preview comes from the CSS counter on .a4-item-label::before
   // (resets per section). Exports use row.number instead — same 1-based sequence.
   const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
@@ -1355,7 +1355,7 @@ function renderA4Item(
     }
   }
 
-  if (canRemove) li.append(a4RemoveButton(row, onRemoveItem!));
+  if (onRemoveItem) li.append(a4RemoveButton(row, onRemoveItem));
   return li;
 }
 

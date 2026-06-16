@@ -22,8 +22,8 @@ const scale: NumericScale = {
 const header: HeaderData = { fields: [{ id: 'topic', label: 'Thema', value: 'Test & Qualität' }] };
 const footerFields: FooterFields = { date: true, signature: true, grade: false };
 const rows: ExportRow[] = [
-  { categoryId: 'general', category: 'Allgemein', item: 'Inhalt vollständig', scale, number: 1 },
-  { categoryId: 'general', category: 'Allgemein', item: 'Quellen korrekt', scale, number: 2 }
+  { categoryId: 'general', category: 'Allgemein', item: 'Inhalt vollständig', scale, itemId: 'i1', number: 1 },
+  { categoryId: 'general', category: 'Allgemein', item: 'Quellen korrekt', scale, itemId: 'i2', number: 2 }
 ];
 
 describe('document exports', () => {
@@ -135,8 +135,8 @@ describe('category heading with weight', () => {
 
   it('renders the weighted heading and auto-numbering in DOCX output', async () => {
     const weighted: ExportRow[] = [
-      { categoryId: 'sach', category: 'Sachebene', item: 'Tiefe', scale, number: 1, weight: 40 },
-      { categoryId: 'sach', category: 'Sachebene', item: 'Breite', scale, number: 2, weight: 40 }
+      { categoryId: 'sach', category: 'Sachebene', item: 'Tiefe', scale, itemId: 't1', number: 1, weight: 40 },
+      { categoryId: 'sach', category: 'Sachebene', item: 'Breite', scale, itemId: 'b1', number: 2, weight: 40 }
     ];
     const docXml = await JSZip.loadAsync(await (await createDOCXBlob(weighted, 'Bewertungsbogen', header, footerFields)).arrayBuffer())
       .then((zip) => zip.file('word/document.xml')!.async('text'));

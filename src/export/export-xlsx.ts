@@ -1,7 +1,7 @@
 import writeExcelFile from 'write-excel-file/universal';
 import type { Cell, SheetData } from 'write-excel-file/universal';
 
-import { categoryHeadingText, downloadBlob, scaleLabel } from '@/export/export-utils';
+import { downloadBlob, scaleLabel } from '@/export/export-utils';
 import type { ExportRow } from '@/types';
 
 const headerStyle = {
@@ -24,11 +24,12 @@ function bodyCell(value: string, shaded: boolean): Cell {
 
 export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
   const data: SheetData = [
-    ['Kategorie', 'Kriterium', 'Skala', 'Bewertung'].map((value) => ({ value, ...headerStyle })),
+    ['Kategorie', 'Gewichtung', 'Kriterium', 'Skala', 'Bewertung'].map((value) => ({ value, ...headerStyle })),
     ...rows.map((row, index) => {
       const shaded = index % 2 === 1;
       return [
-        bodyCell(categoryHeadingText(row.category, row.weight), shaded),
+        bodyCell(row.category, shaded),
+        bodyCell(row.weight ? `${Math.round(row.weight)} %` : '', shaded),
         bodyCell(`${row.number}. ${row.item}`, shaded),
         bodyCell(scaleLabel(row.scale), shaded),
         bodyCell('', shaded)
@@ -39,7 +40,7 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
     sheet: 'Feedbackbogen',
     stickyRowsCount: 1,
     orientation: 'landscape',
-    columns: [{ width: 28 }, { width: 72 }, { width: 40 }, { width: 18 }]
+    columns: [{ width: 28 }, { width: 14 }, { width: 72 }, { width: 40 }, { width: 18 }]
   }).toBlob();
 }
 

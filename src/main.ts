@@ -883,6 +883,16 @@ async function bootstrap() {
     const label = exportLabels[fmt];
     showToast(strings.messages.exporting(label), 'loading');
     announce(strings.messages.exporting(label));
+    // Watchdog: never let a hung export lock out all future exports. If the work
+    // hasn't settled in 30s, release the lock and surface the error state.
+    let settled = false;
+    const watchdog = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      exportInFlight = false;
+      showToast(strings.messages.exportError(label), 'error');
+      announce(strings.messages.exportError(label));
+    }, 30_000);
     try {
       if (fmt === 'pdf-print') {
         const { exportPDF } = await import('./export/export-pdf');
@@ -900,13 +910,19 @@ async function bootstrap() {
         const { exportODT } = await import('./export/export-odt');
         exportODT(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
       }
-      showToast(strings.messages.exportSuccess(label), 'success');
-      announce(strings.messages.exportSuccess(label));
+      if (!settled) {
+        showToast(strings.messages.exportSuccess(label), 'success');
+        announce(strings.messages.exportSuccess(label));
+      }
     } catch (error) {
       console.error('Export fehlgeschlagen', error);
-      showToast(strings.messages.exportError(label), 'error');
-      announce(strings.messages.exportError(label));
+      if (!settled) {
+        showToast(strings.messages.exportError(label), 'error');
+        announce(strings.messages.exportError(label));
+      }
     } finally {
+      settled = true;
+      clearTimeout(watchdog);
       exportInFlight = false;
     }
   }

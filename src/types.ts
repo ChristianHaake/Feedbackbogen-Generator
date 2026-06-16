@@ -126,7 +126,7 @@ export type ExportRow = {
   category: string;
   item: string;
   scale: Scale | null;
-  itemId?: string;
+  itemId: string;
   // 1-based position within its category section (auto-numbering, resets per section).
   number: number;
   // Stufe 5a: per-category weight in percent (display only); undefined = unweighted.

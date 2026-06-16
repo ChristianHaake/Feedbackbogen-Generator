@@ -1,255 +1,255 @@
 [
   {
     "id": "allgemeine",
-    "title": "[ES] Allgemein",
-    "description": "[ES] Legen Sie die allgemeinen Anforderungen fest, welche die Lernenden stets übergreifend zu beachten haben.",
+    "title": "General",
+    "description": "Defina los requisitos generales que el alumnado debe observar siempre de forma transversal.",
     "items": [
       {
         "id": "abgabe",
-        "label": "[ES] Rechtzeitige Abgabe",
+        "label": "Entrega puntual",
         "description": ""
       },
       {
         "id": "dateinamen",
-        "label": "[ES] Verwendung der vereinbarten Dateinamen und -pfade",
+        "label": "Uso de los nombres y rutas de archivo acordados",
         "description": ""
       },
       {
         "id": "regeln",
-        "label": "[ES] Berücksichtigung der vereinbarten Regeln und Vorgaben",
+        "label": "Cumplimiento de las reglas y directrices acordadas",
         "description": ""
       },
       {
         "id": "vollstaendigkeit",
-        "label": "[ES] Vollständigkeit der geforderten Unterlagen",
+        "label": "Integridad de los documentos requeridos",
         "description": ""
       },
       {
         "id": "quellenangaben",
-        "label": "[ES] Quellenangaben vorhanden",
+        "label": "Fuentes indicadas",
         "description": ""
       }
     ]
   },
   {
     "id": "sachebene",
-    "title": "[ES] Sachebene",
-    "description": "[ES] Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.",
+    "title": "Nivel de contenido",
+    "description": "Expectativas en cuanto a la adquisición de conocimientos y la presentación.",
     "items": [
       {
         "id": "tiefe",
-        "label": "[ES] Tiefe und Umfang der fachlichen Auseinandersetzung",
+        "label": "Profundidad y alcance del análisis especializado",
         "description": ""
       },
       {
         "id": "komplexitaet",
-        "label": "[ES] Komplexität des Inhalts",
+        "label": "Complejidad del contenido",
         "description": ""
       },
       {
         "id": "eigeninitiative",
-        "label": "[ES] Eigeninitiative durch eigenständige Recherche und zusätzliche Perspektiven",
+        "label": "Iniciativa mediante investigación autónoma y perspectivas adicionales",
         "description": ""
       },
       {
         "id": "selbststaendigkeit",
-        "label": "[ES] Selbstständigkeit in der Auseinandersetzung mit dem Inhalt",
+        "label": "Autonomía en el tratamiento del contenido",
         "description": ""
       }
     ]
   },
   {
     "id": "sprachgebrauch",
-    "title": "[ES] Sprachgebrauch",
-    "description": "[ES] Kriterien zur Bewertung der sprachlichen Gestaltung und Wirkung.",
+    "title": "Uso del lenguaje",
+    "description": "Criterios para evaluar la composición y el efecto lingüísticos.",
     "items": [
       {
         "id": "sprachliche-richtigkeit",
-        "label": "[ES] Sprachliche Richtigkeit",
-        "description": "[ES] Grammatik, Rechtschreibung und Zeichensetzung"
+        "label": "Corrección lingüística",
+        "description": "Gramática, ortografía y puntuación"
       },
       {
         "id": "ausdrucksfaehigkeit",
-        "label": "[ES] Ausdrucksfähigkeit",
-        "description": "[ES] Präzision der Wortwahl, Anschaulichkeit und Lebendigkeit der Sprache sowie Vermeidung von Wiederholungen"
+        "label": "Capacidad de expresión",
+        "description": "Precisión en la elección de palabras, viveza y plasticidad del lenguaje, así como evitación de repeticiones"
       },
       {
         "id": "stilistische-angemessenheit",
-        "label": "[ES] Stilistische Angemessenheit",
-        "description": "[ES] Anpassung an Adressaten und Situation, passender Sprachstil (sachlich, argumentativ, kreativ usw.) sowie Einheitlichkeit des Stils"
+        "label": "Adecuación estilística",
+        "description": "Adaptación al destinatario y a la situación, registro apropiado (objetivo, argumentativo, creativo, etc.) y coherencia del estilo"
       },
       {
         "id": "kohaerenz-und-kohaesion",
-        "label": "[ES] Kohärenz und Kohäsion",
-        "description": "[ES] Logischer Aufbau der Gedanken, sinnvolle Verknüpfung von Sätzen und Abschnitten sowie Verwendung von Übergängen und Konnektoren"
+        "label": "Coherencia y cohesión",
+        "description": "Estructura lógica de las ideas, conexión adecuada de frases y párrafos, así como uso de transiciones y conectores"
       },
       {
         "id": "kommunikative-wirksamkeit",
-        "label": "[ES] Kommunikative Wirksamkeit",
-        "description": "[ES] Verständlichkeit, Klarheit der Aussagen sowie Überzeugungskraft beziehungsweise Wirkung auf die Lesenden"
+        "label": "Eficacia comunicativa",
+        "description": "Comprensibilidad, claridad de las afirmaciones y poder de convicción o efecto sobre el lector"
       },
       {
         "id": "sprachliche-vielfalt",
-        "label": "[ES] Sprachliche Vielfalt",
-        "description": "[ES] Abwechslungsreiche Satzanfänge, unterschiedliche Satzarten und Satzlängen sowie variabler Wortschatz"
+        "label": "Variedad lingüística",
+        "description": "Inicios de frase variados, distintos tipos y longitudes de frase, así como vocabulario variado"
       }
     ]
   },
   {
     "id": "praesentation",
-    "title": "[ES] Präsentation",
-    "description": "[ES] Parameter für Bewertung der Präsentation.",
+    "title": "Presentación",
+    "description": "Parámetros para evaluar la presentación.",
     "items": [
       {
         "id": "koerpersprache",
-        "label": "[ES] Körpersprache und Blickkontakt",
+        "label": "Lenguaje corporal y contacto visual",
         "description": ""
       },
       {
         "id": "aktivierend",
-        "label": "[ES] Aktivierende Elemente",
+        "label": "Elementos activadores",
         "description": ""
       },
       {
         "id": "sprachlicher_ausdruck",
-        "label": "[ES] Sprachlicher Ausdruck",
+        "label": "Expresión oral",
         "description": ""
       },
       {
         "id": "eigeninitiative_praes",
-        "label": "[ES] Eigeninitiative",
+        "label": "Iniciativa",
         "description": ""
       },
       {
         "id": "kreativitaet",
-        "label": "[ES] Kreativität",
+        "label": "Creatividad",
         "description": ""
       },
       {
         "id": "adressatenaufbereitung",
-        "label": "[ES] Adressatengerechte Aufbereitung",
+        "label": "Preparación adaptada al destinatario",
         "description": ""
       }
     ]
   },
   {
     "id": "reflexion",
-    "title": "[ES] Reflexion",
-    "description": "[ES] Parameter für Bewertung der Reflexion.",
+    "title": "Reflexión",
+    "description": "Parámetros para evaluar la reflexión.",
     "items": [
       {
         "id": "tiefe_reflexion",
-        "label": "[ES] Tiefe und Differenziertheit der Prozessreflexion",
+        "label": "Profundidad y matización de la reflexión sobre el proceso",
         "description": ""
       },
       {
         "id": "analyse_schwierigkeiten",
-        "label": "[ES] Identifikation/Analyse von Schwierigkeiten",
+        "label": "Identificación/análisis de dificultades",
         "description": ""
       },
       {
         "id": "loesungsvorschlaege",
-        "label": "[ES] Konkrete, nachvollziehbare Lösungsvorschläge",
+        "label": "Propuestas de solución concretas y comprensibles",
         "description": ""
       }
     ]
   },
   {
     "id": "darstellung",
-    "title": "[ES] Darstellung",
-    "description": "[ES] Parameter für Bewertung der Darstellung.",
+    "title": "Diseño y presentación visual",
+    "description": "Parámetros para evaluar el diseño visual.",
     "items": [
       {
         "id": "gestaltung",
-        "label": "[ES] Gestaltung (ansprechendes Layout, visuelle Attraktivität)",
+        "label": "Diseño (maquetación atractiva, atractivo visual)",
         "description": ""
       },
       {
         "id": "farb_schrift",
-        "label": "[ES] Einheitliches Farb- und Schriftkonzept",
+        "label": "Concepto uniforme de color y tipografía",
         "description": ""
       },
       {
         "id": "optische_konsistenz",
-        "label": "[ES] Optische Konsistenz",
+        "label": "Consistencia visual",
         "description": ""
       },
       {
         "id": "thematisches_design",
-        "label": "[ES] Thematisch passendes und unterstützendes Design",
+        "label": "Diseño temáticamente adecuado y de apoyo",
         "description": ""
       }
     ]
   },
   {
     "id": "peer",
-    "title": "[ES] Peer-Feedback / Reflexion",
-    "description": "[ES] Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.",
+    "title": "Feedback entre pares / Reflexión",
+    "description": "Aspectos de la fase de trabajo y de presentación que influyen en la adquisición de conocimientos.",
     "items": [
       {
         "id": "erfolg_arbeitsphase",
-        "label": "[ES] Erfolg der Arbeitsphase",
+        "label": "Éxito de la fase de trabajo",
         "description": ""
       },
       {
         "id": "mitarbeit_gruppe",
-        "label": "[ES] Mitarbeit im Gruppenprozess",
+        "label": "Participación en el proceso grupal",
         "description": ""
       },
       {
         "id": "aktivierende_elemente",
-        "label": "[ES] Aktivierende Elemente (z. B. Interaktionsmethoden)",
+        "label": "Elementos activadores (p. ej., métodos de interacción)",
         "description": ""
       },
       {
         "id": "adressaten_praesentation",
-        "label": "[ES] Adressatengerechte Präsentation",
+        "label": "Presentación adaptada al destinatario",
         "description": ""
       },
       {
         "id": "persoenlicher_wissenszuwachs",
-        "label": "[ES] Persönlicher Wissenszuwachs",
+        "label": "Adquisición personal de conocimientos",
         "description": ""
       },
       {
         "id": "wissenszuwachs_zuhoerer",
-        "label": "[ES] Wissenszuwachs des Zuhörers",
+        "label": "Adquisición de conocimientos por parte del oyente",
         "description": ""
       }
     ]
   },
   {
     "id": "prozess",
-    "title": "[ES] Prozessdokumentation",
+    "title": "Documentación del proceso",
     "items": [
       {
         "id": "planungsunterlagen",
-        "label": "[ES] Planungsunterlagen / Prozessdokumentation",
+        "label": "Documentos de planificación / documentación del proceso",
         "description": ""
       },
       {
         "id": "nachvollziehbarkeit",
-        "label": "[ES] Nachvollziehbarkeit und Verständlichkeit",
+        "label": "Trazabilidad y comprensibilidad",
         "description": ""
       },
       {
         "id": "ki_angaben",
-        "label": "[ES] KI-Einsatz - Angabe/Beschreibung verwendeter Prompts und Tools",
+        "label": "Uso de IA - indicación/descripción de los prompts y herramientas utilizados",
         "description": ""
       },
       {
         "id": "ki_nachvollziehbar",
-        "label": "[ES] KI-Einsatz nachvollziehbar erklärt",
+        "label": "Uso de IA explicado de forma trazable",
         "description": ""
       },
       {
         "id": "ki_reflexion",
-        "label": "[ES] KI-Einsatz kritisch reflektiert (Nutzen/Risiken)",
+        "label": "Uso de IA reflexionado críticamente (beneficios/riesgos)",
         "description": ""
       },
       {
         "id": "eigenes_potential",
-        "label": "[ES] Persönliches Entwicklungspotential",
+        "label": "Potencial de desarrollo personal",
         "description": ""
       }
     ]

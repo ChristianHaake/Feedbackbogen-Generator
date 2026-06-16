@@ -74,6 +74,7 @@ export const fr = {
     addCustomItem: 'Ajouter un critère personnalisé',
     customItemPlaceholder: 'Critère personnalisé…',
     customItemBadge: 'Critère personnalisé',
+    customCriteriaGroup: 'Critères personnalisés',
     bulkAdd: 'Ajouter plusieurs critères',
     bulkAddPlaceholder: 'Plusieurs critères – un par ligne…',
     bulkAddButton: 'Tout ajouter',
@@ -119,7 +120,9 @@ export const fr = {
   },
   a11y: {
     status: 'Messages de statut',
-    accordionToggle: 'Basculer la section'
+    accordionToggle: 'Basculer la section',
+    languageSwitcher: 'Choisir la langue',
+    toolbar: 'Barre d\'outils'
   },
   messages: {
     contentLoadError: 'Les données de contenu n\'ont pas pu être chargées ou validées. Solution de repli activée.',

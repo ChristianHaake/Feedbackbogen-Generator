@@ -2,403 +2,403 @@
   "groups": [
     {
       "id": "textprodukte",
-      "title": "[NL] Textprodukte",
+      "title": "Tekstproducten",
       "formats": [
         {
           "id": "eine-rede-schreiben",
-          "title": "[NL] Eine Rede schreiben",
+          "title": "Een toespraak schrijven",
           "criteria": [
             {
               "id": "thematisch-klare-und-uberzeugende-rede",
-              "label": "[NL] thematisch klare und überzeugende Rede",
+              "label": "thematisch heldere en overtuigende toespraak",
               "description": ""
             },
             {
               "id": "nutzung-typischer-merkmale-einer-rede",
-              "label": "[NL] Nutzung typischer Merkmale einer Rede",
+              "label": "gebruik van de typische kenmerken van een toespraak",
               "description": ""
             },
             {
               "id": "originelle-filmische-umsetzung",
-              "label": "[NL] originelle filmische Umsetzung",
+              "label": "originele filmische uitwerking",
               "description": ""
             },
             {
               "id": "technische-qualitat-des-videoclips-kombination-aus-klarem-verstandlichem",
-              "label": "[NL] technische Qualität des Videoclips (Kombination aus klarem, verständlichem Ton, sauberem/ruhigem Bild und strukturiertem Schnitt)",
+              "label": "technische kwaliteit van de videoclip (combinatie van helder, verstaanbaar geluid, een scherp/rustig beeld en een gestructureerde montage)",
               "description": ""
             }
           ]
         },
         {
           "id": "fiktive-dialoge-mit-ki-persona",
-          "title": "[NL] Fiktive Dialoge mit KI-Persona",
+          "title": "Fictieve dialogen met een AI-persona",
           "criteria": [
             {
               "id": "prazision-und-klarheit-der-prompts",
-              "label": "[NL] Präzision und Klarheit der Prompts",
+              "label": "precisie en helderheid van de prompts",
               "description": ""
             },
             {
               "id": "effektive-nutzung-der-ki-antworten",
-              "label": "[NL] effektive Nutzung der KI-Antworten",
+              "label": "effectief gebruik van de AI-antwoorden",
               "description": ""
             },
             {
               "id": "klare-und-adressatengerechte-rollenbeschreibung",
-              "label": "[NL] klare und adressatengerechte Rollenbeschreibung",
+              "label": "heldere en doelgroepgerichte rolbeschrijving",
               "description": ""
             },
             {
               "id": "strukturierte-speicherung-der-ki-antworten",
-              "label": "[NL] strukturierte Speicherung der KI-Antworten",
+              "label": "gestructureerde opslag van de AI-antwoorden",
               "description": ""
             },
             {
               "id": "verstandliche-zusammenfassung-der-ki-antworten",
-              "label": "[NL] verständliche Zusammenfassung der KI-Antworten",
+              "label": "begrijpelijke samenvatting van de AI-antwoorden",
               "description": ""
             },
             {
               "id": "fachlich-korrekte-und-angemessene-dokumentation",
-              "label": "[NL] fachlich korrekte und angemessene Dokumentation",
+              "label": "vakinhoudelijk correcte en passende documentatie",
               "description": ""
             },
             {
               "id": "kreativer-umgang-mit-der-simulierten-ki-rolle",
-              "label": "[NL] kreativer Umgang mit der simulierten KI-Rolle",
+              "label": "creatieve omgang met de gesimuleerde AI-rol",
               "description": ""
             },
             {
               "id": "rollenadaquate-nutzung-der-ki-funktion",
-              "label": "[NL] rollenadäquate Nutzung der KI-Funktion",
+              "label": "roladequaat gebruik van de AI-functie",
               "description": ""
             },
             {
               "id": "einbindung-relevanter-und-zusatzlicher-inhalte-uber-die-ki-antworten-hin",
-              "label": "[NL] Einbindung relevanter und zusätzlicher Inhalte über die KI-Antworten hinaus",
+              "label": "integratie van relevante en aanvullende inhoud die verder gaat dan de AI-antwoorden",
               "description": ""
             },
             {
               "id": "eigenstandige-entwicklung-von-fragen-und-prompts",
-              "label": "[NL] eigenständige Entwicklung von Fragen und Prompts",
+              "label": "zelfstandige ontwikkeling van vragen en prompts",
               "description": ""
             },
             {
               "id": "kritische-prufung-der-ki-antworten",
-              "label": "[NL] kritische Prüfung der KI-Antworten",
+              "label": "kritische toetsing van de AI-antwoorden",
               "description": ""
             },
             {
               "id": "reflexiver-umgang-mit-der-qualitat-der-ki-antworten",
-              "label": "[NL] reflexiver Umgang mit der Qualität der KI-Antworten",
+              "label": "reflectieve omgang met de kwaliteit van de AI-antwoorden",
               "description": ""
             },
             {
               "id": "bewertung-von-mehrwert-und-limitationen-des-ki-einsatzes",
-              "label": "[NL] Bewertung von Mehrwert und Limitationen des KI-Einsatzes",
+              "label": "beoordeling van de meerwaarde en de beperkingen van het AI-gebruik",
               "description": ""
             },
             {
               "id": "personlicher-erkenntnisgewinn-durch-die-arbeit-mit-der-ki",
-              "label": "[NL] persönlicher Erkenntnisgewinn durch die Arbeit mit der KI",
+              "label": "persoonlijke inzichtwinst door het werken met de AI",
               "description": ""
             },
             {
               "id": "nachvollziehbare-dokumentation-der-verwendeten-prompts-und-deren-wirkung",
-              "label": "[NL] nachvollziehbare Dokumentation der verwendeten Prompts und deren Wirkung",
+              "label": "navolgbare documentatie van de gebruikte prompts en hun effect",
               "description": ""
             },
             {
               "id": "angabe-der-genutzten-tools-und-deren-funktion-im-arbeitsprozess",
-              "label": "[NL] Angabe der genutzten Tools und deren Funktion im Arbeitsprozess",
+              "label": "vermelding van de gebruikte tools en hun functie in het werkproces",
               "description": ""
             },
             {
               "id": "kritische-reflexion-der-starken-und-schwachen-der-ki",
-              "label": "[NL] kritische Reflexion der Stärken und Schwächen der KI",
+              "label": "kritische reflectie op de sterke en zwakke punten van de AI",
               "description": ""
             },
             {
               "id": "darstellung-von-erkenntnissen-zu-steuerung-und-limitierungen-der-ki",
-              "label": "[NL] Darstellung von Erkenntnissen zu Steuerung und Limitierungen der KI",
+              "label": "weergave van inzichten over de aansturing en de beperkingen van de AI",
               "description": ""
             },
             {
               "id": "nachvollziehbare-begrundung-fur-auswahl-und-anpassung-der-prompts",
-              "label": "[NL] nachvollziehbare Begründung für Auswahl und Anpassung der Prompts",
+              "label": "navolgbare onderbouwing van de keuze en aanpassing van de prompts",
               "description": ""
             }
           ]
         },
         {
           "id": "literarische-figuren-und-fingierte-zeitzeugen-mit-ki-generieren",
-          "title": "[NL] Literarische Figuren und fingierte Zeitzeugen mit KI generieren",
+          "title": "Literaire personages en fictieve tijdgenoten met AI genereren",
           "criteria": [
             {
               "id": "treffende-darstellung-der-hauptfigur-aussehen-haltung-und-kleidung-entsp",
-              "label": "[NL] treffende Darstellung der Hauptfigur (Aussehen, Haltung und Kleidung entsprechend der Buchbeschreibung)",
+              "label": "treffende weergave van het hoofdpersonage (uiterlijk, houding en kleding overeenkomstig de boekbeschrijving)",
               "description": ""
             },
             {
               "id": "monologische-darstellung-mit-bezug-zur-buchvorlage",
-              "label": "[NL] monologische Darstellung mit Bezug zur Buchvorlage",
+              "label": "weergave in monoloogvorm met verwijzing naar het bronboek",
               "description": ""
             },
             {
               "id": "vertieftes-verstandnis-der-figur-gedanken-gefuhle-motive",
-              "label": "[NL] vertieftes Verständnis der Figur (Gedanken, Gefühle, Motive)",
+              "label": "verdiept begrip van het personage (gedachten, gevoelens, motieven)",
               "description": ""
             },
             {
               "id": "origineller-und-glaubwurdiger-monolog-in-bezug-auf-die-figur",
-              "label": "[NL] origineller und glaubwürdiger Monolog in Bezug auf die Figur",
+              "label": "originele en geloofwaardige monoloog met betrekking tot het personage",
               "description": ""
             },
             {
               "id": "passgenaue-umsetzung-der-buchbeschreibung-im-generierten-bild",
-              "label": "[NL] passgenaue Umsetzung der Buchbeschreibung im generierten Bild",
+              "label": "nauwkeurige vertaling van de boekbeschrijving in het gegenereerde beeld",
               "description": ""
             },
             {
               "id": "berucksichtigte-details-zeit-ort-epoche",
-              "label": "[NL] berücksichtigte Details (Zeit, Ort, Epoche)",
+              "label": "in acht genomen details (tijd, plaats, tijdperk)",
               "description": ""
             },
             {
               "id": "begrundete-wahl-der-bildeingaben",
-              "label": "[NL] begründete Wahl der Bildeingaben",
+              "label": "onderbouwde keuze van de beeldprompts",
               "description": ""
             },
             {
               "id": "uberzeugende-stimmfuhrung-und-sprachgestaltung-betonung-ausdruck",
-              "label": "[NL] überzeugende Stimmführung und Sprachgestaltung (Betonung, Ausdruck)",
+              "label": "overtuigende stemvoering en taalvormgeving (intonatie, expressie)",
               "description": ""
             },
             {
               "id": "gezielter-einsatz-von-mimik-gestik-und-gegebenenfalls-ki-animation",
-              "label": "[NL] gezielter Einsatz von Mimik, Gestik und gegebenenfalls KI-Animation",
+              "label": "gerichte inzet van mimiek, gebaren en eventueel AI-animatie",
               "description": ""
             },
             {
               "id": "technische-qualitat-von-bild-und-ton",
-              "label": "[NL] technische Qualität von Bild und Ton",
+              "label": "technische kwaliteit van beeld en geluid",
               "description": ""
             },
             {
               "id": "angemessener-einsatz-von-tools-avatar-animation-hintergrundgestaltung",
-              "label": "[NL] angemessener Einsatz von Tools (Avatar-Animation, Hintergrundgestaltung)",
+              "label": "passende inzet van tools (avatar-animatie, achtergrondvormgeving)",
               "description": ""
             }
           ]
         },
         {
           "id": "ki-unterstuetzte-stellungnahme-zu-einem-thema",
-          "title": "[NL] KI-unterstützte Stellungnahme zu einem Thema",
+          "title": "AI-ondersteund standpunt over een thema",
           "criteria": [
             {
               "id": "transparente-dokumentation-der-ki-nutzung-prompts-und-tools",
-              "label": "[NL] transparente Dokumentation der KI-Nutzung (Prompts und Tools)",
+              "label": "transparante documentatie van het AI-gebruik (prompts en tools)",
               "description": ""
             },
             {
               "id": "nachvollziehbarer-einsatz-der-ki-im-arbeitsprozess",
-              "label": "[NL] nachvollziehbarer Einsatz der KI im Arbeitsprozess",
+              "label": "navolgbare inzet van de AI in het werkproces",
               "description": ""
             },
             {
               "id": "differenzierte-reflexion-uber-die-leistungen-der-ki",
-              "label": "[NL] differenzierte Reflexion über die Leistungen der KI",
+              "label": "genuanceerde reflectie op de prestaties van de AI",
               "description": ""
             },
             {
               "id": "kennzeichnung-eigenstandiger-arbeitsanteile",
-              "label": "[NL] Kennzeichnung eigenständiger Arbeitsanteile",
+              "label": "aanduiding van de zelfstandig uitgevoerde werkdelen",
               "description": ""
             },
             {
               "id": "vollstandige-markierung-aller-ki-generierten-textteile",
-              "label": "[NL] vollständige Markierung aller KI-generierten Textteile",
+              "label": "volledige markering van alle door AI gegenereerde tekstdelen",
               "description": ""
             },
             {
               "id": "kreative-kombination-von-ki-inhalten-mit-eigenem-transfer-z-b-lokale-fal",
-              "label": "[NL] kreative Kombination von KI-Inhalten mit eigenem Transfer (z. B. lokale Fallbeispiele)",
+              "label": "creatieve combinatie van AI-inhoud met eigen transfer (bijv. lokale praktijkvoorbeelden)",
               "description": ""
             }
           ]
         },
         {
           "id": "diy-klassenarbeit",
-          "title": "[NL] DIY-Klassenarbeit",
+          "title": "Door leerlingen gemaakte toets (DIY)",
           "criteria": [
             {
               "id": "klare-verstandliche-und-angemessen-anspruchsvolle-aufgaben",
-              "label": "[NL] klare, verständliche und angemessen anspruchsvolle Aufgaben",
+              "label": "duidelijke, begrijpelijke en passend uitdagende opdrachten",
               "description": ""
             },
             {
               "id": "berucksichtigung-verschiedener-anforderungsniveaus",
-              "label": "[NL] Berücksichtigung verschiedener Anforderungsniveaus",
+              "label": "rekening houden met verschillende beheersingsniveaus",
               "description": ""
             },
             {
               "id": "fachlich-korrekte-und-nachvollziehbare-losungen",
-              "label": "[NL] fachlich korrekte und nachvollziehbare Lösungen",
+              "label": "vakinhoudelijk correcte en navolgbare oplossingen",
               "description": ""
             },
             {
               "id": "verstandliche-erlauterung-der-losungswege",
-              "label": "[NL] verständliche Erläuterung der Lösungswege",
+              "label": "begrijpelijke toelichting van de oplossingswijzen",
               "description": ""
             },
             {
               "id": "sinnvolle-begrundung-der-aufgabenwahl",
-              "label": "[NL] sinnvolle Begründung der Aufgabenwahl",
+              "label": "zinvolle onderbouwing van de opdrachtkeuze",
               "description": ""
             },
             {
               "id": "transparente-darstellung-der-gepruften-kompetenzen",
-              "label": "[NL] transparente Darstellung der geprüften Kompetenzen",
+              "label": "transparante weergave van de getoetste competenties",
               "description": ""
             },
             {
               "id": "durchfuhrung-eines-testlaufs-mit-lernenden",
-              "label": "[NL] Durchführung eines Testlaufs mit Lernenden",
+              "label": "uitvoeren van een testronde met lerenden",
               "description": ""
             },
             {
               "id": "berucksichtigung-von-konstruktivem-feedback-bei-der-uberarbeitung",
-              "label": "[NL] Berücksichtigung von konstruktivem Feedback bei der Überarbeitung",
+              "label": "verwerken van constructieve feedback bij de herziening",
               "description": ""
             },
             {
               "id": "kritische-reflexion-des-eigenen-vorgehens",
-              "label": "[NL] kritische Reflexion des eigenen Vorgehens",
+              "label": "kritische reflectie op de eigen aanpak",
               "description": ""
             },
             {
               "id": "nachvollziehbare-beschreibung-von-herausforderungen-und-losungsansatzen",
-              "label": "[NL] nachvollziehbare Beschreibung von Herausforderungen und Lösungsansätzen",
+              "label": "navolgbare beschrijving van uitdagingen en oplossingsrichtingen",
               "description": ""
             },
             {
               "id": "reflektierter-einsatz-der-ki-im-erstellungsprozess",
-              "label": "[NL] reflektierter Einsatz der KI im Erstellungsprozess",
+              "label": "reflectieve inzet van de AI in het maakproces",
               "description": ""
             }
           ]
         },
         {
           "id": "open-media-book-pruefung",
-          "title": "[NL] Open Media / Book Prüfung",
+          "title": "Open Media / Open Book-toets",
           "criteria": [
             {
               "id": "ubertragung-von-wissen-auf-neue-fragestellungen",
-              "label": "[NL] Übertragung von Wissen auf neue Fragestellungen",
+              "label": "overdracht van kennis naar nieuwe vraagstukken",
               "description": ""
             },
             {
               "id": "leistungsverbesserung-gegenuber-der-klassischen-arbeit",
-              "label": "[NL] Leistungsverbesserung gegenüber der klassischen Arbeit",
+              "label": "prestatieverbetering ten opzichte van de klassieke toets",
               "description": ""
             },
             {
               "id": "einhaltung-aller-vorgaben-zur-hilfsmittelnutzung",
-              "label": "[NL] Einhaltung aller Vorgaben zur Hilfsmittelnutzung",
+              "label": "naleving van alle voorschriften voor het gebruik van hulpmiddelen",
               "description": ""
             },
             {
               "id": "uberprufung-identischer-kompetenzbereiche-in-beiden-prufungsformaten",
-              "label": "[NL] Überprüfung identischer Kompetenzbereiche in beiden Prüfungsformaten",
+              "label": "toetsing van identieke competentiegebieden in beide toetsvormen",
               "description": ""
             }
           ]
         },
         {
           "id": "klassenarbeit-a-la-carte",
-          "title": "[NL] Klassenarbeit à la Carte",
+          "title": "Toets à la carte",
           "criteria": [
             {
               "id": "vollstandige-bearbeitung-aller-gewahlten-aufgaben",
-              "label": "[NL] vollständige Bearbeitung aller gewählten Aufgaben",
+              "label": "volledige uitwerking van alle gekozen opdrachten",
               "description": ""
             },
             {
               "id": "durchdachte-logisch-aufgebaute-und-gut-begrundete-antworten",
-              "label": "[NL] durchdachte, logisch aufgebaute und gut begründete Antworten",
+              "label": "doordachte, logisch opgebouwde en goed onderbouwde antwoorden",
               "description": ""
             },
             {
               "id": "personliche-note-und-eigenstandige-losungswege",
-              "label": "[NL] persönliche Note und eigenständige Lösungswege",
+              "label": "persoonlijke noot en zelfstandige oplossingswijzen",
               "description": ""
             },
             {
               "id": "angemessene-rechtschreibung-grammatik-und-struktur",
-              "label": "[NL] angemessene Rechtschreibung, Grammatik und Struktur",
+              "label": "passende spelling, grammatica en structuur",
               "description": ""
             },
             {
               "id": "nachvollziehbare-begrundung-der-aufgabenauswahl",
-              "label": "[NL] nachvollziehbare Begründung der Aufgabenauswahl",
+              "label": "navolgbare onderbouwing van de opdrachtkeuze",
               "description": ""
             },
             {
               "id": "einhaltung-aller-vorgaben",
-              "label": "[NL] Einhaltung aller Vorgaben",
+              "label": "naleving van alle voorschriften",
               "description": ""
             },
             {
               "id": "gewahrleistung-einer-fairen-leistungsbewertung-trotz-individueller-auswa",
-              "label": "[NL] Gewährleistung einer fairen Leistungsbewertung trotz individueller Auswahl (Vergleichbarkeit)",
+              "label": "waarborgen van een eerlijke beoordeling ondanks de individuele keuze (vergelijkbaarheid)",
               "description": ""
             },
             {
               "id": "kreative-zusatzleistung-z-b-nachspeise",
-              "label": "[NL] kreative Zusatzleistung (z. B. Nachspeise)",
+              "label": "creatieve extra prestatie (bijv. een 'toetje')",
               "description": ""
             }
           ]
         },
         {
           "id": "prozessbegleitender-blog",
-          "title": "[NL] Prozessbegleitender Blog",
+          "title": "Procesbegeleidende blog",
           "criteria": [
             {
               "id": "auswahl-und-bewertung-besonders-gelungener-beitrage-nach-festgelegten-kr",
-              "label": "[NL] Auswahl und Bewertung besonders gelungener Beiträge nach festgelegten Kriterien (Portfolio-Ansatz)",
+              "label": "selectie en beoordeling van bijzonder geslaagde bijdragen volgens vastgelegde criteria (portfoliobenadering)",
               "description": ""
             },
             {
               "id": "bewertung-des-gesamten-blogs-anhand-transparenter-kriterien",
-              "label": "[NL] Bewertung des gesamten Blogs anhand transparenter Kriterien",
+              "label": "beoordeling van de volledige blog aan de hand van transparante criteria",
               "description": ""
             },
             {
               "id": "eigenstandige-selbstbewertung-durch-die-lernenden-als-teil-des-verfahren",
-              "label": "[NL] eigenständige Selbstbewertung durch die Lernenden als Teil des Verfahrens",
+              "label": "zelfstandige zelfbeoordeling door de lerenden als onderdeel van de procedure",
               "description": ""
             }
           ]
         },
         {
           "id": "wiki",
-          "title": "[NL] Wiki",
+          "title": "Wiki",
           "criteria": [
             {
               "id": "auswahl-und-bewertung-besonders-gelungener-beitrage-im-wiki-nach-festgel",
-              "label": "[NL] Auswahl und Bewertung besonders gelungener Beiträge im Wiki nach festgelegten Kriterien (Portfolio-Ansatz)",
+              "label": "selectie en beoordeling van bijzonder geslaagde bijdragen in de wiki volgens vastgelegde criteria (portfoliobenadering)",
               "description": ""
             },
             {
               "id": "bewertung-des-gesamten-wikis-anhand-transparenter-kriterien",
-              "label": "[NL] Bewertung des gesamten Wikis anhand transparenter Kriterien",
+              "label": "beoordeling van de volledige wiki aan de hand van transparante criteria",
               "description": ""
             },
             {
               "id": "eigenstandige-selbstbewertung-durch-die-lernenden-als-teil-des-bewertung",
-              "label": "[NL] eigenständige Selbstbewertung durch die Lernenden als Teil des Bewertungsverfahrens",
+              "label": "zelfstandige zelfbeoordeling door de lerenden als onderdeel van de beoordelingsprocedure",
               "description": ""
             }
           ]
@@ -407,152 +407,152 @@
     },
     {
       "id": "fotoprodukte",
-      "title": "[NL] Fotoprodukte",
+      "title": "Fotoproducten",
       "formats": [
         {
           "id": "fotostory",
-          "title": "[NL] Fotostory",
+          "title": "Fotostrip",
           "criteria": [
             {
               "id": "inhaltliche-tiefe-und-fachlicher-bezug-zum-thema",
-              "label": "[NL] inhaltliche Tiefe und fachlicher Bezug zum Thema",
+              "label": "inhoudelijke diepgang en vakinhoudelijke band met het thema",
               "description": ""
             },
             {
               "id": "klarer-und-nachvollziehbarer-handlungsaufbau",
-              "label": "[NL] klarer und nachvollziehbarer Handlungsaufbau",
+              "label": "heldere en navolgbare opbouw van de handeling",
               "description": ""
             },
             {
               "id": "strukturierter-verlauf-der-prasentation-oder-des-beitrags",
-              "label": "[NL] strukturierter Verlauf der Präsentation oder des Beitrags",
+              "label": "gestructureerd verloop van de presentatie of de bijdrage",
               "description": ""
             },
             {
               "id": "ansprechende-bildgestaltung",
-              "label": "[NL] ansprechende Bildgestaltung",
+              "label": "aansprekende beeldvormgeving",
               "description": ""
             },
             {
               "id": "technische-qualitat-der-bildumsetzung",
-              "label": "[NL] technische Qualität der Bildumsetzung",
+              "label": "technische kwaliteit van de beelduitwerking",
               "description": ""
             },
             {
               "id": "praziser-und-adressatengerechter-sprachgebrauch",
-              "label": "[NL] präziser und adressatengerechter Sprachgebrauch",
+              "label": "precies en doelgroepgericht taalgebruik",
               "description": ""
             },
             {
               "id": "verstandliche-und-strukturierte-textgestaltung",
-              "label": "[NL] verständliche und strukturierte Textgestaltung",
+              "label": "begrijpelijke en gestructureerde tekstvormgeving",
               "description": ""
             },
             {
               "id": "kreative-gestaltungsideen",
-              "label": "[NL] kreative Gestaltungsideen",
+              "label": "creatieve vormgevingsideeën",
               "description": ""
             },
             {
               "id": "uberzeugender-personlicher-ausdruck",
-              "label": "[NL] überzeugender persönlicher Ausdruck",
+              "label": "overtuigende persoonlijke expressie",
               "description": ""
             },
             {
               "id": "adressatengerechte-prasentation",
-              "label": "[NL] adressatengerechte Präsentation",
+              "label": "doelgroepgerichte presentatie",
               "description": ""
             },
             {
               "id": "reflektierter-umgang-mit-dem-eigenen-beitrag-oder-produkt",
-              "label": "[NL] reflektierter Umgang mit dem eigenen Beitrag oder Produkt",
+              "label": "reflectieve omgang met de eigen bijdrage of het eigen product",
               "description": ""
             }
           ]
         },
         {
           "id": "social-media-post",
-          "title": "[NL] Social Media Post",
+          "title": "Social-mediapost",
           "criteria": [
             {
               "id": "attraktives-und-ansprechendes-design-farben-schriftart-bilder",
-              "label": "[NL] attraktives und ansprechendes Design (Farben, Schriftart, Bilder)",
+              "label": "aantrekkelijk en aansprekend ontwerp (kleuren, lettertype, beelden)",
               "description": ""
             },
             {
               "id": "verstandliche-und-pragnante-formulierung-der-botschaft",
-              "label": "[NL] verständliche und prägnante Formulierung der Botschaft",
+              "label": "begrijpelijke en kernachtige formulering van de boodschap",
               "description": ""
             },
             {
               "id": "sinnvolle-aufteilung-in-bild-und-textelemente-slides",
-              "label": "[NL] sinnvolle Aufteilung in Bild- und Textelemente (Slides)",
+              "label": "zinvolle verdeling in beeld- en tekstelementen (slides)",
               "description": ""
             },
             {
               "id": "korrekte-umsetzung-der-bildformate-und-zeichenbegrenzungen",
-              "label": "[NL] korrekte Umsetzung der Bildformate und Zeichenbegrenzungen",
+              "label": "correcte toepassing van de beeldformaten en tekenlimieten",
               "description": ""
             },
             {
               "id": "passende-auswahl-relevanter-hashtags-mindestens-3-maximal-10",
-              "label": "[NL] passende Auswahl relevanter Hashtags (mindestens 3, maximal 10)",
+              "label": "passende keuze van relevante hashtags (minimaal 3, maximaal 10)",
               "description": ""
             },
             {
               "id": "gezielte-aufforderung-an-die-zielgruppe-z-b-like-teile-kommentiere",
-              "label": "[NL] gezielte Aufforderung an die Zielgruppe (z. B. Like / Teile / Kommentiere)",
+              "label": "gerichte oproep aan de doelgroep (bijv. like / deel / reageer)",
               "description": ""
             },
             {
               "id": "einholung-von-ruckmeldungen-durch-prasentation-des-posts-in-der-gruppe",
-              "label": "[NL] Einholung von Rückmeldungen durch Präsentation des Posts in der Gruppe",
+              "label": "ophalen van feedback door de post aan de groep te presenteren",
               "description": ""
             },
             {
               "id": "sammlung-von-verbesserungsvorschlagen-und-lob-durch-mitschuler-z-b-like",
-              "label": "[NL] Sammlung von Verbesserungsvorschlägen und Lob durch Mitschüler (z. B. Like / Dislike, Kommentare)",
+              "label": "verzamelen van verbeterpunten en lof van medeleerlingen (bijv. like / dislike, reacties)",
               "description": ""
             }
           ]
         },
         {
           "id": "social-media-profil",
-          "title": "[NL] Social Media Profil",
+          "title": "Social-mediaprofiel",
           "criteria": [
             {
               "id": "konsistente-und-ansprechende-profil-asthetik",
-              "label": "[NL] konsistente und ansprechende Profil-Ästhetik",
+              "label": "consistente en aansprekende profielesthetiek",
               "description": ""
             },
             {
               "id": "klare-und-ubersichtliche-struktur-der-inhalte",
-              "label": "[NL] klare und übersichtliche Struktur der Inhalte",
+              "label": "heldere en overzichtelijke structuur van de inhoud",
               "description": ""
             },
             {
               "id": "authentische-und-zielgruppenrelevante-darstellung-der-inhalte",
-              "label": "[NL] authentische und zielgruppenrelevante Darstellung der Inhalte",
+              "label": "authentieke en voor de doelgroep relevante weergave van de inhoud",
               "description": ""
             },
             {
               "id": "gezielte-ansprache-und-einbindung-potenzieller-follower",
-              "label": "[NL] gezielte Ansprache und Einbindung potenzieller Follower",
+              "label": "gerichte aanspreking en betrokkenheid van potentiële volgers",
               "description": ""
             },
             {
               "id": "analyse-und-sinnvolle-nutzung-von-hashtags",
-              "label": "[NL] Analyse und sinnvolle Nutzung von Hashtags",
+              "label": "analyse en zinvol gebruik van hashtags",
               "description": ""
             },
             {
               "id": "kreative-und-inhaltlich-passende-bildunterschriften",
-              "label": "[NL] kreative und inhaltlich passende Bildunterschriften",
+              "label": "creatieve en inhoudelijk passende bijschriften",
               "description": ""
             },
             {
               "id": "gezielter-einsatz-von-stories-zur-erganzung-der-profilinhalte",
-              "label": "[NL] gezielter Einsatz von Stories zur Ergänzung der Profilinhalte",
+              "label": "gerichte inzet van stories ter aanvulling van de profielinhoud",
               "description": ""
             }
           ]
@@ -561,172 +561,172 @@
     },
     {
       "id": "audioprodukte",
-      "title": "[NL] Audioprodukte",
+      "title": "Audioproducten",
       "formats": [
         {
           "id": "podcast",
-          "title": "[NL] Podcast",
+          "title": "Podcast",
           "criteria": [
             {
               "id": "wirkungsvolle-eroffnung-catching-ear-opener",
-              "label": "[NL] wirkungsvolle Eröffnung (catching ear opener)",
+              "label": "krachtige opening (catching ear opener)",
               "description": ""
             },
             {
               "id": "klar-erkennbare-sinnvolle-struktur-der-einzelnen-teile",
-              "label": "[NL] klar erkennbare, sinnvolle Struktur der einzelnen Teile",
+              "label": "duidelijk herkenbare, zinvolle structuur van de afzonderlijke onderdelen",
               "description": ""
             },
             {
               "id": "logischer-und-zusammenhangender-verlauf-fragestellung-spannungsbogen-inh",
-              "label": "[NL] logischer und zusammenhängender Verlauf (Fragestellung, Spannungsbogen, Inhalt, Diskussion, Fazit)",
+              "label": "logisch en samenhangend verloop (vraagstelling, spanningsboog, inhoud, discussie, conclusie)",
               "description": ""
             },
             {
               "id": "ausgewogener-anteil-der-einzelnen-sprecher",
-              "label": "[NL] ausgewogener Anteil der einzelnen Sprecher",
+              "label": "evenwichtige spreektijdverdeling tussen de sprekers",
               "description": ""
             },
             {
               "id": "auditive-effekte",
-              "label": "[NL] auditive Effekte",
+              "label": "auditieve effecten",
               "description": ""
             },
             {
               "id": "soundauswahl",
-              "label": "[NL] Soundauswahl",
+              "label": "geluidskeuze",
               "description": ""
             },
             {
               "id": "sauberer-schnitt",
-              "label": "[NL] sauberer Schnitt",
+              "label": "nette montage",
               "description": ""
             },
             {
               "id": "angemessene-bearbeitung",
-              "label": "[NL] angemessene Bearbeitung",
+              "label": "passende bewerking",
               "description": ""
             },
             {
               "id": "aussprache",
-              "label": "[NL] Aussprache",
+              "label": "uitspraak",
               "description": ""
             },
             {
               "id": "intonation",
-              "label": "[NL] Intonation",
+              "label": "intonatie",
               "description": ""
             },
             {
               "id": "tempo",
-              "label": "[NL] Tempo",
+              "label": "tempo",
               "description": ""
             },
             {
               "id": "modulation",
-              "label": "[NL] Modulation",
+              "label": "modulatie",
               "description": ""
             },
             {
               "id": "freies-sprechen",
-              "label": "[NL] freies Sprechen",
+              "label": "vrij spreken",
               "description": ""
             }
           ]
         },
         {
           "id": "hoerspiel-und-hoerbuch",
-          "title": "[NL] Hörspiel und Hörbuch",
+          "title": "Hoorspel en luisterboek",
           "criteria": [
             {
               "id": "einhaltung-der-maximalen-horspiel-dauer-10-minuten-zuzuglich-intro-und-a",
-              "label": "[NL] Einhaltung der maximalen Hörspiel-Dauer (10 Minuten zuzüglich Intro und Abspann)",
+              "label": "naleving van de maximale hoorspelduur (10 minuten, exclusief intro en aftiteling)",
               "description": ""
             },
             {
               "id": "eigenstandig-entwickelte-oder-rechtlich-einwandfrei-vertonte-geschichte",
-              "label": "[NL] eigenständig entwickelte oder rechtlich einwandfrei vertonte Geschichte",
+              "label": "zelfstandig ontwikkeld of juridisch correct van geluid voorzien verhaal",
               "description": ""
             },
             {
               "id": "beachtung-des-urheberrechts-und-einholung-erforderlicher-einwilligungen",
-              "label": "[NL] Beachtung des Urheberrechts und Einholung erforderlicher Einwilligungen",
+              "label": "inachtneming van het auteursrecht en het verkrijgen van de vereiste toestemmingen",
               "description": ""
             },
             {
               "id": "selbst-hergestellte-gerausche-und-musik",
-              "label": "[NL] selbst hergestellte Geräusche und Musik",
+              "label": "zelf gemaakte geluiden en muziek",
               "description": ""
             },
             {
               "id": "nutzung-und-kennzeichnung-offizieller-quellen-bei-bedarf",
-              "label": "[NL] Nutzung und Kennzeichnung offizieller Quellen bei Bedarf",
+              "label": "gebruik en vermelding van officiële bronnen indien nodig",
               "description": ""
             },
             {
               "id": "gute-tonqualitat-und-sauberer-schnitt-entfernung-von-nebengerauschen-und",
-              "label": "[NL] gute Tonqualität und sauberer Schnitt (Entfernung von Nebengeräuschen und Versprechern)",
+              "label": "goede geluidskwaliteit en nette montage (verwijderen van bijgeluiden en versprekingen)",
               "description": ""
             },
             {
               "id": "pragnante-beschreibung-des-horspiels",
-              "label": "[NL] prägnante Beschreibung des Hörspiels",
+              "label": "kernachtige beschrijving van het hoorspel",
               "description": ""
             },
             {
               "id": "eigenstandige-durchfuhrung-der-produktion-durch-die-lernenden-zuruckhalt",
-              "label": "[NL] eigenständige Durchführung der Produktion durch die Lernenden (zurückhaltende Unterstützung durch Erwachsene)",
+              "label": "zelfstandige uitvoering van de productie door de lerenden (terughoudende ondersteuning door volwassenen)",
               "description": ""
             },
             {
               "id": "freie-und-empathische-gestaltung-der-dialoge",
-              "label": "[NL] freie und empathische Gestaltung der Dialoge",
+              "label": "vrije en empathische vormgeving van de dialogen",
               "description": ""
             }
           ]
         },
         {
           "id": "musikalisches-kreativprojekt",
-          "title": "[NL] Musikalisches Kreativprojekt",
+          "title": "Muzikaal creatief project",
           "criteria": [
             {
               "id": "originalitat-der-musikalischen-interpretation",
-              "label": "[NL] Originalität der musikalischen Interpretation",
+              "label": "originaliteit van de muzikale interpretatie",
               "description": ""
             },
             {
               "id": "technische-qualitat-der-umsetzung",
-              "label": "[NL] technische Qualität der Umsetzung",
+              "label": "technische kwaliteit van de uitwerking",
               "description": ""
             },
             {
               "id": "innovative-nutzung-der-ki-technologie-im-kreativen-prozess",
-              "label": "[NL] innovative Nutzung der KI-Technologie im kreativen Prozess",
+              "label": "innovatief gebruik van de AI-technologie in het creatieve proces",
               "description": ""
             },
             {
               "id": "uberzeugende-und-adressatengerechte-prasentation",
-              "label": "[NL] überzeugende und adressatengerechte Präsentation",
+              "label": "overtuigende en doelgroepgerichte presentatie",
               "description": ""
             },
             {
               "id": "reflektierter-umgang-mit-dem-eigenen-kreativen-prozess",
-              "label": "[NL] reflektierter Umgang mit dem eigenen kreativen Prozess",
+              "label": "reflectieve omgang met het eigen creatieve proces",
               "description": ""
             },
             {
               "id": "angemessene-komplexitat-des-projekts",
-              "label": "[NL] angemessene Komplexität des Projekts",
+              "label": "passende complexiteit van het project",
               "description": ""
             },
             {
               "id": "ausdrucksstarke-musikalische-gestaltung",
-              "label": "[NL] ausdrucksstarke musikalische Gestaltung",
+              "label": "expressieve muzikale vormgeving",
               "description": ""
             },
             {
               "id": "klare-und-nachvollziehbare-verbindung-zwischen-text-und-musik",
-              "label": "[NL] klare und nachvollziehbare Verbindung zwischen Text und Musik",
+              "label": "heldere en navolgbare verbinding tussen tekst en muziek",
               "description": ""
             }
           ]
@@ -735,102 +735,102 @@
     },
     {
       "id": "videoprodukte",
-      "title": "[NL] Videoprodukte",
+      "title": "Videoproducten",
       "formats": [
         {
           "id": "kurzfilm",
-          "title": "[NL] Kurzfilm",
+          "title": "Kortfilm",
           "criteria": [
             {
               "id": "sinnvoller-einsatz-filmischer-mittel-in-produktion-und-nachbearbeitung-e",
-              "label": "[NL] sinnvoller Einsatz filmischer Mittel in Produktion und Nachbearbeitung (Einstellungen, Kameraperspektiven, Schnitt/Montage, Ton)",
+              "label": "zinvolle inzet van filmische middelen in productie en nabewerking (kaderingen, camerastandpunten, montage, geluid)",
               "description": ""
             },
             {
               "id": "kreative-umsetzung",
-              "label": "[NL] kreative Umsetzung",
+              "label": "creatieve uitwerking",
               "description": ""
             },
             {
               "id": "angemessenes-verhaltnis-und-zusammenspiel-auf-inhaltlicher-und-filmische",
-              "label": "[NL] angemessenes Verhältnis und Zusammenspiel auf inhaltlicher und filmischer Ebene",
+              "label": "passende verhouding en samenspel op inhoudelijk en filmisch niveau",
               "description": ""
             },
             {
               "id": "nachvollziehbare-erkennbare-umsetzung-der-wirkungsabsicht",
-              "label": "[NL] nachvollziehbare/erkennbare Umsetzung der Wirkungsabsicht",
+              "label": "navolgbare/herkenbare uitwerking van de beoogde werking",
               "description": ""
             }
           ]
         },
         {
           "id": "vorgangsanalyse-mit-der-kamera-app",
-          "title": "[NL] Vorgangsanalyse mit der Kamera-App",
+          "title": "Procesanalyse met de camera-app",
           "criteria": [
             {
               "id": "uberzeugende-qualitat-der-aufnahmen-z-b-stabilitat",
-              "label": "[NL] überzeugende Qualität der Aufnahmen (z. B. Stabilität)",
+              "label": "overtuigende kwaliteit van de opnamen (bijv. stabiliteit)",
               "description": ""
             },
             {
               "id": "korrekte-nutzung-der-kamerafunktionen",
-              "label": "[NL] korrekte Nutzung der Kamerafunktionen",
+              "label": "correct gebruik van de camerafuncties",
               "description": ""
             },
             {
               "id": "passgenaue-auswahl-der-zeitlupen-oder-zeitrafferfunktion-fur-den-jeweili",
-              "label": "[NL] passgenaue Auswahl der Zeitlupen- oder Zeitrafferfunktion für den jeweiligen Vorgang",
+              "label": "passende keuze van de slow-motion- of timelapse-functie voor het betreffende proces",
               "description": ""
             },
             {
               "id": "angemessene-tiefe-der-analyse",
-              "label": "[NL] angemessene Tiefe der Analyse",
+              "label": "passende diepgang van de analyse",
               "description": ""
             },
             {
               "id": "prazise-analyse",
-              "label": "[NL] präzise Analyse",
+              "label": "precieze analyse",
               "description": ""
             },
             {
               "id": "nachvollziehbarkeit-der-beschriebenen-beobachtungen",
-              "label": "[NL] Nachvollziehbarkeit der beschriebenen Beobachtungen",
+              "label": "navolgbaarheid van de beschreven waarnemingen",
               "description": ""
             },
             {
               "id": "innovative-und-anschauliche-prasentation-der-ergebnisse",
-              "label": "[NL] innovative und anschauliche Präsentation der Ergebnisse",
+              "label": "innovatieve en aanschouwelijke presentatie van de resultaten",
               "description": ""
             },
             {
               "id": "adressatenangemessene-visuelle-und-didaktische-aufbereitung-z-b-diagramm",
-              "label": "[NL] adressatenangemessene visuelle und didaktische Aufbereitung (z. B. Diagramme, Standbilder, Vergleiche)",
+              "label": "voor de doelgroep passende visuele en didactische verwerking (bijv. diagrammen, stilstaande beelden, vergelijkingen)",
               "description": ""
             }
           ]
         },
         {
           "id": "erklaerfilme-erstellen-verbessern-und-remixen",
-          "title": "[NL] Erklärfilme erstellen, verbessern und remixen",
+          "title": "Uitlegvideo's maken, verbeteren en remixen",
           "criteria": [
             {
               "id": "logischer-aufbau",
-              "label": "[NL] logischer Aufbau",
+              "label": "logische opbouw",
               "description": ""
             },
             {
               "id": "zusammenhangende-struktur",
-              "label": "[NL] zusammenhängende Struktur",
+              "label": "samenhangende structuur",
               "description": ""
             },
             {
               "id": "sinnhafte-gestaltung",
-              "label": "[NL] sinnhafte Gestaltung",
+              "label": "zinvolle vormgeving",
               "description": ""
             },
             {
               "id": "angemessene-und-ubersichtliche-bearbeitung",
-              "label": "[NL] angemessene und übersichtliche Bearbeitung",
+              "label": "passende en overzichtelijke bewerking",
               "description": ""
             }
           ]
@@ -839,133 +839,133 @@
     },
     {
       "id": "projekte",
-      "title": "[NL] Projekte",
+      "title": "Projecten",
       "formats": [
         {
           "id": "forschungsprojekt",
-          "title": "[NL] Forschungsprojekt",
+          "title": "Onderzoeksproject",
           "criteria": [
             {
               "id": "klare-und-nachvollziehbare-fragestellung",
-              "label": "[NL] klare und nachvollziehbare Fragestellung",
+              "label": "heldere en navolgbare vraagstelling",
               "description": ""
             },
             {
               "id": "zeitokonomische-planung",
-              "label": "[NL] zeitökonomische Planung",
+              "label": "tijdsefficiënte planning",
               "description": ""
             },
             {
               "id": "wissenschaftliche-methodik",
-              "label": "[NL] wissenschaftliche Methodik",
+              "label": "wetenschappelijke methodiek",
               "description": ""
             },
             {
               "id": "sorgfaltige-und-genaue-datenerfassung",
-              "label": "[NL] sorgfältige und genaue Datenerfassung",
+              "label": "zorgvuldige en nauwkeurige dataverzameling",
               "description": ""
             },
             {
               "id": "fundierte-datenanalyse",
-              "label": "[NL] fundierte Datenanalyse",
+              "label": "gefundeerde data-analyse",
               "description": ""
             },
             {
               "id": "gewissenhafte-dateninterpretation",
-              "label": "[NL] gewissenhafte Dateninterpretation",
+              "label": "nauwgezette data-interpretatie",
               "description": ""
             }
           ]
         },
         {
           "id": "sammlungsprojekt",
-          "title": "[NL] Sammlungsprojekt",
+          "title": "Verzamelproject",
           "criteria": [
             {
               "id": "angemessene-inhaltliche-tiefe",
-              "label": "[NL] angemessene inhaltliche Tiefe",
+              "label": "passende inhoudelijke diepgang",
               "description": ""
             },
             {
               "id": "sinnhafte-struktur-und-ordnung",
-              "label": "[NL] sinnhafte Struktur und Ordnung",
+              "label": "zinvolle structuur en ordening",
               "description": ""
             },
             {
               "id": "sorgfaltige-dokumentation",
-              "label": "[NL] sorgfältige Dokumentation",
+              "label": "zorgvuldige documentatie",
               "description": ""
             },
             {
               "id": "ansprechende-gestaltung",
-              "label": "[NL] ansprechende Gestaltung",
+              "label": "aansprekende vormgeving",
               "description": ""
             },
             {
               "id": "eigenstandigkeit-und-kreativitat-individuelle-formulierungen-themenspezi",
-              "label": "[NL] Eigenständigkeit und Kreativität (individuelle Formulierungen, themenspezifische Auswahl)",
+              "label": "zelfstandigheid en creativiteit (eigen formuleringen, themaspecifieke selectie)",
               "description": ""
             }
           ]
         },
         {
           "id": "versuchsprotokoll",
-          "title": "[NL] Versuchsprotokoll",
+          "title": "Proefverslag",
           "criteria": [
             {
               "id": "sorgfaltige-dokumentation",
-              "label": "[NL] sorgfältige Dokumentation",
+              "label": "zorgvuldige documentatie",
               "description": ""
             },
             {
               "id": "sinnhafte-struktur-ordnung-und-nachvollziehbarkeit",
-              "label": "[NL] sinnhafte Struktur, Ordnung und Nachvollziehbarkeit",
+              "label": "zinvolle structuur, ordening en navolgbaarheid",
               "description": ""
             },
             {
               "id": "fachliche-klarheit-und-angemessener-einsatz-von-fachbegriffen",
-              "label": "[NL] fachliche Klarheit und angemessener Einsatz von Fachbegriffen",
+              "label": "vakinhoudelijke helderheid en passend gebruik van vaktermen",
               "description": ""
             },
             {
               "id": "kreative-problemlosekompetenz",
-              "label": "[NL] kreative Problemlösekompetenz",
+              "label": "creatief probleemoplossend vermogen",
               "description": ""
             },
             {
               "id": "wissenschaftliche-sprache-und-ausdrucksweise",
-              "label": "[NL] wissenschaftliche Sprache und Ausdrucksweise",
+              "label": "wetenschappelijke taal en uitdrukkingswijze",
               "description": ""
             }
           ]
         },
         {
           "id": "upcycling-mit-tutorials",
-          "title": "[NL] Upcycling mit Tutorials",
+          "title": "Upcycling met tutorials",
           "criteria": [
             {
               "id": "angemessene-funktionalitat",
-              "label": "[NL] angemessene Funktionalität",
+              "label": "passende functionaliteit",
               "description": ""
             },
             {
               "id": "kreative-problemlosekompetenz",
-              "label": "[NL] kreative Problemlösekompetenz",
+              "label": "creatief probleemoplossend vermogen",
               "description": ""
             },
             {
               "id": "sorgfaltige-umsetzung",
-              "label": "[NL] sorgfältige Umsetzung",
+              "label": "zorgvuldige uitwerking",
               "description": ""
             },
             {
               "id": "nachvollziehbare-darstellung-des-arbeitsprozesses-z-b-fotos-videos-arbei",
-              "label": "[NL] nachvollziehbare Darstellung des Arbeitsprozesses (z. B. Fotos, Videos, Arbeitsprotokolle)",
+              "label": "navolgbare weergave van het werkproces (bijv. foto's, video's, werkverslagen)",
               "description": ""
             },
             {
               "id": "kombination-aus-produktbewertung-gestalterische-qualitat-angemessene-ums",
-              "label": "[NL] Kombination aus Produktbewertung (gestalterische Qualität, angemessene Umsetzung der Anleitung, vorgenommene Verbesserungen) und Reflexion (Darstellung der Lerneffekte, sinnvolle Problemlösungsstrategien)",
+              "label": "combinatie van een productbeoordeling (vormgevingskwaliteit, passende uitvoering van de handleiding, doorgevoerde verbeteringen) en een reflectie (weergave van de leereffecten, zinvolle probleemoplossingsstrategieën)",
               "description": ""
             }
           ]
@@ -974,315 +974,315 @@
     },
     {
       "id": "praesentations-und-darstellungsformen",
-      "title": "[NL] Präsentations- und Darstellungsformen",
+      "title": "Presentatie- en weergavevormen",
       "formats": [
         {
           "id": "digitales-portfolio",
-          "title": "[NL] Digitales Portfolio",
+          "title": "Digitaal portfolio",
           "criteria": [
             {
               "id": "kreative-gestaltung-und-einbindung-passender-visueller-elemente",
-              "label": "[NL] kreative Gestaltung und Einbindung passender visueller Elemente",
+              "label": "creatieve vormgeving en integratie van passende visuele elementen",
               "description": ""
             },
             {
               "id": "multimediale-umsetzung-und-korrekte-technische-einbindung-von-medien",
-              "label": "[NL] multimediale Umsetzung und korrekte technische Einbindung von Medien",
+              "label": "multimediale uitwerking en correcte technische integratie van media",
               "description": ""
             },
             {
               "id": "zielgruppenorientierte-gestalterische-umsetzung",
-              "label": "[NL] zielgruppenorientierte gestalterische Umsetzung",
+              "label": "doelgroepgerichte grafische uitwerking",
               "description": ""
             }
           ]
         },
         {
           "id": "multimediale-praesentation",
-          "title": "[NL] Multimediale Präsentation",
+          "title": "Multimediale presentatie",
           "criteria": [
             {
               "id": "sinnhafter-und-abwechslungsreicher-einsatz-medialer-elemente",
-              "label": "[NL] sinnhafter und abwechslungsreicher Einsatz medialer Elemente",
+              "label": "zinvolle en gevarieerde inzet van mediale elementen",
               "description": ""
             },
             {
               "id": "adressaten-und-formatangemessene-inhaltliche-aufbereitung-des-themas",
-              "label": "[NL] adressaten- und formatangemessene inhaltliche Aufbereitung des Themas",
+              "label": "inhoudelijke verwerking van het thema, passend bij doelgroep en format",
               "description": ""
             },
             {
               "id": "sinnvolle-reduktion-der-inhalte-und-quellen",
-              "label": "[NL] sinnvolle Reduktion der Inhalte und Quellen",
+              "label": "zinvolle reductie van de inhoud en de bronnen",
               "description": ""
             },
             {
               "id": "kenntlichmachung-der-zustandigkeiten-bei-gruppenarbeit",
-              "label": "[NL] Kenntlichmachung der Zuständigkeiten bei Gruppenarbeit",
+              "label": "aanduiding van de verantwoordelijkheden bij groepswerk",
               "description": ""
             }
           ]
         },
         {
           "id": "interaktive-mindmaps",
-          "title": "[NL] Interaktive Mindmaps",
+          "title": "Interactieve mindmaps",
           "criteria": [
             {
               "id": "passende-vernetzung-der-inhalte",
-              "label": "[NL] passende Vernetzung der Inhalte",
+              "label": "passende onderlinge verbinding van de inhoud",
               "description": ""
             },
             {
               "id": "klare-strukturierung",
-              "label": "[NL] klare Strukturierung",
+              "label": "heldere structurering",
               "description": ""
             },
             {
               "id": "sinnvoller-einsatz-von-medien",
-              "label": "[NL] sinnvoller Einsatz von Medien",
+              "label": "zinvolle inzet van media",
               "description": ""
             }
           ]
         },
         {
           "id": "animierte-lernprodukte-mit-blockprogrammierung",
-          "title": "[NL] Animierte Lernprodukte mit Blockprogrammierung",
+          "title": "Geanimeerde leerproducten met blokprogrammering",
           "criteria": [
             {
               "id": "passende-vernetzung-der-inhalte",
-              "label": "[NL] passende Vernetzung der Inhalte",
+              "label": "passende onderlinge verbinding van de inhoud",
               "description": ""
             },
             {
               "id": "nachvollziehbares-storytelling",
-              "label": "[NL] nachvollziehbares Storytelling",
+              "label": "navolgbare storytelling",
               "description": ""
             },
             {
               "id": "zuverlassige-funktionalitat-des-programms",
-              "label": "[NL] zuverlässige Funktionalität des Programms",
+              "label": "betrouwbare functionaliteit van het programma",
               "description": ""
             },
             {
               "id": "niveauangemessene-komplexitat-der-verwendeten-codeblocke-z-b-schleifen-b",
-              "label": "[NL] niveauangemessene Komplexität der verwendeten Codeblöcke (z. B. Schleifen, Bedingungen, Interaktivität)",
+              "label": "niveaupassende complexiteit van de gebruikte codeblokken (bijv. lussen, voorwaarden, interactiviteit)",
               "description": ""
             }
           ]
         },
         {
           "id": "virtuelle-rundgaenge",
-          "title": "[NL] Virtuelle Rundgänge",
+          "title": "Virtuele rondleidingen",
           "criteria": [
             {
               "id": "angemessene-recherche",
-              "label": "[NL] angemessene Recherche",
+              "label": "passend onderzoek",
               "description": ""
             },
             {
               "id": "passende-vernetzung-der-inhalte",
-              "label": "[NL] passende Vernetzung der Inhalte",
+              "label": "passende onderlinge verbinding van de inhoud",
               "description": ""
             },
             {
               "id": "funktionaler-aufbau-des-rundgangs",
-              "label": "[NL] funktionaler Aufbau des Rundgangs",
+              "label": "functionele opbouw van de rondleiding",
               "description": ""
             },
             {
               "id": "kreative-einbindung-eigener-multimedialer-elemente",
-              "label": "[NL] kreative Einbindung (eigener) multimedialer Elemente",
+              "label": "creatieve integratie van (eigen) multimediale elementen",
               "description": ""
             }
           ]
         },
         {
           "id": "szenische-interpretation",
-          "title": "[NL] Szenische Interpretation",
+          "title": "Scenische interpretatie",
           "criteria": [
             {
               "id": "klare-strukturierung-der-szenen",
-              "label": "[NL] klare Strukturierung der Szenen",
+              "label": "heldere structurering van de scènes",
               "description": ""
             },
             {
               "id": "uberzeugende-schauspielerische-leistung",
-              "label": "[NL] überzeugende schauspielerische Leistung",
+              "label": "overtuigende acteerprestatie",
               "description": ""
             },
             {
               "id": "wirkungsvoller-einsatz-von-kostumen-requisiten-buhnenbild-licht-und-musi",
-              "label": "[NL] wirkungsvoller Einsatz von Kostümen, Requisiten, Bühnenbild, Licht und Musik",
+              "label": "doeltreffende inzet van kostuums, rekwisieten, decor, licht en muziek",
               "description": ""
             },
             {
               "id": "sinnvolle-raumnutzung",
-              "label": "[NL] sinnvolle Raumnutzung",
+              "label": "zinvol ruimtegebruik",
               "description": ""
             }
           ]
         },
         {
           "id": "challenges",
-          "title": "[NL] Challenges",
+          "title": "Challenges",
           "criteria": [
             {
               "id": "empfehlung-zum-verzicht-auf-eine-formale-prozessdokumentation-zugunsten",
-              "label": "[NL] Empfehlung zum Verzicht auf eine formale Prozessdokumentation zugunsten des kreativen und spontanen Arbeitsprozesses. (Die inhaltlichen Kriterien werden je nach konkreter Aufgabenstellung flexibel über das Schieberegler-Modell definiert).",
+              "label": "aanbeveling om af te zien van een formele procesdocumentatie ten gunste van het creatieve en spontane werkproces. (De inhoudelijke criteria worden afhankelijk van de concrete opdracht flexibel via het schuifregelaarmodel gedefinieerd.)",
               "description": ""
             }
           ]
         },
         {
           "id": "debatte",
-          "title": "[NL] Debatte",
+          "title": "Debat",
           "criteria": [
             {
               "id": "uberzeugende-sachkenntnis",
-              "label": "[NL] überzeugende Sachkenntnis",
+              "label": "overtuigende vakkennis",
               "description": ""
             },
             {
               "id": "klares-ausdrucksvermogen",
-              "label": "[NL] klares Ausdrucksvermögen",
+              "label": "helder uitdrukkingsvermogen",
               "description": ""
             },
             {
               "id": "angemessene-gesprachsfahigkeit",
-              "label": "[NL] angemessene Gesprächsfähigkeit",
+              "label": "passende gespreksvaardigheid",
               "description": ""
             },
             {
               "id": "hinreichende-uberzeugungskraft",
-              "label": "[NL] hinreichende Überzeugungskraft",
+              "label": "voldoende overtuigingskracht",
               "description": ""
             },
             {
               "id": "nicht-bewertet-werden-die-reinen-deutschkenntnisse-oder-die-politische-a",
-              "label": "[NL] Nicht bewertet werden die reinen Deutschkenntnisse oder die politische Aussage, sondern die Beachtung der Regeln und das Stellen der Auseinandersetzung.",
+              "label": "Beoordeeld worden niet de pure taalvaardigheid of het politieke standpunt, maar de naleving van de regels en het voeren van het debat.",
               "description": ""
             }
           ]
         },
         {
           "id": "moderation",
-          "title": "[NL] Moderation",
+          "title": "Moderatie",
           "criteria": [
             {
               "id": "zielfuhrende-vorbereitung",
-              "label": "[NL] zielführende Vorbereitung",
+              "label": "doelgerichte voorbereiding",
               "description": ""
             },
             {
               "id": "sinnvolle-strukturierung",
-              "label": "[NL] sinnvolle Strukturierung",
+              "label": "zinvolle structurering",
               "description": ""
             },
             {
               "id": "klare-kommunikationsfahigkeit",
-              "label": "[NL] klare Kommunikationsfähigkeit",
+              "label": "heldere communicatievaardigheid",
               "description": ""
             },
             {
               "id": "aktivierender-einbezug-der-teilnehmenden",
-              "label": "[NL] aktivierender Einbezug der Teilnehmenden",
+              "label": "activerende betrokkenheid van de deelnemers",
               "description": ""
             },
             {
               "id": "nachvollziehbare-zusammenfassung",
-              "label": "[NL] nachvollziehbare Zusammenfassung",
+              "label": "navolgbare samenvatting",
               "description": ""
             },
             {
               "id": "gelungenes-zeitmanagement",
-              "label": "[NL] gelungenes Zeitmanagement",
+              "label": "geslaagd tijdmanagement",
               "description": ""
             }
           ]
         },
         {
           "id": "modellpraesentation",
-          "title": "[NL] Modellpräsentation",
+          "title": "Maquettepresentatie",
           "criteria": [
             {
               "id": "klare-themenabgrenzung-und-umsetzung",
-              "label": "[NL] klare Themenabgrenzung und -umsetzung",
+              "label": "heldere thema-afbakening en -uitwerking",
               "description": ""
             },
             {
               "id": "nachvollziehbare-zweckerfullung",
-              "label": "[NL] nachvollziehbare Zweckerfüllung",
+              "label": "navolgbare vervulling van het doel",
               "description": ""
             },
             {
               "id": "stabile-und-saubere-bauweise",
-              "label": "[NL] stabile und saubere Bauweise",
+              "label": "stabiele en nette bouwwijze",
               "description": ""
             },
             {
               "id": "hohe-detailsorgfalt",
-              "label": "[NL] hohe Detailsorgfalt",
+              "label": "hoge mate van detailzorg",
               "description": ""
             },
             {
               "id": "angemessene-materialauswahl",
-              "label": "[NL] angemessene Materialauswahl",
+              "label": "passende materiaalkeuze",
               "description": ""
             },
             {
               "id": "kreative-umsetzung",
-              "label": "[NL] kreative Umsetzung",
+              "label": "creatieve uitwerking",
               "description": ""
             },
             {
               "id": "losungsorientierter-umgang-mit-herausforderungen",
-              "label": "[NL] lösungsorientierter Umgang mit Herausforderungen",
+              "label": "oplossingsgerichte omgang met uitdagingen",
               "description": ""
             },
             {
               "id": "hohe-eigenstandigkeit",
-              "label": "[NL] hohe Eigenständigkeit",
+              "label": "hoge mate van zelfstandigheid",
               "description": ""
             },
             {
               "id": "nutzen-von-skizzen-bauplanen-zur-transparenz-der-planung",
-              "label": "[NL] Nutzen von Skizzen/Bauplänen zur Transparenz der Planung",
+              "label": "gebruik van schetsen/bouwplannen voor de transparantie van de planning",
               "description": ""
             }
           ]
         },
         {
           "id": "rollenspiele-und-simulationen",
-          "title": "[NL] Rollenspiele und Simulationen",
+          "title": "Rollenspellen en simulaties",
           "criteria": [
             {
               "id": "authentische-verkorperung",
-              "label": "[NL] authentische Verkörperung",
+              "label": "authentieke vertolking",
               "description": ""
             },
             {
               "id": "effektive-kommunikation",
-              "label": "[NL] effektive Kommunikation",
+              "label": "effectieve communicatie",
               "description": ""
             },
             {
               "id": "umfangreiche-analyse-des-simulierten-prozesses",
-              "label": "[NL] umfangreiche Analyse des simulierten Prozesses",
+              "label": "uitgebreide analyse van het gesimuleerde proces",
               "description": ""
             },
             {
               "id": "nachvollziehbare-und-fundierte-entscheidungen",
-              "label": "[NL] nachvollziehbare und fundierte Entscheidungen",
+              "label": "navolgbare en gefundeerde beslissingen",
               "description": ""
             },
             {
               "id": "berucksichtigung-der-reflexion-zu-erfahrungen-wahrend-der-simulation",
-              "label": "[NL] Berücksichtigung der Reflexion zu Erfahrungen während der Simulation",
+              "label": "inachtneming van de reflectie op ervaringen tijdens de simulatie",
               "description": ""
             },
             {
               "id": "ableitung-von-erkenntnissen-aus-dem-rollenspiel-fur-die-reale-situation",
-              "label": "[NL] Ableitung von Erkenntnissen aus dem Rollenspiel für die reale Situation",
+              "label": "afleiden van inzichten uit het rollenspel voor de reële situatie",
               "description": ""
             }
           ]

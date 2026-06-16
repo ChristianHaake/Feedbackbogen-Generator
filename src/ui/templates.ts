@@ -75,7 +75,7 @@ export function renderLayout(): HTMLElement {
       )
     ),
     el('div', { class: 'header-meta' },
-      el('select', { class: 'language-switcher', 'aria-label': 'Sprache auswählen', 'data-action': 'language-switch' },
+      el('select', { class: 'language-switcher', 'aria-label': strings.a11y.languageSwitcher, 'data-action': 'language-switch' },
         ...LANGUAGE_CODES.map(code => 
           el('option', { value: code, selected: code === currentLanguage, text: LOCALES[code].label })
         )
@@ -89,7 +89,7 @@ export function renderLayout(): HTMLElement {
 
   const actionBar = el(
     'div',
-    { class: 'action-bar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
+    { class: 'action-bar', role: 'toolbar', 'aria-label': strings.a11y.toolbar },
     el('div', { class: 'action-bar-inner' },
       el('div', { class: 'action-group' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),

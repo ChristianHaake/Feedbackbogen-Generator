@@ -1,255 +1,255 @@
 [
   {
     "id": "allgemeine",
-    "title": "[NL] Allgemein",
-    "description": "[NL] Legen Sie die allgemeinen Anforderungen fest, welche die Lernenden stets übergreifend zu beachten haben.",
+    "title": "Algemeen",
+    "description": "Bepaal de algemene eisen die lerenden steeds overkoepelend in acht moeten nemen.",
     "items": [
       {
         "id": "abgabe",
-        "label": "[NL] Rechtzeitige Abgabe",
+        "label": "Tijdige inlevering",
         "description": ""
       },
       {
         "id": "dateinamen",
-        "label": "[NL] Verwendung der vereinbarten Dateinamen und -pfade",
+        "label": "Gebruik van de afgesproken bestandsnamen en -paden",
         "description": ""
       },
       {
         "id": "regeln",
-        "label": "[NL] Berücksichtigung der vereinbarten Regeln und Vorgaben",
+        "label": "Naleving van de afgesproken regels en richtlijnen",
         "description": ""
       },
       {
         "id": "vollstaendigkeit",
-        "label": "[NL] Vollständigkeit der geforderten Unterlagen",
+        "label": "Volledigheid van de vereiste documenten",
         "description": ""
       },
       {
         "id": "quellenangaben",
-        "label": "[NL] Quellenangaben vorhanden",
+        "label": "Bronvermelding aanwezig",
         "description": ""
       }
     ]
   },
   {
     "id": "sachebene",
-    "title": "[NL] Sachebene",
-    "description": "[NL] Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.",
+    "title": "Inhoudelijk niveau",
+    "description": "Verwachtingen ten aanzien van kennisverwerving en presentatie.",
     "items": [
       {
         "id": "tiefe",
-        "label": "[NL] Tiefe und Umfang der fachlichen Auseinandersetzung",
+        "label": "Diepgang en omvang van de vakinhoudelijke analyse",
         "description": ""
       },
       {
         "id": "komplexitaet",
-        "label": "[NL] Komplexität des Inhalts",
+        "label": "Complexiteit van de inhoud",
         "description": ""
       },
       {
         "id": "eigeninitiative",
-        "label": "[NL] Eigeninitiative durch eigenständige Recherche und zusätzliche Perspektiven",
+        "label": "Initiatief door zelfstandig onderzoek en aanvullende perspectieven",
         "description": ""
       },
       {
         "id": "selbststaendigkeit",
-        "label": "[NL] Selbstständigkeit in der Auseinandersetzung mit dem Inhalt",
+        "label": "Zelfstandigheid in de omgang met de inhoud",
         "description": ""
       }
     ]
   },
   {
     "id": "sprachgebrauch",
-    "title": "[NL] Sprachgebrauch",
-    "description": "[NL] Kriterien zur Bewertung der sprachlichen Gestaltung und Wirkung.",
+    "title": "Taalgebruik",
+    "description": "Criteria voor de beoordeling van de taalkundige vormgeving en werking.",
     "items": [
       {
         "id": "sprachliche-richtigkeit",
-        "label": "[NL] Sprachliche Richtigkeit",
-        "description": "[NL] Grammatik, Rechtschreibung und Zeichensetzung"
+        "label": "Taalkundige correctheid",
+        "description": "Grammatica, spelling en interpunctie"
       },
       {
         "id": "ausdrucksfaehigkeit",
-        "label": "[NL] Ausdrucksfähigkeit",
-        "description": "[NL] Präzision der Wortwahl, Anschaulichkeit und Lebendigkeit der Sprache sowie Vermeidung von Wiederholungen"
+        "label": "Uitdrukkingsvaardigheid",
+        "description": "Precisie van de woordkeuze, beeldend en levendig taalgebruik en het vermijden van herhalingen"
       },
       {
         "id": "stilistische-angemessenheit",
-        "label": "[NL] Stilistische Angemessenheit",
-        "description": "[NL] Anpassung an Adressaten und Situation, passender Sprachstil (sachlich, argumentativ, kreativ usw.) sowie Einheitlichkeit des Stils"
+        "label": "Stilistische gepastheid",
+        "description": "Aanpassing aan doelgroep en situatie, passende taalstijl (zakelijk, argumentatief, creatief enz.) en consistentie van de stijl"
       },
       {
         "id": "kohaerenz-und-kohaesion",
-        "label": "[NL] Kohärenz und Kohäsion",
-        "description": "[NL] Logischer Aufbau der Gedanken, sinnvolle Verknüpfung von Sätzen und Abschnitten sowie Verwendung von Übergängen und Konnektoren"
+        "label": "Coherentie en cohesie",
+        "description": "Logische opbouw van gedachten, zinvolle verbinding van zinnen en alinea's en gebruik van overgangen en verbindingswoorden"
       },
       {
         "id": "kommunikative-wirksamkeit",
-        "label": "[NL] Kommunikative Wirksamkeit",
-        "description": "[NL] Verständlichkeit, Klarheit der Aussagen sowie Überzeugungskraft beziehungsweise Wirkung auf die Lesenden"
+        "label": "Communicatieve doeltreffendheid",
+        "description": "Begrijpelijkheid, helderheid van de uitspraken en overtuigingskracht respectievelijk effect op de lezer"
       },
       {
         "id": "sprachliche-vielfalt",
-        "label": "[NL] Sprachliche Vielfalt",
-        "description": "[NL] Abwechslungsreiche Satzanfänge, unterschiedliche Satzarten und Satzlängen sowie variabler Wortschatz"
+        "label": "Taalkundige variatie",
+        "description": "Gevarieerde zinsopeningen, verschillende zinstypen en zinslengtes en gevarieerde woordenschat"
       }
     ]
   },
   {
     "id": "praesentation",
-    "title": "[NL] Präsentation",
-    "description": "[NL] Parameter für Bewertung der Präsentation.",
+    "title": "Presentatie",
+    "description": "Parameters voor de beoordeling van de presentatie.",
     "items": [
       {
         "id": "koerpersprache",
-        "label": "[NL] Körpersprache und Blickkontakt",
+        "label": "Lichaamstaal en oogcontact",
         "description": ""
       },
       {
         "id": "aktivierend",
-        "label": "[NL] Aktivierende Elemente",
+        "label": "Activerende elementen",
         "description": ""
       },
       {
         "id": "sprachlicher_ausdruck",
-        "label": "[NL] Sprachlicher Ausdruck",
+        "label": "Mondelinge uitdrukking",
         "description": ""
       },
       {
         "id": "eigeninitiative_praes",
-        "label": "[NL] Eigeninitiative",
+        "label": "Initiatief",
         "description": ""
       },
       {
         "id": "kreativitaet",
-        "label": "[NL] Kreativität",
+        "label": "Creativiteit",
         "description": ""
       },
       {
         "id": "adressatenaufbereitung",
-        "label": "[NL] Adressatengerechte Aufbereitung",
+        "label": "Doelgroepgerichte voorbereiding",
         "description": ""
       }
     ]
   },
   {
     "id": "reflexion",
-    "title": "[NL] Reflexion",
-    "description": "[NL] Parameter für Bewertung der Reflexion.",
+    "title": "Reflectie",
+    "description": "Parameters voor de beoordeling van de reflectie.",
     "items": [
       {
         "id": "tiefe_reflexion",
-        "label": "[NL] Tiefe und Differenziertheit der Prozessreflexion",
+        "label": "Diepgang en genuanceerdheid van de procesreflectie",
         "description": ""
       },
       {
         "id": "analyse_schwierigkeiten",
-        "label": "[NL] Identifikation/Analyse von Schwierigkeiten",
+        "label": "Identificatie/analyse van moeilijkheden",
         "description": ""
       },
       {
         "id": "loesungsvorschlaege",
-        "label": "[NL] Konkrete, nachvollziehbare Lösungsvorschläge",
+        "label": "Concrete, navolgbare oplossingsvoorstellen",
         "description": ""
       }
     ]
   },
   {
     "id": "darstellung",
-    "title": "[NL] Darstellung",
-    "description": "[NL] Parameter für Bewertung der Darstellung.",
+    "title": "Vormgeving",
+    "description": "Parameters voor de beoordeling van de vormgeving.",
     "items": [
       {
         "id": "gestaltung",
-        "label": "[NL] Gestaltung (ansprechendes Layout, visuelle Attraktivität)",
+        "label": "Vormgeving (aantrekkelijke lay-out, visuele aantrekkingskracht)",
         "description": ""
       },
       {
         "id": "farb_schrift",
-        "label": "[NL] Einheitliches Farb- und Schriftkonzept",
+        "label": "Consistent kleuren- en lettertypeconcept",
         "description": ""
       },
       {
         "id": "optische_konsistenz",
-        "label": "[NL] Optische Konsistenz",
+        "label": "Visuele consistentie",
         "description": ""
       },
       {
         "id": "thematisches_design",
-        "label": "[NL] Thematisch passendes und unterstützendes Design",
+        "label": "Thematisch passend en ondersteunend ontwerp",
         "description": ""
       }
     ]
   },
   {
     "id": "peer",
-    "title": "[NL] Peer-Feedback / Reflexion",
-    "description": "[NL] Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.",
+    "title": "Peerfeedback / Reflectie",
+    "description": "Aspecten uit de werk- en presentatiefase met invloed op de kennisverwerving.",
     "items": [
       {
         "id": "erfolg_arbeitsphase",
-        "label": "[NL] Erfolg der Arbeitsphase",
+        "label": "Succes van de werkfase",
         "description": ""
       },
       {
         "id": "mitarbeit_gruppe",
-        "label": "[NL] Mitarbeit im Gruppenprozess",
+        "label": "Bijdrage aan het groepsproces",
         "description": ""
       },
       {
         "id": "aktivierende_elemente",
-        "label": "[NL] Aktivierende Elemente (z. B. Interaktionsmethoden)",
+        "label": "Activerende elementen (bijv. interactiemethoden)",
         "description": ""
       },
       {
         "id": "adressaten_praesentation",
-        "label": "[NL] Adressatengerechte Präsentation",
+        "label": "Doelgroepgerichte presentatie",
         "description": ""
       },
       {
         "id": "persoenlicher_wissenszuwachs",
-        "label": "[NL] Persönlicher Wissenszuwachs",
+        "label": "Persoonlijke kennisverwerving",
         "description": ""
       },
       {
         "id": "wissenszuwachs_zuhoerer",
-        "label": "[NL] Wissenszuwachs des Zuhörers",
+        "label": "Kennisverwerving van de toehoorder",
         "description": ""
       }
     ]
   },
   {
     "id": "prozess",
-    "title": "[NL] Prozessdokumentation",
+    "title": "Procesdocumentatie",
     "items": [
       {
         "id": "planungsunterlagen",
-        "label": "[NL] Planungsunterlagen / Prozessdokumentation",
+        "label": "Planningsdocumenten / procesdocumentatie",
         "description": ""
       },
       {
         "id": "nachvollziehbarkeit",
-        "label": "[NL] Nachvollziehbarkeit und Verständlichkeit",
+        "label": "Navolgbaarheid en begrijpelijkheid",
         "description": ""
       },
       {
         "id": "ki_angaben",
-        "label": "[NL] KI-Einsatz - Angabe/Beschreibung verwendeter Prompts und Tools",
+        "label": "AI-gebruik - vermelding/beschrijving van gebruikte prompts en tools",
         "description": ""
       },
       {
         "id": "ki_nachvollziehbar",
-        "label": "[NL] KI-Einsatz nachvollziehbar erklärt",
+        "label": "AI-gebruik navolgbaar toegelicht",
         "description": ""
       },
       {
         "id": "ki_reflexion",
-        "label": "[NL] KI-Einsatz kritisch reflektiert (Nutzen/Risiken)",
+        "label": "AI-gebruik kritisch gereflecteerd (nut/risico's)",
         "description": ""
       },
       {
         "id": "eigenes_potential",
-        "label": "[NL] Persönliches Entwicklungspotential",
+        "label": "Persoonlijk ontwikkelingspotentieel",
         "description": ""
       }
     ]

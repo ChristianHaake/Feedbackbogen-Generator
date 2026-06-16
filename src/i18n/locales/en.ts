@@ -74,6 +74,7 @@ export const en = {
     addCustomItem: 'Add custom criterion',
     customItemPlaceholder: 'Custom criterion…',
     customItemBadge: 'Custom criterion',
+    customCriteriaGroup: 'Custom criteria',
     bulkAdd: 'Add multiple criteria',
     bulkAddPlaceholder: 'Multiple criteria – one per line…',
     bulkAddButton: 'Add all',
@@ -119,7 +120,9 @@ export const en = {
   },
   a11y: {
     status: 'Status messages',
-    accordionToggle: 'Toggle section'
+    accordionToggle: 'Toggle section',
+    languageSwitcher: 'Select language',
+    toolbar: 'Toolbar'
   },
   messages: {
     contentLoadError: 'Content data could not be loaded or validated. Fallback activated.',

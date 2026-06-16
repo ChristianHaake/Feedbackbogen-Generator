@@ -190,7 +190,7 @@ export function buildCategoriesWithCustom(categories: Category[], customItems: C
     if (customs.length === 0) return category;
     const plainItems: Item[] = customs.map(({ categoryId: _categoryId, custom: _custom, ...item }) => item);
     if (Array.isArray(category.groups)) {
-      return { ...category, groups: [...category.groups, { id: `${category.id}__custom`, title: 'Eigene Kriterien', items: plainItems }] };
+      return { ...category, groups: [...category.groups, { id: `${category.id}__custom`, title: strings.labels.customCriteriaGroup, items: plainItems }] };
     }
     return { ...category, items: [...(category.items ?? []), ...plainItems] };
   });

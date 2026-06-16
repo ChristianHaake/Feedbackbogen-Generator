@@ -74,6 +74,7 @@ export const es = {
     addCustomItem: 'Añadir criterio personalizado',
     customItemPlaceholder: 'Criterio personalizado…',
     customItemBadge: 'Criterio personalizado',
+    customCriteriaGroup: 'Criterios personalizados',
     bulkAdd: 'Añadir múltiples criterios',
     bulkAddPlaceholder: 'Múltiples criterios – uno por línea…',
     bulkAddButton: 'Añadir todos',
@@ -119,7 +120,9 @@ export const es = {
   },
   a11y: {
     status: 'Mensajes de estado',
-    accordionToggle: 'Alternar sección'
+    accordionToggle: 'Alternar sección',
+    languageSwitcher: 'Seleccionar idioma',
+    toolbar: 'Barra de herramientas'
   },
   messages: {
     contentLoadError: 'No se pudieron cargar los datos de contenido. Respaldo activado.',

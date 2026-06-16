@@ -74,6 +74,7 @@ export const nl = {
     addCustomItem: 'Aangepast criterium toevoegen',
     customItemPlaceholder: 'Aangepast criterium…',
     customItemBadge: 'Aangepast criterium',
+    customCriteriaGroup: 'Aangepaste criteria',
     bulkAdd: 'Meerdere criteria toevoegen',
     bulkAddPlaceholder: 'Meerdere criteria – één per regel…',
     bulkAddButton: 'Alles toevoegen',
@@ -119,7 +120,9 @@ export const nl = {
   },
   a11y: {
     status: 'Statusmeldingen',
-    accordionToggle: 'Sectie in-/uitklappen'
+    accordionToggle: 'Sectie in-/uitklappen',
+    languageSwitcher: 'Taal kiezen',
+    toolbar: 'Werkbalk'
   },
   messages: {
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',

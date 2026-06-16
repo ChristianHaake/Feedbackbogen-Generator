@@ -5,7 +5,7 @@ import {
   renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
   renderProductFormatModal, renderResetConfirmModal
 } from './ui/templates';
-import { strings, setLanguage, type LanguageCode } from './strings';
+import { strings, setLanguage, currentLanguage, type LanguageCode } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadCategories, loadScales, scaleById, buildCategoriesWithCustom } from './content-data';
 import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
@@ -43,6 +43,8 @@ function requireEl<T extends HTMLElement = HTMLElement>(selector: string, root: 
 }
 
 async function bootstrap() {
+  document.documentElement.lang = currentLanguage;
+  document.title = strings.appTitle;
   focusVisiblePolyfill();
   const root = document.getElementById('app')!;
   const app = renderLayout();

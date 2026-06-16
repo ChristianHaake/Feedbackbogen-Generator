@@ -1,255 +1,255 @@
 [
   {
     "id": "allgemeine",
-    "title": "[FR] Allgemein",
-    "description": "[FR] Legen Sie die allgemeinen Anforderungen fest, welche die Lernenden stets übergreifend zu beachten haben.",
+    "title": "Général",
+    "description": "Définissez les exigences générales que les apprenants doivent toujours respecter de manière transversale.",
     "items": [
       {
         "id": "abgabe",
-        "label": "[FR] Rechtzeitige Abgabe",
+        "label": "Remise dans les délais",
         "description": ""
       },
       {
         "id": "dateinamen",
-        "label": "[FR] Verwendung der vereinbarten Dateinamen und -pfade",
+        "label": "Utilisation des noms et chemins de fichiers convenus",
         "description": ""
       },
       {
         "id": "regeln",
-        "label": "[FR] Berücksichtigung der vereinbarten Regeln und Vorgaben",
+        "label": "Respect des règles et consignes convenues",
         "description": ""
       },
       {
         "id": "vollstaendigkeit",
-        "label": "[FR] Vollständigkeit der geforderten Unterlagen",
+        "label": "Exhaustivité des documents demandés",
         "description": ""
       },
       {
         "id": "quellenangaben",
-        "label": "[FR] Quellenangaben vorhanden",
+        "label": "Sources indiquées",
         "description": ""
       }
     ]
   },
   {
     "id": "sachebene",
-    "title": "[FR] Sachebene",
-    "description": "[FR] Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.",
+    "title": "Niveau du contenu",
+    "description": "Attentes en matière d'acquisition de connaissances et de présentation.",
     "items": [
       {
         "id": "tiefe",
-        "label": "[FR] Tiefe und Umfang der fachlichen Auseinandersetzung",
+        "label": "Profondeur et étendue de l'analyse disciplinaire",
         "description": ""
       },
       {
         "id": "komplexitaet",
-        "label": "[FR] Komplexität des Inhalts",
+        "label": "Complexité du contenu",
         "description": ""
       },
       {
         "id": "eigeninitiative",
-        "label": "[FR] Eigeninitiative durch eigenständige Recherche und zusätzliche Perspektiven",
+        "label": "Initiative par une recherche autonome et des perspectives supplémentaires",
         "description": ""
       },
       {
         "id": "selbststaendigkeit",
-        "label": "[FR] Selbstständigkeit in der Auseinandersetzung mit dem Inhalt",
+        "label": "Autonomie dans le traitement du contenu",
         "description": ""
       }
     ]
   },
   {
     "id": "sprachgebrauch",
-    "title": "[FR] Sprachgebrauch",
-    "description": "[FR] Kriterien zur Bewertung der sprachlichen Gestaltung und Wirkung.",
+    "title": "Usage de la langue",
+    "description": "Critères d'évaluation de la qualité et de l'effet linguistiques.",
     "items": [
       {
         "id": "sprachliche-richtigkeit",
-        "label": "[FR] Sprachliche Richtigkeit",
-        "description": "[FR] Grammatik, Rechtschreibung und Zeichensetzung"
+        "label": "Correction linguistique",
+        "description": "Grammaire, orthographe et ponctuation"
       },
       {
         "id": "ausdrucksfaehigkeit",
-        "label": "[FR] Ausdrucksfähigkeit",
-        "description": "[FR] Präzision der Wortwahl, Anschaulichkeit und Lebendigkeit der Sprache sowie Vermeidung von Wiederholungen"
+        "label": "Capacité d'expression",
+        "description": "Précision du choix des mots, caractère imagé et vivant de la langue ainsi qu'évitement des répétitions"
       },
       {
         "id": "stilistische-angemessenheit",
-        "label": "[FR] Stilistische Angemessenheit",
-        "description": "[FR] Anpassung an Adressaten und Situation, passender Sprachstil (sachlich, argumentativ, kreativ usw.) sowie Einheitlichkeit des Stils"
+        "label": "Adéquation stylistique",
+        "description": "Adaptation au destinataire et à la situation, registre approprié (factuel, argumentatif, créatif, etc.) ainsi que cohérence du style"
       },
       {
         "id": "kohaerenz-und-kohaesion",
-        "label": "[FR] Kohärenz und Kohäsion",
-        "description": "[FR] Logischer Aufbau der Gedanken, sinnvolle Verknüpfung von Sätzen und Abschnitten sowie Verwendung von Übergängen und Konnektoren"
+        "label": "Cohérence et cohésion",
+        "description": "Structuration logique des idées, articulation pertinente des phrases et des paragraphes ainsi qu'utilisation de transitions et de connecteurs"
       },
       {
         "id": "kommunikative-wirksamkeit",
-        "label": "[FR] Kommunikative Wirksamkeit",
-        "description": "[FR] Verständlichkeit, Klarheit der Aussagen sowie Überzeugungskraft beziehungsweise Wirkung auf die Lesenden"
+        "label": "Efficacité communicative",
+        "description": "Intelligibilité, clarté des propos ainsi que force de conviction ou effet sur le lecteur"
       },
       {
         "id": "sprachliche-vielfalt",
-        "label": "[FR] Sprachliche Vielfalt",
-        "description": "[FR] Abwechslungsreiche Satzanfänge, unterschiedliche Satzarten und Satzlängen sowie variabler Wortschatz"
+        "label": "Variété linguistique",
+        "description": "Débuts de phrases variés, types et longueurs de phrases différents ainsi que vocabulaire varié"
       }
     ]
   },
   {
     "id": "praesentation",
-    "title": "[FR] Präsentation",
-    "description": "[FR] Parameter für Bewertung der Präsentation.",
+    "title": "Présentation",
+    "description": "Paramètres d'évaluation de la présentation.",
     "items": [
       {
         "id": "koerpersprache",
-        "label": "[FR] Körpersprache und Blickkontakt",
+        "label": "Langage corporel et contact visuel",
         "description": ""
       },
       {
         "id": "aktivierend",
-        "label": "[FR] Aktivierende Elemente",
+        "label": "Éléments activants",
         "description": ""
       },
       {
         "id": "sprachlicher_ausdruck",
-        "label": "[FR] Sprachlicher Ausdruck",
+        "label": "Expression orale",
         "description": ""
       },
       {
         "id": "eigeninitiative_praes",
-        "label": "[FR] Eigeninitiative",
+        "label": "Initiative",
         "description": ""
       },
       {
         "id": "kreativitaet",
-        "label": "[FR] Kreativität",
+        "label": "Créativité",
         "description": ""
       },
       {
         "id": "adressatenaufbereitung",
-        "label": "[FR] Adressatengerechte Aufbereitung",
+        "label": "Préparation adaptée au destinataire",
         "description": ""
       }
     ]
   },
   {
     "id": "reflexion",
-    "title": "[FR] Reflexion",
-    "description": "[FR] Parameter für Bewertung der Reflexion.",
+    "title": "Réflexion",
+    "description": "Paramètres d'évaluation de la réflexion.",
     "items": [
       {
         "id": "tiefe_reflexion",
-        "label": "[FR] Tiefe und Differenziertheit der Prozessreflexion",
+        "label": "Profondeur et finesse de la réflexion sur le processus",
         "description": ""
       },
       {
         "id": "analyse_schwierigkeiten",
-        "label": "[FR] Identifikation/Analyse von Schwierigkeiten",
+        "label": "Identification/analyse des difficultés",
         "description": ""
       },
       {
         "id": "loesungsvorschlaege",
-        "label": "[FR] Konkrete, nachvollziehbare Lösungsvorschläge",
+        "label": "Propositions de solutions concrètes et compréhensibles",
         "description": ""
       }
     ]
   },
   {
     "id": "darstellung",
-    "title": "[FR] Darstellung",
-    "description": "[FR] Parameter für Bewertung der Darstellung.",
+    "title": "Mise en forme",
+    "description": "Paramètres d'évaluation de la mise en forme.",
     "items": [
       {
         "id": "gestaltung",
-        "label": "[FR] Gestaltung (ansprechendes Layout, visuelle Attraktivität)",
+        "label": "Conception (mise en page attrayante, attrait visuel)",
         "description": ""
       },
       {
         "id": "farb_schrift",
-        "label": "[FR] Einheitliches Farb- und Schriftkonzept",
+        "label": "Concept cohérent de couleurs et de polices",
         "description": ""
       },
       {
         "id": "optische_konsistenz",
-        "label": "[FR] Optische Konsistenz",
+        "label": "Cohérence visuelle",
         "description": ""
       },
       {
         "id": "thematisches_design",
-        "label": "[FR] Thematisch passendes und unterstützendes Design",
+        "label": "Design thématiquement adapté et pertinent",
         "description": ""
       }
     ]
   },
   {
     "id": "peer",
-    "title": "[FR] Peer-Feedback / Reflexion",
-    "description": "[FR] Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.",
+    "title": "Feedback des pairs / Réflexion",
+    "description": "Aspects de la phase de travail et de présentation ayant une influence sur l'acquisition de connaissances.",
     "items": [
       {
         "id": "erfolg_arbeitsphase",
-        "label": "[FR] Erfolg der Arbeitsphase",
+        "label": "Réussite de la phase de travail",
         "description": ""
       },
       {
         "id": "mitarbeit_gruppe",
-        "label": "[FR] Mitarbeit im Gruppenprozess",
+        "label": "Participation au processus de groupe",
         "description": ""
       },
       {
         "id": "aktivierende_elemente",
-        "label": "[FR] Aktivierende Elemente (z. B. Interaktionsmethoden)",
+        "label": "Éléments activants (p. ex. méthodes d'interaction)",
         "description": ""
       },
       {
         "id": "adressaten_praesentation",
-        "label": "[FR] Adressatengerechte Präsentation",
+        "label": "Présentation adaptée au destinataire",
         "description": ""
       },
       {
         "id": "persoenlicher_wissenszuwachs",
-        "label": "[FR] Persönlicher Wissenszuwachs",
+        "label": "Acquisition personnelle de connaissances",
         "description": ""
       },
       {
         "id": "wissenszuwachs_zuhoerer",
-        "label": "[FR] Wissenszuwachs des Zuhörers",
+        "label": "Acquisition de connaissances par l'auditeur",
         "description": ""
       }
     ]
   },
   {
     "id": "prozess",
-    "title": "[FR] Prozessdokumentation",
+    "title": "Documentation du processus",
     "items": [
       {
         "id": "planungsunterlagen",
-        "label": "[FR] Planungsunterlagen / Prozessdokumentation",
+        "label": "Documents de planification / documentation du processus",
         "description": ""
       },
       {
         "id": "nachvollziehbarkeit",
-        "label": "[FR] Nachvollziehbarkeit und Verständlichkeit",
+        "label": "Traçabilité et intelligibilité",
         "description": ""
       },
       {
         "id": "ki_angaben",
-        "label": "[FR] KI-Einsatz - Angabe/Beschreibung verwendeter Prompts und Tools",
+        "label": "Recours à l'IA - indication/description des prompts et outils utilisés",
         "description": ""
       },
       {
         "id": "ki_nachvollziehbar",
-        "label": "[FR] KI-Einsatz nachvollziehbar erklärt",
+        "label": "Recours à l'IA expliqué de façon traçable",
         "description": ""
       },
       {
         "id": "ki_reflexion",
-        "label": "[FR] KI-Einsatz kritisch reflektiert (Nutzen/Risiken)",
+        "label": "Recours à l'IA réfléchi de façon critique (bénéfices/risques)",
         "description": ""
       },
       {
         "id": "eigenes_potential",
-        "label": "[FR] Persönliches Entwicklungspotential",
+        "label": "Potentiel de développement personnel",
         "description": ""
       }
     ]

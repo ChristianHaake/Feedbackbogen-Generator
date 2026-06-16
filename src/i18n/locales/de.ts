@@ -74,6 +74,7 @@ export const de = {
     addCustomItem: 'Eigenes Kriterium hinzufügen',
     customItemPlaceholder: 'Eigenes Kriterium…',
     customItemBadge: 'Eigenes Kriterium',
+    customCriteriaGroup: 'Eigene Kriterien',
     bulkAdd: 'Mehrere Kriterien einfügen',
     bulkAddPlaceholder: 'Mehrere Kriterien – eines pro Zeile…',
     bulkAddButton: 'Alle hinzufügen',
@@ -119,7 +120,9 @@ export const de = {
   },
   a11y: {
     status: 'Statusmeldungen',
-    accordionToggle: 'Abschnitt umschalten'
+    accordionToggle: 'Abschnitt umschalten',
+    languageSwitcher: 'Sprache auswählen',
+    toolbar: 'Werkzeugleiste'
   },
   messages: {
     contentLoadError: 'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',

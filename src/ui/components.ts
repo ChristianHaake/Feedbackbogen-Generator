@@ -4,6 +4,7 @@ export function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Record<
     if (k === 'class') node.className = v;
     else if (k === 'text') node.textContent = String(v);
     else if (k.startsWith('on') && typeof v === 'function') (node as any)[k.toLowerCase()] = v;
+    else if (typeof v === 'boolean') { if (v) node.setAttribute(k, ''); }
     else if (v !== undefined && v !== null) node.setAttribute(k, String(v));
   }
   for (const c of children) {

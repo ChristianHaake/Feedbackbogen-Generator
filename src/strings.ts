@@ -128,6 +128,7 @@ export const strings = {
     imported: 'JSON importiert.',
     importError: 'JSON konnte nicht importiert werden. Bitte prüfen Sie die Datei.',
     importInvalidJson: 'Die Datei enthält kein gültiges JSON.',
+    importTooLarge: 'Die Datei ist zu groß für eine Feedbackbogen-Konfiguration.',
     importInvalidShape: 'Die Datei enthält keine gültige Feedbackbogen-Konfiguration.',
     importMissingSelection: 'Die Config ist unvollständig: "selectedItems" muss eine Liste sein.',
     importInvalidVersion: 'Die Config enthält keine gültige Schema-Version.',

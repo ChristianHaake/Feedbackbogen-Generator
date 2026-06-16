@@ -170,6 +170,23 @@ describe('config storage', () => {
     });
   });
 
+  it('rejects an uploaded file that exceeds the size limit before reading it', async () => {
+    let read = false;
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
+      Object.defineProperty(this, 'files', {
+        configurable: true,
+        value: [{ size: 10_000_000, text: async () => { read = true; return '{}'; } }]
+      });
+      this.onchange?.(new Event('change'));
+    });
+
+    await expect(importConfigJSON()).resolves.toEqual({
+      status: 'error',
+      message: 'Die Datei ist zu groß für eine Feedbackbogen-Konfiguration.'
+    });
+    expect(read).toBe(false);
+  });
+
   it('rejects an uploaded file with invalid JSON', async () => {
     vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
       Object.defineProperty(this, 'files', {

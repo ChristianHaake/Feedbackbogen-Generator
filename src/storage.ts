@@ -7,6 +7,8 @@ import type {
 
 const KEY = 'bbk:config';
 const SECTIONS_KEY = 'bbk:sections';
+// Upper bound for an imported config file; a real Feedbackbogen config is a few KB.
+const MAX_IMPORT_BYTES = 5_000_000;
 export const CONFIG_SCHEMA_VERSION = 4;
 
 export type SectionState = Record<string, boolean>;
@@ -306,7 +308,12 @@ export function parseConfig(value: unknown): ConfigParseResult {
 }
 
 export function saveConfig(config: AppConfig) {
-  localStorage.setItem(KEY, JSON.stringify(config));
+  try {
+    localStorage.setItem(KEY, JSON.stringify(config));
+  } catch {
+    // localStorage unavailable or quota exceeded (e.g. Safari private mode).
+    // Persistence is best-effort — never let it break the active editing session.
+  }
 }
 
 export function loadConfig(): AppConfig | null {
@@ -372,6 +379,7 @@ export async function importConfigJSON(): Promise<ConfigImportResult> {
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return resolve({ status: 'cancelled' });
+      if (file.size > MAX_IMPORT_BYTES) return resolve({ status: 'error', message: strings.messages.importTooLarge });
       try {
         resolve(parseConfig(JSON.parse(await file.text())));
       } catch {

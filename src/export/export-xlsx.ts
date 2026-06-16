@@ -1,7 +1,7 @@
 import writeExcelFile from 'write-excel-file/universal';
 import type { Cell, SheetData } from 'write-excel-file/universal';
 
-import { downloadBlob, scaleLabel } from '@/export/export-utils';
+import { categoryHeadingText, downloadBlob, scaleLabel } from '@/export/export-utils';
 import type { ExportRow } from '@/types';
 
 const headerStyle = {
@@ -28,7 +28,7 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
     ...rows.map((row, index) => {
       const shaded = index % 2 === 1;
       return [
-        bodyCell(row.category, shaded),
+        bodyCell(categoryHeadingText(row.category, row.weight), shaded),
         bodyCell(`${row.number}. ${row.item}`, shaded),
         bodyCell(scaleLabel(row.scale), shaded),
         bodyCell('', shaded)

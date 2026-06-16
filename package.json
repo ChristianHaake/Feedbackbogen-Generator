@@ -4,9 +4,6 @@
   "private": true,
   "type": "module",
   "license": "GPL-3.0-only",
-  "engines": {
-    "node": ">=20.19.0 || >=22.12.0"
-  },
   "scripts": {
     "dev": "vite --open",
     "prebuild": "npm run check:content",

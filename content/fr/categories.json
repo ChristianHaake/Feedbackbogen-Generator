@@ -1,0 +1,257 @@
+[
+  {
+    "id": "allgemeine",
+    "title": "[FR] Allgemein",
+    "description": "[FR] Legen Sie die allgemeinen Anforderungen fest, welche die Lernenden stets übergreifend zu beachten haben.",
+    "items": [
+      {
+        "id": "abgabe",
+        "label": "[FR] Rechtzeitige Abgabe",
+        "description": ""
+      },
+      {
+        "id": "dateinamen",
+        "label": "[FR] Verwendung der vereinbarten Dateinamen und -pfade",
+        "description": ""
+      },
+      {
+        "id": "regeln",
+        "label": "[FR] Berücksichtigung der vereinbarten Regeln und Vorgaben",
+        "description": ""
+      },
+      {
+        "id": "vollstaendigkeit",
+        "label": "[FR] Vollständigkeit der geforderten Unterlagen",
+        "description": ""
+      },
+      {
+        "id": "quellenangaben",
+        "label": "[FR] Quellenangaben vorhanden",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sachebene",
+    "title": "[FR] Sachebene",
+    "description": "[FR] Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.",
+    "items": [
+      {
+        "id": "tiefe",
+        "label": "[FR] Tiefe und Umfang der fachlichen Auseinandersetzung",
+        "description": ""
+      },
+      {
+        "id": "komplexitaet",
+        "label": "[FR] Komplexität des Inhalts",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative",
+        "label": "[FR] Eigeninitiative durch eigenständige Recherche und zusätzliche Perspektiven",
+        "description": ""
+      },
+      {
+        "id": "selbststaendigkeit",
+        "label": "[FR] Selbstständigkeit in der Auseinandersetzung mit dem Inhalt",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sprachgebrauch",
+    "title": "[FR] Sprachgebrauch",
+    "description": "[FR] Kriterien zur Bewertung der sprachlichen Gestaltung und Wirkung.",
+    "items": [
+      {
+        "id": "sprachliche-richtigkeit",
+        "label": "[FR] Sprachliche Richtigkeit",
+        "description": "[FR] Grammatik, Rechtschreibung und Zeichensetzung"
+      },
+      {
+        "id": "ausdrucksfaehigkeit",
+        "label": "[FR] Ausdrucksfähigkeit",
+        "description": "[FR] Präzision der Wortwahl, Anschaulichkeit und Lebendigkeit der Sprache sowie Vermeidung von Wiederholungen"
+      },
+      {
+        "id": "stilistische-angemessenheit",
+        "label": "[FR] Stilistische Angemessenheit",
+        "description": "[FR] Anpassung an Adressaten und Situation, passender Sprachstil (sachlich, argumentativ, kreativ usw.) sowie Einheitlichkeit des Stils"
+      },
+      {
+        "id": "kohaerenz-und-kohaesion",
+        "label": "[FR] Kohärenz und Kohäsion",
+        "description": "[FR] Logischer Aufbau der Gedanken, sinnvolle Verknüpfung von Sätzen und Abschnitten sowie Verwendung von Übergängen und Konnektoren"
+      },
+      {
+        "id": "kommunikative-wirksamkeit",
+        "label": "[FR] Kommunikative Wirksamkeit",
+        "description": "[FR] Verständlichkeit, Klarheit der Aussagen sowie Überzeugungskraft beziehungsweise Wirkung auf die Lesenden"
+      },
+      {
+        "id": "sprachliche-vielfalt",
+        "label": "[FR] Sprachliche Vielfalt",
+        "description": "[FR] Abwechslungsreiche Satzanfänge, unterschiedliche Satzarten und Satzlängen sowie variabler Wortschatz"
+      }
+    ]
+  },
+  {
+    "id": "praesentation",
+    "title": "[FR] Präsentation",
+    "description": "[FR] Parameter für Bewertung der Präsentation.",
+    "items": [
+      {
+        "id": "koerpersprache",
+        "label": "[FR] Körpersprache und Blickkontakt",
+        "description": ""
+      },
+      {
+        "id": "aktivierend",
+        "label": "[FR] Aktivierende Elemente",
+        "description": ""
+      },
+      {
+        "id": "sprachlicher_ausdruck",
+        "label": "[FR] Sprachlicher Ausdruck",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative_praes",
+        "label": "[FR] Eigeninitiative",
+        "description": ""
+      },
+      {
+        "id": "kreativitaet",
+        "label": "[FR] Kreativität",
+        "description": ""
+      },
+      {
+        "id": "adressatenaufbereitung",
+        "label": "[FR] Adressatengerechte Aufbereitung",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "reflexion",
+    "title": "[FR] Reflexion",
+    "description": "[FR] Parameter für Bewertung der Reflexion.",
+    "items": [
+      {
+        "id": "tiefe_reflexion",
+        "label": "[FR] Tiefe und Differenziertheit der Prozessreflexion",
+        "description": ""
+      },
+      {
+        "id": "analyse_schwierigkeiten",
+        "label": "[FR] Identifikation/Analyse von Schwierigkeiten",
+        "description": ""
+      },
+      {
+        "id": "loesungsvorschlaege",
+        "label": "[FR] Konkrete, nachvollziehbare Lösungsvorschläge",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "darstellung",
+    "title": "[FR] Darstellung",
+    "description": "[FR] Parameter für Bewertung der Darstellung.",
+    "items": [
+      {
+        "id": "gestaltung",
+        "label": "[FR] Gestaltung (ansprechendes Layout, visuelle Attraktivität)",
+        "description": ""
+      },
+      {
+        "id": "farb_schrift",
+        "label": "[FR] Einheitliches Farb- und Schriftkonzept",
+        "description": ""
+      },
+      {
+        "id": "optische_konsistenz",
+        "label": "[FR] Optische Konsistenz",
+        "description": ""
+      },
+      {
+        "id": "thematisches_design",
+        "label": "[FR] Thematisch passendes und unterstützendes Design",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "peer",
+    "title": "[FR] Peer-Feedback / Reflexion",
+    "description": "[FR] Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.",
+    "items": [
+      {
+        "id": "erfolg_arbeitsphase",
+        "label": "[FR] Erfolg der Arbeitsphase",
+        "description": ""
+      },
+      {
+        "id": "mitarbeit_gruppe",
+        "label": "[FR] Mitarbeit im Gruppenprozess",
+        "description": ""
+      },
+      {
+        "id": "aktivierende_elemente",
+        "label": "[FR] Aktivierende Elemente (z. B. Interaktionsmethoden)",
+        "description": ""
+      },
+      {
+        "id": "adressaten_praesentation",
+        "label": "[FR] Adressatengerechte Präsentation",
+        "description": ""
+      },
+      {
+        "id": "persoenlicher_wissenszuwachs",
+        "label": "[FR] Persönlicher Wissenszuwachs",
+        "description": ""
+      },
+      {
+        "id": "wissenszuwachs_zuhoerer",
+        "label": "[FR] Wissenszuwachs des Zuhörers",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "prozess",
+    "title": "[FR] Prozessdokumentation",
+    "items": [
+      {
+        "id": "planungsunterlagen",
+        "label": "[FR] Planungsunterlagen / Prozessdokumentation",
+        "description": ""
+      },
+      {
+        "id": "nachvollziehbarkeit",
+        "label": "[FR] Nachvollziehbarkeit und Verständlichkeit",
+        "description": ""
+      },
+      {
+        "id": "ki_angaben",
+        "label": "[FR] KI-Einsatz - Angabe/Beschreibung verwendeter Prompts und Tools",
+        "description": ""
+      },
+      {
+        "id": "ki_nachvollziehbar",
+        "label": "[FR] KI-Einsatz nachvollziehbar erklärt",
+        "description": ""
+      },
+      {
+        "id": "ki_reflexion",
+        "label": "[FR] KI-Einsatz kritisch reflektiert (Nutzen/Risiken)",
+        "description": ""
+      },
+      {
+        "id": "eigenes_potential",
+        "label": "[FR] Persönliches Entwicklungspotential",
+        "description": ""
+      }
+    ]
+  }
+]

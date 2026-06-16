@@ -1,0 +1,47 @@
+[
+  {
+    "id": "verbal_5",
+    "label": "Escala Likert",
+    "kind": "verbal",
+    "labels": ["totalmente de acuerdo", "de acuerdo", "neutral", "en desacuerdo", "totalmente en desacuerdo"]
+  },
+  {
+    "id": "punkte_10",
+    "label": "Puntos",
+    "kind": "numeric",
+    "defaultMin": 0,
+    "defaultMax": 10,
+    "minLimit": 0,
+    "maxLimit": 20,
+    "maxSteps": 11
+  },
+  {
+    "id": "ascii_3",
+    "label": "Emojis (3 niveles)",
+    "kind": "symbol",
+    "set": [":(", ":/", ":)"]
+  },
+  {
+    "id": "ascii_5",
+    "label": "Emojis (5 niveles)",
+    "kind": "symbol",
+    "set": [":'(", ":( ", ":/", ":)", ":D"]
+  },
+  {
+    "id": "ampel",
+    "label": "Semáforo",
+    "kind": "traffic",
+    "colors": ["#2e7d32", "#fbc02d", "#c62828"]
+  },
+  {
+    "id": "prozent",
+    "label": "Porcentaje",
+    "kind": "percent"
+  },
+  {
+    "id": "yes-no",
+    "label": "Sí/No",
+    "kind": "verbal",
+    "labels": ["Sí", "No"]
+  }
+]

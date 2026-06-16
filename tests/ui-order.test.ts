@@ -253,6 +253,7 @@ function handlerSpies(): RenderHandlers {
     onReorderHeaderField: vi.fn(),
     onFooterFieldToggle: vi.fn(),
     onPreviewModeChange: vi.fn(),
-    onMobileViewChange: vi.fn()
+    onMobileViewChange: vi.fn(),
+    onLanguageChange: vi.fn()
   };
 }

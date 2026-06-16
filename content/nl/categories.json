@@ -1,0 +1,257 @@
+[
+  {
+    "id": "allgemeine",
+    "title": "[NL] Allgemein",
+    "description": "[NL] Legen Sie die allgemeinen Anforderungen fest, welche die Lernenden stets übergreifend zu beachten haben.",
+    "items": [
+      {
+        "id": "abgabe",
+        "label": "[NL] Rechtzeitige Abgabe",
+        "description": ""
+      },
+      {
+        "id": "dateinamen",
+        "label": "[NL] Verwendung der vereinbarten Dateinamen und -pfade",
+        "description": ""
+      },
+      {
+        "id": "regeln",
+        "label": "[NL] Berücksichtigung der vereinbarten Regeln und Vorgaben",
+        "description": ""
+      },
+      {
+        "id": "vollstaendigkeit",
+        "label": "[NL] Vollständigkeit der geforderten Unterlagen",
+        "description": ""
+      },
+      {
+        "id": "quellenangaben",
+        "label": "[NL] Quellenangaben vorhanden",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sachebene",
+    "title": "[NL] Sachebene",
+    "description": "[NL] Erwartungshorizont hinsichtlich Wissenszuwachs und Darstellung.",
+    "items": [
+      {
+        "id": "tiefe",
+        "label": "[NL] Tiefe und Umfang der fachlichen Auseinandersetzung",
+        "description": ""
+      },
+      {
+        "id": "komplexitaet",
+        "label": "[NL] Komplexität des Inhalts",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative",
+        "label": "[NL] Eigeninitiative durch eigenständige Recherche und zusätzliche Perspektiven",
+        "description": ""
+      },
+      {
+        "id": "selbststaendigkeit",
+        "label": "[NL] Selbstständigkeit in der Auseinandersetzung mit dem Inhalt",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sprachgebrauch",
+    "title": "[NL] Sprachgebrauch",
+    "description": "[NL] Kriterien zur Bewertung der sprachlichen Gestaltung und Wirkung.",
+    "items": [
+      {
+        "id": "sprachliche-richtigkeit",
+        "label": "[NL] Sprachliche Richtigkeit",
+        "description": "[NL] Grammatik, Rechtschreibung und Zeichensetzung"
+      },
+      {
+        "id": "ausdrucksfaehigkeit",
+        "label": "[NL] Ausdrucksfähigkeit",
+        "description": "[NL] Präzision der Wortwahl, Anschaulichkeit und Lebendigkeit der Sprache sowie Vermeidung von Wiederholungen"
+      },
+      {
+        "id": "stilistische-angemessenheit",
+        "label": "[NL] Stilistische Angemessenheit",
+        "description": "[NL] Anpassung an Adressaten und Situation, passender Sprachstil (sachlich, argumentativ, kreativ usw.) sowie Einheitlichkeit des Stils"
+      },
+      {
+        "id": "kohaerenz-und-kohaesion",
+        "label": "[NL] Kohärenz und Kohäsion",
+        "description": "[NL] Logischer Aufbau der Gedanken, sinnvolle Verknüpfung von Sätzen und Abschnitten sowie Verwendung von Übergängen und Konnektoren"
+      },
+      {
+        "id": "kommunikative-wirksamkeit",
+        "label": "[NL] Kommunikative Wirksamkeit",
+        "description": "[NL] Verständlichkeit, Klarheit der Aussagen sowie Überzeugungskraft beziehungsweise Wirkung auf die Lesenden"
+      },
+      {
+        "id": "sprachliche-vielfalt",
+        "label": "[NL] Sprachliche Vielfalt",
+        "description": "[NL] Abwechslungsreiche Satzanfänge, unterschiedliche Satzarten und Satzlängen sowie variabler Wortschatz"
+      }
+    ]
+  },
+  {
+    "id": "praesentation",
+    "title": "[NL] Präsentation",
+    "description": "[NL] Parameter für Bewertung der Präsentation.",
+    "items": [
+      {
+        "id": "koerpersprache",
+        "label": "[NL] Körpersprache und Blickkontakt",
+        "description": ""
+      },
+      {
+        "id": "aktivierend",
+        "label": "[NL] Aktivierende Elemente",
+        "description": ""
+      },
+      {
+        "id": "sprachlicher_ausdruck",
+        "label": "[NL] Sprachlicher Ausdruck",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative_praes",
+        "label": "[NL] Eigeninitiative",
+        "description": ""
+      },
+      {
+        "id": "kreativitaet",
+        "label": "[NL] Kreativität",
+        "description": ""
+      },
+      {
+        "id": "adressatenaufbereitung",
+        "label": "[NL] Adressatengerechte Aufbereitung",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "reflexion",
+    "title": "[NL] Reflexion",
+    "description": "[NL] Parameter für Bewertung der Reflexion.",
+    "items": [
+      {
+        "id": "tiefe_reflexion",
+        "label": "[NL] Tiefe und Differenziertheit der Prozessreflexion",
+        "description": ""
+      },
+      {
+        "id": "analyse_schwierigkeiten",
+        "label": "[NL] Identifikation/Analyse von Schwierigkeiten",
+        "description": ""
+      },
+      {
+        "id": "loesungsvorschlaege",
+        "label": "[NL] Konkrete, nachvollziehbare Lösungsvorschläge",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "darstellung",
+    "title": "[NL] Darstellung",
+    "description": "[NL] Parameter für Bewertung der Darstellung.",
+    "items": [
+      {
+        "id": "gestaltung",
+        "label": "[NL] Gestaltung (ansprechendes Layout, visuelle Attraktivität)",
+        "description": ""
+      },
+      {
+        "id": "farb_schrift",
+        "label": "[NL] Einheitliches Farb- und Schriftkonzept",
+        "description": ""
+      },
+      {
+        "id": "optische_konsistenz",
+        "label": "[NL] Optische Konsistenz",
+        "description": ""
+      },
+      {
+        "id": "thematisches_design",
+        "label": "[NL] Thematisch passendes und unterstützendes Design",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "peer",
+    "title": "[NL] Peer-Feedback / Reflexion",
+    "description": "[NL] Aspekte aus Arbeits- und Präsentationsphase mit Einfluss auf den Wissenszuwachs.",
+    "items": [
+      {
+        "id": "erfolg_arbeitsphase",
+        "label": "[NL] Erfolg der Arbeitsphase",
+        "description": ""
+      },
+      {
+        "id": "mitarbeit_gruppe",
+        "label": "[NL] Mitarbeit im Gruppenprozess",
+        "description": ""
+      },
+      {
+        "id": "aktivierende_elemente",
+        "label": "[NL] Aktivierende Elemente (z. B. Interaktionsmethoden)",
+        "description": ""
+      },
+      {
+        "id": "adressaten_praesentation",
+        "label": "[NL] Adressatengerechte Präsentation",
+        "description": ""
+      },
+      {
+        "id": "persoenlicher_wissenszuwachs",
+        "label": "[NL] Persönlicher Wissenszuwachs",
+        "description": ""
+      },
+      {
+        "id": "wissenszuwachs_zuhoerer",
+        "label": "[NL] Wissenszuwachs des Zuhörers",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "prozess",
+    "title": "[NL] Prozessdokumentation",
+    "items": [
+      {
+        "id": "planungsunterlagen",
+        "label": "[NL] Planungsunterlagen / Prozessdokumentation",
+        "description": ""
+      },
+      {
+        "id": "nachvollziehbarkeit",
+        "label": "[NL] Nachvollziehbarkeit und Verständlichkeit",
+        "description": ""
+      },
+      {
+        "id": "ki_angaben",
+        "label": "[NL] KI-Einsatz - Angabe/Beschreibung verwendeter Prompts und Tools",
+        "description": ""
+      },
+      {
+        "id": "ki_nachvollziehbar",
+        "label": "[NL] KI-Einsatz nachvollziehbar erklärt",
+        "description": ""
+      },
+      {
+        "id": "ki_reflexion",
+        "label": "[NL] KI-Einsatz kritisch reflektiert (Nutzen/Risiken)",
+        "description": ""
+      },
+      {
+        "id": "eigenes_potential",
+        "label": "[NL] Persönliches Entwicklungspotential",
+        "description": ""
+      }
+    ]
+  }
+]

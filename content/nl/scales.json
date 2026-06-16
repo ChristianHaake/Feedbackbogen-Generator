@@ -1,0 +1,47 @@
+[
+  {
+    "id": "verbal_5",
+    "label": "Likertschaal",
+    "kind": "verbal",
+    "labels": ["helemaal mee eens", "mee eens", "neutraal", "mee oneens", "helemaal mee oneens"]
+  },
+  {
+    "id": "punkte_10",
+    "label": "Punten",
+    "kind": "numeric",
+    "defaultMin": 0,
+    "defaultMax": 10,
+    "minLimit": 0,
+    "maxLimit": 20,
+    "maxSteps": 11
+  },
+  {
+    "id": "ascii_3",
+    "label": "Emoji's (3 niveaus)",
+    "kind": "symbol",
+    "set": [":(", ":/", ":)"]
+  },
+  {
+    "id": "ascii_5",
+    "label": "Emoji's (5 niveaus)",
+    "kind": "symbol",
+    "set": [":'(", ":( ", ":/", ":)", ":D"]
+  },
+  {
+    "id": "ampel",
+    "label": "Stoplicht",
+    "kind": "traffic",
+    "colors": ["#2e7d32", "#fbc02d", "#c62828"]
+  },
+  {
+    "id": "prozent",
+    "label": "Percentage",
+    "kind": "percent"
+  },
+  {
+    "id": "yes-no",
+    "label": "Ja/Nee",
+    "kind": "verbal",
+    "labels": ["Ja", "Nee"]
+  }
+]

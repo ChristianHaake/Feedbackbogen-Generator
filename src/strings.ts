@@ -1,187 +1,43 @@
-export const strings = {
-  appTitle: 'Feedbackbogen-Generator',
-  appTagline: 'Feedbackbögen für zukunftsorientierte Prüfungsformate',
-  localProcessing: 'Lokale Verarbeitung im Browser',
-  localProcessingHint: 'Alle Eingaben bleiben lokal im Browser. Keine Serverübertragung.',
-  previewLive: 'Live',
-  previewLiveNote: 'Lokal im Browser gerendert',
-  footerNote: 'Alle Daten bleiben lokal im Browser. Keine Serverübertragung.',
-  watermark: 'Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de',
-  toolbar: {
-    saveConfig: 'Config speichern',
-    loadConfig: 'Config laden',
-    undo: 'Rückgängig',
-    redo: 'Wiederholen',
-    reset: 'Zurücksetzen',
-    resetConfirmTitle: 'Konfiguration zurücksetzen?',
-    resetConfirmBody: 'Alle aktuellen Änderungen werden entfernt. Die Aktion kann anschließend rückgängig gemacht werden.',
-    resetConfirmAction: 'Jetzt zurücksetzen',
-    cancel: 'Abbrechen',
-    exportNow: 'Exportieren',
-    exportPdfPrint: 'PDF (Druck)',
-    exportPdfFillable: 'PDF (Formular)',
-    exportDocx: 'DOCX',
-    exportXlsx: 'XLSX',
-    exportOdt: 'ODT'
-  },
-  keyboard: {
-    save: 'Alt+S: Speichern',
-    export: 'Alt+E: Export'
-  },
-  columns: {
-    selected: 'Ausgewählt',
-    categories: 'Bewertungskriterien',
-    productFormats: 'Produktebene',
-    export: 'Export'
-  },
-  kopfdaten: {
-    documentTitleSection: 'Titel',
-    documentTitle: 'Titel',
-    titleBewertungsbogen: 'Bewertungsbogen',
-    titleFeedbackbogen: 'Feedbackbogen',
-    titleCustom: 'Benutzerdefiniert',
-    customTitlePlaceholder: 'Eigener Titel',
-    title: 'Kopfdaten (optional vorausfüllen)',
-    learner: 'Name',
-    learngroup: 'Lerngruppe',
-    topic: 'Thema',
-    date: 'Datum',
-    feedback: 'Feedback / Anmerkungen',
-    fieldLabel: 'Feld',
-    fieldValue: 'Vorausfüllung',
-    addField: 'Kopffeld hinzufügen',
-    fallbackField: 'Feld',
-    footerTitle: 'Fußzeile',
-    signature: 'Unterschrift',
-    grade: 'Bewertung'
-  },
-  modes: {
-    full: 'Mit Skalen',
-    checklist: 'Nur Checkliste'
-  },
-  labels: {
-    remove: 'Entfernen',
-    removeFromPreview: (item: string) => `${item} aus der Auswahl entfernen`,
-    itemDescription: (item: string) => `Beschreibung zu ${item}`,
-    scale: 'Skala',
-    scaleMin: 'Minimum',
-    scaleMax: 'Maximum',
-    scaleMaxSteps: (steps: number) => `max. ${steps} Stufen`,
-    add: 'Hinzufügen',
-    defaultScale: 'Standard-Skala',
-    categoryScaleHint: 'Diese Skala gilt für alle Kriterien dieser Kategorie.',
-    defaultScaleHint: 'Vorbelegung für Kategorien ohne eigene Skala.',
-    addCustomItem: 'Eigenes Kriterium hinzufügen',
-    customItemPlaceholder: 'Eigenes Kriterium…',
-    customItemBadge: 'Eigenes Kriterium',
-    bulkAdd: 'Mehrere Kriterien einfügen',
-    bulkAddPlaceholder: 'Mehrere Kriterien – eines pro Zeile…',
-    bulkAddButton: 'Alle hinzufügen',
-    renameCategory: 'Titel der Kategorie',
-    addCategory: 'Kategorie hinzufügen',
-    addCategoryPlaceholder: 'Neue Kategorie…',
-    removeCategory: 'Kategorie entfernen',
-    categoryWeight: 'Gewichtung',
-    weightSumWarn: (sum: number) => `Summe der Gewichtungen: ${sum} % (nicht 100 %).`,
-    removeHeaderField: 'Kopffeld entfernen',
-    searchCriteria: 'Kriterien suchen',
-    searchPlaceholder: 'Suchen…',
-    clearSelection: 'Auswahl leeren',
-    reorderSelection: 'Reihenfolge per Drag-and-drop oder Pfeiltasten ändern',
-    dragCategory: (category: string) => `Kategorie verschieben: ${category}. Mit Pfeiltasten nach oben oder unten bewegen.`,
-    dragCriterion: (criterion: string) => `Kriterium verschieben: ${criterion}. Mit Pfeiltasten nach oben oder unten bewegen.`,
-    dragHeaderField: (field: string) => `Kopffeld verschieben: ${field}. Mit Pfeiltasten nach oben oder unten bewegen.`,
-    selectCategory: 'Kategorie auswählen',
-    clearCategory: 'Kategorie abwählen',
-    chooseProductFormats: 'Formate auswählen',
-    selectedProductFormatsEmpty: 'Noch keine Produktformate ausgewählt.',
-    productFormatModalTitle: 'Produktformate auswählen',
-    productFormatSearch: 'Formate suchen',
-    productFormatSearchPlaceholder: 'Format oder Kriterium suchen...',
-    addProductFormat: 'Hinzufügen',
-    removeProductFormat: 'Entfernen',
-    productFormatDone: 'Fertig',
-    productFormatSelectedCount: (count: number) =>
-      count === 1 ? '1 Format ausgewählt' : `${count} Formate ausgewählt`,
-    close: 'Schließen',
-    previewMode: 'Ansicht',
-    previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
-    selectedEmpty: 'Noch keine Kriterien ausgewählt.',
-    moreActions: 'Weitere Aktionen',
-    mobileEdit: 'Bearbeiten',
-    mobilePreview: 'Vorschau',
-    mobileExport: 'Export',
-    selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`,
-    sectionCountSelected: (n: number) => `${n} ausgewählt`,
-    sectionCountFormats: (n: number) => `${n} ${n === 1 ? 'Format' : 'Formate'}`,
-    sectionCountFields: (n: number) => `${n} ${n === 1 ? 'Feld' : 'Felder'}`,
-    sectionCountActive: (n: number) => `${n} aktiv`
-  },
-  a11y: {
-    status: 'Statusmeldungen',
-    accordionToggle: 'Abschnitt umschalten'
-  },
-  messages: {
-    contentLoadError: 'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
-    saved: 'Konfiguration gespeichert.',
-    loaded: 'Konfiguration geladen.',
-    imported: 'JSON importiert.',
-    importError: 'JSON konnte nicht importiert werden. Bitte prüfen Sie die Datei.',
-    importInvalidJson: 'Die Datei enthält kein gültiges JSON.',
-    importTooLarge: 'Die Datei ist zu groß für eine Feedbackbogen-Konfiguration.',
-    importInvalidShape: 'Die Datei enthält keine gültige Feedbackbogen-Konfiguration.',
-    importMissingSelection: 'Die Config ist unvollständig: "selectedItems" muss eine Liste sein.',
-    importInvalidVersion: 'Die Config enthält keine gültige Schema-Version.',
-    importUnsupportedVersion: (found: number, supported: number) =>
-      `Die Config-Version ${found} wird nicht unterstützt. Unterstützt wird Version ${supported}.`,
-    resetDone: 'Konfiguration wurde zurückgesetzt.',
-    undoDone: 'Änderung wurde rückgängig gemacht.',
-    redoDone: 'Änderung wurde wiederhergestellt.',
-    undoLabeled: (label: string) => `Rückgängig: ${label}.`,
-    redoLabeled: (label: string) => `Wiederhergestellt: ${label}.`,
-    categoryReordered: 'Kategorie wurde verschoben.',
-    criterionReordered: 'Kriterium wurde verschoben.',
-    exported: 'Export gestartet...',
-    exporting: (label: string) => `${label} wird erstellt …`,
-    exportSuccess: (label: string) => `${label} wurde erstellt.`,
-    exportError: (label: string) => `${label} konnte nicht erstellt werden. Bitte erneut versuchen.`,
-    customItemAdded: 'Eigenes Kriterium hinzugefügt.',
-    bulkAdded: (count: number) => `${count} Kriterien hinzugefügt.`,
-    customItemRemoved: 'Eigenes Kriterium entfernt.',
-    categoryRenamed: 'Kategorie umbenannt.',
-    categoryAdded: 'Kategorie hinzugefügt.',
-    categoryRemoved: 'Kategorie entfernt.',
-    headerFieldAdded: 'Kopffeld hinzugefügt.',
-    headerFieldRemoved: 'Kopffeld entfernt.',
-    headerFieldReordered: 'Kopffeld wurde verschoben.',
-    productFormatAdded: 'Produktformat hinzugefügt.',
-    productFormatRemoved: 'Produktformat entfernt.'
-  },
-  onboarding: {
-    intro: 'So funktioniert es:',
-    steps: ['Kopfdaten festlegen', 'Kriterien auswählen', 'Formate ergänzen', 'Exportieren'],
-    dismiss: 'Hinweis ausblenden'
-  },
-  history: {
-    generic: 'Änderung',
-    criterionAdded: 'Kriterium hinzugefügt',
-    bulkAdded: 'Kriterien hinzugefügt',
-    criterionRemoved: 'Kriterium entfernt',
-    selectionCleared: 'Auswahl geleert',
-    customAdded: 'eigenes Kriterium hinzugefügt',
-    customRemoved: 'eigenes Kriterium entfernt',
-    categoryReordered: 'Kategorie verschoben',
-    categoryRenamed: 'Kategorie umbenannt',
-    categoryAdded: 'Kategorie hinzugefügt',
-    categoryRemoved: 'Kategorie entfernt',
-    weightChanged: 'Gewichtung geändert',
-    criterionReordered: 'Kriterium verschoben',
-    productFormatChanged: 'Produktformat geändert',
-    headerFieldAdded: 'Kopffeld hinzugefügt',
-    headerFieldRemoved: 'Kopffeld entfernt',
-    headerFieldReordered: 'Kopffeld verschoben',
-    scaleChanged: 'Skala geändert',
-    reset: 'Zurücksetzen',
-    configLoaded: 'Konfiguration geladen'
+import { de } from './i18n/locales/de';
+import { en } from './i18n/locales/en';
+import { fr } from './i18n/locales/fr';
+import { es } from './i18n/locales/es';
+import { nl } from './i18n/locales/nl';
+
+export type LanguageCode = 'de' | 'en' | 'fr' | 'es' | 'nl';
+
+export const LOCALES: Record<LanguageCode, { label: string; dict: typeof de }> = {
+  de: { label: 'Deutsch', dict: de },
+  en: { label: 'English', dict: en },
+  fr: { label: 'Français', dict: fr },
+  es: { label: 'Español', dict: es },
+  nl: { label: 'Nederlands', dict: nl }
+};
+
+export const LANGUAGE_CODES = Object.keys(LOCALES) as LanguageCode[];
+
+export function getSavedLanguage(): LanguageCode {
+  try {
+    const saved = localStorage.getItem('bbk:lang') as LanguageCode;
+    if (saved && LOCALES[saved]) return saved;
+    
+    // Auto-detect based on browser language
+    const browserLang = navigator.language.split('-')[0] as LanguageCode;
+    if (LOCALES[browserLang]) return browserLang;
+  } catch {
+    // ignore
   }
-} as const;
+  return 'de';
+}
+
+export function setLanguage(lang: LanguageCode) {
+  try {
+    localStorage.setItem('bbk:lang', lang);
+    location.reload();
+  } catch {
+    // ignore
+  }
+}
+
+export const currentLanguage = getSavedLanguage();
+export const strings = LOCALES[currentLanguage].dict;

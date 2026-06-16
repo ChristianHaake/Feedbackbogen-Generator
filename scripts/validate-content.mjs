@@ -29,11 +29,11 @@ function assertUnique(seen, id, file, location) {
   seen.add(id);
 }
 
-async function readJson(file) {
+async function readJson(lang, file) {
   try {
-    return JSON.parse(await fs.readFile(path.join(contentDir, file), 'utf8'));
+    return JSON.parse(await fs.readFile(path.join(contentDir, lang, file), 'utf8'));
   } catch (error) {
-    fail(file, error instanceof SyntaxError ? 'enthält kein gültiges JSON.' : 'konnte nicht gelesen werden.');
+    fail(`${lang}/${file}`, error instanceof SyntaxError ? 'enthält kein gültiges JSON.' : 'konnte nicht gelesen werden.');
   }
 }
 
@@ -50,8 +50,8 @@ function validateItems(items, file, location, itemIds) {
   });
 }
 
-function validateCategories(categories) {
-  const file = 'categories.json';
+function validateCategories(categories, lang) {
+  const file = `${lang}/categories.json`;
   const categoryIds = new Set();
   const itemIds = new Set();
 
@@ -81,8 +81,8 @@ function validateCategories(categories) {
   return categoryIds;
 }
 
-function validateScales(scales) {
-  const file = 'scales.json';
+function validateScales(scales, lang) {
+  const file = `${lang}/scales.json`;
   const scaleIds = new Set();
 
   requireArray(scales, file, 'root').forEach((scale, scaleIndex) => {
@@ -132,8 +132,8 @@ function validateScales(scales) {
   });
 }
 
-function validateProductFormats(data, baseCategoryIds) {
-  const file = 'product-formats.json';
+function validateProductFormats(data, baseCategoryIds, lang) {
+  const file = `${lang}/product-formats.json`;
   requireObject(data, file, 'root');
   const groupIds = new Set();
   const formatIds = new Set(baseCategoryIds);
@@ -167,12 +167,16 @@ function validateProductFormats(data, baseCategoryIds) {
   });
 }
 
-const categories = await readJson('categories.json');
-const scales = await readJson('scales.json');
-const productFormats = await readJson('product-formats.json');
+const languages = ['de', 'en', 'fr', 'es', 'nl'];
 
-const categoryIds = validateCategories(categories);
-validateScales(scales);
-validateProductFormats(productFormats, categoryIds);
+for (const lang of languages) {
+  const categories = await readJson(lang, 'categories.json');
+  const scales = await readJson(lang, 'scales.json');
+  const productFormats = await readJson(lang, 'product-formats.json');
 
-console.log('Content-JSON ist gültig und kollisionsfrei.');
+  const categoryIds = validateCategories(categories, lang);
+  validateScales(scales, lang);
+  validateProductFormats(productFormats, categoryIds, lang);
+
+  console.log(`Content-JSON für '${lang}' ist gültig und kollisionsfrei.`);
+}

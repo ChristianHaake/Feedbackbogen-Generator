@@ -5,7 +5,7 @@ import {
   renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
   renderProductFormatModal, renderResetConfirmModal
 } from './ui/templates';
-import { strings } from './strings';
+import { strings, setLanguage, type LanguageCode } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadCategories, loadScales, scaleById, buildCategoriesWithCustom } from './content-data';
 import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
@@ -402,6 +402,9 @@ async function bootstrap() {
     onMobileViewChange: (view: MobileView) => {
       mobileView = view;
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
+    },
+    onLanguageChange: (lang: string) => {
+      setLanguage(lang as LanguageCode);
     }
   };
 
@@ -854,6 +857,7 @@ async function bootstrap() {
   updateHistoryButtons();
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
+
   document.addEventListener('click', (event) => {
     const target = event.target as Element | null;
     const link = target?.closest<HTMLAnchorElement>('a[data-app-route]');
@@ -867,6 +871,15 @@ async function bootstrap() {
     if (window.location.pathname !== path) window.history.pushState(null, '', path);
     renderRoute();
   });
+
+  document.addEventListener('change', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.matches('[data-action="language-switch"]')) {
+      const select = target as HTMLSelectElement;
+      handlers.onLanguageChange(select.value);
+    }
+  });
+
   window.addEventListener('popstate', renderRoute);
 
   const exportLabels: Record<ExportFormat, string> = {

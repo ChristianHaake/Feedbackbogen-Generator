@@ -1,6 +1,6 @@
 import { el, icon } from './components';
 
-import { strings } from '@/strings';
+import { strings, currentLanguage, LANGUAGE_CODES, LOCALES } from '@/strings';
 import { sanitizeNumericScaleSettings, scaleDisplay, scaleOptionLabels } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
 import { contentPages } from '@/content-pages';
@@ -56,6 +56,7 @@ export type RenderHandlers = {
   onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
   onMobileViewChange: (view: MobileView) => void;
+  onLanguageChange: (lang: string) => void;
 };
 
 export function renderLayout(): HTMLElement {
@@ -74,6 +75,11 @@ export function renderLayout(): HTMLElement {
       )
     ),
     el('div', { class: 'header-meta' },
+      el('select', { class: 'language-switcher', 'aria-label': 'Sprache auswählen', 'data-action': 'language-switch' },
+        ...LANGUAGE_CODES.map(code => 
+          el('option', { value: code, selected: code === currentLanguage, text: LOCALES[code].label })
+        )
+      ),
       el('span', { class: 'local-badge', title: strings.localProcessingHint },
         el('span', { class: 'local-badge__dot', 'aria-hidden': 'true' }),
         el('span', { text: strings.localProcessing })

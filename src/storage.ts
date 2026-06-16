@@ -1,12 +1,48 @@
 import { categoryOrderFromSelection, itemOrderFromSelection, uniqueStrings } from './config-order';
 import { strings } from './strings';
 import type {
-  AppConfig, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
+  AppConfig, CustomCategory, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
   HeaderData, HeaderField, NumericScaleSettings, SelectedItemRef
 } from './types';
 
 const KEY = 'bbk:config';
-export const CONFIG_SCHEMA_VERSION = 3;
+const SECTIONS_KEY = 'bbk:sections';
+// Upper bound for an imported config file; a real Feedbackbogen config is a few KB.
+const MAX_IMPORT_BYTES = 5_000_000;
+export const CONFIG_SCHEMA_VERSION = 4;
+
+export type SectionState = Record<string, boolean>;
+
+// Pure: merge a persisted open/closed map onto the defaults so unknown/garbage
+// values are ignored and any section not present yet falls back to its default.
+// `defaults` lists the section ids that are open by default.
+export function resolveSectionState(stored: unknown, defaults: string[]): SectionState {
+  const state: SectionState = {};
+  for (const id of defaults) state[id] = true;
+  if (stored && typeof stored === 'object') {
+    for (const [id, open] of Object.entries(stored as Record<string, unknown>)) {
+      if (typeof open === 'boolean') state[id] = open;
+    }
+  }
+  return state;
+}
+
+export function loadSectionState(defaults: string[]): SectionState {
+  try {
+    const raw = localStorage.getItem(SECTIONS_KEY);
+    return resolveSectionState(raw ? JSON.parse(raw) : null, defaults);
+  } catch {
+    return resolveSectionState(null, defaults);
+  }
+}
+
+export function saveSectionState(state: SectionState): void {
+  try {
+    localStorage.setItem(SECTIONS_KEY, JSON.stringify(state));
+  } catch {
+    /* localStorage unavailable — section state is non-critical UI state */
+  }
+}
 
 export type ConfigImportResult =
   | { status: 'success'; config: AppConfig }
@@ -52,7 +88,10 @@ export function createDefaultConfig(defaultScaleId?: string): AppConfig {
     footerFields: { ...DEFAULT_FOOTER_FIELDS },
     customItems: [],
     categoryOrder: [],
-    itemOrderByCategory: {}
+    itemOrderByCategory: {},
+    categoryTitleOverrides: {},
+    customCategories: [],
+    categoryWeights: {}
   };
 }
 
@@ -168,6 +207,39 @@ function normalizeItemOrder(value: unknown): Record<string, string[]> {
   );
 }
 
+function normalizeStringMap(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1].trim() !== '')
+      .map(([key, val]) => [key, val.trim()])
+  );
+}
+
+function normalizeCustomCategories(value: unknown): CustomCategory[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry): CustomCategory | null => {
+      if (!entry || typeof entry !== 'object') return null;
+      const cat = entry as Partial<CustomCategory>;
+      if (typeof cat.id !== 'string' || typeof cat.title !== 'string') return null;
+      const title = cat.title.trim();
+      if (!cat.id || !title) return null;
+      return { id: cat.id, title };
+    })
+    .filter((cat): cat is CustomCategory => cat !== null);
+}
+
+function normalizeWeights(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter((entry): entry is [string, number] =>
+        typeof entry[1] === 'number' && Number.isFinite(entry[1]) && entry[1] > 0)
+      .map(([key, val]) => [key, Math.min(100, Math.max(0, val))])
+  );
+}
+
 function migrateConfig(value: Record<string, unknown>): ConfigParseResult {
   const rawVersion = value.schemaVersion;
   const schemaVersion = rawVersion === undefined ? 1 : rawVersion;
@@ -182,14 +254,18 @@ function migrateConfig(value: Record<string, unknown>): ConfigParseResult {
   }
   if (schemaVersion === CONFIG_SCHEMA_VERSION) return normalizeConfig(value);
 
+  // Older config: derive ordering from selection only when the fields are absent
+  // (pre-v3). v3 configs already carry explicit order — preserve it, just add the
+  // v4 fields (which normalizeConfig defaults from missing). New fields need no
+  // special migration: their normalizers return empty defaults when absent.
   const selectedItems = Array.isArray(value.selectedItems)
     ? value.selectedItems.map(normalizeSelectedItem).filter((item): item is SelectedItemRef => item !== null)
     : [];
   return normalizeConfig({
     ...value,
     schemaVersion: CONFIG_SCHEMA_VERSION,
-    categoryOrder: categoryOrderFromSelection(selectedItems),
-    itemOrderByCategory: itemOrderFromSelection(selectedItems)
+    categoryOrder: value.categoryOrder ?? categoryOrderFromSelection(selectedItems),
+    itemOrderByCategory: value.itemOrderByCategory ?? itemOrderFromSelection(selectedItems)
   });
 }
 
@@ -216,7 +292,10 @@ function normalizeConfig(value: Record<string, unknown>): ConfigParseResult {
         ? value.customItems.map(normalizeCustomItem).filter((item): item is CustomItem => item !== null)
         : [],
       categoryOrder: normalizeStringArray(value.categoryOrder),
-      itemOrderByCategory: normalizeItemOrder(value.itemOrderByCategory)
+      itemOrderByCategory: normalizeItemOrder(value.itemOrderByCategory),
+      categoryTitleOverrides: normalizeStringMap(value.categoryTitleOverrides),
+      customCategories: normalizeCustomCategories(value.customCategories),
+      categoryWeights: normalizeWeights(value.categoryWeights)
     }
   };
 }
@@ -229,7 +308,12 @@ export function parseConfig(value: unknown): ConfigParseResult {
 }
 
 export function saveConfig(config: AppConfig) {
-  localStorage.setItem(KEY, JSON.stringify(config));
+  try {
+    localStorage.setItem(KEY, JSON.stringify(config));
+  } catch {
+    // localStorage unavailable or quota exceeded (e.g. Safari private mode).
+    // Persistence is best-effort — never let it break the active editing session.
+  }
 }
 
 export function loadConfig(): AppConfig | null {
@@ -263,16 +347,28 @@ function configDownloadFilename(config: AppConfig): string {
     String(now.getMonth() + 1).padStart(2, '0'),
     String(now.getDate()).padStart(2, '0')
   ].join('-');
-  const topic = config.header.fields
-    .find((field) => field.id === 'topic')
-    ?.value.trim()
+  const sanitize = (value: string): string => value.trim()
     .split('')
     .filter((character) => character.charCodeAt(0) >= 32)
     .join('')
     .replace(/[<>:"/\\|?*]/g, '-')
-    .replace(/\s+/g, ' ');
+    .replace(/\s+/g, ' ')
+    .trim();
 
-  return `${date}_Feedbackbogen${topic ? `_${topic}` : ''}.json`;
+  const titleByMode: Record<DocumentTitleMode, string> = {
+    bewertungsbogen: 'Bewertungsbogen',
+    feedbackbogen: 'Feedbackbogen',
+    custom: ''
+  };
+  const base = sanitize(
+    config.documentTitle.mode === 'custom'
+      ? config.documentTitle.custom
+      : titleByMode[config.documentTitle.mode]
+  ) || 'Feedbackbogen';
+
+  const topic = sanitize(config.header.fields.find((field) => field.id === 'topic')?.value ?? '');
+
+  return `${date}_${base}${topic ? `_${topic}` : ''}.json`;
 }
 
 export async function importConfigJSON(): Promise<ConfigImportResult> {
@@ -283,6 +379,7 @@ export async function importConfigJSON(): Promise<ConfigImportResult> {
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return resolve({ status: 'cancelled' });
+      if (file.size > MAX_IMPORT_BYTES) return resolve({ status: 'error', message: strings.messages.importTooLarge });
       try {
         resolve(parseConfig(JSON.parse(await file.text())));
       } catch {

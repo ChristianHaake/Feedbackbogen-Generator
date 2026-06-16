@@ -1,4 +1,5 @@
 import type { Category, ProductFormat, ProductFormatData, ProductFormatGroup } from './types';
+import { currentLanguage } from './strings';
 
 export function productFormatCategoryId(formatId: string): string {
   return formatId;
@@ -75,7 +76,7 @@ export function validateProductFormats(value: unknown): value is ProductFormatDa
 
 export async function loadProductFormats(baseUrl: string): Promise<ProductFormatData> {
   try {
-    const res = await fetch(baseUrl + 'content/product-formats.json');
+    const res = await fetch(baseUrl + `content/${currentLanguage}/product-formats.json`);
     if (!res.ok) throw new Error('fetch failed');
     const parsed = await res.json();
     if (!validateProductFormats(parsed)) throw new Error('invalid');

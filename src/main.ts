@@ -5,7 +5,7 @@ import {
   renderSelectedList, renderMobileTabs, renderFooterFields, renderProductFormatControls,
   renderProductFormatModal, renderResetConfirmModal
 } from './ui/templates';
-import { strings } from './strings';
+import { strings, setLanguage, type LanguageCode } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import { loadCategories, loadScales, scaleById, buildCategoriesWithCustom } from './content-data';
 import { loadProductFormats, selectedProductFormatCategories } from './product-formats';
@@ -16,17 +16,31 @@ import {
 import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
   EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE, CONFIG_SCHEMA_VERSION,
-  createDefaultConfig
+  createDefaultConfig, loadSectionState, saveSectionState
 } from './storage';
 import { mergeOrder, orderByIds, orderCategories, swapOrder } from './config-order';
 import {
   applyNumericScaleSettings, normalizeScaleValue, sanitizeNumericScaleSettings, scaleDisplay
 } from './scale-utils';
 import type {
-  SelectedItemRef, ExportRow, CustomItem, DocumentTitleConfig, DocumentTitleMode,
+  SelectedItemRef, ExportRow, CustomItem, CustomCategory, DocumentTitleConfig, DocumentTitleMode,
   HeaderData, FooterFields, FooterFieldId, PrintMode, Category, AppConfig, NumericScaleSettings
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
+
+/** Look up a required element by id, failing loud (and naming it) instead of a silent null cast. */
+function requireById<T extends HTMLElement = HTMLElement>(id: string): T {
+  const node = document.getElementById(id);
+  if (!node) throw new Error(`Missing required element #${id}`);
+  return node as T;
+}
+
+/** Look up a required element by selector, failing loud (and naming it) instead of a silent null cast. */
+function requireEl<T extends HTMLElement = HTMLElement>(selector: string, root: ParentNode = document): T {
+  const node = root.querySelector<T>(selector);
+  if (!node) throw new Error(`Missing required element matching "${selector}"`);
+  return node;
+}
 
 async function bootstrap() {
   focusVisiblePolyfill();
@@ -51,8 +65,12 @@ async function bootstrap() {
   let customItems: CustomItem[] = [];
   let categoryOrder: string[] = [];
   let itemOrderByCategory: Record<string, string[]> = {};
-  const undoStack: AppConfig[] = [];
-  const redoStack: AppConfig[] = [];
+  let categoryTitleOverrides: Record<string, string> = {};
+  let customCategories: CustomCategory[] = [];
+  let categoryWeights: Record<string, number> = {};
+  type HistoryEntry = { config: AppConfig; label: string };
+  const undoStack: HistoryEntry[] = [];
+  const redoStack: HistoryEntry[] = [];
   let previewMode: PrintMode = 'full';
   let searchQuery = '';
   let productFormatModalOpen = false;
@@ -74,29 +92,41 @@ async function bootstrap() {
     customItems = persisted.customItems ?? [];
     categoryOrder = persisted.categoryOrder;
     itemOrderByCategory = persisted.itemOrderByCategory;
+    categoryTitleOverrides = persisted.categoryTitleOverrides ?? {};
+    customCategories = persisted.customCategories ?? [];
+    categoryWeights = persisted.categoryWeights ?? {};
     announce(strings.messages.loaded);
   }
 
-  const categoriesEl = document.getElementById('categories')!;
-  const workspaceEl = document.querySelector('.workspace') as HTMLElement;
-  const contentPageEl = document.getElementById('content-page')!;
-  const productFormatControlsEl = document.getElementById('product-format-controls')!;
-  const productFormatCategoriesEl = document.getElementById('product-format-categories')!;
-  const productFormatModalEl = document.getElementById('product-format-modal-root')!;
-  const resetConfirmModalEl = document.getElementById('reset-confirm-modal-root')!;
-  const counterEl = document.getElementById('selected-counter')!;
-  const selectedListEl = document.getElementById('selected-list')!;
-  const documentTitleEl = document.getElementById('document-title-form')!;
-  const kopfdatenEl = document.getElementById('kopfdaten-form')!;
-  const footerFieldsEl = document.getElementById('footer-fields')!;
-  const a4El = document.getElementById('a4-page')!;
-  const defaultScaleSelectEl = document.getElementById('default-scale') as HTMLSelectElement;
-  const criteriaSearchEl = document.getElementById('criteria-search') as HTMLInputElement;
-  const clearSelectionEl = document.getElementById('clear-selection') as HTMLButtonElement;
-  const toolbarActionsEl = document.querySelector('.toolbar .actions') as HTMLElement;
-  const modeSwitchEl = document.querySelector('.mode-switch') as HTMLElement;
-  const mobileTabsEl = document.querySelector('.mobile-tabs') as HTMLElement;
-  const configMessageEl = document.getElementById('config-message')!;
+  const categoriesEl = requireById('categories');
+  const workspaceEl = requireEl('.workspace');
+  const contentPageEl = requireById('content-page');
+  const productFormatControlsEl = requireById('product-format-controls');
+  const productFormatCategoriesEl = requireById('product-format-categories');
+  const productFormatModalEl = requireById('product-format-modal-root');
+  const resetConfirmModalEl = requireById('reset-confirm-modal-root');
+  const counterEl = requireById('selected-counter');
+  const criteriaCountEl = requireById('criteria-count');
+  const productFormatCountEl = requireById('product-format-count');
+  const headerFieldCountEl = requireById('header-field-count');
+  const footerFieldCountEl = requireById('footer-field-count');
+  const selectedListEl = requireById('selected-list');
+  const documentTitleEl = requireById('document-title-form');
+  const kopfdatenEl = requireById('kopfdaten-form');
+  const footerFieldsEl = requireById('footer-fields');
+  const a4El = requireById('a4-page');
+  const defaultScaleSelectEl = requireById<HTMLSelectElement>('default-scale');
+  const criteriaSearchEl = requireById<HTMLInputElement>('criteria-search');
+  const clearSelectionEl = requireById<HTMLButtonElement>('clear-selection');
+  const toolbarActionsEl = requireEl('.action-bar');
+  const modeSwitchEl = requireEl('.mode-switch');
+  const mobileTabsEl = requireEl('.mobile-tabs');
+  const configMessageEl = requireById('config-message');
+  const toastEl = requireById('app-toast');
+  const onboardingHintEl = requireById('onboarding-hint');
+  const onboardingDismissEl = requireById('onboarding-dismiss');
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  let exportInFlight = false;
   const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
   let routeRenderId = 0;
 
@@ -106,12 +136,12 @@ async function bootstrap() {
         const idx = selected.findIndex((s) => s.categoryId === categoryId && s.itemId === itemId);
         if (checked && idx === -1) selected.push({ categoryId, itemId });
         if (!checked && idx !== -1) selected.splice(idx, 1);
-      });
+      }, true, checked ? strings.history.criterionAdded : strings.history.criterionRemoved);
     },
     onCategoryScaleChange: (categoryId: string, scaleId: string) => {
       commitConfigChange(() => {
         scaleByCategoryMap[categoryId] = scaleId;
-      });
+      }, true, strings.history.scaleChanged);
     },
     onNumericScaleRangeChange: (categoryId: string, min: number, max: number) => {
       const scale = scaleById(scales, scaleByCategoryMap[categoryId] ?? defaultScaleId);
@@ -135,20 +165,33 @@ async function bootstrap() {
       commitConfigChange(() => {
         customItems.push({ id, label: trimmed, custom: true, categoryId });
         selected.push({ categoryId, itemId: id });
-      });
+      }, true, strings.history.customAdded);
       announce(strings.messages.customItemAdded);
+    },
+    onBulkAddCustomItems: (categoryId: string, labels: string[]) => {
+      const trimmed = labels.map((label) => label.trim()).filter(Boolean);
+      if (!trimmed.length) return;
+      const stamp = Date.now();
+      commitConfigChange(() => {
+        trimmed.forEach((label, i) => {
+          const id = `custom_${categoryId}_${stamp}_${i}`;
+          customItems.push({ id, label, custom: true, categoryId });
+          selected.push({ categoryId, itemId: id });
+        });
+      }, true, strings.history.bulkAdded);
+      announce(strings.messages.bulkAdded(trimmed.length));
     },
     onRemoveCustomItem: (itemId: string) => {
       commitConfigChange(() => {
         customItems = customItems.filter((ci) => ci.id !== itemId);
         selected = selected.filter((s) => s.itemId !== itemId);
-      });
+      }, true, strings.history.customRemoved);
       announce(strings.messages.customItemRemoved);
     },
     onRemoveSelected: (categoryId: string, itemId: string) => {
       commitConfigChange(() => {
         selected = selected.filter((s) => !(s.categoryId === categoryId && s.itemId === itemId));
-      });
+      }, true, strings.history.criterionRemoved);
     },
     onSelectCategory: (categoryId: string) => {
       commitConfigChange(() => {
@@ -166,12 +209,12 @@ async function bootstrap() {
     onClearSelection: () => {
       commitConfigChange(() => {
         selected = [];
-      });
+      }, true, strings.history.selectionCleared);
     },
     onReorderCategory: (draggedCategoryId: string, targetCategoryId: string) => {
       commitConfigChange(() => {
         categoryOrder = swapOrder(categoryOrder, draggedCategoryId, targetCategoryId);
-      });
+      }, true, strings.history.categoryReordered);
       announce(strings.messages.categoryReordered);
       focusDragHandle(`[data-category-id="${cssEscape(draggedCategoryId)}"] > .selected-category-head .drag-handle`);
     },
@@ -181,9 +224,72 @@ async function bootstrap() {
           ...itemOrderByCategory,
           [categoryId]: swapOrder(itemOrderByCategory[categoryId] ?? [], draggedItemId, targetItemId)
         };
-      });
+      }, true, strings.history.criterionReordered);
       announce(strings.messages.criterionReordered);
       focusDragHandle(`[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`);
+    },
+    onCategoryTitleChange: (categoryId: string, title: string) => {
+      const trimmed = title.trim();
+      const custom = customCategories.find((cc) => cc.id === categoryId);
+      if (custom) {
+        if (!trimmed || trimmed === custom.title) return;
+        commitConfigChange(() => {
+          customCategories = customCategories.map((cc) => (cc.id === categoryId ? { ...cc, title: trimmed } : cc));
+        }, true, strings.history.categoryRenamed);
+      } else {
+        const original = categories.find((c) => c.id === categoryId)?.title ?? '';
+        if (trimmed === (categoryTitleOverrides[categoryId] ?? original)) return;
+        commitConfigChange(() => {
+          if (!trimmed || trimmed === original) {
+            const { [categoryId]: _drop, ...rest } = categoryTitleOverrides;
+            categoryTitleOverrides = rest;
+          } else {
+            categoryTitleOverrides = { ...categoryTitleOverrides, [categoryId]: trimmed };
+          }
+        }, true, strings.history.categoryRenamed);
+      }
+      announce(strings.messages.categoryRenamed);
+    },
+    onAddCategory: (title: string) => {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+      const id = `custom_cat_${Date.now()}`;
+      commitConfigChange(() => {
+        customCategories = [...customCategories, { id, title: trimmed }];
+      }, true, strings.history.categoryAdded);
+      announce(strings.messages.categoryAdded);
+    },
+    onRemoveCategory: (categoryId: string) => {
+      if (!customCategories.some((cc) => cc.id === categoryId)) return;
+      commitConfigChange(() => {
+        customCategories = customCategories.filter((cc) => cc.id !== categoryId);
+        customItems = customItems.filter((ci) => ci.categoryId !== categoryId);
+        selected = selected.filter((s) => s.categoryId !== categoryId);
+        categoryOrder = categoryOrder.filter((id) => id !== categoryId);
+        const { [categoryId]: _scale, ...restScale } = scaleByCategoryMap;
+        scaleByCategoryMap = restScale;
+        const { [categoryId]: _settings, ...restSettings } = scaleSettingsByCategory;
+        scaleSettingsByCategory = restSettings;
+        const { [categoryId]: _weight, ...restWeights } = categoryWeights;
+        categoryWeights = restWeights;
+        const { [categoryId]: _order, ...restOrder } = itemOrderByCategory;
+        itemOrderByCategory = restOrder;
+      }, true, strings.history.categoryRemoved);
+      announce(strings.messages.categoryRemoved);
+    },
+    onCategoryWeightChange: (categoryId: string, weight: number | null) => {
+      const next = weight == null || !Number.isFinite(weight) || weight <= 0
+        ? undefined
+        : Math.min(100, Math.max(0, Math.round(weight)));
+      if (categoryWeights[categoryId] === next || (next === undefined && categoryWeights[categoryId] === undefined)) return;
+      commitConfigChange(() => {
+        if (next === undefined) {
+          const { [categoryId]: _drop, ...rest } = categoryWeights;
+          categoryWeights = rest;
+        } else {
+          categoryWeights = { ...categoryWeights, [categoryId]: next };
+        }
+      }, true, strings.history.weightChanged);
     },
     onSearchChange: (value: string) => {
       searchQuery = value;
@@ -224,7 +330,7 @@ async function bootstrap() {
           scaleSettingsByCategory = settingsRest;
           announce(strings.messages.productFormatRemoved);
         }
-      });
+      }, true, strings.history.productFormatChanged);
       focusProductFormatToggle(categoryId);
     },
     onDocumentTitleModeChange: (mode: DocumentTitleMode) => {
@@ -259,8 +365,8 @@ async function bootstrap() {
           ...header,
           fields: [...header.fields, { id: `field_${Date.now()}`, label: strings.kopfdaten.fallbackField, value: '' }]
         };
-      });
-      announce(strings.messages.headerFieldReordered);
+      }, true, strings.history.headerFieldAdded);
+      announce(strings.messages.headerFieldAdded);
     },
     onRemoveHeaderField: (fieldId: string) => {
       commitConfigChange(() => {
@@ -268,7 +374,7 @@ async function bootstrap() {
           ...header,
           fields: header.fields.filter((field) => field.id !== fieldId)
         };
-      });
+      }, true, strings.history.headerFieldRemoved);
       announce(strings.messages.headerFieldRemoved);
     },
     onReorderHeaderField: (draggedFieldId: string, targetFieldId: string) => {
@@ -279,8 +385,8 @@ async function bootstrap() {
           ...header,
           fields: order.map((fieldId) => fieldsById.get(fieldId)).filter((field): field is HeaderData['fields'][number] => Boolean(field))
         };
-      });
-      announce(strings.messages.headerFieldAdded);
+      }, true, strings.history.headerFieldReordered);
+      announce(strings.messages.headerFieldReordered);
       focusDragHandle(`[data-header-field-id="${cssEscape(draggedFieldId)}"] .header-field-drag-handle`);
     },
     onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => {
@@ -296,6 +402,9 @@ async function bootstrap() {
     onMobileViewChange: (view: MobileView) => {
       mobileView = view;
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
+    },
+    onLanguageChange: (lang: string) => {
+      setLanguage(lang as LanguageCode);
     }
   };
 
@@ -311,8 +420,23 @@ async function bootstrap() {
     return orderCategories(selectedProductFormatCategories(productFormats, selectedProductFormats), categoryOrder);
   }
 
+  // Stufe 1: apply per-category title overrides; user-defined categories carry no
+  // built-in items (only custom items attach to them via categoryId).
+  function withTitleOverrides(cats: Category[]): Category[] {
+    return cats.map((c) => (categoryTitleOverrides[c.id] ? { ...c, title: categoryTitleOverrides[c.id] } : c));
+  }
+
+  function customCategoryList(): Category[] {
+    return customCategories.map((cc) => ({ id: cc.id, title: cc.title, items: [] as Category['items'] }));
+  }
+
+  // The editable list shown in the editor: built-ins + user categories, titles overridden.
+  function editorCategories(): Category[] {
+    return orderCategories(withTitleOverrides([...categories, ...customCategoryList()]), categoryOrder);
+  }
+
   function allActiveCategories(): Category[] {
-    return orderCategories([...categories, ...productCategories()], categoryOrder);
+    return orderCategories(withTitleOverrides([...categories, ...customCategoryList(), ...productCategories()]), categoryOrder);
   }
 
   function cloneHeader(value: HeaderData): HeaderData {
@@ -341,6 +465,9 @@ async function bootstrap() {
     itemOrderByCategory = Object.fromEntries(
       Object.entries(config.itemOrderByCategory).map(([categoryId, itemIds]) => [categoryId, [...itemIds]])
     );
+    categoryTitleOverrides = { ...(config.categoryTitleOverrides ?? {}) };
+    customCategories = (config.customCategories ?? []).map((cat) => ({ ...cat }));
+    categoryWeights = { ...(config.categoryWeights ?? {}) };
     normalizeOrderState();
   }
 
@@ -358,21 +485,21 @@ async function bootstrap() {
     );
   }
 
-  function commitConfigChange(mutator: () => void, rerenderEditor = true) {
+  function commitConfigChange(mutator: () => void, rerenderEditor = true, label: string = strings.history.generic) {
     const before = cloneConfig(currentConfig());
     mutator();
     normalizeOrderState();
     if (JSON.stringify(before) === JSON.stringify(currentConfig())) return;
-    undoStack.push(before);
+    undoStack.push({ config: before, label });
     redoStack.length = 0;
     if (rerenderEditor) renderEditor();
     renderA4();
     updateHistoryButtons();
   }
 
-  function replaceConfig(config: AppConfig, rememberCurrent = true) {
+  function replaceConfig(config: AppConfig, rememberCurrent = true, label: string = strings.history.generic) {
     if (rememberCurrent) {
-      undoStack.push(cloneConfig(currentConfig()));
+      undoStack.push({ config: cloneConfig(currentConfig()), label });
       redoStack.length = 0;
     }
     restoreConfig(config);
@@ -384,24 +511,27 @@ async function bootstrap() {
   function undo() {
     const previous = undoStack.pop();
     if (!previous) return;
-    redoStack.push(cloneConfig(currentConfig()));
-    replaceConfig(previous, false);
-    announce(strings.messages.undoDone);
+    redoStack.push({ config: cloneConfig(currentConfig()), label: previous.label });
+    restoreConfig(previous.config);
+    renderEditor();
+    renderA4();
+    updateHistoryButtons();
+    announce(strings.messages.undoLabeled(previous.label));
   }
 
   function redo() {
     const next = redoStack.pop();
     if (!next) return;
-    undoStack.push(cloneConfig(currentConfig()));
-    restoreConfig(next);
+    undoStack.push({ config: cloneConfig(currentConfig()), label: next.label });
+    restoreConfig(next.config);
     renderEditor();
     renderA4();
     updateHistoryButtons();
-    announce(strings.messages.redoDone);
+    announce(strings.messages.redoLabeled(next.label));
   }
 
   function confirmResetConfig() {
-    replaceConfig(createDefaultConfig(scales[0]?.id ?? 'verbal_5'));
+    replaceConfig(createDefaultConfig(scales[0]?.id ?? 'verbal_5'), true, strings.history.reset);
     closeResetConfirm();
     announce(strings.messages.resetDone);
   }
@@ -439,6 +569,23 @@ async function bootstrap() {
     }, 8000);
   }
 
+  function showToast(message: string, kind: 'loading' | 'success' | 'error') {
+    if (toastTimer) clearTimeout(toastTimer);
+    toastEl.textContent = message;
+    toastEl.className = `app-toast app-toast--${kind}`;
+    toastEl.hidden = false;
+    if (kind !== 'loading') {
+      toastTimer = setTimeout(() => {
+        toastEl.hidden = true;
+      }, kind === 'error' ? 6000 : 3500);
+    }
+  }
+
+  function setSectionCount(element: HTMLElement, count: number, label: (n: number) => string) {
+    element.textContent = label(count);
+    element.hidden = count === 0;
+  }
+
   function cssEscape(value: string): string {
     return CSS.escape(value);
   }
@@ -459,11 +606,13 @@ async function bootstrap() {
     const selectedKeys = selectedKeySet();
     const out: ExportRow[] = [];
     merged.forEach((c) => {
+      let number = 0;
       flattenedCategoryItems(c).forEach(({ id, label }) => {
         if (!selectedKeys.has(selectionKey(c.id, id))) return;
+        number += 1;
         const sId = scaleByCategoryMap[c.id] ?? defaultScaleId;
         const s = applyNumericScaleSettings(scaleById(scales, sId), scaleSettingsByCategory[c.id]);
-        out.push({ categoryId: c.id, category: c.title, item: label, scale: s });
+        out.push({ categoryId: c.id, category: c.title, item: label, scale: s, itemId: id, number, weight: categoryWeights[c.id] });
       });
     });
     return out;
@@ -513,7 +662,8 @@ async function bootstrap() {
       scaleByCategory: scaleByCategoryMap,
       scaleSettingsByCategory,
       defaultScaleId, documentTitle, header, footerFields, customItems,
-      categoryOrder, itemOrderByCategory
+      categoryOrder, itemOrderByCategory,
+      categoryTitleOverrides, customCategories, categoryWeights
     };
   }
 
@@ -527,6 +677,11 @@ async function bootstrap() {
     document.querySelectorAll<HTMLInputElement>('.custom-item-input[data-cat]').forEach((el) => {
       if (el.dataset.cat) savedInputs[el.dataset.cat] = el.value;
     });
+    const savedBulk: Record<string, string> = {};
+    document.querySelectorAll<HTMLTextAreaElement>('.bulk-add-input[data-cat]').forEach((el) => {
+      if (el.dataset.cat) savedBulk[el.dataset.cat] = el.value;
+    });
+    const savedAddCategory = document.querySelector<HTMLInputElement>('.add-category-input')?.value ?? '';
     // Preserve accordion open state
     const openCats = new Set<string>();
     document.querySelectorAll<HTMLButtonElement>('.accordion-header[aria-expanded="true"]').forEach((h) => {
@@ -539,8 +694,12 @@ async function bootstrap() {
     renderFooterFields(footerFieldsEl, footerFields, handlers);
     renderDefaultScaleSelect(defaultScaleSelectEl, scales, defaultScaleId, handlers);
     renderSelectedCounter(counterEl, selected.length);
+    setSectionCount(criteriaCountEl, selected.length, strings.labels.sectionCountSelected);
+    setSectionCount(productFormatCountEl, selectedProductFormats.length, strings.labels.sectionCountFormats);
+    setSectionCount(headerFieldCountEl, header.fields.length, strings.labels.sectionCountFields);
+    setSectionCount(footerFieldCountEl, Object.values(footerFields).filter(Boolean).length, strings.labels.sectionCountActive);
     renderSelectedList(selectedListEl, buildSelectedSummaries(), handlers);
-    renderCategories(categoriesEl, orderCategories(categories, categoryOrder), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery);
+    renderCategories(categoriesEl, editorCategories(), customItems, selectedKeySet(), scales, scaleByCategoryMap, scaleSettingsByCategory, defaultScaleId, itemOrderByCategory, handlers, searchQuery, true, categoryWeights);
     const currentProductCategories = productCategories();
     renderProductFormatControls(productFormatControlsEl, currentProductCategories, handlers);
     if (currentProductCategories.length > 0) {
@@ -557,6 +716,14 @@ async function bootstrap() {
       const el = document.querySelector<HTMLInputElement>(`.custom-item-input[data-cat="${catId}"]`);
       if (el) el.value = val;
     });
+    Object.entries(savedBulk).forEach(([catId, val]) => {
+      const el = document.querySelector<HTMLTextAreaElement>(`.bulk-add-input[data-cat="${catId}"]`);
+      if (el) el.value = val;
+    });
+    if (savedAddCategory) {
+      const addCatEl = document.querySelector<HTMLInputElement>('.add-category-input');
+      if (addCatEl) addCatEl.value = savedAddCategory;
+    }
     // Restore accordion state
     openCats.forEach((catId) => {
       const header = document.getElementById(`acc-${catId}`);
@@ -596,7 +763,7 @@ async function bootstrap() {
 
   function renderA4() {
     autoPersist();
-    renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode);
+    renderPreview(a4El, buildExportRows(), documentTitle, header, footerFields, previewMode, handlers.onRemoveSelected);
   }
 
   function isContentRoute(route: AppRoute): route is ContentPageId {
@@ -662,7 +829,7 @@ async function bootstrap() {
   const importJson = async () => {
     const result = await importConfigJSON();
     if (result.status === 'success') {
-      replaceConfig(result.config);
+      replaceConfig(result.config, true, strings.history.configLoaded);
       announce(strings.messages.imported);
     } else if (result.status === 'error') {
       showConfigMessage(result.message);
@@ -690,6 +857,7 @@ async function bootstrap() {
   updateHistoryButtons();
   criteriaSearchEl.addEventListener('input', () => handlers.onSearchChange(criteriaSearchEl.value));
   clearSelectionEl.addEventListener('click', handlers.onClearSelection);
+
   document.addEventListener('click', (event) => {
     const target = event.target as Element | null;
     const link = target?.closest<HTMLAnchorElement>('a[data-app-route]');
@@ -703,25 +871,72 @@ async function bootstrap() {
     if (window.location.pathname !== path) window.history.pushState(null, '', path);
     renderRoute();
   });
+
+  document.addEventListener('change', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.matches('[data-action="language-switch"]')) {
+      const select = target as HTMLSelectElement;
+      handlers.onLanguageChange(select.value);
+    }
+  });
+
   window.addEventListener('popstate', renderRoute);
 
+  const exportLabels: Record<ExportFormat, string> = {
+    'pdf-print': strings.toolbar.exportPdfPrint,
+    'pdf-fillable': strings.toolbar.exportPdfFillable,
+    docx: strings.toolbar.exportDocx,
+    xlsx: strings.toolbar.exportXlsx,
+    odt: strings.toolbar.exportOdt
+  };
+
   async function exportFormat(fmt: ExportFormat) {
-    announce(strings.messages.exported);
-    if (fmt === 'pdf-print') {
-      const { exportPDF } = await import('./export/export-pdf');
-      exportPDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
-    } else if (fmt === 'pdf-fillable') {
-      const { exportFillablePDF } = await import('./export/export-pdf-fillable');
-      await exportFillablePDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
-    } else if (fmt === 'docx') {
-      const { exportDOCX } = await import('./export/export-docx');
-      exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
-    } else if (fmt === 'xlsx') {
-      const { exportXLSX } = await import('./export/export-xlsx');
-      exportXLSX(buildExportRows());
-    } else if (fmt === 'odt') {
-      const { exportODT } = await import('./export/export-odt');
-      exportODT(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+    if (exportInFlight) return;
+    exportInFlight = true;
+    const label = exportLabels[fmt];
+    showToast(strings.messages.exporting(label), 'loading');
+    announce(strings.messages.exporting(label));
+    // Watchdog: never let a hung export lock out all future exports. If the work
+    // hasn't settled in 30s, release the lock and surface the error state.
+    let settled = false;
+    const watchdog = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      exportInFlight = false;
+      showToast(strings.messages.exportError(label), 'error');
+      announce(strings.messages.exportError(label));
+    }, 30_000);
+    try {
+      if (fmt === 'pdf-print') {
+        const { exportPDF } = await import('./export/export-pdf');
+        exportPDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      } else if (fmt === 'pdf-fillable') {
+        const { exportFillablePDF } = await import('./export/export-pdf-fillable');
+        await exportFillablePDF(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      } else if (fmt === 'docx') {
+        const { exportDOCX } = await import('./export/export-docx');
+        exportDOCX(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      } else if (fmt === 'xlsx') {
+        const { exportXLSX } = await import('./export/export-xlsx');
+        exportXLSX(buildExportRows());
+      } else if (fmt === 'odt') {
+        const { exportODT } = await import('./export/export-odt');
+        exportODT(buildExportRows(), documentTitleText(documentTitle), header, footerFields, previewMode);
+      }
+      if (!settled) {
+        showToast(strings.messages.exportSuccess(label), 'success');
+        announce(strings.messages.exportSuccess(label));
+      }
+    } catch (error) {
+      console.error('Export fehlgeschlagen', error);
+      if (!settled) {
+        showToast(strings.messages.exportError(label), 'error');
+        announce(strings.messages.exportError(label));
+      }
+    } finally {
+      settled = true;
+      clearTimeout(watchdog);
+      exportInFlight = false;
     }
   }
 
@@ -752,7 +967,57 @@ async function bootstrap() {
     });
   });
 
+  // Compact onboarding hint: shown once until dismissed (persisted in localStorage).
+  const ONBOARDING_KEY = 'bbk:onboarding-dismissed';
+  try {
+    if (localStorage.getItem(ONBOARDING_KEY) !== '1') onboardingHintEl.hidden = false;
+  } catch {
+    /* localStorage unavailable — keep the hint hidden */
+  }
+  onboardingDismissEl.addEventListener('click', () => {
+    onboardingHintEl.hidden = true;
+    try {
+      localStorage.setItem(ONBOARDING_KEY, '1');
+    } catch {
+      /* ignore persistence failure */
+    }
+    onboardingDismissEl.blur();
+  });
+
+  setupSectionToggles();
   setupKeyboardShortcuts(exportJson, openExportMenu, undo, redo);
+}
+
+// Section ids open by default on first load (no persisted state yet).
+const DEFAULT_OPEN_SECTIONS = ['title', 'kopfdaten', 'criteria'];
+
+// Wires the collapse/expand toggles on the editor blocks. Sections are built
+// once in renderLayout, so this is a one-time DOM-state setup: child re-renders
+// happen inside the panels and never touch the toggle state. State persists to
+// localStorage (bbk:sections) and is restored here on load.
+function setupSectionToggles(): void {
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-section-id]'));
+  const state = loadSectionState(DEFAULT_OPEN_SECTIONS);
+
+  for (const section of sections) {
+    const id = section.dataset.sectionId!;
+    const toggle = section.querySelector<HTMLButtonElement>('.section-toggle');
+    const panel = section.querySelector<HTMLElement>('.editor-section-panel');
+    if (!toggle || !panel) continue;
+
+    const apply = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+    };
+    apply(state[id] ?? false);
+
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      apply(open);
+      state[id] = open;
+      saveSectionState(state);
+    });
+  }
 }
 
 bootstrap();

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CONFIG_SCHEMA_VERSION, exportConfigJSON, importConfigJSON, loadConfig, parseConfig, saveConfig } from '@/storage';
+import { CONFIG_SCHEMA_VERSION, exportConfigJSON, importConfigJSON, loadConfig, parseConfig, resolveSectionState, saveConfig } from '@/storage';
 import type { AppConfig } from '@/types';
 
 const config: AppConfig = {
@@ -21,7 +21,10 @@ const config: AppConfig = {
   },
   customItems: [],
   categoryOrder: ['allgemeine'],
-  itemOrderByCategory: { allgemeine: ['abgabe'] }
+  itemOrderByCategory: { allgemeine: ['abgabe'] },
+  categoryTitleOverrides: {},
+  customCategories: [],
+  categoryWeights: {}
 };
 
 describe('config storage', () => {
@@ -39,6 +42,36 @@ describe('config storage', () => {
     saveConfig(config);
 
     expect(loadConfig()).toEqual(config);
+  });
+
+  it('preserves custom header field labels, order and values verbatim through save/load and JSON round-trips', () => {
+    const withCustomHeaders: AppConfig = {
+      ...config,
+      header: {
+        fields: [
+          { id: 'field_1', label: 'Lehrperson', value: '' },
+          { id: 'field_2', label: 'Prüfung ä ö ü ß "Test"', value: 'Wert mit Leerzeichen' },
+          { id: 'field_3', label: 'Lerngruppe', value: '8b' }
+        ]
+      }
+    };
+
+    saveConfig(withCustomHeaders);
+
+    // Inspect the raw stored bytes to isolate serialization from the load path:
+    // a write-side bug must show up here even if loadConfig() normalizes it away.
+    const rawStored = localStorage.getItem('bbk:config');
+    expect(rawStored).not.toBeNull();
+    expect(rawStored).toContain('Prüfung ä ö ü ß \\"Test\\"');
+    expect((JSON.parse(rawStored!) as AppConfig).header.fields).toEqual(withCustomHeaders.header.fields);
+
+    expect(loadConfig()?.header.fields).toEqual(withCustomHeaders.header.fields);
+
+    const reparsed = parseConfig(JSON.parse(JSON.stringify(withCustomHeaders)));
+    expect(reparsed.status).toBe('success');
+    if (reparsed.status === 'success') {
+      expect(reparsed.config.header.fields).toEqual(withCustomHeaders.header.fields);
+    }
   });
 
   it('downloads the current config as JSON', async () => {
@@ -61,7 +94,7 @@ describe('config storage', () => {
     expect(click).toHaveBeenCalledOnce();
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:test-config');
-    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen.json');
+    expect(downloadedFilename).toBe('2026-05-30_Testbogen.json');
     expect(downloadedBlob).not.toBeNull();
     expect(JSON.parse(await downloadedBlob!.text())).toEqual(config);
   });
@@ -89,7 +122,7 @@ describe('config storage', () => {
 
     exportConfigJSON(configWithTopic);
 
-    expect(downloadedFilename).toBe('2026-05-30_Feedbackbogen_KI - Ethik- Chancen-.json');
+    expect(downloadedFilename).toBe('2026-05-30_Testbogen_KI - Ethik- Chancen-.json');
   });
 
   it('loads and normalizes a config from an uploaded JSON file', async () => {
@@ -137,6 +170,23 @@ describe('config storage', () => {
     });
   });
 
+  it('rejects an uploaded file that exceeds the size limit before reading it', async () => {
+    let read = false;
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
+      Object.defineProperty(this, 'files', {
+        configurable: true,
+        value: [{ size: 10_000_000, text: async () => { read = true; return '{}'; } }]
+      });
+      this.onchange?.(new Event('change'));
+    });
+
+    await expect(importConfigJSON()).resolves.toEqual({
+      status: 'error',
+      message: 'Die Datei ist zu groß für eine Feedbackbogen-Konfiguration.'
+    });
+    expect(read).toBe(false);
+  });
+
   it('rejects an uploaded file with invalid JSON', async () => {
     vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
       Object.defineProperty(this, 'files', {
@@ -177,8 +227,70 @@ describe('config storage', () => {
   it('rejects configs from unsupported future schema versions with a readable message', () => {
     expect(parseConfig({ schemaVersion: 99, selectedItems: [] })).toEqual({
       status: 'error',
-      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 3.'
+      message: 'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 4.'
     });
+  });
+
+  it('adds v4 fields with empty defaults when migrating a v3 config and preserves its order', () => {
+    const result = parseConfig({
+      schemaVersion: 3,
+      selectedItems: [{ categoryId: 'sachebene', itemId: 'tiefe' }],
+      categoryOrder: ['allgemeine', 'sachebene'],
+      itemOrderByCategory: { sachebene: ['tiefe'] }
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        schemaVersion: CONFIG_SCHEMA_VERSION,
+        categoryOrder: ['allgemeine', 'sachebene'],
+        categoryTitleOverrides: {},
+        customCategories: [],
+        categoryWeights: {}
+      }
+    });
+  });
+
+  it('normalizes v4 fields: trims titles, drops blanks, clamps weights', () => {
+    const result = parseConfig({
+      schemaVersion: 4,
+      selectedItems: [],
+      categoryTitleOverrides: { sachebene: '  Inhalt  ', praesentation: '   ', allgemeine: 42 },
+      customCategories: [
+        { id: 'custom_cat_1', title: '  Vortrag ' },
+        { id: '', title: 'no id' },
+        { id: 'x', title: '   ' }
+      ],
+      categoryWeights: { sachebene: 40, praesentation: 150, allgemeine: 0, sprachgebrauch: 'x' }
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        categoryTitleOverrides: { sachebene: 'Inhalt' },
+        customCategories: [{ id: 'custom_cat_1', title: 'Vortrag' }],
+        categoryWeights: { sachebene: 40, praesentation: 100 }
+      }
+    });
+  });
+});
+
+describe('section state', () => {
+  const defaults = ['title', 'kopfdaten', 'criteria'];
+
+  it('returns all defaults open when nothing is stored', () => {
+    expect(resolveSectionState(null, defaults)).toEqual({ title: true, kopfdaten: true, criteria: true });
+  });
+
+  it('ignores invalid stored values and falls back to defaults', () => {
+    expect(resolveSectionState('garbage', defaults)).toEqual({ title: true, kopfdaten: true, criteria: true });
+    expect(resolveSectionState({ title: 'yes', kopfdaten: 1 }, defaults))
+      .toEqual({ title: true, kopfdaten: true, criteria: true });
+  });
+
+  it('merges persisted booleans over the defaults', () => {
+    expect(resolveSectionState({ title: false, footer: true }, defaults))
+      .toEqual({ title: false, kopfdaten: true, criteria: true, footer: true });
   });
 });
 

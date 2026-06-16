@@ -1,6 +1,6 @@
 import { PDFDocument, type PDFFont, type PDFPage, rgb, StandardFonts } from 'pdf-lib';
 
-import { downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
+import { categoryHeadingText, downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
 import { strings } from '@/strings';
 import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
 
@@ -87,17 +87,17 @@ export async function createFillablePDFBlob(
       const scaleHeight = mode === 'full' && group.scale ? scaleHeaderHeight(ctx, group.scale) : 0;
 
       ensureSpace(headingHeight + scaleHeight + 34);
-      y = drawCategoryHeading(ctx, group.title, y);
+      y = drawCategoryHeading(ctx, categoryHeadingText(group.title, group.weight), y);
       if (mode === 'full' && group.scale) y = drawScaleHeader(ctx, group.scale, y);
 
       group.items.forEach((row, index) => {
         const rowHeight = itemRowHeight(ctx, row, group.scale, mode);
         if (y + rowHeight > bottomY) {
           addPage();
-          y = drawCategoryHeading(ctx, group.title, y);
+          y = drawCategoryHeading(ctx, categoryHeadingText(group.title, group.weight), y);
           if (mode === 'full' && group.scale) y = drawScaleHeader(ctx, group.scale, y);
         }
-        y = drawItemRow(ctx, row, group.scale, mode, index + 1, y, index % 2 === 1, rowHeight);
+        y = drawItemRow(ctx, row, group.scale, mode, row.number, y, index % 2 === 1, rowHeight);
       });
       y += 18;
     });

@@ -6,6 +6,7 @@ import { createDOCXBlob } from '@/export/export-docx';
 import { createODTBlob } from '@/export/export-odt';
 import { createFillablePDFBlob } from '@/export/export-pdf-fillable';
 import { createXLSXBlob } from '@/export/export-xlsx';
+import { categoryHeadingText } from '@/export/export-utils';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
 const scale: NumericScale = {
@@ -21,8 +22,8 @@ const scale: NumericScale = {
 const header: HeaderData = { fields: [{ id: 'topic', label: 'Thema', value: 'Test & Qualität' }] };
 const footerFields: FooterFields = { date: true, signature: true, grade: false };
 const rows: ExportRow[] = [
-  { categoryId: 'general', category: 'Allgemein', item: 'Inhalt vollständig', scale },
-  { categoryId: 'general', category: 'Allgemein', item: 'Quellen korrekt', scale }
+  { categoryId: 'general', category: 'Allgemein', item: 'Inhalt vollständig', scale, itemId: 'i1', number: 1 },
+  { categoryId: 'general', category: 'Allgemein', item: 'Quellen korrekt', scale, itemId: 'i2', number: 2 }
 ];
 
 describe('document exports', () => {
@@ -40,7 +41,7 @@ describe('document exports', () => {
     expect(sharedStringsXml).toContain('Kategorie');
     expect(sharedStringsXml).toContain('Inhalt vollständig');
     expect(sharedStringsXml).toContain('1 | 2 | 3');
-    expect(stylesXml).toContain('FF1E88E5');
+    expect(stylesXml).toContain('FF245DCC');
   });
 
   it('creates a DOCX with structured tables, feedback area and footer', async () => {
@@ -122,6 +123,26 @@ describe('document exports', () => {
     expect(rawPdf).toContain('/Subtype /Widget');
     expect(rawPdf).toContain('/AP');
     expect(rawPdf).not.toContain('/ObjStm');
+  });
+});
+
+describe('category heading with weight', () => {
+  it('appends a weight badge only when a weight is set', () => {
+    expect(categoryHeadingText('Sachebene', 40)).toBe('Sachebene — 40 %');
+    expect(categoryHeadingText('Sachebene', undefined)).toBe('Sachebene');
+    expect(categoryHeadingText('Sachebene', 0)).toBe('Sachebene');
+  });
+
+  it('renders the weighted heading and auto-numbering in DOCX output', async () => {
+    const weighted: ExportRow[] = [
+      { categoryId: 'sach', category: 'Sachebene', item: 'Tiefe', scale, itemId: 't1', number: 1, weight: 40 },
+      { categoryId: 'sach', category: 'Sachebene', item: 'Breite', scale, itemId: 'b1', number: 2, weight: 40 }
+    ];
+    const docXml = await JSZip.loadAsync(await (await createDOCXBlob(weighted, 'Bewertungsbogen', header, footerFields)).arrayBuffer())
+      .then((zip) => zip.file('word/document.xml')!.async('text'));
+    expect(docXml).toContain('SACHEBENE — 40 %');
+    expect(docXml).toContain('1. Tiefe');
+    expect(docXml).toContain('2. Breite');
   });
 });
 

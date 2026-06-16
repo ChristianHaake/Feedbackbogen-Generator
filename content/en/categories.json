@@ -1,0 +1,257 @@
+[
+  {
+    "id": "allgemeine",
+    "title": "General",
+    "description": "Determine the general requirements that learners must always observe.",
+    "items": [
+      {
+        "id": "abgabe",
+        "label": "Timely submission",
+        "description": ""
+      },
+      {
+        "id": "dateinamen",
+        "label": "Use of agreed file names and paths",
+        "description": ""
+      },
+      {
+        "id": "regeln",
+        "label": "Consideration of agreed rules and guidelines",
+        "description": ""
+      },
+      {
+        "id": "vollstaendigkeit",
+        "label": "Completeness of required documents",
+        "description": ""
+      },
+      {
+        "id": "quellenangaben",
+        "label": "Sources provided",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sachebene",
+    "title": "Subject Level",
+    "description": "Expectations regarding knowledge acquisition and presentation.",
+    "items": [
+      {
+        "id": "tiefe",
+        "label": "Depth and scope of subject-specific analysis",
+        "description": ""
+      },
+      {
+        "id": "komplexitaet",
+        "label": "Complexity of the content",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative",
+        "label": "Initiative through independent research and additional perspectives",
+        "description": ""
+      },
+      {
+        "id": "selbststaendigkeit",
+        "label": "Independence in dealing with the content",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sprachgebrauch",
+    "title": "Language Use",
+    "description": "Criteria for evaluating linguistic design and impact.",
+    "items": [
+      {
+        "id": "sprachliche-richtigkeit",
+        "label": "Linguistic correctness",
+        "description": "Grammar, spelling, and punctuation"
+      },
+      {
+        "id": "ausdrucksfaehigkeit",
+        "label": "Expressiveness",
+        "description": "Precision of vocabulary, vividness and liveliness of language, and avoidance of repetitions"
+      },
+      {
+        "id": "stilistische-angemessenheit",
+        "label": "Stylistic appropriateness",
+        "description": "Adaptation to audience and situation, appropriate language style (factual, argumentative, creative, etc.), and consistency of style"
+      },
+      {
+        "id": "kohaerenz-und-kohaesion",
+        "label": "Coherence and cohesion",
+        "description": "Logical structure of thoughts, meaningful connection of sentences and paragraphs, and use of transitions and connectors"
+      },
+      {
+        "id": "kommunikative-wirksamkeit",
+        "label": "Communicative effectiveness",
+        "description": "Comprehensibility, clarity of statements, and persuasiveness or impact on the reader"
+      },
+      {
+        "id": "sprachliche-vielfalt",
+        "label": "Linguistic variety",
+        "description": "Varied sentence beginnings, different sentence types and lengths, and variable vocabulary"
+      }
+    ]
+  },
+  {
+    "id": "praesentation",
+    "title": "Presentation",
+    "description": "Parameters for evaluating the presentation.",
+    "items": [
+      {
+        "id": "koerpersprache",
+        "label": "Body language and eye contact",
+        "description": ""
+      },
+      {
+        "id": "aktivierend",
+        "label": "Activating elements",
+        "description": ""
+      },
+      {
+        "id": "sprachlicher_ausdruck",
+        "label": "Linguistic expression",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative_praes",
+        "label": "Initiative",
+        "description": ""
+      },
+      {
+        "id": "kreativitaet",
+        "label": "Creativity",
+        "description": ""
+      },
+      {
+        "id": "adressatenaufbereitung",
+        "label": "Audience-oriented preparation",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "reflexion",
+    "title": "Reflection",
+    "description": "Parameters for evaluating the reflection.",
+    "items": [
+      {
+        "id": "tiefe_reflexion",
+        "label": "Depth and differentiation of process reflection",
+        "description": ""
+      },
+      {
+        "id": "analyse_schwierigkeiten",
+        "label": "Identification/analysis of difficulties",
+        "description": ""
+      },
+      {
+        "id": "loesungsvorschlaege",
+        "label": "Concrete, comprehensible proposed solutions",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "darstellung",
+    "title": "Presentation/Layout",
+    "description": "Parameters for evaluating the layout.",
+    "items": [
+      {
+        "id": "gestaltung",
+        "label": "Design (appealing layout, visual attractiveness)",
+        "description": ""
+      },
+      {
+        "id": "farb_schrift",
+        "label": "Consistent color and font concept",
+        "description": ""
+      },
+      {
+        "id": "optische_konsistenz",
+        "label": "Visual consistency",
+        "description": ""
+      },
+      {
+        "id": "thematisches_design",
+        "label": "Thematically appropriate and supportive design",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "peer",
+    "title": "Peer Feedback / Reflection",
+    "description": "Aspects from the work and presentation phase with influence on knowledge acquisition.",
+    "items": [
+      {
+        "id": "erfolg_arbeitsphase",
+        "label": "Success of the work phase",
+        "description": ""
+      },
+      {
+        "id": "mitarbeit_gruppe",
+        "label": "Participation in the group process",
+        "description": ""
+      },
+      {
+        "id": "aktivierende_elemente",
+        "label": "Activating elements (e.g., interaction methods)",
+        "description": ""
+      },
+      {
+        "id": "adressaten_praesentation",
+        "label": "Audience-oriented presentation",
+        "description": ""
+      },
+      {
+        "id": "persoenlicher_wissenszuwachs",
+        "label": "Personal knowledge acquisition",
+        "description": ""
+      },
+      {
+        "id": "wissenszuwachs_zuhoerer",
+        "label": "Knowledge acquisition of the listener",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "prozess",
+    "title": "Process Documentation",
+    "items": [
+      {
+        "id": "planungsunterlagen",
+        "label": "Planning documents / process documentation",
+        "description": ""
+      },
+      {
+        "id": "nachvollziehbarkeit",
+        "label": "Comprehensibility and clarity",
+        "description": ""
+      },
+      {
+        "id": "ki_angaben",
+        "label": "AI usage - Specification/description of prompts and tools used",
+        "description": ""
+      },
+      {
+        "id": "ki_nachvollziehbar",
+        "label": "AI usage comprehensibly explained",
+        "description": ""
+      },
+      {
+        "id": "ki_reflexion",
+        "label": "AI usage critically reflected upon (benefits/risks)",
+        "description": ""
+      },
+      {
+        "id": "eigenes_potential",
+        "label": "Personal development potential",
+        "description": ""
+      }
+    ]
+  }
+]

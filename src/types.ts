@@ -96,6 +96,11 @@ export type DocumentTitleConfig = {
 export type FooterFieldId = 'date' | 'signature' | 'grade';
 export type FooterFields = Record<FooterFieldId, boolean>;
 
+export type CustomCategory = {
+  id: string;
+  title: string;
+};
+
 export type AppConfig = {
   schemaVersion: number;
   selectedItems: SelectedItemRef[];
@@ -109,6 +114,11 @@ export type AppConfig = {
   customItems: CustomItem[];
   categoryOrder: string[];
   itemOrderByCategory: Record<string, string[]>;
+  // Stufe 1: per-category title overrides + user-defined categories.
+  categoryTitleOverrides: Record<string, string>;
+  customCategories: CustomCategory[];
+  // Stufe 5a: per-category weight in percent (display only).
+  categoryWeights: Record<string, number>;
 };
 
 export type ExportRow = {
@@ -116,6 +126,11 @@ export type ExportRow = {
   category: string;
   item: string;
   scale: Scale | null;
+  itemId: string;
+  // 1-based position within its category section (auto-numbering, resets per section).
+  number: number;
+  // Stufe 5a: per-category weight in percent (display only); undefined = unweighted.
+  weight?: number;
 };
 
 export type PrintMode = 'full' | 'checklist';

@@ -1,10 +1,11 @@
 import { el, icon } from './components';
 
-import { strings } from '@/strings';
+import { strings, currentLanguage, LANGUAGE_CODES, LOCALES } from '@/strings';
 import { sanitizeNumericScaleSettings, scaleDisplay, scaleOptionLabels } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
 import { contentPages } from '@/content-pages';
 import { orderByIds } from '@/config-order';
+import { categoryHeadingText } from '@/export/export-utils';
 import type {
   Category, Scale, CustomItem, DocumentTitleConfig, DocumentTitleMode, NumericScaleSettings,
   HeaderData, HeaderField, FooterFields, FooterFieldId, ExportRow, PrintMode, Item,
@@ -28,12 +29,17 @@ export type RenderHandlers = {
   onNumericScaleRangeChange: (categoryId: string, min: number, max: number) => void;
   onDefaultScaleChange: (scaleId: string) => void;
   onAddCustomItem: (categoryId: string, label: string) => void;
+  onBulkAddCustomItems: (categoryId: string, labels: string[]) => void;
   onRemoveCustomItem: (itemId: string) => void;
   onRemoveSelected: (categoryId: string, itemId: string) => void;
   onSelectCategory: (categoryId: string) => void;
   onClearCategory: (categoryId: string) => void;
   onClearSelection: () => void;
   onReorderCategory: (draggedCategoryId: string, targetCategoryId: string) => void;
+  onCategoryTitleChange: (categoryId: string, title: string) => void;
+  onAddCategory: (title: string) => void;
+  onRemoveCategory: (categoryId: string) => void;
+  onCategoryWeightChange: (categoryId: string, weight: number | null) => void;
   onReorderItem: (categoryId: string, draggedItemId: string, targetItemId: string) => void;
   onSearchChange: (value: string) => void;
   onOpenProductFormatModal: () => void;
@@ -50,6 +56,7 @@ export type RenderHandlers = {
   onFooterFieldToggle: (field: FooterFieldId, checked: boolean) => void;
   onPreviewModeChange: (mode: PrintMode) => void;
   onMobileViewChange: (view: MobileView) => void;
+  onLanguageChange: (lang: string) => void;
 };
 
 export function renderLayout(): HTMLElement {
@@ -57,22 +64,41 @@ export function renderLayout(): HTMLElement {
 
   const header = el(
     'header',
-    { class: 'toolbar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
-    el('div', { class: 'toolbar-inner' },
-      el('div', { class: 'left' },
-        el('img', { src: './icon_Feedbackgenerator.svg', alt: '', width: '24', height: '24' }),
-        el('div', { class: 'title-wrap' },
-          el('strong', { class: 'title', text: strings.appTitle }),
-          el('div', { class: 'subtitle', text: 'Feedbackbögen für zukunftsorientierte Prüfungsformate' })
+    { class: 'app-header' },
+    el('a', { class: 'brand', href: '/', 'data-app-route': 'generator', 'aria-label': `${strings.appTitle} – Startseite` },
+      el('span', { class: 'brand__mark' },
+        el('img', { src: './logo.svg', alt: '', width: '42', height: '42' })
+      ),
+      el('span', { class: 'brand__text' },
+        el('strong', { class: 'brand__title', text: strings.appTitle }),
+        el('small', { class: 'brand__tagline', text: strings.appTagline })
+      )
+    ),
+    el('div', { class: 'header-meta' },
+      el('select', { class: 'language-switcher', 'aria-label': 'Sprache auswählen', 'data-action': 'language-switch' },
+        ...LANGUAGE_CODES.map(code => 
+          el('option', { value: code, selected: code === currentLanguage, text: LOCALES[code].label })
         )
       ),
-      el('div', { class: 'actions' },
+      el('span', { class: 'local-badge', title: strings.localProcessingHint },
+        el('span', { class: 'local-badge__dot', 'aria-hidden': 'true' }),
+        el('span', { text: strings.localProcessing })
+      )
+    )
+  );
+
+  const actionBar = el(
+    'div',
+    { class: 'action-bar', role: 'toolbar', 'aria-label': 'Werkzeugleiste' },
+    el('div', { class: 'action-bar-inner' },
+      el('div', { class: 'action-group' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
         toolbarButton('upload', strings.toolbar.loadConfig, 'config-load'),
         toolbarButton('undo', strings.toolbar.undo, 'history-undo', { 'aria-keyshortcuts': 'Control+Z Meta+Z' }),
         toolbarButton('redo', strings.toolbar.redo, 'history-redo', { 'aria-keyshortcuts': 'Control+Shift+Z Meta+Shift+Z' }),
-        toolbarButton('trash', strings.toolbar.reset, 'config-reset'),
-        el('span', { class: 'divider', role: 'separator', 'aria-orientation': 'vertical' }),
+        toolbarButton('trash', strings.toolbar.reset, 'config-reset')
+      ),
+      el('div', { class: 'action-group' },
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
           menuAction('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
           menuAction('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
@@ -84,6 +110,14 @@ export function renderLayout(): HTMLElement {
     )
   );
 
+  const onboardingHint = el('aside', { id: 'onboarding-hint', class: 'onboarding-hint', 'aria-label': strings.onboarding.intro, hidden: 'true' },
+    el('span', { class: 'onboarding-hint__intro', text: strings.onboarding.intro }),
+    el('ol', { class: 'onboarding-hint__steps' },
+      ...strings.onboarding.steps.map((step) => el('li', { text: step }))
+    ),
+    el('button', { id: 'onboarding-dismiss', class: 'onboarding-hint__dismiss', type: 'button', 'aria-label': strings.onboarding.dismiss, title: strings.onboarding.dismiss, text: '✕' })
+  );
+
   const workspace = el('div', { class: 'workspace' },
     el('nav', { class: 'mobile-tabs', role: 'tablist', 'aria-label': 'Arbeitsbereich' },
       mobileTab('edit', strings.labels.mobileEdit, true),
@@ -91,16 +125,16 @@ export function renderLayout(): HTMLElement {
       mobileTab('export', strings.labels.mobileExport, false)
     ),
     el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
-      editorSection(strings.kopfdaten.documentTitleSection, el('div', { id: 'document-title-form', class: 'document-title-fields' })),
-      editorSection(strings.kopfdaten.title, el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
-      editorSection(strings.columns.selected,
+      editorSection(strings.kopfdaten.documentTitleSection, 'title', el('div', { id: 'document-title-form', class: 'document-title-fields' })),
+      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', 'kopfdaten', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSection(strings.columns.selected, 'selected',
         el('div', { class: 'selected-head' },
           el('div', { id: 'selected-counter', class: 'selected-counter' }),
           toolbarButton('trash', strings.labels.clearSelection, 'clear-selection', { class: 'btn btn-small' })
         ),
         el('div', { id: 'selected-list', class: 'selected-list' })
       ),
-      editorSection(strings.columns.categories,
+      editorSectionCounted(strings.columns.categories, 'criteria-count', 'criteria',
         el('div', { class: 'search-wrap' },
           el('label', { for: 'criteria-search', class: 'small-label', text: strings.labels.searchCriteria }),
           el('input', {
@@ -113,18 +147,24 @@ export function renderLayout(): HTMLElement {
         ),
         el('div', { class: 'scale-default-wrap' },
           el('label', { for: 'default-scale', class: 'small-label', text: strings.labels.defaultScale }),
-          el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale })
+          el('select', { id: 'default-scale', class: 'default-scale-select', 'aria-label': strings.labels.defaultScale }),
+          el('p', { class: 'scale-hint', text: strings.labels.defaultScaleHint })
         ),
         el('div', { id: 'categories', class: 'accordion' })
       ),
-      editorSection(strings.columns.productFormats,
+      editorSectionCounted(strings.columns.productFormats, 'product-format-count', 'formats',
         el('div', { id: 'product-format-controls', class: 'product-format-controls' }),
         el('div', { id: 'product-format-categories', class: 'accordion product-format-categories' })
       ),
-      editorSection(strings.kopfdaten.footerTitle, el('div', { id: 'footer-fields', class: 'footer-fields' }))
+      editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', 'footer', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
+        el('div', { class: 'preview-live' },
+          el('span', { class: 'preview-live__dot', 'aria-hidden': 'true' }),
+          el('strong', { class: 'preview-live__label', text: strings.previewLive }),
+          el('span', { class: 'preview-live__note', text: strings.previewLiveNote })
+        ),
         el('div', { class: 'mode-switch', role: 'tablist', 'aria-label': strings.labels.previewMode },
           modeTab('full', strings.modes.full, true),
           modeTab('checklist', strings.modes.checklist, false)
@@ -135,7 +175,7 @@ export function renderLayout(): HTMLElement {
       )
     ),
     el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
-      editorSection(strings.columns.export,
+      editorSection(strings.columns.export, undefined,
         el('div', { class: 'mobile-export-actions' },
           exportButton('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
           exportButton('pdf-fillable', strings.toolbar.exportPdfFillable, 'icon-pdf'),
@@ -156,27 +196,65 @@ export function renderLayout(): HTMLElement {
 
   const contentPage = el('main', { id: 'content-page', class: 'content-page', hidden: 'true' });
   const appFooter = el('footer', { class: 'app-footer' },
-    el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
-      el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
-      el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
-      el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
-      el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
-    ),
-    githubLink()
+    el('span', { class: 'app-footer-note', text: strings.footerNote }),
+    el('div', { class: 'app-footer-links' },
+      el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
+        el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
+        el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
+        el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
+        el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+      ),
+      coffeeLink(),
+      githubLink()
+    )
   );
   const productFormatModal = el('div', { id: 'product-format-modal-root' });
   const resetConfirmModal = el('div', { id: 'reset-confirm-modal-root' });
   const configMessage = el('div', { id: 'config-message', class: 'config-message', role: 'alert', hidden: 'true' });
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
+  const toast = el('div', { id: 'app-toast', class: 'app-toast', role: 'status', 'aria-live': 'polite', hidden: 'true' });
 
-  app.append(header, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live);
+  app.append(header, actionBar, onboardingHint, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
   return app;
 }
 
-function editorSection(title: string, ...children: (HTMLElement | null)[]): HTMLElement {
+function editorSection(title: string, sectionId: string | undefined, ...children: (HTMLElement | null)[]): HTMLElement {
+  return buildEditorSection(sectionId, [el('span', { class: 'editor-section-title-text', text: title })], children);
+}
+
+function editorSectionCounted(title: string, countId: string, sectionId: string | undefined, ...children: (HTMLElement | null)[]): HTMLElement {
+  return buildEditorSection(sectionId, [
+    el('span', { class: 'editor-section-title-text', text: title }),
+    el('span', { id: countId, class: 'editor-section-count', hidden: 'true' })
+  ], children);
+}
+
+// Builds an editor block. With a sectionId the heading becomes a collapse toggle
+// (aria-expanded button) controlling a wrapped panel; without one it stays a flat
+// section (used by the mobile export pane). See setupSectionToggles in main.ts.
+function buildEditorSection(
+  sectionId: string | undefined,
+  headingContent: HTMLElement[],
+  children: (HTMLElement | null)[]
+): HTMLElement {
   const section = el('section', { class: 'editor-section' });
-  section.append(el('h2', { class: 'editor-section-title', text: title }));
-  children.forEach((c) => { if (c) section.append(c); });
+  if (!sectionId) {
+    section.append(el('h2', { class: 'editor-section-title' }, ...headingContent));
+    children.forEach((c) => { if (c) section.append(c); });
+    return section;
+  }
+  const btnId = `sec-${sectionId}-btn`;
+  const panelId = `sec-${sectionId}-panel`;
+  section.setAttribute('data-section-id', sectionId);
+  const toggle = el('button', {
+    type: 'button', class: 'section-toggle', id: btnId,
+    'aria-expanded': 'true', 'aria-controls': panelId
+  }, ...headingContent);
+  const panel = el('div', {
+    id: panelId, class: 'editor-section-panel', role: 'region', 'aria-labelledby': btnId
+  });
+  children.forEach((c) => { if (c) panel.append(c); });
+  section.append(el('h2', { class: 'editor-section-title' }, toggle), panel);
   return section;
 }
 
@@ -230,6 +308,36 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   const btn = el('button', { class: 'export-card-button', type: 'button', 'data-export-format': format });
   btn.append(icon(iconId), el('span', { text: label }));
   return btn;
+}
+
+function coffeeLink(): HTMLAnchorElement {
+  const link = el('a', {
+    class: 'bmc-link',
+    href: 'https://www.buymeacoffee.com/Haake',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'Buy me a coffee',
+    'aria-label': 'Buy me a coffee'
+  });
+  link.append(coffeeIcon(), el('span', { class: 'bmc-link-label', text: 'Buy me a coffee' }));
+  return link;
+}
+
+function coffeeIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('width', '18');
+  svg.setAttribute('height', '18');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3');
+  svg.append(path);
+  return svg;
 }
 
 function githubLink(): HTMLAnchorElement {
@@ -632,6 +740,17 @@ export function renderProductFormatModal(
     applyProductFormatFilter(body, searchInput.value);
   });
 
+  const doneBtn = el('button', { class: 'btn btn-primary product-format-done-btn', type: 'button', text: strings.labels.productFormatDone });
+  doneBtn.addEventListener('click', handlers.onCloseProductFormatModal);
+  const modalFoot = el('div', { class: 'product-format-modal-foot' },
+    el('span', {
+      class: 'product-format-selected-count',
+      'aria-live': 'polite',
+      text: strings.labels.productFormatSelectedCount(selectedFormatIds.size)
+    }),
+    doneBtn
+  );
+
   dialog.append(
     el('div', { class: 'product-format-modal-head' },
       el('h2', { id: 'product-format-modal-title', class: 'product-format-modal-title', text: strings.labels.productFormatModalTitle }),
@@ -639,7 +758,8 @@ export function renderProductFormatModal(
     ),
     el('label', { class: 'small-label', for: searchInputId, text: strings.labels.productFormatSearch }),
     searchInput,
-    body
+    body,
+    modalFoot
   );
   dialog.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -742,7 +862,9 @@ export function renderCategories(
   defaultScaleId: string,
   itemOrderByCategory: Record<string, string[]>,
   handlers: RenderHandlers,
-  searchQuery = ''
+  searchQuery = '',
+  editable = false,
+  categoryWeights: Record<string, number> = {}
 ) {
   container.innerHTML = '';
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -765,6 +887,44 @@ export function renderCategories(
     );
     const panel = el('div', { id: `${buttonId}-panel`, class: 'accordion-panel', role: 'region', 'aria-labelledby': buttonId });
     (panel as HTMLDivElement).hidden = true;
+    if (editable) {
+      const titleInput = el('input', {
+        type: 'text', class: 'category-title-input', 'data-cat': c.id, value: c.title,
+        'aria-label': strings.labels.renameCategory
+      }) as HTMLInputElement;
+      const commitTitle = () => handlers.onCategoryTitleChange(c.id, titleInput.value);
+      titleInput.addEventListener('blur', commitTitle);
+      titleInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); titleInput.blur(); }
+      });
+      const renameRow = el('div', { class: 'category-edit-row' },
+        el('label', { class: 'small-label', text: strings.labels.renameCategory }), titleInput);
+      if (c.id.startsWith('custom_cat_')) {
+        const delBtn = el('button', {
+          class: 'btn-icon danger', type: 'button',
+          title: strings.labels.removeCategory, 'aria-label': strings.labels.removeCategory
+        }, icon('icon-trash'));
+        delBtn.addEventListener('click', () => handlers.onRemoveCategory(c.id));
+        renameRow.append(delBtn);
+      }
+      panel.append(renameRow);
+
+      const weightInput = el('input', {
+        type: 'number', class: 'category-weight-input', 'data-cat': c.id, min: '0', max: '100', step: '5',
+        value: categoryWeights[c.id] != null ? String(categoryWeights[c.id]) : '',
+        placeholder: '—', 'aria-label': strings.labels.categoryWeight
+      }) as HTMLInputElement;
+      const commitWeight = () => {
+        const raw = weightInput.value.trim();
+        handlers.onCategoryWeightChange(c.id, raw === '' ? null : Number(raw));
+      };
+      weightInput.addEventListener('change', commitWeight);
+      panel.append(el('div', { class: 'category-edit-row' },
+        el('label', { class: 'small-label', text: strings.labels.categoryWeight }),
+        weightInput,
+        el('span', { class: 'weight-unit', text: '%' })
+      ));
+    }
     panel.append(categoryScaleRow(c, scales, scaleByCategory[c.id] ?? defaultScaleId, scaleSettingsByCategory[c.id], handlers));
     panel.append(el('div', { class: 'category-actions' },
       smallActionButton(strings.labels.selectCategory, () => handlers.onSelectCategory(c.id)),
@@ -807,6 +967,21 @@ export function renderCategories(
     });
     panel.append(el('div', { class: 'add-custom-row' }, customInput, addCustomBtn));
 
+    const bulkInput = el('textarea', {
+      class: 'bulk-add-input', 'data-cat': c.id, rows: '3',
+      placeholder: strings.labels.bulkAddPlaceholder, 'aria-label': strings.labels.bulkAdd
+    }) as HTMLTextAreaElement;
+    const bulkBtn = el('button', { class: 'btn btn-small add-bulk-btn', type: 'button' });
+    bulkBtn.append(icon('icon-plus'), el('span', { text: strings.labels.bulkAddButton }));
+    const commitBulk = () => {
+      const labels = bulkInput.value.split('\n').map((line) => line.trim()).filter(Boolean);
+      if (!labels.length) return;
+      handlers.onBulkAddCustomItems(c.id, labels);
+      bulkInput.value = '';
+    };
+    bulkBtn.addEventListener('click', commitBulk);
+    panel.append(el('div', { class: 'bulk-add-row' }, bulkInput, bulkBtn));
+
     headerBtn.addEventListener('click', () => {
       const expanded = headerBtn.getAttribute('aria-expanded') === 'true';
       const next = !expanded;
@@ -822,6 +997,30 @@ export function renderCategories(
   refreshCategoryCounts(container, categories, customItems, selectedKeys);
   if (renderedCategories === 0) {
     container.append(el('p', { class: 'search-empty', text: 'Keine passenden Kriterien gefunden.' }));
+  }
+
+  // Weight-sum hint: warn (non-blocking) when set weights don't total 100 %.
+  // Only count categories present in this list — orphan weights from removed
+  // product formats or unshown built-ins would otherwise skew the sum.
+  if (editable && !normalizedQuery) {
+    const sum = categories.reduce((acc, c) => acc + (categoryWeights[c.id] ?? 0), 0);
+    if (sum > 0 && Math.round(sum) !== 100) {
+      container.append(el('p', { class: 'weight-sum-note', text: strings.labels.weightSumWarn(Math.round(sum)) }));
+    }
+  }
+
+  // Add-category affordance: only on the editable main list, hidden while searching.
+  if (editable && !normalizedQuery) {
+    const input = el('input', {
+      type: 'text', class: 'add-category-input',
+      placeholder: strings.labels.addCategoryPlaceholder, 'aria-label': strings.labels.addCategory
+    }) as HTMLInputElement;
+    const btn = el('button', { class: 'btn btn-small btn-primary add-category-btn', type: 'button', 'aria-label': strings.labels.addCategory });
+    btn.append(icon('icon-plus'), el('span', { text: strings.labels.addCategory }));
+    const commit = () => { if (input.value.trim()) { handlers.onAddCategory(input.value); input.value = ''; } };
+    btn.addEventListener('click', commit);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+    container.append(el('div', { class: 'add-category-row' }, input, btn));
   }
 }
 
@@ -843,7 +1042,8 @@ function categoryScaleRow(
 
   const row = el('div', { class: 'category-scale-row' },
     el('label', { class: 'small-label', text: strings.labels.scale }),
-    select
+    select,
+    el('p', { class: 'scale-hint', text: strings.labels.categoryScaleHint })
   );
   if (scale?.kind !== 'numeric') return row;
 
@@ -1057,7 +1257,8 @@ export function renderPreview(
   documentTitle: DocumentTitleConfig,
   header: HeaderData,
   footerFields: FooterFields,
-  mode: PrintMode
+  mode: PrintMode,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
 ) {
   container.innerHTML = '';
 
@@ -1069,7 +1270,7 @@ export function renderPreview(
   if (rows.length === 0) {
     container.append(el('p', { class: 'a4-empty', text: strings.labels.previewEmpty }));
   } else {
-    container.append(renderA4Body(rows, mode));
+    container.append(renderA4Body(rows, mode, onRemoveItem));
   }
 
   container.append(renderA4Feedback());
@@ -1093,22 +1294,26 @@ function renderA4Header(header: HeaderData): HTMLElement {
   return wrap;
 }
 
-function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
+function renderA4Body(
+  rows: ExportRow[],
+  mode: PrintMode,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
   const wrap = el('div', { class: 'a4-body' });
 
   // Group rows by categoryId, preserve category order from first appearance
-  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[] }>();
+  const groups = new Map<string, { title: string; scale: Scale | null; items: ExportRow[]; weight?: number }>();
   rows.forEach((r) => {
-    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [] });
+    if (!groups.has(r.categoryId)) groups.set(r.categoryId, { title: r.category, scale: r.scale, items: [], weight: r.weight });
     groups.get(r.categoryId)!.items.push(r);
   });
 
-  groups.forEach(({ title, scale, items }) => {
+  groups.forEach(({ title, scale, items, weight }) => {
     const section = el('section', { class: 'a4-cat-section' });
-    section.append(el('h2', { class: 'a4-cat-heading', text: title }));
+    section.append(el('h2', { class: 'a4-cat-heading', text: categoryHeadingText(title, weight) }));
     if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
     const list = el('ol', { class: 'a4-items' });
-    items.forEach((r) => list.append(renderA4Item(r, mode, scale)));
+    items.forEach((r) => list.append(renderA4Item(r, mode, scale, onRemoveItem)));
     section.append(list);
     wrap.append(section);
   });
@@ -1116,26 +1321,47 @@ function renderA4Body(rows: ExportRow[], mode: PrintMode): HTMLElement {
   return wrap;
 }
 
-function renderA4Item(row: ExportRow, mode: PrintMode, scale: Scale | null): HTMLElement {
+function a4RemoveButton(row: ExportRow, onRemoveItem: (categoryId: string, itemId: string) => void): HTMLButtonElement {
+  const btn = el('button', {
+    class: 'a4-item-remove',
+    type: 'button',
+    'aria-label': strings.labels.removeFromPreview(row.item),
+    title: strings.labels.removeFromPreview(row.item)
+  }) as HTMLButtonElement;
+  btn.append(icon('icon-trash'));
+  btn.addEventListener('click', () => onRemoveItem(row.categoryId, row.itemId));
+  return btn;
+}
+
+function renderA4Item(
+  row: ExportRow,
+  mode: PrintMode,
+  scale: Scale | null,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
   const itemClasses = ['a4-item'];
   if (mode === 'checklist') itemClasses.push('a4-item-checklist');
   if (mode === 'full' && scale?.kind === 'numeric') itemClasses.push('a4-item-numeric');
 
   const li = el('li', { class: itemClasses.join(' ') });
+  if (onRemoveItem) li.classList.add('a4-item-removable');
+  // Numbering in the preview comes from the CSS counter on .a4-item-label::before
+  // (resets per section). Exports use row.number instead — same 1-based sequence.
   const label = el('span', { class: 'a4-item-label' }, el('span', { class: 'a4-item-text', text: row.item }));
 
   if (mode === 'checklist') {
     li.append(el('span', { class: 'a4-cbox', text: '☐' }));
     li.append(label);
-    return li;
+  } else {
+    li.append(label);
+    if (scale) {
+      li.append(renderScaleBoxes(scale));
+    } else {
+      li.append(el('div', { class: 'a4-scale-line' }));
+    }
   }
 
-  li.append(label);
-  if (scale) {
-    li.append(renderScaleBoxes(scale));
-  } else {
-    li.append(el('div', { class: 'a4-scale-line' }));
-  }
+  if (onRemoveItem) li.append(a4RemoveButton(row, onRemoveItem));
   return li;
 }
 

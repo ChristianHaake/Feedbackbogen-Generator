@@ -67,7 +67,7 @@ export function renderLayout(): HTMLElement {
     { class: 'app-header' },
     el('a', { class: 'brand', href: '/', 'data-app-route': 'generator', 'aria-label': `${strings.appTitle} – Startseite` },
       el('span', { class: 'brand__mark' },
-        el('img', { src: './logo.svg', alt: '', width: '42', height: '42' })
+        el('img', { src: './logo.png', alt: '', width: '42', height: '42' })
       ),
       el('span', { class: 'brand__text' },
         el('strong', { class: 'brand__title', text: strings.appTitle }),

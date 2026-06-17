@@ -77,7 +77,7 @@ export default defineConfig({
     contentPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons.svg', 'logo.svg'],
+      includeAssets: ['favicon.svg', 'icons.svg', 'logo.png'],
       manifest: {
         name: 'Feedbackbogen-Generator',
         short_name: 'Feedbackbogen',

@@ -172,18 +172,13 @@ body {
   backdrop-filter: blur(14px);
 }
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
-.brand:hover .brand__title { color: var(--primary); }
-.brand__mark {
-  display: grid; place-items: center;
-  width: 42px; height: 42px; flex-shrink: 0;
-  border-radius: var(--radius-md);
-  background: var(--primary);
-  box-shadow: 0 8px 18px rgb(36 93 204 / 24%);
+
+.brand__logo-wide {
+  display: block;
+  height: 48px;
+  width: auto;
+  object-fit: contain;
 }
-.brand__mark img { width: 30px; height: 30px; display: block; }
-.brand__text { display: flex; flex-direction: column; }
-.brand__title { font-size: 1rem; line-height: 1.2; }
-.brand__tagline { margin-top: 2px; color: var(--text-muted); font-size: 0.73rem; line-height: 1.2; }
 .header-meta { display: flex; align-items: center; gap: 18px; }
 .local-badge {
   display: inline-flex; align-items: center; gap: 7px;
@@ -1352,7 +1347,7 @@ body {
   body { overflow: hidden; }
   .app { height: 100vh; height: 100dvh; }
   .app-header { min-height: 0; padding: var(--space-3); gap: var(--space-2); }
-  .brand__tagline { display: none; }
+
   .header-meta { display: none; } /* local-processing note still shown in the footer */
   .action-bar-inner { padding: var(--space-2) var(--space-3); }
   .divider { display: none; }

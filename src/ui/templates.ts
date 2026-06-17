@@ -66,13 +66,7 @@ export function renderLayout(): HTMLElement {
     'header',
     { class: 'app-header' },
     el('a', { class: 'brand', href: '/', 'data-app-route': 'generator', 'aria-label': `${strings.appTitle} – Startseite` },
-      el('span', { class: 'brand__mark' },
-        el('img', { src: './logo.png', alt: '', width: '42', height: '42' })
-      ),
-      el('span', { class: 'brand__text' },
-        el('strong', { class: 'brand__title', text: strings.appTitle }),
-        el('small', { class: 'brand__tagline', text: strings.appTagline })
-      )
+      el('img', { src: './banner.png', alt: strings.appTitle, class: 'brand__logo-wide' })
     ),
     el('div', { class: 'header-meta' },
       el('select', { class: 'language-switcher', 'aria-label': strings.a11y.languageSwitcher, 'data-action': 'language-switch' },

@@ -183,7 +183,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  min-height: 84px;
+  min-height: 100px;
   padding: 12px clamp(16px, 4vw, 64px);
   background: rgb(255 255 255 / 90%);
   border-bottom: 1px solid var(--border);
@@ -193,12 +193,13 @@ body {
 
 .brand__logo-wide {
   display: block;
-  height: 60px;
+  height: 76px;
   width: auto;
   object-fit: contain;
   border-radius: 8px;
 }
-.header-meta { display: flex; align-items: center; gap: 18px; }
+.header-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.header-meta__top { display: flex; align-items: center; gap: 18px; }
 .local-badge {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 5px 12px; border-radius: 999px;
@@ -1408,6 +1409,7 @@ body {
   body { overflow: hidden; }
   .app { height: 100vh; height: 100dvh; }
   .app-header { min-height: 0; padding: var(--space-3); gap: var(--space-2); }
+  .brand__logo-wide { height: 48px; }
 
   /* Keep the language switcher reachable on mobile; only drop the local-badge
      (its note is still shown in the footer). */

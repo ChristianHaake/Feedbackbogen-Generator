@@ -69,14 +69,20 @@ export function renderLayout(): HTMLElement {
       el('img', { src: './logo-wide.png', alt: strings.appTitle, class: 'brand__logo-wide' })
     ),
     el('div', { class: 'header-meta' },
-      el('select', { class: 'language-switcher', 'aria-label': strings.a11y.languageSwitcher, 'data-action': 'language-switch' },
-        ...LANGUAGE_CODES.map(code => 
-          el('option', { value: code, selected: code === currentLanguage, text: LOCALES[code].label })
+      el('div', { class: 'header-meta__top' },
+        el('select', { class: 'language-switcher', 'aria-label': strings.a11y.languageSwitcher, 'data-action': 'language-switch' },
+          ...LANGUAGE_CODES.map(code =>
+            el('option', { value: code, selected: code === currentLanguage, text: LOCALES[code].label })
+          )
+        ),
+        el('span', { class: 'local-badge', title: strings.localProcessingHint },
+          el('span', { class: 'local-badge__dot', 'aria-hidden': 'true' }),
+          el('span', { text: strings.localProcessing })
         )
       ),
-      el('span', { class: 'local-badge', title: strings.localProcessingHint },
-        el('span', { class: 'local-badge__dot', 'aria-hidden': 'true' }),
-        el('span', { text: strings.localProcessing })
+      el('div', { class: 'mode-switch', role: 'tablist', 'aria-label': strings.labels.previewMode },
+        modeTab('full', strings.modes.full, true),
+        modeTab('checklist', strings.modes.checklist, false)
       )
     )
   );
@@ -154,17 +160,6 @@ export function renderLayout(): HTMLElement {
       editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', 'footer', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
     el('section', { class: 'preview-pane', 'aria-label': strings.a11y.previewPane, 'data-mobile-panel': 'preview' },
-      el('div', { class: 'preview-controls' },
-        el('div', { class: 'preview-live' },
-          el('span', { class: 'preview-live__dot', 'aria-hidden': 'true' }),
-          el('strong', { class: 'preview-live__label', text: strings.previewLive }),
-          el('span', { class: 'preview-live__note', text: strings.previewLiveNote })
-        ),
-        el('div', { class: 'mode-switch', role: 'tablist', 'aria-label': strings.labels.previewMode },
-          modeTab('full', strings.modes.full, true),
-          modeTab('checklist', strings.modes.checklist, false)
-        )
-      ),
       onboardingHint,
       el('div', { class: 'preview-pane-inner' },
         el('div', { id: 'a4-page', class: 'a4-page' })

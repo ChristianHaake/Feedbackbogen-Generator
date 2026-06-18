@@ -175,9 +175,10 @@ body {
 
 .brand__logo-wide {
   display: block;
-  height: 48px;
+  height: 44px;
   width: auto;
   object-fit: contain;
+  border-radius: 8px;
 }
 .header-meta { display: flex; align-items: center; gap: 18px; }
 .local-badge {

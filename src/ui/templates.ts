@@ -66,7 +66,7 @@ export function renderLayout(): HTMLElement {
     'header',
     { class: 'app-header' },
     el('a', { class: 'brand', href: '/', 'data-app-route': 'generator', 'aria-label': `${strings.appTitle} – Startseite` },
-      el('img', { src: './banner.png', alt: strings.appTitle, class: 'brand__logo-wide' })
+      el('img', { src: './logo-wide.png', alt: strings.appTitle, class: 'brand__logo-wide' })
     ),
     el('div', { class: 'header-meta' },
       el('select', { class: 'language-switcher', 'aria-label': strings.a11y.languageSwitcher, 'data-action': 'language-switch' },

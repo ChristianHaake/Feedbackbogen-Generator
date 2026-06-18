@@ -16,7 +16,7 @@ import {
 import {
   saveConfig, loadConfig, exportConfigJSON, importConfigJSON,
   EMPTY_HEADER, DEFAULT_FOOTER_FIELDS, DEFAULT_DOCUMENT_TITLE, CONFIG_SCHEMA_VERSION,
-  createDefaultConfig, loadSectionState, saveSectionState
+  createDefaultConfig, loadSectionState, saveSectionState, localizeDefaultHeaderFields
 } from './storage';
 import { mergeOrder, orderByIds, orderCategories, swapOrder } from './config-order';
 import {
@@ -89,7 +89,7 @@ async function bootstrap() {
     scaleSettingsByCategory = persisted.scaleSettingsByCategory;
     if (persisted.defaultScaleId) defaultScaleId = persisted.defaultScaleId;
     documentTitle = { ...persisted.documentTitle };
-    header = cloneHeader(persisted.header);
+    header = cloneHeader({ fields: localizeDefaultHeaderFields(persisted.header.fields) });
     footerFields = persisted.footerFields;
     customItems = persisted.customItems ?? [];
     categoryOrder = persisted.categoryOrder;

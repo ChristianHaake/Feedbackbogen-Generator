@@ -1,5 +1,5 @@
 import { categoryOrderFromSelection, itemOrderFromSelection, uniqueStrings } from './config-order';
-import { strings } from './strings';
+import { strings, LOCALES, LANGUAGE_CODES } from './strings';
 import type {
   AppConfig, CustomCategory, CustomItem, DocumentTitleConfig, DocumentTitleMode, FooterFields,
   HeaderData, HeaderField, NumericScaleSettings, SelectedItemRef
@@ -74,6 +74,27 @@ export const DEFAULT_DOCUMENT_TITLE: DocumentTitleConfig = {
 export const EMPTY_HEADER: HeaderData = {
   fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field }))
 };
+
+// Built-in header field ids → their i18n key in `kopfdaten`.
+const DEFAULT_HEADER_FIELD_KEYS: Record<string, 'learner' | 'learngroup' | 'topic' | 'date'> = {
+  name: 'learner',
+  learngroup: 'learngroup',
+  topic: 'topic',
+  date: 'date'
+};
+
+// Re-localize the labels of the built-in (pre-filled) header fields so a
+// language switch updates them too. A field is treated as untouched only when
+// its label still matches a known default in some locale; user-renamed fields
+// keep their custom label.
+export function localizeDefaultHeaderFields(fields: HeaderField[]): HeaderField[] {
+  return fields.map((field) => {
+    const key = DEFAULT_HEADER_FIELD_KEYS[field.id];
+    if (!key) return field;
+    const isDefaultLabel = LANGUAGE_CODES.some((code) => LOCALES[code].dict.kopfdaten[key] === field.label);
+    return isDefaultLabel ? { ...field, label: strings.kopfdaten[key] } : field;
+  });
+}
 
 export function createDefaultConfig(defaultScaleId?: string): AppConfig {
   return {

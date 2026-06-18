@@ -48,12 +48,12 @@ describe('help content page', () => {
 });
 
 describe('collapsible editor sections', () => {
-  it('renders a collapse toggle wired to its panel for each of the five editor blocks', () => {
+  it('renders a collapse toggle wired to its panel for each of the four collapsible editor blocks', () => {
     const layout = renderLayout();
     const sections = Array.from(layout.querySelectorAll<HTMLElement>('.editor-pane [data-section-id]'));
 
     expect(sections.map((s) => s.dataset.sectionId)).toEqual([
-      'kopfdaten', 'selected', 'criteria', 'formats', 'footer'
+      'kopfdaten', 'selected', 'criteria', 'formats'
     ]);
 
     for (const section of sections) {

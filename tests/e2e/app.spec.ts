@@ -245,11 +245,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await page.locator('#acc-allgemeine').click();
     await page.locator('label[for="cb-allgemeine-abgabe"]').click();
 
-    // Expand the "Fußzeile" (footer) editor section first
-    const sectionToggle = page.locator('#sec-footer-btn');
-    await expect(sectionToggle).toBeVisible();
-    await sectionToggle.click();
-
+    // Footer fields are always visible (no collapsible section)
     // Verify default footer fields in preview
     const previewFooter = page.locator('.a4-footer-fields .a4-footer-field');
     await expect(previewFooter).toHaveCount(3); // Date, Signature, Grade

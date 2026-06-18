@@ -113,12 +113,12 @@ export function renderLayout(): HTMLElement {
   );
 
   const workspace = el('div', { class: 'workspace' },
-    el('nav', { class: 'mobile-tabs', role: 'tablist', 'aria-label': 'Arbeitsbereich' },
+    el('nav', { class: 'mobile-tabs', role: 'tablist', 'aria-label': strings.a11y.workspace },
       mobileTab('edit', strings.labels.mobileEdit, true),
       mobileTab('preview', strings.labels.mobilePreview, false),
       mobileTab('export', strings.labels.mobileExport, false)
     ),
-    el('aside', { class: 'editor-pane', 'aria-label': 'Editor', 'data-mobile-panel': 'edit' },
+    el('aside', { class: 'editor-pane', 'aria-label': strings.a11y.editorPane, 'data-mobile-panel': 'edit' },
       editorSection(strings.kopfdaten.documentTitleSection, 'title', el('div', { id: 'document-title-form', class: 'document-title-fields' })),
       editorSectionCounted(strings.kopfdaten.title, 'header-field-count', 'kopfdaten', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
       editorSection(strings.columns.selected, 'selected',
@@ -152,7 +152,7 @@ export function renderLayout(): HTMLElement {
       ),
       editorSectionCounted(strings.kopfdaten.footerTitle, 'footer-field-count', 'footer', el('div', { id: 'footer-fields', class: 'footer-fields' }))
     ),
-    el('section', { class: 'preview-pane', 'aria-label': 'Druckvorschau', 'data-mobile-panel': 'preview' },
+    el('section', { class: 'preview-pane', 'aria-label': strings.a11y.previewPane, 'data-mobile-panel': 'preview' },
       el('div', { class: 'preview-controls' },
         el('div', { class: 'preview-live' },
           el('span', { class: 'preview-live__dot', 'aria-hidden': 'true' }),
@@ -192,11 +192,11 @@ export function renderLayout(): HTMLElement {
   const appFooter = el('footer', { class: 'app-footer' },
     el('span', { class: 'app-footer-note', text: strings.footerNote }),
     el('div', { class: 'app-footer-links' },
-      el('nav', { class: 'app-footer-nav', 'aria-label': 'Rechtliches und Projektinformationen' },
-        el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: contentPages.help.title }),
-        el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: contentPages.about.title }),
-        el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: contentPages.imprint.title }),
-        el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: contentPages.privacy.title })
+      el('nav', { class: 'app-footer-nav', 'aria-label': strings.a11y.footerNav },
+        el('a', { href: contentPages.help.path, 'data-app-route': 'help', text: strings.contentLinks.help }),
+        el('a', { href: contentPages.about.path, 'data-app-route': 'about', text: strings.contentLinks.about }),
+        el('a', { href: contentPages.imprint.path, 'data-app-route': 'imprint', text: strings.contentLinks.imprint }),
+        el('a', { href: contentPages.privacy.path, 'data-app-route': 'privacy', text: strings.contentLinks.privacy })
       ),
       coffeeLink(),
       githubLink()
@@ -310,10 +310,10 @@ function coffeeLink(): HTMLAnchorElement {
     href: 'https://www.buymeacoffee.com/Haake',
     target: '_blank',
     rel: 'noopener noreferrer',
-    title: 'Buy me a coffee',
-    'aria-label': 'Buy me a coffee'
+    title: strings.footer.coffee,
+    'aria-label': strings.footer.coffee
   });
-  link.append(coffeeIcon(), el('span', { class: 'bmc-link-label', text: 'Buy me a coffee' }));
+  link.append(coffeeIcon(), el('span', { class: 'bmc-link-label', text: strings.footer.coffee }));
   return link;
 }
 
@@ -340,10 +340,10 @@ function githubLink(): HTMLAnchorElement {
     href: 'https://github.com/ChristianHaake/Feedbackbogen-Generator',
     target: '_blank',
     rel: 'noopener noreferrer',
-    title: 'GitHub Repository',
-    'aria-label': 'GitHub Repository'
+    title: strings.footer.githubAria,
+    'aria-label': strings.footer.githubAria
   });
-  link.append(githubIcon(), el('span', { class: 'github-link-label', text: 'GitHub' }));
+  link.append(githubIcon(), el('span', { class: 'github-link-label', text: strings.footer.github }));
   return link;
 }
 

@@ -28,15 +28,14 @@ export async function loadContentMarkdown(pageId: ContentPageId): Promise<string
 
 export function renderContentPage(container: HTMLElement, pageId: ContentPageId, markdown: string) {
   container.innerHTML = '';
-  const page = contentPages[pageId];
   const article = el('article', { class: 'content-page-card', 'aria-labelledby': 'content-page-title' });
-  const backLink = el('a', { class: 'content-back-link', href: '/', 'data-app-route': 'generator', text: `← Zurück zum ${strings.appTitle}` });
+  const backLink = el('a', { class: 'content-back-link', href: '/', 'data-app-route': 'generator', text: strings.footer.backToApp(strings.appTitle) });
   article.append(backLink);
 
   const nodes = markdownToNodes(markdown);
   const firstHeading = nodes.find((node) => node instanceof HTMLHeadingElement);
   if (firstHeading) firstHeading.id = 'content-page-title';
-  else article.append(el('h1', { id: 'content-page-title', text: page.title }));
+  else article.append(el('h1', { id: 'content-page-title', text: strings.contentLinks[pageId] }));
   nodes.forEach((node) => article.append(node));
 
   container.append(article);

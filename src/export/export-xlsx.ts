@@ -2,6 +2,7 @@ import writeExcelFile from 'write-excel-file/universal';
 import type { Cell, SheetData } from 'write-excel-file/universal';
 
 import { downloadBlob, scaleLabel } from '@/export/export-utils';
+import { strings } from '@/strings';
 import type { ExportRow } from '@/types';
 
 const headerStyle = {
@@ -13,9 +14,16 @@ const headerStyle = {
   wrap: true
 };
 
+// Guard against CSV/spreadsheet formula injection: a cell whose text begins with
+// =, +, -, @ (or a control char) is treated as a formula by Excel/Sheets/LibreOffice.
+// User-authored content is escaped with a leading apostrophe so it stays literal text.
+function sanitizeCellValue(value: string): string {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+}
+
 function bodyCell(value: string, shaded: boolean): Cell {
   return {
-    value,
+    value: sanitizeCellValue(value),
     alignVertical: 'top',
     backgroundColor: shaded ? '#F7F8FA' : undefined,
     wrap: true
@@ -24,7 +32,7 @@ function bodyCell(value: string, shaded: boolean): Cell {
 
 export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
   const data: SheetData = [
-    ['Kategorie', 'Gewichtung', 'Kriterium', 'Skala', 'Bewertung'].map((value) => ({ value, ...headerStyle })),
+    strings.xlsx.headers.map((value) => ({ value, ...headerStyle })),
     ...rows.map((row, index) => {
       const shaded = index % 2 === 1;
       return [
@@ -37,7 +45,7 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
     })
   ];
   return writeExcelFile(data, {
-    sheet: 'Feedbackbogen',
+    sheet: strings.xlsx.sheetName,
     stickyRowsCount: 1,
     orientation: 'landscape',
     columns: [{ width: 28 }, { width: 14 }, { width: 72 }, { width: 40 }, { width: 18 }]
@@ -45,5 +53,5 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
 }
 
 export async function exportXLSX(rows: ExportRow[]) {
-  downloadBlob(await createXLSXBlob(rows), 'bewertungsbogen.xlsx');
+  downloadBlob(await createXLSXBlob(rows), strings.xlsx.fileName);
 }

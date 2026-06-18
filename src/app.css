@@ -1348,7 +1348,10 @@ body {
   .app { height: 100vh; height: 100dvh; }
   .app-header { min-height: 0; padding: var(--space-3); gap: var(--space-2); }
 
-  .header-meta { display: none; } /* local-processing note still shown in the footer */
+  /* Keep the language switcher reachable on mobile; only drop the local-badge
+     (its note is still shown in the footer). */
+  .header-meta { gap: var(--space-2); }
+  .header-meta .local-badge { display: none; }
   .action-bar-inner { padding: var(--space-2) var(--space-3); }
   .divider { display: none; }
   .content-page { padding: var(--space-3); }

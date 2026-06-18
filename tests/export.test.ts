@@ -44,6 +44,21 @@ describe('document exports', () => {
     expect(stylesXml).toContain('FF245DCC');
   });
 
+  it('escapes formula-injection prefixes in XLSX cell values', async () => {
+    const malicious: ExportRow[] = [
+      { categoryId: 'a', category: '=cmd|calc', item: 'Inhalt', scale, itemId: 'm1', number: 1 },
+      { categoryId: 'b', category: '@SUM(1+1)', item: 'Quelle', scale, itemId: 'm2', number: 2 }
+    ];
+    const zip = await JSZip.loadAsync(await (await createXLSXBlob(malicious)).arrayBuffer());
+    const sharedStringsXml = await zip.file('xl/sharedStrings.xml')!.async('text');
+
+    // Risky leading chars are neutralised with a leading apostrophe.
+    expect(sharedStringsXml).toContain("'=cmd|calc");
+    expect(sharedStringsXml).toContain("'@SUM(1+1)");
+    // The bare formula must never appear as the start of a cell string.
+    expect(sharedStringsXml).not.toContain('>=cmd|calc');
+  });
+
   it('creates a DOCX with structured tables, feedback area and footer', async () => {
     const blob = await createDOCXBlob(rows, 'Feedbackbogen', header, footerFields);
     const zip = await JSZip.loadAsync(await blob.arrayBuffer());

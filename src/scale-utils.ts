@@ -1,3 +1,4 @@
+import { strings } from './strings';
 import type { NumericScale, NumericScaleSettings, Scale } from './types';
 
 export function scaleDisplay(scale: Scale): string {
@@ -13,7 +14,7 @@ export function normalizeScaleValue(scale: Scale): string {
     case 'symbol':
       return scale.set.join(' ');
     case 'traffic':
-      return 'Grün / Gelb / Rot';
+      return strings.scales.trafficLabels.join(' / ');
     case 'percent':
       return '0–100%';
   }
@@ -41,7 +42,7 @@ export function scaleOptionLabels(scale: Scale): string[] {
       return out;
     }
     case 'symbol': return scale.set;
-    case 'traffic': return ['Grün', 'Gelb', 'Rot'];
+    case 'traffic': return [...strings.scales.trafficLabels];
     case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
   }
 }

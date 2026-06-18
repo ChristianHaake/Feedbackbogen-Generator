@@ -122,7 +122,31 @@ export const fr = {
     status: 'Messages de statut',
     accordionToggle: 'Basculer la section',
     languageSwitcher: 'Choisir la langue',
-    toolbar: 'Barre d\'outils'
+    toolbar: 'Barre d\'outils',
+    workspace: 'Espace de travail',
+    editorPane: 'Éditeur',
+    previewPane: 'Aperçu avant impression',
+    footerNav: 'Informations légales et sur le projet'
+  },
+  contentLinks: {
+    help: 'Aide',
+    about: 'À propos du projet',
+    imprint: 'Mentions légales',
+    privacy: 'Confidentialité'
+  },
+  footer: {
+    coffee: 'Buy me a coffee',
+    github: 'GitHub',
+    githubAria: 'Dépôt GitHub',
+    backToApp: (app: string) => `← Retour au ${app}`
+  },
+  scales: {
+    trafficLabels: ['Vert', 'Jaune', 'Rouge']
+  },
+  xlsx: {
+    headers: ['Catégorie', 'Pondération', 'Critère', 'Échelle', 'Évaluation'],
+    sheetName: 'Formulaire de feedback',
+    fileName: 'formulaire-d-evaluation.xlsx'
   },
   messages: {
     contentLoadError: 'Les données de contenu n\'ont pas pu être chargées ou validées. Solution de repli activée.',

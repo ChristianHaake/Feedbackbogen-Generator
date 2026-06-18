@@ -122,7 +122,31 @@ export const nl = {
     status: 'Statusmeldingen',
     accordionToggle: 'Sectie in-/uitklappen',
     languageSwitcher: 'Taal kiezen',
-    toolbar: 'Werkbalk'
+    toolbar: 'Werkbalk',
+    workspace: 'Werkruimte',
+    editorPane: 'Editor',
+    previewPane: 'Afdrukvoorbeeld',
+    footerNav: 'Juridische en projectinformatie'
+  },
+  contentLinks: {
+    help: 'Help',
+    about: 'Over het project',
+    imprint: 'Colofon',
+    privacy: 'Privacy'
+  },
+  footer: {
+    coffee: 'Buy me a coffee',
+    github: 'GitHub',
+    githubAria: 'GitHub-repository',
+    backToApp: (app: string) => `← Terug naar ${app}`
+  },
+  scales: {
+    trafficLabels: ['Groen', 'Geel', 'Rood']
+  },
+  xlsx: {
+    headers: ['Categorie', 'Weging', 'Criterium', 'Schaal', 'Beoordeling'],
+    sheetName: 'Feedbackformulier',
+    fileName: 'beoordelingsformulier.xlsx'
   },
   messages: {
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',

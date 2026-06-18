@@ -122,7 +122,31 @@ export const de = {
     status: 'Statusmeldungen',
     accordionToggle: 'Abschnitt umschalten',
     languageSwitcher: 'Sprache auswählen',
-    toolbar: 'Werkzeugleiste'
+    toolbar: 'Werkzeugleiste',
+    workspace: 'Arbeitsbereich',
+    editorPane: 'Editor',
+    previewPane: 'Druckvorschau',
+    footerNav: 'Rechtliches und Projektinformationen'
+  },
+  contentLinks: {
+    help: 'Hilfe',
+    about: 'Über das Projekt',
+    imprint: 'Impressum',
+    privacy: 'Datenschutz'
+  },
+  footer: {
+    coffee: 'Buy me a coffee',
+    github: 'GitHub',
+    githubAria: 'GitHub-Repository',
+    backToApp: (app: string) => `← Zurück zum ${app}`
+  },
+  scales: {
+    trafficLabels: ['Grün', 'Gelb', 'Rot']
+  },
+  xlsx: {
+    headers: ['Kategorie', 'Gewichtung', 'Kriterium', 'Skala', 'Bewertung'],
+    sheetName: 'Feedbackbogen',
+    fileName: 'bewertungsbogen.xlsx'
   },
   messages: {
     contentLoadError: 'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',

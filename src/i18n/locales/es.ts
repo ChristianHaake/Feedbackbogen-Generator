@@ -122,7 +122,31 @@ export const es = {
     status: 'Mensajes de estado',
     accordionToggle: 'Alternar sección',
     languageSwitcher: 'Seleccionar idioma',
-    toolbar: 'Barra de herramientas'
+    toolbar: 'Barra de herramientas',
+    workspace: 'Área de trabajo',
+    editorPane: 'Editor',
+    previewPane: 'Vista previa de impresión',
+    footerNav: 'Información legal y del proyecto'
+  },
+  contentLinks: {
+    help: 'Ayuda',
+    about: 'Sobre el proyecto',
+    imprint: 'Aviso legal',
+    privacy: 'Privacidad'
+  },
+  footer: {
+    coffee: 'Buy me a coffee',
+    github: 'GitHub',
+    githubAria: 'Repositorio de GitHub',
+    backToApp: (app: string) => `← Volver al ${app}`
+  },
+  scales: {
+    trafficLabels: ['Verde', 'Amarillo', 'Rojo']
+  },
+  xlsx: {
+    headers: ['Categoría', 'Ponderación', 'Criterio', 'Escala', 'Valoración'],
+    sheetName: 'Formulario de feedback',
+    fileName: 'formulario-de-evaluacion.xlsx'
   },
   messages: {
     contentLoadError: 'No se pudieron cargar los datos de contenido. Respaldo activado.',

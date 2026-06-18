@@ -122,7 +122,31 @@ export const en = {
     status: 'Status messages',
     accordionToggle: 'Toggle section',
     languageSwitcher: 'Select language',
-    toolbar: 'Toolbar'
+    toolbar: 'Toolbar',
+    workspace: 'Workspace',
+    editorPane: 'Editor',
+    previewPane: 'Print preview',
+    footerNav: 'Legal and project information'
+  },
+  contentLinks: {
+    help: 'Help',
+    about: 'About the project',
+    imprint: 'Imprint',
+    privacy: 'Privacy'
+  },
+  footer: {
+    coffee: 'Buy me a coffee',
+    github: 'GitHub',
+    githubAria: 'GitHub repository',
+    backToApp: (app: string) => `← Back to ${app}`
+  },
+  scales: {
+    trafficLabels: ['Green', 'Yellow', 'Red']
+  },
+  xlsx: {
+    headers: ['Category', 'Weighting', 'Criterion', 'Scale', 'Rating'],
+    sheetName: 'Feedback form',
+    fileName: 'assessment-form.xlsx'
   },
   messages: {
     contentLoadError: 'Content data could not be loaded or validated. Fallback activated.',

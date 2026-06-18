@@ -3,8 +3,6 @@ export const nl = {
   appTagline: 'Feedbackformulieren voor toekomstgerichte beoordelingsformaten',
   localProcessing: 'Lokale verwerking in browser',
   localProcessingHint: 'Alle invoer blijft lokaal in uw browser. Geen serveroverdracht.',
-  previewLive: 'Live',
-  previewLiveNote: 'Lokaal gerenderd in browser',
   footerNote: 'Alle gegevens blijven lokaal in de browser. Geen serveroverdracht.',
   watermark: 'Gemaakt met de Feedback Formulier Generator op fbg.haak3.de',
   toolbar: {

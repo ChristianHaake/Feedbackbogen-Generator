@@ -3,8 +3,6 @@ export const fr = {
   appTagline: 'Formulaires de feedback pour des formats d\'évaluation modernes',
   localProcessing: 'Traitement local',
   localProcessingHint: 'Toutes les saisies restent locales dans votre navigateur. Aucune donnée n\'est envoyée au serveur.',
-  previewLive: 'En direct',
-  previewLiveNote: 'Rendu localement dans le navigateur',
   footerNote: 'Toutes les données restent localement dans le navigateur. Aucune transmission au serveur.',
   watermark: 'Créé avec le Générateur de Feedback sur fbg.haak3.de',
   toolbar: {

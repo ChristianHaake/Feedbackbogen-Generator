@@ -1129,27 +1129,6 @@ body {
   overflow-y: auto;
   display: flex; flex-direction: column;
 }
-.preview-controls {
-  flex-shrink: 0; padding: var(--space-2) var(--space-4);
-  background: rgba(255,255,255,0.65); backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 5;
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
-}
-.preview-live {
-  display: inline-flex; align-items: center; gap: 7px;
-  color: var(--text-muted); font-size: 0.74rem;
-}
-.preview-live__dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--success); flex: 0 0 auto;
-}
-.preview-live__label {
-  color: var(--success); font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.7rem;
-}
-.preview-live__note { white-space: nowrap; }
-@media (max-width: 600px) { .preview-live__note { display: none; } }
 .mode-switch {
   display: inline-flex; border: 1px solid var(--border);
   border-radius: 8px; overflow: hidden; background: #fff;
@@ -1528,7 +1507,7 @@ body {
   @page { size: A4; margin: 0; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .onboarding-hint, .editor-pane, .preview-controls, .app-footer, .content-page, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
+  .app-header, .action-bar, .onboarding-hint, .editor-pane, .app-footer, .content-page, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
   .workspace { display: block; }
   .preview-pane { background: white; overflow: visible; }
   .preview-pane-inner { padding: 0; }

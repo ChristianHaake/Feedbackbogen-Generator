@@ -3,8 +3,6 @@ export const en = {
   appTagline: 'Feedback forms for future-oriented assessment formats',
   localProcessing: 'Local processing in browser',
   localProcessingHint: 'All inputs remain locally in your browser. No server transmission.',
-  previewLive: 'Live',
-  previewLiveNote: 'Rendered locally in browser',
   footerNote: 'All data remains locally in the browser. No server transmission.',
   watermark: 'Created with Feedback Form Generator at fbg.haak3.de',
   toolbar: {

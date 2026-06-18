@@ -156,6 +156,24 @@ body {
   .onboarding-hint__intro { display: none; }
 }
 
+/* ─────── Floating onboarding (How it works): Pill oben überm Preview ─────── */
+.onboarding-hint--floating {
+  position: sticky;
+  top: var(--space-3);
+  z-index: 6;
+  align-self: center;
+  max-width: calc(100% - 2 * var(--space-4));
+  padding: 7px 8px 7px 16px;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  font-size: 0.8rem;
+}
+.onboarding-hint--floating .onboarding-hint__steps { flex-wrap: nowrap; }
+
 /* ─────── App header (identity) ─────── */
 .app-header {
   position: relative;
@@ -165,7 +183,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  min-height: 76px;
+  min-height: 84px;
   padding: 12px clamp(16px, 4vw, 64px);
   background: rgb(255 255 255 / 90%);
   border-bottom: 1px solid var(--border);
@@ -175,7 +193,7 @@ body {
 
 .brand__logo-wide {
   display: block;
-  height: 44px;
+  height: 60px;
   width: auto;
   object-fit: contain;
   border-radius: 8px;
@@ -1397,6 +1415,7 @@ body {
   .header-meta .local-badge { display: none; }
   .action-bar-inner { padding: var(--space-2) var(--space-3); }
   .action-bar--floating { display: none; } /* mobile uses the export tab's action buttons */
+  .onboarding-hint--floating { display: none; } /* mobile preview tab stays uncluttered */
   .divider { display: none; }
   .content-page { padding: var(--space-3); }
   .content-page-card { padding: var(--space-5) var(--space-4); }

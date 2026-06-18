@@ -105,7 +105,7 @@ export function renderLayout(): HTMLElement {
     )
   );
 
-  const onboardingHint = el('aside', { id: 'onboarding-hint', class: 'onboarding-hint', 'aria-label': strings.onboarding.intro, hidden: 'true' },
+  const onboardingHint = el('aside', { id: 'onboarding-hint', class: 'onboarding-hint onboarding-hint--floating', 'aria-label': strings.onboarding.intro, hidden: 'true' },
     el('span', { class: 'onboarding-hint__intro', text: strings.onboarding.intro }),
     el('ol', { class: 'onboarding-hint__steps' },
       ...strings.onboarding.steps.map((step) => el('li', { text: step }))
@@ -165,6 +165,7 @@ export function renderLayout(): HTMLElement {
           modeTab('checklist', strings.modes.checklist, false)
         )
       ),
+      onboardingHint,
       el('div', { class: 'preview-pane-inner' },
         el('div', { id: 'a4-page', class: 'a4-page' })
       ),
@@ -210,7 +211,7 @@ export function renderLayout(): HTMLElement {
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
   const toast = el('div', { id: 'app-toast', class: 'app-toast', role: 'status', 'aria-live': 'polite', hidden: 'true' });
 
-  app.append(header, onboardingHint, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
+  app.append(header, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
   return app;
 }
 

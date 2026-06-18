@@ -13,10 +13,10 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   test('Document Title & Header Fields (Kopfdaten)', async ({ page }) => {
-    // Change Document Title Mode to custom
-    const titleSelect = page.locator('#document-title-mode');
-    await expect(titleSelect).toBeVisible();
-    await titleSelect.selectOption('custom');
+    // Change Document Title Mode to custom (segmented pill)
+    const titleCustomOpt = page.locator('[data-title-mode="custom"]');
+    await expect(titleCustomOpt).toBeVisible();
+    await titleCustomOpt.click();
 
     // Enter a custom title
     const customTitleInput = page.locator('#document-title-custom');
@@ -279,9 +279,8 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   test('Undo / Redo & Toolbar actions', async ({ page }) => {
-    // Action 1: Fill document title
-    const titleSelect = page.locator('#document-title-mode');
-    await titleSelect.selectOption('custom');
+    // Action 1: Fill document title (segmented pill)
+    await page.locator('[data-title-mode="custom"]').click();
     const customTitleInput = page.locator('#document-title-custom');
     await customTitleInput.fill('Undo Titel Test');
     await customTitleInput.blur();

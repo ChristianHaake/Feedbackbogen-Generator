@@ -126,8 +126,10 @@ export function renderLayout(): HTMLElement {
       mobileTab('export', strings.labels.mobileExport, false)
     ),
     el('aside', { class: 'editor-pane', 'aria-label': strings.a11y.editorPane, 'data-mobile-panel': 'edit' },
-      editorSection(strings.kopfdaten.documentTitleSection, 'title', el('div', { id: 'document-title-form', class: 'document-title-fields' })),
-      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', 'kopfdaten', el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })),
+      editorSectionCounted(strings.kopfdaten.title, 'header-field-count', 'kopfdaten',
+        el('div', { id: 'document-title-form', class: 'document-title-fields' }),
+        el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })
+      ),
       editorSection(strings.columns.selected, 'selected',
         el('div', { class: 'selected-head' },
           el('div', { id: 'selected-counter', class: 'selected-counter' }),
@@ -373,23 +375,29 @@ export function renderDocumentTitleForm(
   handlers: Pick<RenderHandlers, 'onDocumentTitleModeChange' | 'onDocumentTitleCustomChange'>
 ) {
   container.innerHTML = '';
-  const selectId = 'document-title-mode';
-  const select = el('select', {
-    id: selectId,
-    class: 'default-scale-select',
-    'aria-label': strings.kopfdaten.documentTitle
-  }) as HTMLSelectElement;
   const options: { value: DocumentTitleMode; label: string }[] = [
     { value: 'feedbackbogen', label: strings.kopfdaten.titleFeedbackbogen },
     { value: 'bewertungsbogen', label: strings.kopfdaten.titleBewertungsbogen },
     { value: 'custom', label: strings.kopfdaten.titleCustom }
   ];
-  options.forEach(({ value, label }) => select.append(el('option', { value, text: label })));
-  select.value = documentTitle.mode;
-  select.addEventListener('change', () => handlers.onDocumentTitleModeChange(select.value as DocumentTitleMode));
+  const segment = el('div', { id: 'document-title-mode', class: 'title-segment', role: 'radiogroup', 'aria-label': strings.kopfdaten.documentTitle });
+  options.forEach(({ value, label }) => {
+    const active = documentTitle.mode === value;
+    const opt = el('button', {
+      type: 'button',
+      class: `title-segment__opt${active ? ' is-active' : ''}`,
+      role: 'radio',
+      'aria-checked': active ? 'true' : 'false',
+      'data-title-mode': value,
+      text: label
+    });
+    opt.addEventListener('click', () => handlers.onDocumentTitleModeChange(value));
+    segment.append(opt);
+  });
 
   container.append(el('div', { class: 'kd-field document-title-field' },
-    select
+    el('span', { class: 'small-label', text: strings.kopfdaten.documentTitle }),
+    segment
   ));
 
   if (documentTitle.mode === 'custom') {

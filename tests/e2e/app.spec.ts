@@ -254,12 +254,12 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     const previewFooter = page.locator('.a4-footer-fields .a4-footer-field');
     await expect(previewFooter).toHaveCount(3); // Date, Signature, Grade
 
-    // Disable Signature footer field
-    const signatureCheckbox = page.locator('#footer-signature');
-    await expect(signatureCheckbox).toBeVisible();
-    await expect(signatureCheckbox).toBeChecked();
-    await signatureCheckbox.click();
-    await expect(signatureCheckbox).not.toBeChecked();
+    // Disable Signature footer field (toggle chip)
+    const signatureChip = page.locator('#footer-signature');
+    await expect(signatureChip).toBeVisible();
+    await expect(signatureChip).toHaveAttribute('aria-checked', 'true');
+    await signatureChip.click();
+    await expect(signatureChip).toHaveAttribute('aria-checked', 'false');
 
     // Verify Signature is removed from preview
     await expect(previewFooter).toHaveCount(2);

@@ -521,16 +521,24 @@ export function renderFooterFields(
 ) {
   container.innerHTML = '';
   footerFieldOptions().forEach(({ id, label }) => {
-    const inputId = `footer-${id}`;
-    const input = el('input', {
-      type: 'checkbox',
-      id: inputId,
-      class: 'item-checkbox',
-      checked: footerFields[id] ? 'true' : undefined
-    }) as HTMLInputElement;
-    input.checked = footerFields[id];
-    input.addEventListener('change', () => handlers.onFooterFieldToggle(id, input.checked));
-    container.append(el('label', { class: 'footer-field-option', for: inputId }, input, el('span', { text: label })));
+    const active = footerFields[id];
+    const chip = el('button', {
+      type: 'button',
+      id: `footer-${id}`,
+      class: `footer-chip${active ? ' is-active' : ''}`,
+      role: 'switch',
+      'aria-checked': active ? 'true' : 'false',
+      'data-footer-field': id
+    }, el('span', { text: label }));
+    // Footer toggles don't re-render the editor (to preserve focus/scroll), so
+    // reflect the new state on the chip itself, like a native checkbox would.
+    chip.addEventListener('click', () => {
+      const next = chip.getAttribute('aria-checked') !== 'true';
+      chip.setAttribute('aria-checked', next ? 'true' : 'false');
+      chip.classList.toggle('is-active', next);
+      handlers.onFooterFieldToggle(id, next);
+    });
+    container.append(chip);
   });
 }
 

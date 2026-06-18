@@ -83,7 +83,7 @@ export function renderLayout(): HTMLElement {
 
   const actionBar = el(
     'div',
-    { class: 'action-bar', role: 'toolbar', 'aria-label': strings.a11y.toolbar },
+    { class: 'action-bar action-bar--floating', role: 'toolbar', 'aria-label': strings.a11y.toolbar },
     el('div', { class: 'action-bar-inner' },
       el('div', { class: 'action-group' },
         toolbarButton('download', strings.toolbar.saveConfig, 'config-save', { 'aria-keyshortcuts': 'Alt+S' }),
@@ -92,6 +92,7 @@ export function renderLayout(): HTMLElement {
         toolbarButton('redo', strings.toolbar.redo, 'history-redo', { 'aria-keyshortcuts': 'Control+Shift+Z Meta+Shift+Z' }),
         toolbarButton('trash', strings.toolbar.reset, 'config-reset')
       ),
+      el('span', { class: 'divider', 'aria-hidden': 'true' }),
       el('div', { class: 'action-group' },
         actionMenu('export-menu', strings.toolbar.exportNow, 'icon-download', [
           menuAction('pdf-print', strings.toolbar.exportPdfPrint, 'icon-pdf'),
@@ -166,7 +167,8 @@ export function renderLayout(): HTMLElement {
       ),
       el('div', { class: 'preview-pane-inner' },
         el('div', { id: 'a4-page', class: 'a4-page' })
-      )
+      ),
+      actionBar
     ),
     el('section', { class: 'mobile-export-pane', 'aria-label': strings.columns.export, 'data-mobile-panel': 'export' },
       editorSection(strings.columns.export, undefined,
@@ -208,7 +210,7 @@ export function renderLayout(): HTMLElement {
   const live = el('div', { id: 'aria-live', 'aria-live': 'polite', 'aria-atomic': 'true', class: 'sr-only', role: 'status', 'aria-label': strings.a11y.status });
   const toast = el('div', { id: 'app-toast', class: 'app-toast', role: 'status', 'aria-live': 'polite', hidden: 'true' });
 
-  app.append(header, actionBar, onboardingHint, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
+  app.append(header, onboardingHint, configMessage, workspace, contentPage, appFooter, productFormatModal, resetConfirmModal, live, toast);
   return app;
 }
 

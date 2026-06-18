@@ -208,6 +208,48 @@ body {
 .divider { width: 1px; background: var(--border); height: 24px; flex-shrink: 0; }
 .export-controls { display: inline-flex; gap: var(--space-2); align-items: center; }
 
+/* ─────── Floating toolbar (Variante A): schwebende Pill überm Preview ─────── */
+.action-bar--floating {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: 6;
+  align-self: center;
+  margin-top: auto;
+  background: transparent;
+  border: none;
+  pointer-events: none; /* lets clicks through the transparent gutter; pill re-enables */
+}
+.action-bar--floating .action-bar-inner {
+  pointer-events: auto;
+  padding: 6px;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: center;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+.action-bar--floating .action-group { flex-wrap: nowrap; gap: 4px; }
+.action-bar--floating .divider { height: 20px; }
+/* secondary actions → round icon buttons */
+.action-bar--floating .action-group:first-child .btn {
+  width: 36px; height: 36px; min-height: 36px; padding: 0;
+  border-radius: 50%; border-color: transparent; background: transparent;
+}
+.action-bar--floating .action-group:first-child .btn:hover { background: var(--surface-subtle); }
+.action-bar--floating .action-group:first-child .btn-label { display: none; }
+/* Export → primary pill */
+.action-bar--floating #export-menu-trigger {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+  border-radius: 999px; min-height: 36px;
+}
+.action-bar--floating #export-menu-trigger:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.action-bar--floating #export-menu-trigger::after { border-top-color: #fff; }
+/* dropdown opens upward (bar sits at bottom) */
+.action-bar--floating .menu-panel { top: auto; bottom: calc(100% + 6px); }
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 0 14px; min-height: 40px;
@@ -1353,6 +1395,7 @@ body {
   .header-meta { gap: var(--space-2); }
   .header-meta .local-badge { display: none; }
   .action-bar-inner { padding: var(--space-2) var(--space-3); }
+  .action-bar--floating { display: none; } /* mobile uses the export tab's action buttons */
   .divider { display: none; }
   .content-page { padding: var(--space-3); }
   .content-page-card { padding: var(--space-5) var(--space-4); }

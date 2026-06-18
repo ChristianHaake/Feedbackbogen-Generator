@@ -3,10 +3,12 @@ import { test, expect } from '@playwright/test';
 test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
 
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage to ensure a clean state and suppress onboarding hint
+    // Clear localStorage to ensure a clean state and suppress onboarding hint.
+    // Pin the language to German so assertions don't depend on the browser locale.
     await page.addInitScript(() => {
       window.localStorage.clear();
       window.localStorage.setItem('bbk:onboarding-dismissed', '1');
+      window.localStorage.setItem('bbk:lang', 'de');
     });
     
     await page.goto('/');

@@ -2,8 +2,10 @@ export const en = {
   appTitle: 'Feedback Form Generator',
   appTagline: 'Feedback forms for future-oriented assessment formats',
   localProcessing: 'Local processing in browser',
-  localProcessingHint: 'All inputs remain locally in your browser. No server transmission.',
-  footerNote: 'All data remains locally in the browser. No server transmission.',
+  localProcessingHint:
+    'All inputs remain locally in your browser. No server transmission.',
+  footerNote:
+    'All data remains locally in the browser. No server transmission.',
   watermark: 'Created with Feedback Form Generator at fbg.haak3.de',
   toolbar: {
     saveConfig: 'Save Config',
@@ -12,7 +14,8 @@ export const en = {
     redo: 'Redo',
     reset: 'Reset',
     resetConfirmTitle: 'Reset configuration?',
-    resetConfirmBody: 'All current changes will be removed. This action can be undone afterwards.',
+    resetConfirmBody:
+      'All current changes will be removed. This action can be undone afterwards.',
     resetConfirmAction: 'Reset now',
     cancel: 'Cancel',
     exportNow: 'Export',
@@ -20,17 +23,17 @@ export const en = {
     exportPdfFillable: 'PDF (Form)',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
-    exportOdt: 'ODT'
+    exportOdt: 'ODT',
   },
   keyboard: {
     save: 'Alt+S: Save',
-    export: 'Alt+E: Export'
+    export: 'Alt+E: Export',
   },
   columns: {
     selected: 'Selected',
     categories: 'Assessment Criteria',
     productFormats: 'Product Formats',
-    export: 'Export'
+    export: 'Export',
   },
   kopfdaten: {
     documentTitleSection: 'Title',
@@ -51,11 +54,11 @@ export const en = {
     fallbackField: 'Field',
     footerTitle: 'Footer',
     signature: 'Signature',
-    grade: 'Grade'
+    grade: 'Grade',
   },
   modes: {
     full: 'With Scales',
-    checklist: 'Checklist Only'
+    checklist: 'Checklist Only',
   },
   labels: {
     remove: 'Remove',
@@ -85,11 +88,15 @@ export const en = {
     removeHeaderField: 'Remove Header Field',
     searchCriteria: 'Search criteria',
     searchPlaceholder: 'Search…',
+    searchEmpty: 'No matching criteria found.',
     clearSelection: 'Clear selection',
     reorderSelection: 'Change order via drag-and-drop or arrow keys',
-    dragCategory: (category: string) => `Move category: ${category}. Use up/down arrow keys.`,
-    dragCriterion: (criterion: string) => `Move criterion: ${criterion}. Use up/down arrow keys.`,
-    dragHeaderField: (field: string) => `Move header field: ${field}. Use up/down arrow keys.`,
+    dragCategory: (category: string) =>
+      `Move category: ${category}. Use up/down arrow keys.`,
+    dragCriterion: (criterion: string) =>
+      `Move criterion: ${criterion}. Use up/down arrow keys.`,
+    dragHeaderField: (field: string) =>
+      `Move header field: ${field}. Use up/down arrow keys.`,
     selectCategory: 'Select Category',
     clearCategory: 'Deselect Category',
     chooseProductFormats: 'Select Formats',
@@ -97,6 +104,9 @@ export const en = {
     productFormatModalTitle: 'Select Product Formats',
     productFormatSearch: 'Search formats',
     productFormatSearchPlaceholder: 'Search format or criterion...',
+    productFormatCriteriaCount: (count: number) =>
+      `${count} ${count === 1 ? 'criterion' : 'criteria'}`,
+    productFormatSearchEmpty: 'No matching formats found.',
     addProductFormat: 'Add',
     removeProductFormat: 'Remove',
     productFormatDone: 'Done',
@@ -110,11 +120,13 @@ export const en = {
     mobileEdit: 'Edit',
     mobilePreview: 'Preview',
     mobileExport: 'Export',
-    selectedCount: (n: number) => `${n} ${n === 1 ? 'criterion' : 'criteria'} selected`,
+    selectedCount: (n: number) =>
+      `${n} ${n === 1 ? 'criterion' : 'criteria'} selected`,
     sectionCountSelected: (n: number) => `${n} selected`,
-    sectionCountFormats: (n: number) => `${n} ${n === 1 ? 'format' : 'formats'}`,
+    sectionCountFormats: (n: number) =>
+      `${n} ${n === 1 ? 'format' : 'formats'}`,
     sectionCountFields: (n: number) => `${n} ${n === 1 ? 'field' : 'fields'}`,
-    sectionCountActive: (n: number) => `${n} active`
+    sectionCountActive: (n: number) => `${n} active`,
   },
   a11y: {
     status: 'Status messages',
@@ -124,38 +136,56 @@ export const en = {
     workspace: 'Workspace',
     editorPane: 'Editor',
     previewPane: 'Print preview',
-    footerNav: 'Legal and project information'
+    footerNav: 'Legal and project information',
   },
   contentLinks: {
     help: 'Help',
     about: 'About the project',
     imprint: 'Imprint',
-    privacy: 'Privacy'
+    privacy: 'Privacy',
   },
   footer: {
     coffee: 'Buy me a coffee',
     github: 'GitHub',
     githubAria: 'GitHub repository',
-    backToApp: (app: string) => `← Back to ${app}`
+    backToApp: (app: string) => `← Back to ${app}`,
   },
   scales: {
-    trafficLabels: ['Green', 'Yellow', 'Red']
+    trafficLabels: ['Green', 'Yellow', 'Red'],
   },
   xlsx: {
     headers: ['Category', 'Weighting', 'Criterion', 'Scale', 'Rating'],
     sheetName: 'Feedback form',
-    fileName: 'assessment-form.xlsx'
+    fileName: 'assessment-form.xlsx',
+  },
+  documentExport: {
+    criterion: 'Criterion',
+    checklistDone: 'Done',
+    rating: 'Rating',
+    fileNames: {
+      pdfPrint: 'assessment-form-print.pdf',
+      pdfFillable: 'assessment-form-fillable.pdf',
+      docx: 'assessment-form.docx',
+      odt: 'assessment-form.odt',
+    },
   },
   messages: {
-    contentLoadError: 'Content data could not be loaded or validated. Fallback activated.',
+    contentLoadError:
+      'Content data could not be loaded or validated. Fallback activated.',
+    contentPageLoading: 'Loading content...',
+    contentPageLoadError: 'The content could not be loaded.',
     saved: 'Configuration saved.',
     loaded: 'Configuration loaded.',
     imported: 'JSON imported.',
     importError: 'Could not import JSON. Please check the file.',
     importInvalidJson: 'The file does not contain valid JSON.',
     importTooLarge: 'The file is too large for a feedback form configuration.',
-    importInvalidShape: 'The file does not contain a valid feedback form configuration.',
-    importMissingSelection: 'The config is incomplete: "selectedItems" must be a list.',
+    importTooComplex:
+      'The file contains too many or too long entries for a feedback form configuration.',
+    importInvalidShape:
+      'The file does not contain a valid feedback form configuration.',
+    importMissingSelection:
+      'The config is incomplete: "selectedItems" must be a list.',
     importInvalidVersion: 'The config does not contain a valid schema version.',
     importUnsupportedVersion: (found: number, supported: number) =>
       `Config version ${found} is not supported. Supported is version ${supported}.`,
@@ -169,7 +199,8 @@ export const en = {
     exported: 'Export started...',
     exporting: (label: string) => `${label} is being created …`,
     exportSuccess: (label: string) => `${label} was created.`,
-    exportError: (label: string) => `${label} could not be created. Please try again.`,
+    exportError: (label: string) =>
+      `${label} could not be created. Please try again.`,
     customItemAdded: 'Custom criterion added.',
     bulkAdded: (count: number) => `${count} criteria added.`,
     customItemRemoved: 'Custom criterion removed.',
@@ -180,12 +211,12 @@ export const en = {
     headerFieldRemoved: 'Header field removed.',
     headerFieldReordered: 'Header field was moved.',
     productFormatAdded: 'Product format added.',
-    productFormatRemoved: 'Product format removed.'
+    productFormatRemoved: 'Product format removed.',
   },
   onboarding: {
     intro: 'How it works:',
     steps: ['Set header data', 'Select criteria', 'Add formats', 'Export'],
-    dismiss: 'Dismiss'
+    dismiss: 'Dismiss',
   },
   history: {
     generic: 'Change',
@@ -207,6 +238,6 @@ export const en = {
     headerFieldReordered: 'Header field moved',
     scaleChanged: 'Scale changed',
     reset: 'Reset',
-    configLoaded: 'Configuration loaded'
-  }
+    configLoaded: 'Configuration loaded',
+  },
 };

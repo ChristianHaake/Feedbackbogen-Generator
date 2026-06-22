@@ -2,8 +2,10 @@ export const es = {
   appTitle: 'Generador de Feedback',
   appTagline: 'Formularios de feedback para formatos de evaluación modernos',
   localProcessing: 'Procesamiento local en el navegador',
-  localProcessingHint: 'Todas las entradas permanecen localmente en su navegador. Sin transmisión al servidor.',
-  footerNote: 'Todos los datos permanecen localmente en el navegador. Sin transmisión al servidor.',
+  localProcessingHint:
+    'Todas las entradas permanecen localmente en su navegador. Sin transmisión al servidor.',
+  footerNote:
+    'Todos los datos permanecen localmente en el navegador. Sin transmisión al servidor.',
   watermark: 'Creado con el Generador de Feedback en fbg.haak3.de',
   toolbar: {
     saveConfig: 'Guardar',
@@ -12,7 +14,8 @@ export const es = {
     redo: 'Rehacer',
     reset: 'Restablecer',
     resetConfirmTitle: '¿Restablecer configuración?',
-    resetConfirmBody: 'Se eliminarán todos los cambios actuales. Esta acción se puede deshacer después.',
+    resetConfirmBody:
+      'Se eliminarán todos los cambios actuales. Esta acción se puede deshacer después.',
     resetConfirmAction: 'Restablecer ahora',
     cancel: 'Cancelar',
     exportNow: 'Exportar',
@@ -20,17 +23,17 @@ export const es = {
     exportPdfFillable: 'PDF (Formulario)',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
-    exportOdt: 'ODT'
+    exportOdt: 'ODT',
   },
   keyboard: {
     save: 'Alt+S: Guardar',
-    export: 'Alt+E: Exportar'
+    export: 'Alt+E: Exportar',
   },
   columns: {
     selected: 'Seleccionado',
     categories: 'Criterios de evaluación',
     productFormats: 'Formatos de producto',
-    export: 'Exportación'
+    export: 'Exportación',
   },
   kopfdaten: {
     documentTitleSection: 'Título',
@@ -51,11 +54,11 @@ export const es = {
     fallbackField: 'Campo',
     footerTitle: 'Pie de página',
     signature: 'Firma',
-    grade: 'Nota'
+    grade: 'Nota',
   },
   modes: {
     full: 'Con escalas',
-    checklist: 'Solo lista de verificación'
+    checklist: 'Solo lista de verificación',
   },
   labels: {
     remove: 'Eliminar',
@@ -67,7 +70,8 @@ export const es = {
     scaleMaxSteps: (steps: number) => `máx. ${steps} niveles`,
     add: 'Añadir',
     defaultScale: 'Escala por defecto',
-    categoryScaleHint: 'Esta escala se aplica a todos los criterios de esta categoría.',
+    categoryScaleHint:
+      'Esta escala se aplica a todos los criterios de esta categoría.',
     defaultScaleHint: 'Por defecto para categorías sin escala propia.',
     addCustomItem: 'Añadir criterio personalizado',
     customItemPlaceholder: 'Criterio personalizado…',
@@ -81,15 +85,20 @@ export const es = {
     addCategoryPlaceholder: 'Nueva categoría…',
     removeCategory: 'Eliminar categoría',
     categoryWeight: 'Ponderación',
-    weightSumWarn: (sum: number) => `Suma de ponderaciones: ${sum} % (no 100 %).`,
+    weightSumWarn: (sum: number) =>
+      `Suma de ponderaciones: ${sum} % (no 100 %).`,
     removeHeaderField: 'Eliminar campo',
     searchCriteria: 'Buscar criterios',
     searchPlaceholder: 'Buscar…',
+    searchEmpty: 'No se encontraron criterios coincidentes.',
     clearSelection: 'Vaciar selección',
     reorderSelection: 'Cambiar el orden arrastrando o con las flechas',
-    dragCategory: (category: string) => `Mover categoría: ${category}. Usa las flechas arriba/abajo.`,
-    dragCriterion: (criterion: string) => `Mover criterio: ${criterion}. Usa las flechas arriba/abajo.`,
-    dragHeaderField: (field: string) => `Mover campo: ${field}. Usa las flechas arriba/abajo.`,
+    dragCategory: (category: string) =>
+      `Mover categoría: ${category}. Usa las flechas arriba/abajo.`,
+    dragCriterion: (criterion: string) =>
+      `Mover criterio: ${criterion}. Usa las flechas arriba/abajo.`,
+    dragHeaderField: (field: string) =>
+      `Mover campo: ${field}. Usa las flechas arriba/abajo.`,
     selectCategory: 'Seleccionar categoría',
     clearCategory: 'Deseleccionar categoría',
     chooseProductFormats: 'Elegir formatos',
@@ -97,24 +106,31 @@ export const es = {
     productFormatModalTitle: 'Seleccionar formatos',
     productFormatSearch: 'Buscar formatos',
     productFormatSearchPlaceholder: 'Buscar formato o criterio...',
+    productFormatCriteriaCount: (count: number) =>
+      `${count} ${count === 1 ? 'criterio' : 'criterios'}`,
+    productFormatSearchEmpty: 'No se encontraron formatos coincidentes.',
     addProductFormat: 'Añadir',
     removeProductFormat: 'Eliminar',
     productFormatDone: 'Hecho',
     productFormatSelectedCount: (count: number) =>
-      count === 1 ? '1 formato seleccionado' : `${count} formatos seleccionados`,
+      count === 1
+        ? '1 formato seleccionado'
+        : `${count} formatos seleccionados`,
     close: 'Cerrar',
     previewMode: 'Vista',
-    previewEmpty: 'Aún no se han seleccionado criterios — selecciona a la izquierda.',
+    previewEmpty:
+      'Aún no se han seleccionado criterios — selecciona a la izquierda.',
     selectedEmpty: 'Aún no se han seleccionado criterios.',
     moreActions: 'Más acciones',
     mobileEdit: 'Editar',
     mobilePreview: 'Vista previa',
     mobileExport: 'Exportar',
-    selectedCount: (n: number) => `${n} criterio${n === 1 ? '' : 's'} seleccionado${n === 1 ? '' : 's'}`,
+    selectedCount: (n: number) =>
+      `${n} criterio${n === 1 ? '' : 's'} seleccionado${n === 1 ? '' : 's'}`,
     sectionCountSelected: (n: number) => `${n} seleccionado(s)`,
     sectionCountFormats: (n: number) => `${n} formato${n === 1 ? '' : 's'}`,
     sectionCountFields: (n: number) => `${n} campo${n === 1 ? '' : 's'}`,
-    sectionCountActive: (n: number) => `${n} activo(s)`
+    sectionCountActive: (n: number) => `${n} activo(s)`,
   },
   a11y: {
     status: 'Mensajes de estado',
@@ -124,39 +140,57 @@ export const es = {
     workspace: 'Área de trabajo',
     editorPane: 'Editor',
     previewPane: 'Vista previa de impresión',
-    footerNav: 'Información legal y del proyecto'
+    footerNav: 'Información legal y del proyecto',
   },
   contentLinks: {
     help: 'Ayuda',
     about: 'Sobre el proyecto',
     imprint: 'Aviso legal',
-    privacy: 'Privacidad'
+    privacy: 'Privacidad',
   },
   footer: {
     coffee: 'Buy me a coffee',
     github: 'GitHub',
     githubAria: 'Repositorio de GitHub',
-    backToApp: (app: string) => `← Volver al ${app}`
+    backToApp: (app: string) => `← Volver al ${app}`,
   },
   scales: {
-    trafficLabels: ['Verde', 'Amarillo', 'Rojo']
+    trafficLabels: ['Verde', 'Amarillo', 'Rojo'],
   },
   xlsx: {
     headers: ['Categoría', 'Ponderación', 'Criterio', 'Escala', 'Valoración'],
     sheetName: 'Formulario de feedback',
-    fileName: 'formulario-de-evaluacion.xlsx'
+    fileName: 'formulario-de-evaluacion.xlsx',
+  },
+  documentExport: {
+    criterion: 'Criterio',
+    checklistDone: 'Completado',
+    rating: 'Valoración',
+    fileNames: {
+      pdfPrint: 'formulario-de-evaluacion-impresion.pdf',
+      pdfFillable: 'formulario-de-evaluacion-rellenable.pdf',
+      docx: 'formulario-de-evaluacion.docx',
+      odt: 'formulario-de-evaluacion.odt',
+    },
   },
   messages: {
-    contentLoadError: 'No se pudieron cargar los datos de contenido. Respaldo activado.',
+    contentLoadError:
+      'No se pudieron cargar los datos de contenido. Respaldo activado.',
+    contentPageLoading: 'Cargando contenido...',
+    contentPageLoadError: 'No se pudo cargar el contenido.',
     saved: 'Configuración guardada.',
     loaded: 'Configuración cargada.',
     imported: 'JSON importado.',
     importError: 'No se pudo importar el JSON. Por favor revise el archivo.',
     importInvalidJson: 'El archivo no contiene un JSON válido.',
     importTooLarge: 'El archivo es demasiado grande.',
+    importTooComplex:
+      'El archivo contiene demasiadas entradas o entradas demasiado largas.',
     importInvalidShape: 'El archivo no contiene una configuración válida.',
-    importMissingSelection: 'La configuración está incompleta: "selectedItems" debe ser una lista.',
-    importInvalidVersion: 'La configuración no contiene una versión de esquema válida.',
+    importMissingSelection:
+      'La configuración está incompleta: "selectedItems" debe ser una lista.',
+    importInvalidVersion:
+      'La configuración no contiene una versión de esquema válida.',
     importUnsupportedVersion: (found: number, supported: number) =>
       `La versión ${found} no está soportada. La versión soportada es ${supported}.`,
     resetDone: 'La configuración se ha restablecido.',
@@ -169,7 +203,8 @@ export const es = {
     exported: 'Exportación iniciada...',
     exporting: (label: string) => `Creando ${label} …`,
     exportSuccess: (label: string) => `${label} ha sido creado.`,
-    exportError: (label: string) => `${label} no pudo ser creado. Por favor, inténtelo de nuevo.`,
+    exportError: (label: string) =>
+      `${label} no pudo ser creado. Por favor, inténtelo de nuevo.`,
     customItemAdded: 'Criterio personalizado añadido.',
     bulkAdded: (count: number) => `${count} criterios añadidos.`,
     customItemRemoved: 'Criterio personalizado eliminado.',
@@ -180,12 +215,17 @@ export const es = {
     headerFieldRemoved: 'Campo de cabecera eliminado.',
     headerFieldReordered: 'Campo de cabecera movido.',
     productFormatAdded: 'Formato de producto añadido.',
-    productFormatRemoved: 'Formato de producto eliminado.'
+    productFormatRemoved: 'Formato de producto eliminado.',
   },
   onboarding: {
     intro: 'Cómo funciona:',
-    steps: ['Definir cabecera', 'Seleccionar criterios', 'Añadir formatos', 'Exportar'],
-    dismiss: 'Ocultar indicación'
+    steps: [
+      'Definir cabecera',
+      'Seleccionar criterios',
+      'Añadir formatos',
+      'Exportar',
+    ],
+    dismiss: 'Ocultar indicación',
   },
   history: {
     generic: 'Modificación',
@@ -207,6 +247,6 @@ export const es = {
     headerFieldReordered: 'Campo de cabecera movido',
     scaleChanged: 'Escala modificada',
     reset: 'Restablecimiento',
-    configLoaded: 'Configuración cargada'
-  }
+    configLoaded: 'Configuración cargada',
+  },
 };

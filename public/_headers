@@ -11,5 +11,23 @@
 /
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 
+/:page
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/content/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/registerSW.js
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/workbox-*.js
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable

@@ -2,8 +2,10 @@ export const nl = {
   appTitle: 'Feedback Formulier Generator',
   appTagline: 'Feedbackformulieren voor toekomstgerichte beoordelingsformaten',
   localProcessing: 'Lokale verwerking in browser',
-  localProcessingHint: 'Alle invoer blijft lokaal in uw browser. Geen serveroverdracht.',
-  footerNote: 'Alle gegevens blijven lokaal in de browser. Geen serveroverdracht.',
+  localProcessingHint:
+    'Alle invoer blijft lokaal in uw browser. Geen serveroverdracht.',
+  footerNote:
+    'Alle gegevens blijven lokaal in de browser. Geen serveroverdracht.',
   watermark: 'Gemaakt met de Feedback Formulier Generator op fbg.haak3.de',
   toolbar: {
     saveConfig: 'Opslaan',
@@ -12,7 +14,8 @@ export const nl = {
     redo: 'Opnieuw',
     reset: 'Resetten',
     resetConfirmTitle: 'Configuratie resetten?',
-    resetConfirmBody: 'Alle huidige wijzigingen worden verwijderd. Deze actie kan later ongedaan worden gemaakt.',
+    resetConfirmBody:
+      'Alle huidige wijzigingen worden verwijderd. Deze actie kan later ongedaan worden gemaakt.',
     resetConfirmAction: 'Nu resetten',
     cancel: 'Annuleren',
     exportNow: 'Exporteren',
@@ -20,17 +23,17 @@ export const nl = {
     exportPdfFillable: 'PDF (Formulier)',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
-    exportOdt: 'ODT'
+    exportOdt: 'ODT',
   },
   keyboard: {
     save: 'Alt+S: Opslaan',
-    export: 'Alt+E: Exporteren'
+    export: 'Alt+E: Exporteren',
   },
   columns: {
     selected: 'Geselecteerd',
     categories: 'Beoordelingscriteria',
     productFormats: 'Productformaten',
-    export: 'Export'
+    export: 'Export',
   },
   kopfdaten: {
     documentTitleSection: 'Titel',
@@ -51,11 +54,11 @@ export const nl = {
     fallbackField: 'Veld',
     footerTitle: 'Voettekst',
     signature: 'Handtekening',
-    grade: 'Beoordeling'
+    grade: 'Beoordeling',
   },
   modes: {
     full: 'Met schalen',
-    checklist: 'Alleen checklist'
+    checklist: 'Alleen checklist',
   },
   labels: {
     remove: 'Verwijderen',
@@ -67,7 +70,8 @@ export const nl = {
     scaleMaxSteps: (steps: number) => `max. ${steps} niveaus`,
     add: 'Toevoegen',
     defaultScale: 'Standaard schaal',
-    categoryScaleHint: 'Deze schaal is van toepassing op alle criteria in deze categorie.',
+    categoryScaleHint:
+      'Deze schaal is van toepassing op alle criteria in deze categorie.',
     defaultScaleHint: 'Standaard voor categorieën zonder eigen schaal.',
     addCustomItem: 'Aangepast criterium toevoegen',
     customItemPlaceholder: 'Aangepast criterium…',
@@ -85,11 +89,15 @@ export const nl = {
     removeHeaderField: 'Veld verwijderen',
     searchCriteria: 'Criteria zoeken',
     searchPlaceholder: 'Zoeken…',
+    searchEmpty: 'Geen passende criteria gevonden.',
     clearSelection: 'Selectie wissen',
     reorderSelection: 'Wijzig de volgorde via drag-and-drop of pijltjestoetsen',
-    dragCategory: (category: string) => `Verplaats categorie: ${category}. Gebruik pijltjes omhoog/omlaag.`,
-    dragCriterion: (criterion: string) => `Verplaats criterium: ${criterion}. Gebruik pijltjes omhoog/omlaag.`,
-    dragHeaderField: (field: string) => `Verplaats veld: ${field}. Gebruik pijltjes omhoog/omlaag.`,
+    dragCategory: (category: string) =>
+      `Verplaats categorie: ${category}. Gebruik pijltjes omhoog/omlaag.`,
+    dragCriterion: (criterion: string) =>
+      `Verplaats criterium: ${criterion}. Gebruik pijltjes omhoog/omlaag.`,
+    dragHeaderField: (field: string) =>
+      `Verplaats veld: ${field}. Gebruik pijltjes omhoog/omlaag.`,
     selectCategory: 'Selecteer categorie',
     clearCategory: 'Deselecteer categorie',
     chooseProductFormats: 'Kies formaten',
@@ -97,6 +105,9 @@ export const nl = {
     productFormatModalTitle: 'Selecteer formaten',
     productFormatSearch: 'Zoek formaten',
     productFormatSearchPlaceholder: 'Zoek formaat of criterium...',
+    productFormatCriteriaCount: (count: number) =>
+      `${count} ${count === 1 ? 'criterium' : 'criteria'}`,
+    productFormatSearchEmpty: 'Geen passende formats gevonden.',
     addProductFormat: 'Toevoegen',
     removeProductFormat: 'Verwijderen',
     productFormatDone: 'Gereed',
@@ -104,17 +115,19 @@ export const nl = {
       count === 1 ? '1 formaat geselecteerd' : `${count} formaten geselecteerd`,
     close: 'Sluiten',
     previewMode: 'Weergave',
-    previewEmpty: 'Nog geen criteria geselecteerd — selecteer aan de linkerkant.',
+    previewEmpty:
+      'Nog geen criteria geselecteerd — selecteer aan de linkerkant.',
     selectedEmpty: 'Nog geen criteria geselecteerd.',
     moreActions: 'Meer acties',
     mobileEdit: 'Bewerken',
     mobilePreview: 'Voorbeeld',
     mobileExport: 'Export',
-    selectedCount: (n: number) => `${n} criteri${n === 1 ? 'um' : 'a'} geselecteerd`,
+    selectedCount: (n: number) =>
+      `${n} criteri${n === 1 ? 'um' : 'a'} geselecteerd`,
     sectionCountSelected: (n: number) => `${n} geselecteerd`,
     sectionCountFormats: (n: number) => `${n} formaat${n === 1 ? '' : 'en'}`,
     sectionCountFields: (n: number) => `${n} veld${n === 1 ? '' : 'en'}`,
-    sectionCountActive: (n: number) => `${n} actief`
+    sectionCountActive: (n: number) => `${n} actief`,
   },
   a11y: {
     status: 'Statusmeldingen',
@@ -124,38 +137,53 @@ export const nl = {
     workspace: 'Werkruimte',
     editorPane: 'Editor',
     previewPane: 'Afdrukvoorbeeld',
-    footerNav: 'Juridische en projectinformatie'
+    footerNav: 'Juridische en projectinformatie',
   },
   contentLinks: {
     help: 'Help',
     about: 'Over het project',
     imprint: 'Colofon',
-    privacy: 'Privacy'
+    privacy: 'Privacy',
   },
   footer: {
     coffee: 'Buy me a coffee',
     github: 'GitHub',
     githubAria: 'GitHub-repository',
-    backToApp: (app: string) => `← Terug naar ${app}`
+    backToApp: (app: string) => `← Terug naar ${app}`,
   },
   scales: {
-    trafficLabels: ['Groen', 'Geel', 'Rood']
+    trafficLabels: ['Groen', 'Geel', 'Rood'],
   },
   xlsx: {
     headers: ['Categorie', 'Weging', 'Criterium', 'Schaal', 'Beoordeling'],
     sheetName: 'Feedbackformulier',
-    fileName: 'beoordelingsformulier.xlsx'
+    fileName: 'beoordelingsformulier.xlsx',
+  },
+  documentExport: {
+    criterion: 'Criterium',
+    checklistDone: 'Afgerond',
+    rating: 'Beoordeling',
+    fileNames: {
+      pdfPrint: 'beoordelingsformulier-print.pdf',
+      pdfFillable: 'beoordelingsformulier-invulbaar.pdf',
+      docx: 'beoordelingsformulier.docx',
+      odt: 'beoordelingsformulier.odt',
+    },
   },
   messages: {
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',
+    contentPageLoading: 'Inhoud wordt geladen...',
+    contentPageLoadError: 'De inhoud kon niet worden geladen.',
     saved: 'Configuratie opgeslagen.',
     loaded: 'Configuratie geladen.',
     imported: 'JSON geïmporteerd.',
     importError: 'JSON kon niet worden geïmporteerd. Controleer het bestand.',
     importInvalidJson: 'Het bestand bevat geen geldige JSON.',
     importTooLarge: 'Het bestand is te groot.',
+    importTooComplex: 'Het bestand bevat te veel of te lange items.',
     importInvalidShape: 'Het bestand bevat geen geldige configuratie.',
-    importMissingSelection: 'De configuratie is onvolledig: "selectedItems" moet een lijst zijn.',
+    importMissingSelection:
+      'De configuratie is onvolledig: "selectedItems" moet een lijst zijn.',
     importInvalidVersion: 'De configuratie bevat geen geldige schemaversie.',
     importUnsupportedVersion: (found: number, supported: number) =>
       `Versie ${found} wordt niet ondersteund. Ondersteund is versie ${supported}.`,
@@ -169,7 +197,8 @@ export const nl = {
     exported: 'Export gestart...',
     exporting: (label: string) => `${label} wordt gemaakt …`,
     exportSuccess: (label: string) => `${label} is gemaakt.`,
-    exportError: (label: string) => `${label} kon niet worden gemaakt. Probeer het opnieuw.`,
+    exportError: (label: string) =>
+      `${label} kon niet worden gemaakt. Probeer het opnieuw.`,
     customItemAdded: 'Aangepast criterium toegevoegd.',
     bulkAdded: (count: number) => `${count} criteria toegevoegd.`,
     customItemRemoved: 'Aangepast criterium verwijderd.',
@@ -180,12 +209,17 @@ export const nl = {
     headerFieldRemoved: 'Kopveld verwijderd.',
     headerFieldReordered: 'Kopveld is verplaatst.',
     productFormatAdded: 'Productformaat toegevoegd.',
-    productFormatRemoved: 'Productformaat verwijderd.'
+    productFormatRemoved: 'Productformaat verwijderd.',
   },
   onboarding: {
     intro: 'Hoe het werkt:',
-    steps: ['Koptekst instellen', 'Criteria selecteren', 'Formaten toevoegen', 'Exporteren'],
-    dismiss: 'Verbergen'
+    steps: [
+      'Koptekst instellen',
+      'Criteria selecteren',
+      'Formaten toevoegen',
+      'Exporteren',
+    ],
+    dismiss: 'Verbergen',
   },
   history: {
     generic: 'Wijziging',
@@ -207,6 +241,6 @@ export const nl = {
     headerFieldReordered: 'Kopveld verplaatst',
     scaleChanged: 'Schaal gewijzigd',
     reset: 'Reset',
-    configLoaded: 'Configuratie geladen'
-  }
+    configLoaded: 'Configuratie geladen',
+  },
 };

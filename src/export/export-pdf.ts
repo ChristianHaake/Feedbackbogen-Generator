@@ -3,7 +3,14 @@ import { jsPDF } from 'jspdf';
 import { categoryHeadingText, groupRows } from '@/export/export-utils';
 import { scaleOptionLabels } from '@/scale-utils';
 import { strings } from '@/strings';
-import type { ExportRow, FooterFields, FooterFieldId, HeaderData, PrintMode, Scale } from '@/types';
+import type {
+  ExportRow,
+  FooterFields,
+  FooterFieldId,
+  HeaderData,
+  PrintMode,
+  Scale,
+} from '@/types';
 
 const pageWidth = 595.28;
 const pageHeight = 841.89;
@@ -42,27 +49,51 @@ export function exportPDF(
     pdf.setFont('helvetica', 'italic');
     pdf.setTextColor(120, 120, 120);
     pdf.setFontSize(10);
-    pdf.text(strings.labels.previewEmpty, pageWidth / 2, y + 24, { align: 'center' });
+    pdf.text(strings.labels.previewEmpty, pageWidth / 2, y + 24, {
+      align: 'center',
+    });
     pdf.setTextColor(17, 17, 17);
     y += 52;
   } else {
     const groups = groupRows(rows);
     groups.forEach((group) => {
       const headingHeight = categoryHeadingHeight();
-      const scaleHeight = mode === 'full' && group.scale ? scaleHeaderHeight(pdf, group.scale) : 0;
+      const scaleHeight =
+        mode === 'full' && group.scale
+          ? scaleHeaderHeight(pdf, group.scale)
+          : 0;
 
       ensureSpace(headingHeight + scaleHeight + 34);
-      y = drawCategoryHeading(pdf, categoryHeadingText(group.title, group.weight), y);
-      if (mode === 'full' && group.scale) y = drawScaleHeader(pdf, group.scale, y);
+      y = drawCategoryHeading(
+        pdf,
+        categoryHeadingText(group.title, group.weight),
+        y
+      );
+      if (mode === 'full' && group.scale)
+        y = drawScaleHeader(pdf, group.scale, y);
 
       group.items.forEach((row, index) => {
         const rowHeight = itemRowHeight(pdf, row, group.scale, mode);
         if (y + rowHeight > bottomY) {
           addPage();
-          y = drawCategoryHeading(pdf, categoryHeadingText(group.title, group.weight), y);
-          if (mode === 'full' && group.scale) y = drawScaleHeader(pdf, group.scale, y);
+          y = drawCategoryHeading(
+            pdf,
+            categoryHeadingText(group.title, group.weight),
+            y
+          );
+          if (mode === 'full' && group.scale)
+            y = drawScaleHeader(pdf, group.scale, y);
         }
-        y = drawItemRow(pdf, row, group.scale, mode, row.number, y, index % 2 === 1, rowHeight);
+        y = drawItemRow(
+          pdf,
+          row,
+          group.scale,
+          mode,
+          row.number,
+          y,
+          index % 2 === 1,
+          rowHeight
+        );
       });
       y += 18;
     });
@@ -83,7 +114,7 @@ export function exportPDF(
   }
 
   drawWatermarks(pdf);
-  pdf.save('bewertungsbogen-druck.pdf');
+  pdf.save(strings.documentExport.fileNames.pdfPrint);
 }
 
 function drawTitle(pdf: PdfDoc, title: string, y: number): number {
@@ -117,7 +148,10 @@ function drawHeaderFields(pdf: PdfDoc, header: HeaderData, y: number): number {
     const labelText = fitText(pdf, label, Math.min(columnWidth * 0.45, 92));
     pdf.text(labelText, x, rowY + 12);
 
-    const labelWidth = Math.min(pdf.getTextWidth(labelText) + 7, columnWidth * 0.56);
+    const labelWidth = Math.min(
+      pdf.getTextWidth(labelText) + 7,
+      columnWidth * 0.56
+    );
     const lineX = x + labelWidth;
     const lineY = rowY + 14;
     pdf.setDrawColor(68, 68, 68);
@@ -127,7 +161,11 @@ function drawHeaderFields(pdf: PdfDoc, header: HeaderData, y: number): number {
     if (field.value) {
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(17, 17, 17);
-      pdf.text(fitText(pdf, field.value, x + columnWidth - lineX - 4), lineX + 2, rowY + 11);
+      pdf.text(
+        fitText(pdf, field.value, x + columnWidth - lineX - 4),
+        lineX + 2,
+        rowY + 11
+      );
     }
   });
 
@@ -154,7 +192,11 @@ function drawCategoryHeading(pdf: PdfDoc, title: string, y: number): number {
 function scaleHeaderHeight(pdf: PdfDoc, scale: Scale): number {
   const labelWidth = scaleOptionWidth(scale);
   const fontSize = scale.kind === 'numeric' ? 7.5 : 8;
-  const maxLines = Math.max(...scaleOptionLabels(scale).map((label) => split(pdf, label, labelWidth, fontSize).length));
+  const maxLines = Math.max(
+    ...scaleOptionLabels(scale).map(
+      (label) => split(pdf, label, labelWidth, fontSize).length
+    )
+  );
   return Math.max(25, maxLines * 10 + 12);
 }
 
@@ -174,16 +216,31 @@ function drawScaleHeader(pdf: PdfDoc, scale: Scale, y: number): number {
 
   options.forEach((label, index) => {
     const centerX = scaleX + index * optionWidth + optionWidth / 2;
-    const lines = split(pdf, label, Math.max(12, optionWidth - gap), scale.kind === 'numeric' ? 7.5 : 8);
+    const lines = split(
+      pdf,
+      label,
+      Math.max(12, optionWidth - gap),
+      scale.kind === 'numeric' ? 7.5 : 8
+    );
     const firstY = y + height / 2 - ((lines.length - 1) * 9) / 2 + 3;
-    lines.forEach((line, lineIndex) => pdf.text(line, centerX, firstY + lineIndex * 9, { align: 'center' }));
+    lines.forEach((line, lineIndex) =>
+      pdf.text(line, centerX, firstY + lineIndex * 9, { align: 'center' })
+    );
   });
 
   return y + height;
 }
 
-function itemRowHeight(pdf: PdfDoc, row: ExportRow, scale: Scale | null, mode: PrintMode): number {
-  const labelWidth = mode === 'checklist' ? contentWidth - 32 : scaleLayout(scale).labelWidth - 28;
+function itemRowHeight(
+  pdf: PdfDoc,
+  row: ExportRow,
+  scale: Scale | null,
+  mode: PrintMode
+): number {
+  const labelWidth =
+    mode === 'checklist'
+      ? contentWidth - 32
+      : scaleLayout(scale).labelWidth - 28;
   const lines = split(pdf, row.item, labelWidth, 10);
   return Math.max(34, lines.length * 13 + 16);
 }
@@ -213,7 +270,9 @@ function drawItemRow(
   if (mode === 'checklist') {
     drawCheckbox(pdf, marginX + 8, y + 12, 9);
     const lines = split(pdf, row.item, contentWidth - 34, 10);
-    lines.forEach((line, index) => pdf.text(line, marginX + 25, y + 20 + index * 13));
+    lines.forEach((line, index) =>
+      pdf.text(line, marginX + 25, y + 20 + index * 13)
+    );
     return y + height;
   }
 
@@ -224,14 +283,21 @@ function drawItemRow(
   pdf.setTextColor(17, 17, 17);
   pdf.setFont('helvetica', 'bold');
   const lines = split(pdf, row.item, layout.labelWidth - 28, 10);
-  lines.forEach((line, index) => pdf.text(line, marginX + 28, y + 16 + index * 13));
+  lines.forEach((line, index) =>
+    pdf.text(line, marginX + 28, y + 16 + index * 13)
+  );
 
   if (scale) {
     drawScaleBoxes(pdf, scale, layout.scaleX, layout.scaleWidth, y, height);
   } else {
     pdf.setDrawColor(68, 68, 68);
     pdf.setLineWidth(0.7);
-    pdf.line(layout.scaleX, y + height - 12, marginX + contentWidth - 8, y + height - 12);
+    pdf.line(
+      layout.scaleX,
+      y + height - 12,
+      marginX + contentWidth - 8,
+      y + height - 12
+    );
   }
 
   return y + height;
@@ -286,7 +352,8 @@ function drawFooterFields(pdf: PdfDoc, footerFields: FooterFields, y: number) {
   if (enabled.length === 0) return;
 
   const gap = 18;
-  const fieldWidth = (contentWidth - gap * (enabled.length - 1)) / enabled.length;
+  const fieldWidth =
+    (contentWidth - gap * (enabled.length - 1)) / enabled.length;
   enabled.forEach(({ label }, index) => {
     const x = marginX + index * (fieldWidth + gap);
     const labelText = `${label}:`;
@@ -294,7 +361,8 @@ function drawFooterFields(pdf: PdfDoc, footerFields: FooterFields, y: number) {
     pdf.setFontSize(10);
     pdf.setTextColor(51, 51, 51);
     pdf.text(labelText, x, y + 12);
-    const lineX = x + Math.min(pdf.getTextWidth(labelText) + 7, fieldWidth * 0.55);
+    const lineX =
+      x + Math.min(pdf.getTextWidth(labelText) + 7, fieldWidth * 0.55);
     pdf.setDrawColor(68, 68, 68);
     pdf.setLineWidth(0.7);
     pdf.line(lineX, y + 14, x + fieldWidth, y + 14);
@@ -308,7 +376,9 @@ function drawWatermarks(pdf: PdfDoc) {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(7);
     pdf.setTextColor(170, 170, 170);
-    pdf.text(strings.watermark, pageWidth - 18, pageHeight - 14, { align: 'right' });
+    pdf.text(strings.watermark, pageWidth - 18, pageHeight - 14, {
+      align: 'right',
+    });
   }
 }
 
@@ -316,13 +386,19 @@ function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
   return [
     { id: 'date', label: strings.kopfdaten.date },
     { id: 'signature', label: strings.kopfdaten.signature },
-    { id: 'grade', label: strings.kopfdaten.grade }
+    { id: 'grade', label: strings.kopfdaten.grade },
   ];
 }
 
-function scaleLayout(scale: Scale | null): { labelWidth: number; scaleX: number; scaleWidth: number; gap: number } {
+function scaleLayout(scale: Scale | null): {
+  labelWidth: number;
+  scaleX: number;
+  scaleWidth: number;
+  gap: number;
+} {
   const gap = scale?.kind === 'numeric' ? 9 : 14;
-  const labelWidth = scale?.kind === 'numeric' ? contentWidth * 0.46 : contentWidth * 0.42;
+  const labelWidth =
+    scale?.kind === 'numeric' ? contentWidth * 0.46 : contentWidth * 0.42;
   const scaleX = marginX + labelWidth + gap;
   const scaleWidth = contentWidth - labelWidth - gap - 8;
   return { labelWidth, scaleX, scaleWidth, gap };
@@ -333,7 +409,12 @@ function scaleOptionWidth(scale: Scale): number {
   return scaleWidth / scaleOptionLabels(scale).length;
 }
 
-function split(pdf: PdfDoc, text: string, width: number, fontSize: number): string[] {
+function split(
+  pdf: PdfDoc,
+  text: string,
+  width: number,
+  fontSize: number
+): string[] {
   pdf.setFontSize(fontSize);
   return pdf.splitTextToSize(text, width) as string[];
 }
@@ -341,6 +422,7 @@ function split(pdf: PdfDoc, text: string, width: number, fontSize: number): stri
 function fitText(pdf: PdfDoc, text: string, width: number): string {
   if (pdf.getTextWidth(text) <= width) return text;
   let out = text;
-  while (out.length > 1 && pdf.getTextWidth(`${out}...`) > width) out = out.slice(0, -1);
+  while (out.length > 1 && pdf.getTextWidth(`${out}...`) > width)
+    out = out.slice(0, -1);
   return `${out}...`;
 }

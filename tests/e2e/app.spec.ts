@@ -1,7 +1,8 @@
+import fs from 'node:fs/promises';
+
 import { test, expect } from '@playwright/test';
 
 test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
-
   test.beforeEach(async ({ page }) => {
     // Clear localStorage to ensure a clean state and suppress onboarding hint.
     // Pin the language to German so assertions don't depend on the browser locale.
@@ -10,7 +11,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
       window.localStorage.setItem('bbk:onboarding-dismissed', '1');
       window.localStorage.setItem('bbk:lang', 'de');
     });
-    
+
     await page.goto('/');
   });
 
@@ -35,7 +36,9 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await nameValueInput.fill('Erika Mustermann');
 
     // Verify it is reflected in the preview
-    const previewNameVal = page.locator('.a4-hf-row:has-text("Name:") .a4-hf-value');
+    const previewNameVal = page.locator(
+      '.a4-hf-row:has-text("Name:") .a4-hf-value'
+    );
     await expect(previewNameVal).toHaveText('Erika Mustermann');
 
     // Add a custom header field
@@ -54,7 +57,9 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await lastValueInput.fill('Naturwissenschaften');
 
     // Verify custom header field is rendered in preview
-    const previewCustomVal = page.locator('.a4-hf-row:has-text("Fachbereich:") .a4-hf-value');
+    const previewCustomVal = page.locator(
+      '.a4-hf-row:has-text("Fachbereich:") .a4-hf-value'
+    );
     await expect(previewCustomVal).toHaveText('Naturwissenschaften');
 
     // Reorder header fields using keyboard shortcuts on drag handles
@@ -74,7 +79,9 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(headerRows).toHaveCount(4);
   });
 
-  test('Criteria Selection, Search & Custom Criteria Items', async ({ page }) => {
+  test('Criteria Selection, Search & Custom Criteria Items', async ({
+    page,
+  }) => {
     const allgemeinAccordion = page.locator('#acc-allgemeine');
     await expect(allgemeinAccordion).toBeVisible();
 
@@ -132,7 +139,11 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(previewItems).toHaveCount(4);
 
     // Delete one custom item
-    await panel.locator('.custom-item-row').first().locator('.btn-icon.danger').click();
+    await panel
+      .locator('.custom-item-row')
+      .first()
+      .locator('.btn-icon.danger')
+      .click();
     await expect(panel.locator('.custom-item-row')).toHaveCount(2);
     await expect(previewItems).toHaveCount(3);
   });
@@ -341,20 +352,100 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   test('Export Menu Downloads Click Check', async ({ page }) => {
-    // Open the export menu
-    const exportTrigger = page.locator('#export-menu-trigger');
-    await expect(exportTrigger).toBeVisible();
-    await exportTrigger.click();
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
 
-    // Verify all export format options exist
-    const pdfPrintOption = page.locator('.menu-item[data-export-format="pdf-print"]');
-    const docxOption = page.locator('.menu-item[data-export-format="docx"]');
-    const xlsxOption = page.locator('.menu-item[data-export-format="xlsx"]');
-    const odtOption = page.locator('.menu-item[data-export-format="odt"]');
+    const expectedDownloads = [
+      ['pdf-print', '.pdf'],
+      ['pdf-fillable', '.pdf'],
+      ['docx', '.docx'],
+      ['xlsx', '.xlsx'],
+      ['odt', '.odt'],
+    ] as const;
 
-    await expect(pdfPrintOption).toBeVisible();
-    await expect(docxOption).toBeVisible();
-    await expect(xlsxOption).toBeVisible();
-    await expect(odtOption).toBeVisible();
+    for (const [format, extension] of expectedDownloads) {
+      await page.locator('#export-menu-trigger').click();
+      const downloadPromise = page.waitForEvent('download');
+      await page.locator(`.menu-item[data-export-format="${format}"]`).click();
+      const download = await downloadPromise;
+      expect(download.suggestedFilename()).toMatch(
+        new RegExp(`\\${extension}$`)
+      );
+    }
+  });
+
+  test('Config Import Through Toolbar', async ({ page }, testInfo) => {
+    const configPath = testInfo.outputPath('import-config.json');
+    await fs.writeFile(
+      configPath,
+      JSON.stringify({
+        schemaVersion: 4,
+        selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
+        selectedProductFormats: [],
+        scaleByCategory: {},
+        scaleSettingsByCategory: {},
+        defaultScaleId: 'verbal_5',
+        documentTitle: { mode: 'custom', custom: 'Import Testbogen' },
+        header: {
+          fields: [
+            { id: 'topic', label: 'Thema', value: 'Importiertes Thema' },
+          ],
+        },
+        footerFields: { date: true, signature: true, grade: true },
+        customItems: [],
+        categoryOrder: ['allgemeine'],
+        itemOrderByCategory: { allgemeine: ['abgabe'] },
+        categoryTitleOverrides: {},
+        customCategories: [],
+        categoryWeights: {},
+      }),
+      'utf8'
+    );
+
+    const chooserPromise = page.waitForEvent('filechooser');
+    await page.locator('#config-load').click();
+    const chooser = await chooserPromise;
+    await chooser.setFiles(configPath);
+
+    await expect(page.locator('.a4-title')).toHaveText('Import Testbogen');
+    await expect(page.locator('.a4-items li')).toContainText(
+      'Rechtzeitige Abgabe'
+    );
+  });
+
+  test('Content Route Renders Markdown Page', async ({ page }) => {
+    await page.goto('/help');
+
+    await expect(page.locator('#content-page-title')).toHaveText('Hilfe');
+    await expect(page.locator('.workspace')).toBeHidden();
+  });
+
+  test('Mobile Tabs Switch Panels', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.mobile-tab[data-mobile-view="preview"]').click();
+    await expect(page.locator('.preview-pane')).toBeVisible();
+
+    await page.locator('.mobile-tab[data-mobile-view="export"]').click();
+    await expect(page.locator('.mobile-export-pane')).toBeVisible();
+  });
+});
+
+test.describe('Language Switching', () => {
+  test('switches UI and content JSON language', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      window.localStorage.clear();
+      window.localStorage.setItem('bbk:onboarding-dismissed', '1');
+      window.localStorage.setItem('bbk:lang', 'de');
+    });
+    await page.goto('/');
+
+    await page.locator('[data-action="language-switch"]').selectOption('en');
+    await page.waitForLoadState('load');
+
+    await expect(page.locator('.app-footer-note')).toHaveText(
+      'All data remains locally in the browser. No server transmission.'
+    );
+    await expect(page.locator('#acc-allgemeine')).toContainText('General');
   });
 });

@@ -45,18 +45,11 @@ USA
 Weitere Informationen:  
 https://www.cloudflare.com/privacypolicy/
 
-## 4. Cloudflare Web Analytics
+## 4. Keine Webanalyse
 
-Diese Website verwendet Cloudflare Web Analytics zur statistischen Analyse der Nutzung der Website.
+Diese Website bindet keine eigene Webanalyse, kein Tracking-Skript und keine Drittanbieter-Skripte zur Nutzungsanalyse ein.
 
-Cloudflare Web Analytics verwendet nach Angaben des Anbieters keine Cookies, kein Local Storage und keine geräteübergreifenden Nutzerprofile. Ebenso erfolgt nach Angaben von Cloudflare kein Fingerprinting einzelner Nutzer zu Analysezwecken.
-
-Erfasst werden ausschließlich technisch notwendige und statistische Informationen über die Nutzung der Website, beispielsweise Seitenaufrufe, Referrer, verwendete Gerätetypen, Browserinformationen sowie Zeitpunkte von Zugriffen.
-
-Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der Analyse und Optimierung des Webangebots.
-
-Weitere Informationen:  
-https://www.cloudflare.com/web-analytics/
+Es werden durch die Anwendung selbst keine Analyse-Cookies gesetzt, keine Local-Storage-Einträge zu Analysezwecken angelegt und keine nutzungsbezogenen Profile erstellt.
 
 ## 5. Lokale Verarbeitung von Eingaben
 

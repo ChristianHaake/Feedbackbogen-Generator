@@ -115,6 +115,12 @@ export const de = {
     close: 'Schließen',
     previewMode: 'Ansicht',
     previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
+    scoreSummaryTitle: 'Auswertung',
+    scoreCategoryResult: (category: string, weight: number) =>
+      `${category}: ____ / ${weight} %`,
+    scoreTotalResult: (total: number) => `Gesamtergebnis: ____ / ${total} %`,
+    scoreTotalHint:
+      'Die Gewichtungen bilden den Rahmen für die spätere Bewertung.',
     selectedEmpty: 'Noch keine Kriterien ausgewählt.',
     moreActions: 'Weitere Aktionen',
     mobileEdit: 'Bearbeiten',

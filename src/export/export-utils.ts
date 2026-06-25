@@ -8,9 +8,30 @@ export type ExportRowGroup = {
   weight?: number;
 };
 
+export type WeightedScoreSummary = {
+  groups: { title: string; weight: number }[];
+  totalWeight: number;
+};
+
 // Section heading text with an optional weight badge, e.g. "Sachebene — 40 %".
 export function categoryHeadingText(title: string, weight?: number): string {
   return weight ? `${title} — ${Math.round(weight)} %` : title;
+}
+
+export function weightedScoreSummary(
+  rows: ExportRow[]
+): WeightedScoreSummary | null {
+  const groups = groupRows(rows)
+    .filter((group) => group.weight != null && group.weight > 0)
+    .map((group) => ({
+      title: group.title,
+      weight: Math.round(group.weight ?? 0),
+    }));
+  if (groups.length === 0) return null;
+  return {
+    groups,
+    totalWeight: groups.reduce((sum, group) => sum + group.weight, 0),
+  };
 }
 
 export function scaleOptions(scale: Scale | null): string[] {

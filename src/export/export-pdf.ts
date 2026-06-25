@@ -1,6 +1,10 @@
 import { jsPDF } from 'jspdf';
 
-import { categoryHeadingText, groupRows } from '@/export/export-utils';
+import {
+  categoryHeadingText,
+  groupRows,
+  weightedScoreSummary,
+} from '@/export/export-utils';
 import { scaleOptionLabels } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
@@ -100,6 +104,11 @@ export function exportPDF(
   }
 
   const feedbackTopGap = rows.length > 0 ? 18 : 0;
+  const scoreSummary = weightedScoreSummary(rows);
+  if (scoreSummary) {
+    ensureSpace(scoreSummaryHeight(scoreSummary.groups.length));
+    y = drawScoreSummary(pdf, scoreSummary, y);
+  }
   ensureSpace(feedbackTopGap + 128);
   y += feedbackTopGap;
   y = drawFeedback(pdf, y);
@@ -345,6 +354,47 @@ function drawFeedback(pdf: PdfDoc, y: number): number {
     y += 18;
   }
   return y + 18;
+}
+
+function scoreSummaryHeight(groupCount: number): number {
+  return 42 + groupCount * 18 + 34;
+}
+
+function drawScoreSummary(
+  pdf: PdfDoc,
+  summary: NonNullable<ReturnType<typeof weightedScoreSummary>>,
+  y: number
+): number {
+  const height = scoreSummaryHeight(summary.groups.length);
+  pdf.setFillColor(247, 248, 250);
+  pdf.setDrawColor(209, 214, 220);
+  pdf.setLineWidth(0.6);
+  pdf.rect(marginX, y, contentWidth, height, 'FD');
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(10);
+  pdf.setTextColor(34, 34, 34);
+  pdf.text(strings.labels.scoreSummaryTitle.toUpperCase(), marginX + 9, y + 16);
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(9.5);
+  let rowY = y + 36;
+  summary.groups.forEach((group) => {
+    pdf.text(
+      strings.labels.scoreCategoryResult(group.title, group.weight),
+      marginX + 9,
+      rowY
+    );
+    rowY += 18;
+  });
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(strings.labels.scoreTotalResult(summary.totalWeight), marginX + 9, rowY);
+  rowY += 18;
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(102, 102, 102);
+  pdf.text(strings.labels.scoreTotalHint, marginX + 9, rowY);
+  pdf.setTextColor(17, 17, 17);
+  return y + height + 16;
 }
 
 function drawFooterFields(pdf: PdfDoc, footerFields: FooterFields, y: number) {

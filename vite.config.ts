@@ -98,6 +98,7 @@ export default defineConfig({
         // App shell is precached; runtime-fetched /content/* (markdown + JSON) is
         // cached on first online visit so it stays available offline afterwards.
         globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        globIgnores: ['favicon.svg', 'icons.svg'],
         navigateFallback: '/index.html',
         runtimeCaching: [
           {

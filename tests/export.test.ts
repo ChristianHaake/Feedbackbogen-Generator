@@ -6,7 +6,10 @@ import { createDOCXBlob } from '@/export/export-docx';
 import { createODTBlob } from '@/export/export-odt';
 import { createFillablePDFBlob } from '@/export/export-pdf-fillable';
 import { createXLSXBlob } from '@/export/export-xlsx';
-import { categoryHeadingText } from '@/export/export-utils';
+import {
+  categoryHeadingText,
+  weightedScoreSummary,
+} from '@/export/export-utils';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
 const scale: NumericScale = {
@@ -158,6 +161,60 @@ describe('category heading with weight', () => {
     expect(docXml).toContain('SACHEBENE — 40 %');
     expect(docXml).toContain('1. Tiefe');
     expect(docXml).toContain('2. Breite');
+  });
+
+  it('adds a weighted scoring summary to exports', async () => {
+    const weighted: ExportRow[] = [
+      {
+        categoryId: 'sach',
+        category: 'Sachebene',
+        item: 'Tiefe',
+        scale,
+        itemId: 't1',
+        number: 1,
+        weight: 40,
+      },
+      {
+        categoryId: 'sprache',
+        category: 'Sprache',
+        item: 'Präzision',
+        scale,
+        itemId: 'p1',
+        number: 1,
+        weight: 60,
+      },
+    ];
+
+    expect(weightedScoreSummary(weighted)).toEqual({
+      groups: [
+        { title: 'Sachebene', weight: 40 },
+        { title: 'Sprache', weight: 60 },
+      ],
+      totalWeight: 100,
+    });
+
+    const xlsxZip = await JSZip.loadAsync(
+      await (await createXLSXBlob(weighted)).arrayBuffer()
+    );
+    const sharedStringsXml = await xlsxZip
+      .file('xl/sharedStrings.xml')!
+      .async('text');
+    expect(sharedStringsXml).toContain('Auswertung');
+    expect(sharedStringsXml).toContain('Gesamtergebnis: ____ / 100 %');
+
+    const docXml = await JSZip.loadAsync(
+      await (
+        await createDOCXBlob(weighted, 'Bewertungsbogen', header, footerFields)
+      ).arrayBuffer()
+    ).then((zip) => zip.file('word/document.xml')!.async('text'));
+    expect(docXml).toContain('Auswertung');
+    expect(docXml).toContain('Gesamtergebnis: ____ / 100 %');
+
+    const odtXml = await odtContentXml(
+      await createODTBlob(weighted, 'Bewertungsbogen', header, footerFields)
+    );
+    expect(odtXml).toContain('Auswertung');
+    expect(odtXml).toContain('Gesamtergebnis: ____ / 100 %');
   });
 });
 

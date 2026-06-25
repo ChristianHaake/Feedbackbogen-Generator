@@ -1336,11 +1336,11 @@ async function bootstrap() {
     renderRoute();
   });
 
-  document.addEventListener('change', (event) => {
+  document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
     if (target.matches('[data-action="language-switch"]')) {
-      const select = target as HTMLSelectElement;
-      handlers.onLanguageChange(select.value);
+      const lang = target.dataset.languageCode;
+      if (lang) handlers.onLanguageChange(lang);
     }
   });
 

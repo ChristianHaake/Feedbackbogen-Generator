@@ -117,6 +117,12 @@ export const nl = {
     previewMode: 'Weergave',
     previewEmpty:
       'Nog geen criteria geselecteerd — selecteer aan de linkerkant.',
+    scoreSummaryTitle: 'Beoordeling',
+    scoreCategoryResult: (category: string, weight: number) =>
+      `${category}: ____ / ${weight} %`,
+    scoreTotalResult: (total: number) => `Totaalresultaat: ____ / ${total} %`,
+    scoreTotalHint:
+      'De wegingen vormen het beoordelingskader voor de latere beoordeling.',
     selectedEmpty: 'Nog geen criteria geselecteerd.',
     moreActions: 'Meer acties',
     mobileEdit: 'Bewerken',

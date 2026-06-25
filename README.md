@@ -10,7 +10,7 @@ Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeld
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODT (via ZIP+XML).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), Strg/Cmd+Z (Undo), Strg/Cmd+Shift+Z (Redo), respektiert `prefers-reduced-motion`.
-- Build: Vite + TypeScript (Vanilla), ES Modules. Keine externen CDNs, Assets lokal gebundled.
+- Build: Vite + TypeScript (Vanilla), ES Modules. App-Assets lokal gebundled; auf der Live-Website kann betreiberseitig Cloudflare Web Analytics geladen werden.
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 
@@ -28,6 +28,7 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 - Undo, Redo und explizites Zurücksetzen trotz Autospeicherung
 - Auswahl produktspezifischer Kriterien für unterschiedliche Prüfungs- und Arbeitsformate
 - Konfigurierbare Skalen pro Kategorie
+- Gewichtungen pro Kategorie mit Auswertungsübersicht im Bogen und in den Exporten
 - Vorschau als Feedbackbogen oder Checkliste
 - Frei anpassbare Kopffelder und konfigurierbare Fußzeile
 - Import und Export der Konfiguration als JSON
@@ -79,6 +80,8 @@ Wichtige Skripte:
 - `npm run test`: führt die Unit-Tests aus
 - `npm run lint`: prüft den Code mit ESLint
 - `npm run typecheck`: prüft die TypeScript-Typen ohne Build-Ausgabe
+- `npm run verify`: führt Content-Validierung, Lint, Typecheck, Unit-Tests und Build aus
+- `npm run verify:live`: prüft nach einem Deployment, ob die Live-Seite den aktuellen Build, Inhaltsdateien, PWA-Dateien und Security-Header ausliefert
 
 ## Konfiguration
 
@@ -169,6 +172,8 @@ Produktformate folgen in `content/product-formats.json` diesem Grundaufbau:
 - XLSX: Tabelle mit Kriterien, Punkten und Notizen
 - ODT: editierbares Textdokument mit Kopfdaten, formatierten Tabellen und Feedbackbereich
 
+Wenn Kategorien gewichtet werden, enthalten Vorschau und Exporte zusätzlich eine Auswertungsübersicht. Die Gewichtungen bilden den Rahmen für die spätere Bewertung; die Bewertung selbst wird im exportierten oder gedruckten Bogen eingetragen.
+
 Die ODT-Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt.
 
 ## Einbettung
@@ -178,6 +183,10 @@ Da die Anwendung statisch ausgeliefert wird, kann sie grundsätzlich per `iframe
 ```html
 <iframe src="https://fbg.haak3.de" width="100%" height="800" style="border:0"></iframe>
 ```
+
+## Release-Prüfung
+
+Vor einer Veröffentlichung müssen lokal `npm run verify`, `npm audit --audit-level=low` und `npm run test:e2e` erfolgreich laufen. Nach dem Deployment muss zusätzlich `npm run verify:live` gegen `https://fbg.haak3.de` erfolgreich sein. Dieser Live-Check prüft, dass Cloudflare Pages nicht nur die SPA-Fallbackseite ausliefert, sondern auch `/content/*`, PWA-Dateien und die erwarteten Security-Header.
 
 ## Wissenschaftlicher Hintergrund
 

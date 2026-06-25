@@ -1,7 +1,11 @@
 import writeExcelFile from 'write-excel-file/universal';
 import type { Cell, SheetData } from 'write-excel-file/universal';
 
-import { downloadBlob, scaleLabel } from '@/export/export-utils';
+import {
+  downloadBlob,
+  scaleLabel,
+  weightedScoreSummary,
+} from '@/export/export-utils';
 import { strings } from '@/strings';
 import type { ExportRow } from '@/types';
 
@@ -31,6 +35,7 @@ function bodyCell(value: string, shaded: boolean): Cell {
 }
 
 export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
+  const scoreSummary = weightedScoreSummary(rows);
   const data: SheetData = [
     strings.xlsx.headers.map((value) => ({ value, ...headerStyle })),
     ...rows.map((row, index) => {
@@ -42,7 +47,33 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
         bodyCell(scaleLabel(row.scale), shaded),
         bodyCell('', shaded)
       ];
-    })
+    }),
+    ...(scoreSummary
+      ? [
+          [],
+          [
+            bodyCell(strings.labels.scoreSummaryTitle, false),
+            bodyCell('', false),
+            bodyCell('', false),
+            bodyCell('', false),
+            bodyCell('', false),
+          ],
+          ...scoreSummary.groups.map((group) => [
+            bodyCell(group.title, false),
+            bodyCell(`${group.weight} %`, false),
+            bodyCell('', false),
+            bodyCell('', false),
+            bodyCell('', false),
+          ]),
+          [
+            bodyCell(strings.labels.scoreTotalResult(scoreSummary.totalWeight), false),
+            bodyCell('', false),
+            bodyCell('', false),
+            bodyCell('', false),
+            bodyCell('', false),
+          ],
+        ]
+      : [])
   ];
   return writeExcelFile(data, {
     sheet: strings.xlsx.sheetName,

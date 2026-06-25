@@ -119,6 +119,12 @@ export const fr = {
     previewMode: 'Vue',
     previewEmpty:
       'Aucun critère sélectionné — veuillez en sélectionner à gauche.',
+    scoreSummaryTitle: 'Évaluation',
+    scoreCategoryResult: (category: string, weight: number) =>
+      `${category} : ____ / ${weight} %`,
+    scoreTotalResult: (total: number) => `Résultat total : ____ / ${total} %`,
+    scoreTotalHint:
+      "Les pondérations définissent le cadre de notation pour l'évaluation ultérieure.",
     selectedEmpty: 'Aucun critère sélectionné.',
     moreActions: "Plus d'actions",
     mobileEdit: 'Modifier',

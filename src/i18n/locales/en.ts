@@ -115,6 +115,12 @@ export const en = {
     close: 'Close',
     previewMode: 'View',
     previewEmpty: 'No criteria selected yet — select on the left.',
+    scoreSummaryTitle: 'Scoring',
+    scoreCategoryResult: (category: string, weight: number) =>
+      `${category}: ____ / ${weight} %`,
+    scoreTotalResult: (total: number) => `Total result: ____ / ${total} %`,
+    scoreTotalHint:
+      'The weightings define the scoring frame for later assessment.',
     selectedEmpty: 'No criteria selected yet.',
     moreActions: 'More actions',
     mobileEdit: 'Edit',

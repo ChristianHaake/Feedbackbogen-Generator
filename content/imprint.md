@@ -1,5 +1,7 @@
 # Impressum
 
+Hinweis: Diese Seite liegt derzeit in deutscher Sprache vor. Die deutsche Fassung ist maßgeblich.
+
 Angaben gemäß § 5 DDG
 
 Christian Haake  

@@ -371,6 +371,10 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
       expect(download.suggestedFilename()).toMatch(
         new RegExp(`\\${extension}$`)
       );
+      const downloadPath = await download.path();
+      expect(downloadPath).toBeTruthy();
+      const downloadStat = await fs.stat(downloadPath!);
+      expect(downloadStat.size).toBeGreaterThan(0);
     }
   });
 
@@ -428,6 +432,113 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await page.locator('.mobile-tab[data-mobile-view="export"]').click();
     await expect(page.locator('.mobile-export-pane')).toBeVisible();
   });
+
+  test('Mobile 320px German layout has no clipped title segment or editor overflow', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await page.reload();
+    await expect(page.locator('.title-segment__opt')).toHaveCount(3);
+
+    const metrics = await page.evaluate(() => {
+      const titleButtons = Array.from(
+        document.querySelectorAll<HTMLElement>('.title-segment__opt')
+      ).map((element) => ({
+        text: element.textContent?.trim(),
+        clipped:
+          element.scrollWidth > element.clientWidth + 1 ||
+          element.scrollHeight > element.clientHeight + 1,
+      }));
+      const editor = document.querySelector<HTMLElement>('.editor-pane');
+      return {
+        titleButtons,
+        bodyOverflow:
+          Math.max(
+            document.documentElement.scrollWidth,
+            document.body.scrollWidth
+          ) - window.innerWidth,
+        editorOverflow: editor ? editor.scrollWidth - editor.clientWidth : 0,
+      };
+    });
+
+    expect(metrics.bodyOverflow).toBeLessThanOrEqual(0);
+    expect(metrics.editorOverflow).toBeLessThanOrEqual(0);
+    expect(metrics.titleButtons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ text: 'Feedbackbogen', clipped: false }),
+        expect.objectContaining({ text: 'Bewertungsbogen', clipped: false }),
+        expect.objectContaining({ text: 'Benutzerdefiniert', clipped: false }),
+      ])
+    );
+  });
+
+  test('Mobile preview fits A4 page without horizontal scrolling', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await page.reload();
+    await page.locator('.mobile-tab[data-mobile-view="preview"]').click();
+
+    const metrics = await page.evaluate(() => {
+      const preview = document.querySelector<HTMLElement>('.preview-pane-inner');
+      const pageEl = document.querySelector<HTMLElement>('.a4-page');
+      return {
+        previewOverflow: preview ? preview.scrollWidth - preview.clientWidth : 0,
+        pageRight: pageEl?.getBoundingClientRect().right ?? 0,
+        viewport: window.innerWidth,
+      };
+    });
+
+    expect(metrics.previewOverflow).toBeLessThanOrEqual(1);
+    expect(metrics.pageRight).toBeLessThanOrEqual(metrics.viewport + 1);
+  });
+
+  test('Mobile primary controls meet minimum touch target size', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+
+    const problems = await page.evaluate(() => {
+      const selectors = [
+        '.language-switcher',
+        '.language-switcher__option',
+        '.mobile-tab',
+        '.title-segment__opt',
+        '.btn-small',
+        '.btn-icon',
+        '.header-field-drag-handle',
+        '.app-footer-nav a',
+        '.bmc-link',
+        '.github-link',
+      ];
+      return selectors.flatMap((selector) =>
+        Array.from(document.querySelectorAll<HTMLElement>(selector))
+          .filter((element) => {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return (
+              rect.width > 0 &&
+              rect.height > 0 &&
+              style.display !== 'none' &&
+              style.visibility !== 'hidden' &&
+              (rect.width < 40 || rect.height < 40)
+            );
+          })
+          .map((element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              selector,
+              text: element.textContent?.trim() || element.getAttribute('aria-label'),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height),
+            };
+          })
+      );
+    });
+
+    expect(problems).toEqual([]);
+  });
 });
 
 test.describe('Language Switching', () => {
@@ -440,7 +551,7 @@ test.describe('Language Switching', () => {
     });
     await page.goto('/');
 
-    await page.locator('[data-action="language-switch"]').selectOption('en');
+    await page.locator('[data-action="language-switch"][data-language-code="en"]').click();
     await page.waitForLoadState('load');
 
     await expect(page.locator('.app-footer-note')).toHaveText(

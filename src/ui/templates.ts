@@ -9,7 +9,10 @@ import {
 import { productFormatCategoryId } from '@/product-formats';
 import { contentPages } from '@/content-pages';
 import { orderByIds } from '@/config-order';
-import { categoryHeadingText } from '@/export/export-utils';
+import {
+  categoryHeadingText,
+  weightedScoreSummary,
+} from '@/export/export-utils';
 import type {
   Category,
   Scale,
@@ -117,17 +120,21 @@ export function renderLayout(): HTMLElement {
         'div',
         { class: 'header-meta__top' },
         el(
-          'select',
+          'div',
           {
             class: 'language-switcher',
+            role: 'group',
             'aria-label': strings.a11y.languageSwitcher,
-            'data-action': 'language-switch',
           },
           ...LANGUAGE_CODES.map((code) =>
-            el('option', {
-              value: code,
-              selected: code === currentLanguage,
-              text: LOCALES[code].label,
+            el('button', {
+              type: 'button',
+              class: `language-switcher__option${code === currentLanguage ? ' is-active' : ''}`,
+              'aria-label': LOCALES[code].label,
+              'aria-pressed': code === currentLanguage ? 'true' : 'false',
+              'data-action': 'language-switch',
+              'data-language-code': code,
+              text: code.toUpperCase(),
             })
           )
         ),
@@ -2137,6 +2144,9 @@ export function renderPreview(
     container.append(renderA4Body(rows, mode, onRemoveItem));
   }
 
+  const scoreSummary = weightedScoreSummary(rows);
+  if (scoreSummary) container.append(renderA4ScoreSummary(scoreSummary));
+
   container.append(renderA4Feedback());
   container.append(renderA4Footer(footerFields));
   container.append(
@@ -2158,6 +2168,40 @@ function renderA4Header(header: HeaderData): HTMLElement {
   });
 
   return wrap;
+}
+
+function renderA4ScoreSummary(
+  summary: NonNullable<ReturnType<typeof weightedScoreSummary>>
+): HTMLElement {
+  const section = el(
+    'section',
+    { class: 'a4-score-summary' },
+    el('h2', {
+      class: 'a4-score-title',
+      text: strings.labels.scoreSummaryTitle,
+    })
+  );
+  const list = el('ul', { class: 'a4-score-list' });
+  summary.groups.forEach((group) => {
+    list.append(
+      el('li', {
+        class: 'a4-score-row',
+        text: strings.labels.scoreCategoryResult(group.title, group.weight),
+      })
+    );
+  });
+  section.append(
+    list,
+    el('p', {
+      class: 'a4-score-total',
+      text: strings.labels.scoreTotalResult(summary.totalWeight),
+    }),
+    el('p', {
+      class: 'a4-score-hint',
+      text: strings.labels.scoreTotalHint,
+    })
+  );
+  return section;
 }
 
 function renderA4Body(

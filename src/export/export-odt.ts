@@ -5,6 +5,7 @@ import {
   downloadBlob,
   groupRows,
   scaleOptions,
+  weightedScoreSummary,
 } from '@/export/export-utils';
 import { strings } from '@/strings';
 import type {
@@ -157,6 +158,40 @@ function feedbackTable() {
   </table:table>`;
 }
 
+function scoreSummaryTable(rows: ExportRow[]) {
+  const summary = weightedScoreSummary(rows);
+  if (!summary) return '';
+  const rowsXml = [
+    tableRow(
+      [
+        tableCell(strings.labels.scoreSummaryTitle, 'HeaderCell', 'HeaderText'),
+        tableCell('', 'HeaderCell', 'HeaderText'),
+      ],
+      'HeaderRow'
+    ),
+    ...summary.groups.map((group) =>
+      tableRow([
+        tableCell(group.title),
+        tableCell(`____ / ${group.weight} %`, 'BodyCell', 'Center'),
+      ])
+    ),
+    tableRow([
+      tableCell(strings.labels.scoreTotalResult(summary.totalWeight), 'ShadedCell', 'Bold'),
+      tableCell('', 'ShadedCell', 'Bold'),
+    ]),
+    tableRow([
+      tableCell(strings.labels.scoreTotalHint, 'BodyCell'),
+      tableCell('', 'BodyCell'),
+    ]),
+  ];
+  return `${paragraph(strings.labels.scoreSummaryTitle, 'Category')}
+  <table:table table:name="Auswertung" table:style-name="ScoreTable">
+    <table:table-column table:style-name="ScoreCategoryColumn"/>
+    <table:table-column table:style-name="ScoreWeightColumn"/>
+    ${rowsXml.join('')}
+  </table:table>${paragraph('', 'Spacer')}`;
+}
+
 function contentXml(
   rows: ExportRow[],
   title: string,
@@ -196,10 +231,13 @@ function contentXml(
     <style:style style:name="MetadataTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="CriteriaTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="FeedbackTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
+    <style:style style:name="ScoreTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="FooterFieldsTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="MetadataColumn" style:family="table-column"><style:table-column-properties style:column-width="8.5cm"/></style:style>
     ${categoryColumnStyles(rows, mode)}
     <style:style style:name="FeedbackColumn" style:family="table-column"><style:table-column-properties style:column-width="17cm"/></style:style>
+    <style:style style:name="ScoreCategoryColumn" style:family="table-column"><style:table-column-properties style:column-width="12cm"/></style:style>
+    <style:style style:name="ScoreWeightColumn" style:family="table-column"><style:table-column-properties style:column-width="5cm"/></style:style>
     <style:style style:name="FooterFieldColumn" style:family="table-column"><style:table-column-properties style:rel-column-width="1*"/></style:style>
     <style:style style:name="TableRow" style:family="table-row"><style:table-row-properties fo:keep-together="always"/></style:style>
     <style:style style:name="HeaderRow" style:family="table-row"><style:table-row-properties fo:keep-together="always"/></style:style>
@@ -214,6 +252,7 @@ function contentXml(
       ${metadataTable(header)}
       ${categories}
       ${emptyState}
+      ${scoreSummaryTable(rows)}
       ${feedbackTable()}
       ${footerFieldsTable(footerFields)}
     </office:text>

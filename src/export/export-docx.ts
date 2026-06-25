@@ -21,6 +21,7 @@ import {
   downloadBlob,
   groupRows,
   scaleOptions,
+  weightedScoreSummary,
 } from '@/export/export-utils';
 import { strings } from '@/strings';
 import type {
@@ -225,6 +226,58 @@ function footerFieldsTable(footerFields: FooterFields): Table | null {
   );
 }
 
+function scoreSummaryTable(rows: ExportRow[]): Table | null {
+  const summary = weightedScoreSummary(rows);
+  if (!summary) return null;
+  const categoryWidth = Math.round(contentWidth * 0.72);
+  const weightWidth = contentWidth - categoryWidth;
+  return table(
+    [
+      new TableRow({
+        cantSplit: true,
+        children: [
+          cell(strings.labels.scoreSummaryTitle, {
+            bold: true,
+            fill: 'F7F8FA',
+            columnSpan: 2,
+          }),
+        ],
+      }),
+      ...summary.groups.map(
+        (group) =>
+          new TableRow({
+            cantSplit: true,
+            children: [
+              cell(group.title, { width: categoryWidth }),
+              cell(`____ / ${group.weight} %`, {
+                width: weightWidth,
+                alignment: AlignmentType.CENTER,
+              }),
+            ],
+          })
+      ),
+      new TableRow({
+        cantSplit: true,
+        children: [
+          cell(strings.labels.scoreTotalResult(summary.totalWeight), {
+            bold: true,
+            columnSpan: 2,
+          }),
+        ],
+      }),
+      new TableRow({
+        cantSplit: true,
+        children: [
+          cell(strings.labels.scoreTotalHint, {
+            columnSpan: 2,
+          }),
+        ],
+      }),
+    ],
+    [categoryWidth, weightWidth]
+  );
+}
+
 export async function createDOCXBlob(
   rows: ExportRow[],
   title: string,
@@ -264,6 +317,11 @@ export async function createDOCXBlob(
         spacing: { after: 180 },
       })
     );
+  }
+
+  const scoreTable = scoreSummaryTable(rows);
+  if (scoreTable) {
+    children.push(scoreTable, new Paragraph({ text: '', spacing: { after: 120 } }));
   }
 
   children.push(

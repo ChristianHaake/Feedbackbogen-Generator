@@ -11,6 +11,7 @@ import {
   downloadBlob,
   groupRows,
   scaleOptions,
+  weightedScoreSummary,
 } from '@/export/export-utils';
 import { strings } from '@/strings';
 import type {
@@ -151,6 +152,11 @@ export async function createFillablePDFBlob(
   }
 
   const feedbackTopGap = rows.length > 0 ? 18 : 0;
+  const scoreSummary = weightedScoreSummary(rows);
+  if (scoreSummary) {
+    ensureSpace(scoreSummaryHeight(scoreSummary.groups.length));
+    y = drawScoreSummary(ctx, scoreSummary, y);
+  }
   ensureSpace(feedbackTopGap + 128);
   y += feedbackTopGap;
   y = drawFeedback(ctx, y);
@@ -590,6 +596,82 @@ function drawFeedback(ctx: FillableContext, y: number): number {
     10
   );
   return y + 18;
+}
+
+function scoreSummaryHeight(groupCount: number): number {
+  return 42 + groupCount * 18 + 34;
+}
+
+function drawScoreSummary(
+  ctx: FillableContext,
+  summary: NonNullable<ReturnType<typeof weightedScoreSummary>>,
+  y: number
+): number {
+  const height = scoreSummaryHeight(summary.groups.length);
+  ctx.page.drawRectangle({
+    x: marginX,
+    y: toPdfY(y, height),
+    width: contentWidth,
+    height,
+    borderWidth: 0.6,
+    borderColor: colors.lightBorder,
+    color: colors.scaleFill,
+  });
+  drawText(
+    ctx,
+    strings.labels.scoreSummaryTitle.toUpperCase(),
+    marginX + 9,
+    y + 16,
+    10,
+    ctx.fonts.bold,
+    colors.headingText
+  );
+
+  let rowY = y + 30;
+  summary.groups.forEach((group, index) => {
+    const label = `${group.title}:`;
+    drawText(ctx, label, marginX + 9, rowY + 12, 9.5, ctx.fonts.regular);
+    drawText(
+      ctx,
+      `/ ${group.weight} %`,
+      marginX + contentWidth - 54,
+      rowY + 12,
+      9.5,
+      ctx.fonts.regular
+    );
+    addTextField(
+      ctx,
+      `score_${index + 1}`,
+      marginX + contentWidth - 128,
+      rowY,
+      66,
+      16,
+      '',
+      false,
+      9.5
+    );
+    rowY += 18;
+  });
+
+  drawText(
+    ctx,
+    strings.labels.scoreTotalResult(summary.totalWeight),
+    marginX + 9,
+    rowY + 12,
+    9.5,
+    ctx.fonts.bold
+  );
+  rowY += 18;
+  drawText(
+    ctx,
+    strings.labels.scoreTotalHint,
+    marginX + 9,
+    rowY + 10,
+    8.5,
+    ctx.fonts.regular,
+    colors.mutedText
+  );
+  return y + height + 16;
 }
 
 function drawFooterFields(

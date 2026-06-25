@@ -11,10 +11,19 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Added
 
 - Neue Bewertungskategorie „Sprachgebrauch“ mit zugehörigen Kriterien.
+- Auswertungsübersicht für gewichtete Kategorien in Vorschau, PDF, ausfüllbarem PDF, DOCX, XLSX und ODT.
+- Browser-Regressionstests für 320px-Mobile-Layout, Touch-Zielgrößen und Fit-to-width-Vorschau.
 
 ### Changed
 
 - Kleinere Formatkorrekturen an Inhalten und Darstellung.
+- Mobile Darstellung der Titelwahl, Touch-Ziele, Fußzeilenlinks und A4-Vorschau verbessert.
+- README um Live-Release-Prüfung mit `npm run verify:live` ergänzt.
+
+### Fixed
+
+- Titeloptionen werden auf sehr schmalen deutschen Mobile-Viewports nicht mehr abgeschnitten.
+- Die mobile Vorschau erzwingt keinen horizontalen A4-Scroll mehr als Standardansicht.
 
 ## [1.0.0] - 2026-05-30
 

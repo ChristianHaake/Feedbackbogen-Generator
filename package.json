@@ -9,6 +9,7 @@
     "prebuild": "npm run check:content",
     "build": "vite build",
     "check:content": "node scripts/validate-content.mjs",
+    "verify:live": "node scripts/verify-live-deploy.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "preview": "vite preview --port 4173",
     "lint": "eslint src tests vite.config.ts",

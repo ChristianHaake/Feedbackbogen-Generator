@@ -120,6 +120,12 @@ export const es = {
     previewMode: 'Vista',
     previewEmpty:
       'Aún no se han seleccionado criterios — selecciona a la izquierda.',
+    scoreSummaryTitle: 'Evaluación',
+    scoreCategoryResult: (category: string, weight: number) =>
+      `${category}: ____ / ${weight} %`,
+    scoreTotalResult: (total: number) => `Resultado total: ____ / ${total} %`,
+    scoreTotalHint:
+      'Las ponderaciones definen el marco de puntuación para la evaluación posterior.',
     selectedEmpty: 'Aún no se han seleccionado criterios.',
     moreActions: 'Más acciones',
     mobileEdit: 'Editar',

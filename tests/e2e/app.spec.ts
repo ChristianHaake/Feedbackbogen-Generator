@@ -542,6 +542,43 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
 });
 
 test.describe('Language Switching', () => {
+  test('keeps title segment labels readable in German and Dutch', async ({
+    page,
+  }) => {
+    for (const language of ['de', 'nl']) {
+      await page.goto('/');
+      await page.evaluate((languageCode) => {
+        window.localStorage.clear();
+        window.localStorage.setItem('bbk:onboarding-dismissed', '1');
+        window.localStorage.setItem('bbk:lang', languageCode);
+      }, language);
+      await page.goto('/');
+
+      await expect(page.locator('.title-segment__opt')).toHaveCount(3);
+
+      const metrics = await page.evaluate(() => {
+        const segment = document.querySelector<HTMLElement>('.title-segment');
+        const buttons = Array.from(
+          document.querySelectorAll<HTMLElement>('.title-segment__opt')
+        ).map((button) => ({
+          text: button.textContent?.trim(),
+          clipped:
+            button.scrollWidth > button.clientWidth + 1 ||
+            button.scrollHeight > button.clientHeight + 1,
+        }));
+
+        return {
+          display: segment ? getComputedStyle(segment).display : null,
+          buttons,
+        };
+      });
+
+      expect(metrics.display).toBe('grid');
+      expect(metrics.buttons).toHaveLength(3);
+      expect(metrics.buttons.every(({ clipped }) => !clipped)).toBe(true);
+    }
+  });
+
   test('switches UI and content JSON language', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => {

@@ -611,6 +611,9 @@ body {
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--border);
 }
+.document-title-field {
+  container-type: inline-size;
+}
 .title-segment {
   display: flex; width: 100%;
   background: var(--surface-subtle);
@@ -633,6 +636,16 @@ body {
 }
 .title-segment__opt:hover { color: var(--text); }
 .title-segment__opt.is-active { background: var(--primary); color: #fff; }
+@container (max-width: 430px) {
+  .title-segment {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-radius: 14px;
+  }
+  .title-segment__opt {
+    border-radius: 10px;
+  }
+}
 .kd-field { display: flex; flex-direction: column; gap: 3px; }
 .kd-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
 .kd-input, .kd-textarea {

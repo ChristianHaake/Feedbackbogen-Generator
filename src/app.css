@@ -639,11 +639,14 @@ body {
 @container (max-width: 430px) {
   .title-segment {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     border-radius: 14px;
   }
   .title-segment__opt {
     border-radius: 10px;
+  }
+  .title-segment__opt[data-title-mode="custom"] {
+    grid-column: 1 / -1;
   }
 }
 .kd-field { display: flex; flex-direction: column; gap: 3px; }

@@ -10,7 +10,12 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ['src/**/*.{ts,tsx}', 'tests/**/*.ts', 'vite.config.ts'],
+    files: [
+      'src/**/*.{ts,tsx}',
+      'tests/**/*.ts',
+      'vite.config.ts',
+      'playwright.config.ts'
+    ],
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 'latest',

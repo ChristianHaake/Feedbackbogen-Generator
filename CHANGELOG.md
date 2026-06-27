@@ -8,20 +8,44 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+Keine Einträge.
+
+## [2.0.0] - in Vorbereitung
+
 ### Added
 
+- Mehrsprachige Oberfläche und lokalisierte Inhaltsdaten für Deutsch, Englisch, Französisch, Spanisch und Niederländisch.
+- Sprachumschalter mit gespeicherter Browser-Präferenz und relokalisierten Standard-Kopffeldern.
+- 8 allgemeine Bewertungskategorien mit 40 Kriterien.
+- 6 Produktformat-Gruppen mit 33 Formaten und 211 produktspezifischen Kriterien.
+- 7 Skalentypen: verbale Skala, Punkte, Emoji-Skalen, Ampel, Prozent und Ja/Nein.
 - Neue Bewertungskategorie „Sprachgebrauch“ mit zugehörigen Kriterien.
+- Eigene Kategorien, umbenennbare Kategorien und Masseneingabe eigener Kriterien.
+- Standard-Skala für neue Kategorien sowie individuelle Skalen und numerische Wertebereiche pro Kategorie.
+- Ausfüllbares PDF mit Formularfeldern als zusätzlicher Export.
 - Auswertungsübersicht für gewichtete Kategorien in Vorschau, PDF, ausfüllbarem PDF, DOCX, XLSX und ODT.
+- Warnung beim Export, wenn konfigurierte Kategoriegewichtungen nicht 100 % ergeben.
+- Versionierter JSON-Import mit Migration älterer Konfigurationen und Schutzgrenzen für Dateigröße, Strukturkomplexität und Eintragsmengen.
+- Mobile Bearbeiten-/Vorschau-/Export-Navigation und Fit-to-width-A4-Vorschau.
+- Live-Deploy-Verifikation für aktuelle Assets, Content-JSON, PWA-Dateien und Security-Header.
 - Browser-Regressionstests für 320px-Mobile-Layout, Touch-Zielgrößen und Fit-to-width-Vorschau.
 
 ### Changed
 
+- Generator-Oberfläche auf den Release-Workflow ausgerichtet: linke Konfiguration, rechte A4-Vorschau, mobile Tab-Navigation.
+- Exportdateien verwenden lokalisierte Dateinamen, Tabellenbeschriftungen und Skalenbezeichnungen.
+- XLSX-Export schützt tabellarische Zellwerte vor Formel-Präfixen.
+- PWA- und Content-Dateien werden mit revalidierbaren Cache-Headern ausgeliefert; fingerprinted Assets bleiben immutable.
 - Kleinere Formatkorrekturen an Inhalten und Darstellung.
 - Mobile Darstellung der Titelwahl, Touch-Ziele, Fußzeilenlinks und A4-Vorschau verbessert.
 - README um Live-Release-Prüfung mit `npm run verify:live` ergänzt.
 
 ### Fixed
 
+- Mobile Sprachwahl bleibt erreichbar.
+- Footer-Links, ARIA-Beschriftungen, Ampelskala und XLSX-Textbausteine sind in den unterstützten UI-Sprachen lokalisiert.
+- Importfehler ersetzen keine vorhandene Konfiguration.
+- DOCX-, XLSX-, ODT-, PDF- und ausfüllbarer-PDF-Export übernehmen Kopfdaten, Fußzeile, Skalenmodus und Gewichtungen konsistenter.
 - Titeloptionen werden auf sehr schmalen deutschen Mobile-Viewports nicht mehr abgeschnitten.
 - Die mobile Vorschau erzwingt keinen horizontalen A4-Scroll mehr als Standardansicht.
 
@@ -71,4 +95,5 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Erste Dokumentexporte und GitHub-Pages-Deployment.
 
 [Unreleased]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/afb47c5...master
+[2.0.0]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/afb47c5...master
 [1.0.0]: https://github.com/ChristianHaake/Feedbackbogen-Generator/tree/afb47c5

@@ -2235,12 +2235,15 @@ function renderA4Body(
         text: categoryHeadingText(title, weight),
       })
     );
-    if (mode === 'full' && scale) section.append(renderScaleHeader(scale));
-    const list = el('ol', { class: 'a4-items' });
-    items.forEach((r) =>
-      list.append(renderA4Item(r, mode, scale, onRemoveItem))
-    );
-    section.append(list);
+    if (mode === 'full' && scale) {
+      section.append(renderA4ScaleTable(items, scale, onRemoveItem));
+    } else {
+      const list = el('ol', { class: 'a4-items' });
+      items.forEach((r) =>
+        list.append(renderA4Item(r, mode, scale, onRemoveItem))
+      );
+      section.append(list);
+    }
     wrap.append(section);
   });
 
@@ -2299,20 +2302,69 @@ function renderA4Item(
   return li;
 }
 
-function renderScaleHeader(scale: Scale): HTMLElement {
-  if (scale.kind === 'numeric') return renderNumericScaleHeader(scale);
+function renderA4ScaleTable(
+  items: ExportRow[],
+  scale: Scale,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
+  const options = scaleOptionLabels(scale);
+  const labelWidth = scale.kind === 'numeric' ? 46 : 42;
+  const optionWidth = (100 - labelWidth) / options.length;
+  const table = el('table', {
+    class: `a4-scale-table${scale.kind === 'numeric' ? ' a4-scale-table-numeric' : ''}`,
+  });
+  const colgroup = el('colgroup');
+  colgroup.append(el('col', { style: `width: ${labelWidth}%` }));
+  options.forEach(() =>
+    colgroup.append(el('col', { style: `width: ${optionWidth}%` }))
+  );
 
-  const wrap = el('div', { class: 'a4-scale-header' });
-  wrap.append(el('div', { class: 'a4-scale-header-spacer' }));
-  const options = el('div', {
-    class: 'a4-scale-options',
-    style: scaleGridStyle(scale),
+  const headerRow = el('tr');
+  headerRow.append(el('th', { class: 'a4-scale-criterion-head', scope: 'col' }));
+  options.forEach((label) => {
+    headerRow.append(
+      el('th', {
+        class: 'a4-scale-option-head a4-scale-opt-text',
+        scope: 'col',
+        text: label,
+      })
+    );
   });
-  scaleOptionLabels(scale).forEach((label) => {
-    options.append(el('span', { class: 'a4-scale-opt-text', text: label }));
-  });
-  wrap.append(options);
-  return wrap;
+
+  const body = el('tbody');
+  items.forEach((row) =>
+    body.append(renderA4ScaleTableRow(row, options.length, onRemoveItem))
+  );
+
+  table.append(colgroup, el('thead', {}, headerRow), body);
+  return table;
+}
+
+function renderA4ScaleTableRow(
+  row: ExportRow,
+  optionCount: number,
+  onRemoveItem?: (categoryId: string, itemId: string) => void
+): HTMLElement {
+  const tr = el('tr', { class: 'a4-item a4-scale-row' });
+  if (onRemoveItem) tr.classList.add('a4-item-removable');
+  const label = el(
+    'td',
+    { class: 'a4-item-label a4-scale-criterion-cell' },
+    el('span', { class: 'a4-item-number', text: `${row.number}.` }),
+    el('span', { class: 'a4-item-text', text: row.item })
+  );
+  if (onRemoveItem) label.append(a4RemoveButton(row, onRemoveItem));
+  tr.append(label);
+  for (let index = 0; index < optionCount; index += 1) {
+    tr.append(
+      el(
+        'td',
+        { class: 'a4-scale-cell' },
+        el('span', { class: 'a4-cbox', text: '☐' })
+      )
+    );
+  }
+  return tr;
 }
 
 function renderScaleBoxes(scale: Scale): HTMLElement {
@@ -2325,22 +2377,6 @@ function renderScaleBoxes(scale: Scale): HTMLElement {
   scaleOptionLabels(scale).forEach(() => {
     wrap.append(el('span', { class: 'a4-cbox', text: '☐' }));
   });
-  return wrap;
-}
-
-function renderNumericScaleHeader(
-  scale: Scale & { kind: 'numeric' }
-): HTMLElement {
-  const wrap = el('div', { class: 'a4-scale-header a4-scale-header-numeric' });
-  wrap.append(el('div', { class: 'a4-scale-header-spacer' }));
-  const options = el('div', {
-    class: 'a4-scale-options a4-scale-options-numeric',
-    style: scaleGridStyle(scale),
-  });
-  scaleOptionLabels(scale).forEach((label) => {
-    options.append(el('span', { class: 'a4-scale-opt-text', text: label }));
-  });
-  wrap.append(options);
   return wrap;
 }
 

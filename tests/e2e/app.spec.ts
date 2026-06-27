@@ -99,13 +99,13 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(abgabeCb).toBeChecked();
 
     // Verify checked item appears in preview body
-    const previewItems = page.locator('.a4-items li');
+    const previewItems = page.locator('.a4-item');
     await expect(previewItems).toHaveCount(1);
     await expect(previewItems).toContainText('Rechtzeitige Abgabe');
 
     const scaleHeaders = page.locator('.a4-scale-opt-text');
     await expect(scaleHeaders).toHaveCount(5);
-    const previewScaleBoxes = previewItems.first().locator('.a4-scale-boxes .a4-cbox');
+    const previewScaleBoxes = previewItems.first().locator('.a4-scale-cell .a4-cbox');
     await expect(previewScaleBoxes).toHaveCount(5);
     const firstBox = await previewScaleBoxes.nth(0).boundingBox();
     expect(firstBox).not.toBeNull();
@@ -288,7 +288,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
 
     // Test print preview modes: checklist vs full with scales
     const previewBodyItem = page.locator('.a4-item');
-    await expect(previewBodyItem.locator('.a4-scale-boxes')).toBeVisible();
+    await expect(previewBodyItem.locator('.a4-scale-cell .a4-cbox')).toHaveCount(5);
 
     // Switch to Checklist mode
     const checklistTab = page.locator('.mode-tab[data-mode="checklist"]');
@@ -296,7 +296,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(checklistTab).toHaveClass(/active/);
 
     // Verify scales are no longer visible, checkbox box is shown instead
-    await expect(previewBodyItem.locator('.a4-scale-boxes')).not.toBeVisible();
+    await expect(previewBodyItem.locator('.a4-scale-cell .a4-cbox')).toHaveCount(0);
     await expect(previewBodyItem.locator('.a4-cbox')).toBeVisible();
   });
 
@@ -335,7 +335,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     // Perform some changes
     await page.locator('#acc-allgemeine').click();
     await page.locator('label[for="cb-allgemeine-abgabe"]').click();
-    await expect(page.locator('.a4-items li')).toHaveCount(1);
+    await expect(page.locator('.a4-item')).toHaveCount(1);
 
     // Click Reset button in action bar
     const resetBtn = page.locator('#config-reset');
@@ -351,7 +351,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(modal).not.toBeVisible();
 
     // Verify selection is still there
-    await expect(page.locator('.a4-items li')).toHaveCount(1);
+    await expect(page.locator('.a4-item')).toHaveCount(1);
 
     // Click Reset again and confirm
     await resetBtn.click();
@@ -361,7 +361,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(page.locator('.reset-confirm-modal')).not.toBeVisible();
 
     // Verify configuration was reset (selection empty)
-    await expect(page.locator('.a4-items li')).toHaveCount(0);
+    await expect(page.locator('.a4-item')).toHaveCount(0);
   });
 
   test('Export Menu Downloads Click Check', async ({ page }) => {
@@ -425,7 +425,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await chooser.setFiles(configPath);
 
     await expect(page.locator('.a4-title')).toHaveText('Import Testbogen');
-    await expect(page.locator('.a4-items li')).toContainText(
+    await expect(page.locator('.a4-item')).toContainText(
       'Rechtzeitige Abgabe'
     );
     await expect(page.locator('#config-message')).toHaveText(

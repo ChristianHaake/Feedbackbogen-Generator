@@ -1360,6 +1360,84 @@ body {
   opacity: 1;
 }
 .a4-item-remove:hover { background: var(--danger-soft); border-color: var(--danger); }
+.a4-scale-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 0.6pt solid #d7dbe0;
+}
+.a4-scale-table th,
+.a4-scale-table td {
+  border-bottom: 0.4pt solid #e1e4e8;
+}
+.a4-scale-table thead th {
+  padding: 5pt 5pt;
+  background: #f7f8fa;
+}
+.a4-scale-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.a4-scale-table tbody tr:nth-child(even) {
+  background: #fbfbfc;
+}
+.a4-scale-table .a4-item {
+  display: table-row;
+  page-break-inside: avoid;
+}
+.a4-scale-table .a4-item-removable {
+  position: static;
+}
+.a4-scale-criterion-head {
+  color: transparent;
+}
+.a4-scale-option-head {
+  min-width: 0;
+  font-size: 8pt;
+  font-weight: 600;
+  line-height: 1.05;
+  color: #222;
+  text-align: center;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.a4-scale-table-numeric .a4-scale-option-head {
+  font-size: 7.5pt;
+}
+.a4-scale-criterion-cell {
+  position: relative;
+  padding: 8pt 8pt;
+  vertical-align: middle;
+}
+.a4-scale-table .a4-item-label {
+  display: grid;
+  grid-template-columns: 20pt minmax(0, 1fr);
+  column-gap: 4pt;
+}
+.a4-scale-table .a4-item-label::before {
+  content: none;
+}
+.a4-item-number {
+  grid-column: 1;
+  color: #888;
+  font-weight: 400;
+}
+.a4-scale-cell {
+  padding: 8pt 5pt;
+  text-align: center;
+  vertical-align: middle;
+}
+.a4-scale-table .a4-cbox {
+  display: inline-block;
+  white-space: nowrap;
+}
+.a4-scale-table .a4-item-remove {
+  left: -38px;
+}
+.a4-scale-table .a4-scale-row:hover .a4-item-remove,
+.a4-scale-table .a4-scale-row:focus-within .a4-item-remove {
+  opacity: 1;
+}
 .a4-item-numeric {
   grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
   gap: 9pt;

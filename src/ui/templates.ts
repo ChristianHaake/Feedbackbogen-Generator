@@ -2309,14 +2309,14 @@ function renderA4ScaleTable(
 ): HTMLElement {
   const options = scaleOptionLabels(scale);
   const labelWidth = scale.kind === 'numeric' ? 46 : 42;
-  const optionWidth = (100 - labelWidth) / options.length;
   const table = el('table', {
     class: `a4-scale-table${scale.kind === 'numeric' ? ' a4-scale-table-numeric' : ''}`,
+    style: `--a4-criterion-width: ${labelWidth}%; --a4-option-count: ${options.length};`,
   });
   const colgroup = el('colgroup');
-  colgroup.append(el('col', { style: `width: ${labelWidth}%` }));
+  colgroup.append(el('col', { class: 'a4-scale-col-criterion' }));
   options.forEach(() =>
-    colgroup.append(el('col', { style: `width: ${optionWidth}%` }))
+    colgroup.append(el('col', { class: 'a4-scale-col-option' }))
   );
 
   const headerRow = el('tr');

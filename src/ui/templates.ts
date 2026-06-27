@@ -2310,15 +2310,19 @@ function renderA4ScaleTable(
   const options = scaleOptionLabels(scale);
   const labelWidth = scale.kind === 'numeric' ? 46 : 42;
   const table = el('table', {
-    class: `a4-scale-table${scale.kind === 'numeric' ? ' a4-scale-table-numeric' : ''}`,
-    style: `--a4-criterion-width: ${labelWidth}%; --a4-option-count: ${options.length};`,
+    class: `a4-scale-table${scale.kind === 'numeric' ? ' a4-scale-table-numeric' : ''}`
   });
   const colgroup = el('colgroup');
-  colgroup.append(el('col', { class: 'a4-scale-col-criterion', style: `width: ${labelWidth}%` }));
+  const criterionCol = el('col', { class: 'a4-scale-col-criterion' });
+  criterionCol.style.width = `${labelWidth}%`;
+  colgroup.append(criterionCol);
+
   const optionWidth = (100 - labelWidth) / options.length;
-  options.forEach(() =>
-    colgroup.append(el('col', { class: 'a4-scale-col-option', style: `width: ${optionWidth}%` }))
-  );
+  options.forEach(() => {
+    const optionCol = el('col', { class: 'a4-scale-col-option' });
+    optionCol.style.width = `${optionWidth}%`;
+    colgroup.append(optionCol);
+  });
 
   const headerRow = el('tr');
   headerRow.append(el('th', { class: 'a4-scale-criterion-head', scope: 'col' }));

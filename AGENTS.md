@@ -27,10 +27,11 @@ https://github.com/ChristianHaake/haak3-webapp-standard
 
 ## App-specific rules
 
-- App name: `{{APP_NAME}}`
-- Live URL: `{{APP_URL}}`
-- Repository: `{{REPOSITORY_URL}}`
-- Add further project-specific instructions here.
+- App name: `Feedbackbogen-Generator`
+- Live URL: `https://fbg.haak3.de`
+- Repository: `https://github.com/ChristianHaake/Feedbackbogen-Generator`
+- Content is in German; keep user-facing strings in German unless told otherwise.
+- All data is client-side only (localStorage); no backend or server calls.
 
 ## Verification
 

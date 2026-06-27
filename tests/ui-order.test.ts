@@ -95,6 +95,19 @@ describe('selected order UI', () => {
     expect(handlers.onReorderHeaderField).toHaveBeenCalledWith('topic', 'name');
   });
 
+  it('passes the exact header field label to the change handler without mutation', () => {
+    const handlers = handlerSpies();
+    const header: HeaderData = { fields: [{ id: 'name', label: '', value: '' }] };
+    const container = document.createElement('div');
+    renderKopfdaten(container, header, handlers);
+    const labelInput = container.querySelector<HTMLInputElement>('#kd-label-name')!;
+
+    labelInput.value = 'Lehrperson ä ö ü ß';
+    labelInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+    expect(handlers.onHeaderFieldLabelChange).toHaveBeenCalledWith('name', 'Lehrperson ä ö ü ß');
+  });
+
   it('filters and clamps numeric scale range inputs', () => {
     const handlers = handlerSpies();
     const container = document.createElement('div');
@@ -131,6 +144,57 @@ describe('selected order UI', () => {
   });
 });
 
+describe('category editing (rename / add / weight)', () => {
+  const categories: Category[] = [
+    { id: 'a', title: 'Kategorie A', items: [{ id: 'a1', label: 'Kriterium A1' }] },
+    { id: 'custom_cat_1', title: 'Eigene Kategorie', items: [] }
+  ];
+  const scales: Scale[] = [{ id: 'percent', label: 'Prozent', kind: 'percent' }];
+
+  function renderEditable(weights: Record<string, number> = {}) {
+    const handlers = handlerSpies();
+    const container = document.createElement('div');
+    document.body.append(container);
+    renderCategories(container, categories, [], new Set(), scales, {}, {}, 'percent', {}, handlers, '', true, weights);
+    return { handlers, container };
+  }
+
+  it('renders a title input per category, a weight input, and an add-category row', () => {
+    const { container } = renderEditable({ a: 40 });
+    expect(container.querySelectorAll('.category-title-input')).toHaveLength(2);
+    expect(container.querySelector('.add-category-row')).not.toBeNull();
+    expect(container.querySelector<HTMLInputElement>('.category-weight-input[data-cat="a"]')?.value).toBe('40');
+    // delete button only on the custom category's edit row
+    expect(container.querySelectorAll('.category-edit-row .btn-icon.danger')).toHaveLength(1);
+    container.remove();
+  });
+
+  it('warns when the weight sum is not 100 %', () => {
+    const { container } = renderEditable({ a: 40 });
+    expect(container.querySelector('.weight-sum-note')?.textContent).toContain('40');
+    container.remove();
+  });
+
+  it('fires rename, add and weight handlers from the editing controls', () => {
+    const { handlers, container } = renderEditable();
+    const titleInput = container.querySelector<HTMLInputElement>('.category-title-input[data-cat="a"]')!;
+    titleInput.value = 'Inhalt';
+    titleInput.dispatchEvent(new Event('blur'));
+    expect(handlers.onCategoryTitleChange).toHaveBeenCalledWith('a', 'Inhalt');
+
+    const weightInput = container.querySelector<HTMLInputElement>('.category-weight-input[data-cat="a"]')!;
+    weightInput.value = '40';
+    weightInput.dispatchEvent(new Event('change'));
+    expect(handlers.onCategoryWeightChange).toHaveBeenCalledWith('a', 40);
+
+    const addInput = container.querySelector<HTMLInputElement>('.add-category-input')!;
+    addInput.value = 'Sprache';
+    container.querySelector<HTMLButtonElement>('.add-category-btn')!.click();
+    expect(handlers.onAddCategory).toHaveBeenCalledWith('Sprache');
+    container.remove();
+  });
+});
+
 function dataTransfer(): DataTransfer {
   const entries = new Map<string, string>();
   const transfer = {
@@ -163,12 +227,17 @@ function handlerSpies(): RenderHandlers {
     onNumericScaleRangeChange: vi.fn(),
     onDefaultScaleChange: vi.fn(),
     onAddCustomItem: vi.fn(),
+    onBulkAddCustomItems: vi.fn(),
     onRemoveCustomItem: vi.fn(),
     onRemoveSelected: vi.fn(),
     onSelectCategory: vi.fn(),
     onClearCategory: vi.fn(),
     onClearSelection: vi.fn(),
     onReorderCategory: vi.fn(),
+    onCategoryTitleChange: vi.fn(),
+    onAddCategory: vi.fn(),
+    onRemoveCategory: vi.fn(),
+    onCategoryWeightChange: vi.fn(),
     onReorderItem: vi.fn(),
     onSearchChange: vi.fn(),
     onOpenProductFormatModal: vi.fn(),
@@ -184,6 +253,7 @@ function handlerSpies(): RenderHandlers {
     onReorderHeaderField: vi.fn(),
     onFooterFieldToggle: vi.fn(),
     onPreviewModeChange: vi.fn(),
-    onMobileViewChange: vi.fn()
+    onMobileViewChange: vi.fn(),
+    onLanguageChange: vi.fn()
   };
 }

@@ -1,0 +1,1293 @@
+{
+  "groups": [
+    {
+      "id": "textprodukte",
+      "title": "Productions écrites",
+      "formats": [
+        {
+          "id": "eine-rede-schreiben",
+          "title": "Rédiger un discours",
+          "criteria": [
+            {
+              "id": "thematisch-klare-und-uberzeugende-rede",
+              "label": "discours thématiquement clair et convaincant",
+              "description": ""
+            },
+            {
+              "id": "nutzung-typischer-merkmale-einer-rede",
+              "label": "utilisation des caractéristiques typiques d'un discours",
+              "description": ""
+            },
+            {
+              "id": "originelle-filmische-umsetzung",
+              "label": "réalisation filmique originale",
+              "description": ""
+            },
+            {
+              "id": "technische-qualitat-des-videoclips-kombination-aus-klarem-verstandlichem",
+              "label": "qualité technique du clip vidéo (combinaison d'un son clair et intelligible, d'une image nette et stable et d'un montage structuré)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "fiktive-dialoge-mit-ki-persona",
+          "title": "Dialogues fictifs avec un persona d'IA",
+          "criteria": [
+            {
+              "id": "prazision-und-klarheit-der-prompts",
+              "label": "précision et clarté des prompts",
+              "description": ""
+            },
+            {
+              "id": "effektive-nutzung-der-ki-antworten",
+              "label": "utilisation efficace des réponses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "klare-und-adressatengerechte-rollenbeschreibung",
+              "label": "description du rôle claire et adaptée au destinataire",
+              "description": ""
+            },
+            {
+              "id": "strukturierte-speicherung-der-ki-antworten",
+              "label": "enregistrement structuré des réponses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "verstandliche-zusammenfassung-der-ki-antworten",
+              "label": "synthèse compréhensible des réponses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "fachlich-korrekte-und-angemessene-dokumentation",
+              "label": "documentation exacte sur le plan disciplinaire et appropriée",
+              "description": ""
+            },
+            {
+              "id": "kreativer-umgang-mit-der-simulierten-ki-rolle",
+              "label": "usage créatif du rôle d'IA simulé",
+              "description": ""
+            },
+            {
+              "id": "rollenadaquate-nutzung-der-ki-funktion",
+              "label": "utilisation de la fonction d'IA conforme au rôle",
+              "description": ""
+            },
+            {
+              "id": "einbindung-relevanter-und-zusatzlicher-inhalte-uber-die-ki-antworten-hin",
+              "label": "intégration de contenus pertinents et supplémentaires au-delà des réponses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "eigenstandige-entwicklung-von-fragen-und-prompts",
+              "label": "élaboration autonome de questions et de prompts",
+              "description": ""
+            },
+            {
+              "id": "kritische-prufung-der-ki-antworten",
+              "label": "examen critique des réponses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "reflexiver-umgang-mit-der-qualitat-der-ki-antworten",
+              "label": "approche réflexive de la qualité des réponses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "bewertung-von-mehrwert-und-limitationen-des-ki-einsatzes",
+              "label": "évaluation de la valeur ajoutée et des limites du recours à l'IA",
+              "description": ""
+            },
+            {
+              "id": "personlicher-erkenntnisgewinn-durch-die-arbeit-mit-der-ki",
+              "label": "gain de connaissances personnel grâce au travail avec l'IA",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-dokumentation-der-verwendeten-prompts-und-deren-wirkung",
+              "label": "documentation traçable des prompts utilisés et de leur effet",
+              "description": ""
+            },
+            {
+              "id": "angabe-der-genutzten-tools-und-deren-funktion-im-arbeitsprozess",
+              "label": "indication des outils utilisés et de leur fonction dans le processus de travail",
+              "description": ""
+            },
+            {
+              "id": "kritische-reflexion-der-starken-und-schwachen-der-ki",
+              "label": "réflexion critique sur les forces et les faiblesses de l'IA",
+              "description": ""
+            },
+            {
+              "id": "darstellung-von-erkenntnissen-zu-steuerung-und-limitierungen-der-ki",
+              "label": "présentation des enseignements sur le pilotage et les limites de l'IA",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-begrundung-fur-auswahl-und-anpassung-der-prompts",
+              "label": "justification traçable du choix et de l'adaptation des prompts",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "literarische-figuren-und-fingierte-zeitzeugen-mit-ki-generieren",
+          "title": "Générer des personnages littéraires et des témoins fictifs avec l'IA",
+          "criteria": [
+            {
+              "id": "treffende-darstellung-der-hauptfigur-aussehen-haltung-und-kleidung-entsp",
+              "label": "représentation juste du personnage principal (apparence, attitude et vêtements conformes à la description du livre)",
+              "description": ""
+            },
+            {
+              "id": "monologische-darstellung-mit-bezug-zur-buchvorlage",
+              "label": "présentation sous forme de monologue en lien avec l'œuvre de référence",
+              "description": ""
+            },
+            {
+              "id": "vertieftes-verstandnis-der-figur-gedanken-gefuhle-motive",
+              "label": "compréhension approfondie du personnage (pensées, sentiments, motivations)",
+              "description": ""
+            },
+            {
+              "id": "origineller-und-glaubwurdiger-monolog-in-bezug-auf-die-figur",
+              "label": "monologue original et crédible par rapport au personnage",
+              "description": ""
+            },
+            {
+              "id": "passgenaue-umsetzung-der-buchbeschreibung-im-generierten-bild",
+              "label": "transposition fidèle de la description du livre dans l'image générée",
+              "description": ""
+            },
+            {
+              "id": "berucksichtigte-details-zeit-ort-epoche",
+              "label": "détails pris en compte (époque, lieu, période)",
+              "description": ""
+            },
+            {
+              "id": "begrundete-wahl-der-bildeingaben",
+              "label": "choix justifié des prompts d'image",
+              "description": ""
+            },
+            {
+              "id": "uberzeugende-stimmfuhrung-und-sprachgestaltung-betonung-ausdruck",
+              "label": "conduite vocale et expression convaincantes (intonation, expressivité)",
+              "description": ""
+            },
+            {
+              "id": "gezielter-einsatz-von-mimik-gestik-und-gegebenenfalls-ki-animation",
+              "label": "emploi ciblé des mimiques, de la gestuelle et, le cas échéant, de l'animation par IA",
+              "description": ""
+            },
+            {
+              "id": "technische-qualitat-von-bild-und-ton",
+              "label": "qualité technique de l'image et du son",
+              "description": ""
+            },
+            {
+              "id": "angemessener-einsatz-von-tools-avatar-animation-hintergrundgestaltung",
+              "label": "utilisation appropriée des outils (animation d'avatar, conception de l'arrière-plan)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "ki-unterstuetzte-stellungnahme-zu-einem-thema",
+          "title": "Prise de position sur un sujet assistée par l'IA",
+          "criteria": [
+            {
+              "id": "transparente-dokumentation-der-ki-nutzung-prompts-und-tools",
+              "label": "documentation transparente de l'utilisation de l'IA (prompts et outils)",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbarer-einsatz-der-ki-im-arbeitsprozess",
+              "label": "recours traçable à l'IA dans le processus de travail",
+              "description": ""
+            },
+            {
+              "id": "differenzierte-reflexion-uber-die-leistungen-der-ki",
+              "label": "réflexion nuancée sur les performances de l'IA",
+              "description": ""
+            },
+            {
+              "id": "kennzeichnung-eigenstandiger-arbeitsanteile",
+              "label": "identification des parts de travail réalisées de manière autonome",
+              "description": ""
+            },
+            {
+              "id": "vollstandige-markierung-aller-ki-generierten-textteile",
+              "label": "marquage complet de toutes les parties de texte générées par l'IA",
+              "description": ""
+            },
+            {
+              "id": "kreative-kombination-von-ki-inhalten-mit-eigenem-transfer-z-b-lokale-fal",
+              "label": "combinaison créative des contenus de l'IA avec un transfert personnel (p. ex. études de cas locales)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "diy-klassenarbeit",
+          "title": "Contrôle « DIY » conçu par les élèves",
+          "criteria": [
+            {
+              "id": "klare-verstandliche-und-angemessen-anspruchsvolle-aufgaben",
+              "label": "consignes claires, compréhensibles et d'une exigence appropriée",
+              "description": ""
+            },
+            {
+              "id": "berucksichtigung-verschiedener-anforderungsniveaus",
+              "label": "prise en compte de différents niveaux d'exigence",
+              "description": ""
+            },
+            {
+              "id": "fachlich-korrekte-und-nachvollziehbare-losungen",
+              "label": "solutions exactes et compréhensibles sur le plan disciplinaire",
+              "description": ""
+            },
+            {
+              "id": "verstandliche-erlauterung-der-losungswege",
+              "label": "explication compréhensible des démarches de résolution",
+              "description": ""
+            },
+            {
+              "id": "sinnvolle-begrundung-der-aufgabenwahl",
+              "label": "justification pertinente du choix des tâches",
+              "description": ""
+            },
+            {
+              "id": "transparente-darstellung-der-gepruften-kompetenzen",
+              "label": "présentation transparente des compétences évaluées",
+              "description": ""
+            },
+            {
+              "id": "durchfuhrung-eines-testlaufs-mit-lernenden",
+              "label": "réalisation d'un essai avec des apprenants",
+              "description": ""
+            },
+            {
+              "id": "berucksichtigung-von-konstruktivem-feedback-bei-der-uberarbeitung",
+              "label": "prise en compte d'un feedback constructif lors de la révision",
+              "description": ""
+            },
+            {
+              "id": "kritische-reflexion-des-eigenen-vorgehens",
+              "label": "réflexion critique sur sa propre démarche",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-beschreibung-von-herausforderungen-und-losungsansatzen",
+              "label": "description traçable des défis et des pistes de solution",
+              "description": ""
+            },
+            {
+              "id": "reflektierter-einsatz-der-ki-im-erstellungsprozess",
+              "label": "recours réfléchi à l'IA dans le processus d'élaboration",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "open-media-book-pruefung",
+          "title": "Examen Open Media / Open Book",
+          "criteria": [
+            {
+              "id": "ubertragung-von-wissen-auf-neue-fragestellungen",
+              "label": "transfert des connaissances vers de nouvelles problématiques",
+              "description": ""
+            },
+            {
+              "id": "leistungsverbesserung-gegenuber-der-klassischen-arbeit",
+              "label": "amélioration des résultats par rapport au contrôle classique",
+              "description": ""
+            },
+            {
+              "id": "einhaltung-aller-vorgaben-zur-hilfsmittelnutzung",
+              "label": "respect de toutes les consignes relatives à l'usage des aides",
+              "description": ""
+            },
+            {
+              "id": "uberprufung-identischer-kompetenzbereiche-in-beiden-prufungsformaten",
+              "label": "évaluation de domaines de compétences identiques dans les deux formats d'examen",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "klassenarbeit-a-la-carte",
+          "title": "Contrôle à la carte",
+          "criteria": [
+            {
+              "id": "vollstandige-bearbeitung-aller-gewahlten-aufgaben",
+              "label": "traitement complet de toutes les tâches choisies",
+              "description": ""
+            },
+            {
+              "id": "durchdachte-logisch-aufgebaute-und-gut-begrundete-antworten",
+              "label": "réponses réfléchies, logiquement structurées et bien argumentées",
+              "description": ""
+            },
+            {
+              "id": "personliche-note-und-eigenstandige-losungswege",
+              "label": "touche personnelle et démarches de résolution autonomes",
+              "description": ""
+            },
+            {
+              "id": "angemessene-rechtschreibung-grammatik-und-struktur",
+              "label": "orthographe, grammaire et structure appropriées",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-begrundung-der-aufgabenauswahl",
+              "label": "justification traçable du choix des tâches",
+              "description": ""
+            },
+            {
+              "id": "einhaltung-aller-vorgaben",
+              "label": "respect de toutes les consignes",
+              "description": ""
+            },
+            {
+              "id": "gewahrleistung-einer-fairen-leistungsbewertung-trotz-individueller-auswa",
+              "label": "garantie d'une évaluation équitable malgré le choix individuel (comparabilité)",
+              "description": ""
+            },
+            {
+              "id": "kreative-zusatzleistung-z-b-nachspeise",
+              "label": "production complémentaire créative (p. ex. « dessert »)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "prozessbegleitender-blog",
+          "title": "Blog d'accompagnement du processus",
+          "criteria": [
+            {
+              "id": "auswahl-und-bewertung-besonders-gelungener-beitrage-nach-festgelegten-kr",
+              "label": "sélection et évaluation des contributions particulièrement réussies selon des critères définis (approche portfolio)",
+              "description": ""
+            },
+            {
+              "id": "bewertung-des-gesamten-blogs-anhand-transparenter-kriterien",
+              "label": "évaluation de l'ensemble du blog selon des critères transparents",
+              "description": ""
+            },
+            {
+              "id": "eigenstandige-selbstbewertung-durch-die-lernenden-als-teil-des-verfahren",
+              "label": "auto-évaluation autonome par les apprenants comme partie intégrante de la procédure",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "wiki",
+          "title": "Wiki",
+          "criteria": [
+            {
+              "id": "auswahl-und-bewertung-besonders-gelungener-beitrage-im-wiki-nach-festgel",
+              "label": "sélection et évaluation des contributions particulièrement réussies du wiki selon des critères définis (approche portfolio)",
+              "description": ""
+            },
+            {
+              "id": "bewertung-des-gesamten-wikis-anhand-transparenter-kriterien",
+              "label": "évaluation de l'ensemble du wiki selon des critères transparents",
+              "description": ""
+            },
+            {
+              "id": "eigenstandige-selbstbewertung-durch-die-lernenden-als-teil-des-bewertung",
+              "label": "auto-évaluation autonome par les apprenants comme partie intégrante de la procédure d'évaluation",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fotoprodukte",
+      "title": "Productions photographiques",
+      "formats": [
+        {
+          "id": "fotostory",
+          "title": "Photo-roman",
+          "criteria": [
+            {
+              "id": "inhaltliche-tiefe-und-fachlicher-bezug-zum-thema",
+              "label": "profondeur du contenu et lien disciplinaire avec le sujet",
+              "description": ""
+            },
+            {
+              "id": "klarer-und-nachvollziehbarer-handlungsaufbau",
+              "label": "construction de l'intrigue claire et compréhensible",
+              "description": ""
+            },
+            {
+              "id": "strukturierter-verlauf-der-prasentation-oder-des-beitrags",
+              "label": "déroulement structuré de la présentation ou de la contribution",
+              "description": ""
+            },
+            {
+              "id": "ansprechende-bildgestaltung",
+              "label": "composition d'image attrayante",
+              "description": ""
+            },
+            {
+              "id": "technische-qualitat-der-bildumsetzung",
+              "label": "qualité technique de la réalisation des images",
+              "description": ""
+            },
+            {
+              "id": "praziser-und-adressatengerechter-sprachgebrauch",
+              "label": "usage de la langue précis et adapté au destinataire",
+              "description": ""
+            },
+            {
+              "id": "verstandliche-und-strukturierte-textgestaltung",
+              "label": "rédaction du texte compréhensible et structurée",
+              "description": ""
+            },
+            {
+              "id": "kreative-gestaltungsideen",
+              "label": "idées de conception créatives",
+              "description": ""
+            },
+            {
+              "id": "uberzeugender-personlicher-ausdruck",
+              "label": "expression personnelle convaincante",
+              "description": ""
+            },
+            {
+              "id": "adressatengerechte-prasentation",
+              "label": "présentation adaptée au destinataire",
+              "description": ""
+            },
+            {
+              "id": "reflektierter-umgang-mit-dem-eigenen-beitrag-oder-produkt",
+              "label": "approche réflexive de sa propre contribution ou production",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "social-media-post",
+          "title": "Publication sur les réseaux sociaux",
+          "criteria": [
+            {
+              "id": "attraktives-und-ansprechendes-design-farben-schriftart-bilder",
+              "label": "design attractif et soigné (couleurs, police, images)",
+              "description": ""
+            },
+            {
+              "id": "verstandliche-und-pragnante-formulierung-der-botschaft",
+              "label": "formulation du message compréhensible et concise",
+              "description": ""
+            },
+            {
+              "id": "sinnvolle-aufteilung-in-bild-und-textelemente-slides",
+              "label": "répartition pertinente entre éléments visuels et textuels (slides)",
+              "description": ""
+            },
+            {
+              "id": "korrekte-umsetzung-der-bildformate-und-zeichenbegrenzungen",
+              "label": "respect correct des formats d'image et des limites de caractères",
+              "description": ""
+            },
+            {
+              "id": "passende-auswahl-relevanter-hashtags-mindestens-3-maximal-10",
+              "label": "choix pertinent de hashtags appropriés (au moins 3, au maximum 10)",
+              "description": ""
+            },
+            {
+              "id": "gezielte-aufforderung-an-die-zielgruppe-z-b-like-teile-kommentiere",
+              "label": "appel ciblé au public visé (p. ex. aime / partage / commente)",
+              "description": ""
+            },
+            {
+              "id": "einholung-von-ruckmeldungen-durch-prasentation-des-posts-in-der-gruppe",
+              "label": "recueil de retours par la présentation de la publication au groupe",
+              "description": ""
+            },
+            {
+              "id": "sammlung-von-verbesserungsvorschlagen-und-lob-durch-mitschuler-z-b-like",
+              "label": "collecte de suggestions d'amélioration et d'éloges par les camarades (p. ex. like / dislike, commentaires)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "social-media-profil",
+          "title": "Profil sur les réseaux sociaux",
+          "criteria": [
+            {
+              "id": "konsistente-und-ansprechende-profil-asthetik",
+              "label": "esthétique de profil cohérente et soignée",
+              "description": ""
+            },
+            {
+              "id": "klare-und-ubersichtliche-struktur-der-inhalte",
+              "label": "structure des contenus claire et lisible",
+              "description": ""
+            },
+            {
+              "id": "authentische-und-zielgruppenrelevante-darstellung-der-inhalte",
+              "label": "présentation des contenus authentique et pertinente pour le public cible",
+              "description": ""
+            },
+            {
+              "id": "gezielte-ansprache-und-einbindung-potenzieller-follower",
+              "label": "interpellation et implication ciblées des abonnés potentiels",
+              "description": ""
+            },
+            {
+              "id": "analyse-und-sinnvolle-nutzung-von-hashtags",
+              "label": "analyse et utilisation pertinente des hashtags",
+              "description": ""
+            },
+            {
+              "id": "kreative-und-inhaltlich-passende-bildunterschriften",
+              "label": "légendes créatives et en adéquation avec le contenu",
+              "description": ""
+            },
+            {
+              "id": "gezielter-einsatz-von-stories-zur-erganzung-der-profilinhalte",
+              "label": "emploi ciblé des stories pour compléter le contenu du profil",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "audioprodukte",
+      "title": "Productions audio",
+      "formats": [
+        {
+          "id": "podcast",
+          "title": "Podcast",
+          "criteria": [
+            {
+              "id": "wirkungsvolle-eroffnung-catching-ear-opener",
+              "label": "ouverture percutante (catching ear opener)",
+              "description": ""
+            },
+            {
+              "id": "klar-erkennbare-sinnvolle-struktur-der-einzelnen-teile",
+              "label": "structure des différentes parties clairement identifiable et pertinente",
+              "description": ""
+            },
+            {
+              "id": "logischer-und-zusammenhangender-verlauf-fragestellung-spannungsbogen-inh",
+              "label": "déroulement logique et cohérent (problématique, arc de tension, contenu, discussion, conclusion)",
+              "description": ""
+            },
+            {
+              "id": "ausgewogener-anteil-der-einzelnen-sprecher",
+              "label": "répartition équilibrée de la parole entre les intervenants",
+              "description": ""
+            },
+            {
+              "id": "auditive-effekte",
+              "label": "effets sonores",
+              "description": ""
+            },
+            {
+              "id": "soundauswahl",
+              "label": "choix des sons",
+              "description": ""
+            },
+            {
+              "id": "sauberer-schnitt",
+              "label": "montage soigné",
+              "description": ""
+            },
+            {
+              "id": "angemessene-bearbeitung",
+              "label": "traitement approprié",
+              "description": ""
+            },
+            {
+              "id": "aussprache",
+              "label": "prononciation",
+              "description": ""
+            },
+            {
+              "id": "intonation",
+              "label": "intonation",
+              "description": ""
+            },
+            {
+              "id": "tempo",
+              "label": "débit",
+              "description": ""
+            },
+            {
+              "id": "modulation",
+              "label": "modulation",
+              "description": ""
+            },
+            {
+              "id": "freies-sprechen",
+              "label": "expression libre",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "hoerspiel-und-hoerbuch",
+          "title": "Pièce radiophonique et livre audio",
+          "criteria": [
+            {
+              "id": "einhaltung-der-maximalen-horspiel-dauer-10-minuten-zuzuglich-intro-und-a",
+              "label": "respect de la durée maximale de la pièce (10 minutes, hors intro et générique de fin)",
+              "description": ""
+            },
+            {
+              "id": "eigenstandig-entwickelte-oder-rechtlich-einwandfrei-vertonte-geschichte",
+              "label": "histoire développée de manière autonome ou sonorisée dans le respect du droit",
+              "description": ""
+            },
+            {
+              "id": "beachtung-des-urheberrechts-und-einholung-erforderlicher-einwilligungen",
+              "label": "respect du droit d'auteur et obtention des autorisations nécessaires",
+              "description": ""
+            },
+            {
+              "id": "selbst-hergestellte-gerausche-und-musik",
+              "label": "bruitages et musique réalisés soi-même",
+              "description": ""
+            },
+            {
+              "id": "nutzung-und-kennzeichnung-offizieller-quellen-bei-bedarf",
+              "label": "utilisation et mention des sources officielles si nécessaire",
+              "description": ""
+            },
+            {
+              "id": "gute-tonqualitat-und-sauberer-schnitt-entfernung-von-nebengerauschen-und",
+              "label": "bonne qualité sonore et montage soigné (suppression des bruits parasites et des erreurs)",
+              "description": ""
+            },
+            {
+              "id": "pragnante-beschreibung-des-horspiels",
+              "label": "description concise de la pièce radiophonique",
+              "description": ""
+            },
+            {
+              "id": "eigenstandige-durchfuhrung-der-produktion-durch-die-lernenden-zuruckhalt",
+              "label": "réalisation autonome de la production par les apprenants (soutien discret des adultes)",
+              "description": ""
+            },
+            {
+              "id": "freie-und-empathische-gestaltung-der-dialoge",
+              "label": "conception libre et empathique des dialogues",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "musikalisches-kreativprojekt",
+          "title": "Projet musical créatif",
+          "criteria": [
+            {
+              "id": "originalitat-der-musikalischen-interpretation",
+              "label": "originalité de l'interprétation musicale",
+              "description": ""
+            },
+            {
+              "id": "technische-qualitat-der-umsetzung",
+              "label": "qualité technique de la réalisation",
+              "description": ""
+            },
+            {
+              "id": "innovative-nutzung-der-ki-technologie-im-kreativen-prozess",
+              "label": "utilisation innovante de la technologie d'IA dans le processus créatif",
+              "description": ""
+            },
+            {
+              "id": "uberzeugende-und-adressatengerechte-prasentation",
+              "label": "présentation convaincante et adaptée au destinataire",
+              "description": ""
+            },
+            {
+              "id": "reflektierter-umgang-mit-dem-eigenen-kreativen-prozess",
+              "label": "approche réflexive de son propre processus créatif",
+              "description": ""
+            },
+            {
+              "id": "angemessene-komplexitat-des-projekts",
+              "label": "complexité appropriée du projet",
+              "description": ""
+            },
+            {
+              "id": "ausdrucksstarke-musikalische-gestaltung",
+              "label": "réalisation musicale expressive",
+              "description": ""
+            },
+            {
+              "id": "klare-und-nachvollziehbare-verbindung-zwischen-text-und-musik",
+              "label": "lien clair et compréhensible entre le texte et la musique",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "videoprodukte",
+      "title": "Productions vidéo",
+      "formats": [
+        {
+          "id": "kurzfilm",
+          "title": "Court-métrage",
+          "criteria": [
+            {
+              "id": "sinnvoller-einsatz-filmischer-mittel-in-produktion-und-nachbearbeitung-e",
+              "label": "emploi pertinent des moyens filmiques en production et post-production (cadrages, angles de caméra, montage, son)",
+              "description": ""
+            },
+            {
+              "id": "kreative-umsetzung",
+              "label": "réalisation créative",
+              "description": ""
+            },
+            {
+              "id": "angemessenes-verhaltnis-und-zusammenspiel-auf-inhaltlicher-und-filmische",
+              "label": "équilibre et interaction appropriés entre le niveau du contenu et le niveau filmique",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-erkennbare-umsetzung-der-wirkungsabsicht",
+              "label": "réalisation traçable/reconnaissable de l'intention recherchée",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "vorgangsanalyse-mit-der-kamera-app",
+          "title": "Analyse de processus avec l'application caméra",
+          "criteria": [
+            {
+              "id": "uberzeugende-qualitat-der-aufnahmen-z-b-stabilitat",
+              "label": "qualité convaincante des prises de vue (p. ex. stabilité)",
+              "description": ""
+            },
+            {
+              "id": "korrekte-nutzung-der-kamerafunktionen",
+              "label": "utilisation correcte des fonctions de la caméra",
+              "description": ""
+            },
+            {
+              "id": "passgenaue-auswahl-der-zeitlupen-oder-zeitrafferfunktion-fur-den-jeweili",
+              "label": "choix adapté de la fonction ralenti ou accéléré selon le processus concerné",
+              "description": ""
+            },
+            {
+              "id": "angemessene-tiefe-der-analyse",
+              "label": "profondeur d'analyse appropriée",
+              "description": ""
+            },
+            {
+              "id": "prazise-analyse",
+              "label": "analyse précise",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbarkeit-der-beschriebenen-beobachtungen",
+              "label": "traçabilité des observations décrites",
+              "description": ""
+            },
+            {
+              "id": "innovative-und-anschauliche-prasentation-der-ergebnisse",
+              "label": "présentation des résultats innovante et parlante",
+              "description": ""
+            },
+            {
+              "id": "adressatenangemessene-visuelle-und-didaktische-aufbereitung-z-b-diagramm",
+              "label": "mise en forme visuelle et didactique adaptée au destinataire (p. ex. diagrammes, images fixes, comparaisons)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "erklaerfilme-erstellen-verbessern-und-remixen",
+          "title": "Créer, améliorer et remixer des vidéos explicatives",
+          "criteria": [
+            {
+              "id": "logischer-aufbau",
+              "label": "construction logique",
+              "description": ""
+            },
+            {
+              "id": "zusammenhangende-struktur",
+              "label": "structure cohérente",
+              "description": ""
+            },
+            {
+              "id": "sinnhafte-gestaltung",
+              "label": "conception pertinente",
+              "description": ""
+            },
+            {
+              "id": "angemessene-und-ubersichtliche-bearbeitung",
+              "label": "montage approprié et clair",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "projekte",
+      "title": "Projets",
+      "formats": [
+        {
+          "id": "forschungsprojekt",
+          "title": "Projet de recherche",
+          "criteria": [
+            {
+              "id": "klare-und-nachvollziehbare-fragestellung",
+              "label": "problématique claire et compréhensible",
+              "description": ""
+            },
+            {
+              "id": "zeitokonomische-planung",
+              "label": "planification économe en temps",
+              "description": ""
+            },
+            {
+              "id": "wissenschaftliche-methodik",
+              "label": "méthodologie scientifique",
+              "description": ""
+            },
+            {
+              "id": "sorgfaltige-und-genaue-datenerfassung",
+              "label": "collecte de données soigneuse et précise",
+              "description": ""
+            },
+            {
+              "id": "fundierte-datenanalyse",
+              "label": "analyse de données fondée",
+              "description": ""
+            },
+            {
+              "id": "gewissenhafte-dateninterpretation",
+              "label": "interprétation des données rigoureuse",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "sammlungsprojekt",
+          "title": "Projet de collection",
+          "criteria": [
+            {
+              "id": "angemessene-inhaltliche-tiefe",
+              "label": "profondeur de contenu appropriée",
+              "description": ""
+            },
+            {
+              "id": "sinnhafte-struktur-und-ordnung",
+              "label": "structure et organisation pertinentes",
+              "description": ""
+            },
+            {
+              "id": "sorgfaltige-dokumentation",
+              "label": "documentation soigneuse",
+              "description": ""
+            },
+            {
+              "id": "ansprechende-gestaltung",
+              "label": "présentation attrayante",
+              "description": ""
+            },
+            {
+              "id": "eigenstandigkeit-und-kreativitat-individuelle-formulierungen-themenspezi",
+              "label": "autonomie et créativité (formulations personnelles, sélection propre au sujet)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "versuchsprotokoll",
+          "title": "Compte rendu d'expérience",
+          "criteria": [
+            {
+              "id": "sorgfaltige-dokumentation",
+              "label": "documentation soigneuse",
+              "description": ""
+            },
+            {
+              "id": "sinnhafte-struktur-ordnung-und-nachvollziehbarkeit",
+              "label": "structure, organisation et traçabilité pertinentes",
+              "description": ""
+            },
+            {
+              "id": "fachliche-klarheit-und-angemessener-einsatz-von-fachbegriffen",
+              "label": "clarté disciplinaire et emploi approprié des termes techniques",
+              "description": ""
+            },
+            {
+              "id": "kreative-problemlosekompetenz",
+              "label": "compétence créative en résolution de problèmes",
+              "description": ""
+            },
+            {
+              "id": "wissenschaftliche-sprache-und-ausdrucksweise",
+              "label": "langue et expression scientifiques",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "upcycling-mit-tutorials",
+          "title": "Upcycling avec tutoriels",
+          "criteria": [
+            {
+              "id": "angemessene-funktionalitat",
+              "label": "fonctionnalité appropriée",
+              "description": ""
+            },
+            {
+              "id": "kreative-problemlosekompetenz",
+              "label": "compétence créative en résolution de problèmes",
+              "description": ""
+            },
+            {
+              "id": "sorgfaltige-umsetzung",
+              "label": "réalisation soignée",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-darstellung-des-arbeitsprozesses-z-b-fotos-videos-arbei",
+              "label": "présentation traçable du processus de travail (p. ex. photos, vidéos, journaux de travail)",
+              "description": ""
+            },
+            {
+              "id": "kombination-aus-produktbewertung-gestalterische-qualitat-angemessene-ums",
+              "label": "combinaison d'une évaluation du produit (qualité de conception, mise en œuvre appropriée de la notice, améliorations apportées) et d'une réflexion (présentation des effets d'apprentissage, stratégies pertinentes de résolution de problèmes)",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "praesentations-und-darstellungsformen",
+      "title": "Formes de présentation et de représentation",
+      "formats": [
+        {
+          "id": "digitales-portfolio",
+          "title": "Portfolio numérique",
+          "criteria": [
+            {
+              "id": "kreative-gestaltung-und-einbindung-passender-visueller-elemente",
+              "label": "conception créative et intégration d'éléments visuels appropriés",
+              "description": ""
+            },
+            {
+              "id": "multimediale-umsetzung-und-korrekte-technische-einbindung-von-medien",
+              "label": "réalisation multimédia et intégration technique correcte des médias",
+              "description": ""
+            },
+            {
+              "id": "zielgruppenorientierte-gestalterische-umsetzung",
+              "label": "réalisation graphique orientée vers le public cible",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "multimediale-praesentation",
+          "title": "Présentation multimédia",
+          "criteria": [
+            {
+              "id": "sinnhafter-und-abwechslungsreicher-einsatz-medialer-elemente",
+              "label": "emploi pertinent et varié des éléments médiatiques",
+              "description": ""
+            },
+            {
+              "id": "adressaten-und-formatangemessene-inhaltliche-aufbereitung-des-themas",
+              "label": "traitement du sujet adapté au destinataire et au format",
+              "description": ""
+            },
+            {
+              "id": "sinnvolle-reduktion-der-inhalte-und-quellen",
+              "label": "réduction pertinente des contenus et des sources",
+              "description": ""
+            },
+            {
+              "id": "kenntlichmachung-der-zustandigkeiten-bei-gruppenarbeit",
+              "label": "indication des responsabilités en cas de travail de groupe",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "interaktive-mindmaps",
+          "title": "Cartes mentales interactives",
+          "criteria": [
+            {
+              "id": "passende-vernetzung-der-inhalte",
+              "label": "mise en relation pertinente des contenus",
+              "description": ""
+            },
+            {
+              "id": "klare-strukturierung",
+              "label": "structuration claire",
+              "description": ""
+            },
+            {
+              "id": "sinnvoller-einsatz-von-medien",
+              "label": "emploi pertinent des médias",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "animierte-lernprodukte-mit-blockprogrammierung",
+          "title": "Productions d'apprentissage animées par programmation par blocs",
+          "criteria": [
+            {
+              "id": "passende-vernetzung-der-inhalte",
+              "label": "mise en relation pertinente des contenus",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbares-storytelling",
+              "label": "storytelling compréhensible",
+              "description": ""
+            },
+            {
+              "id": "zuverlassige-funktionalitat-des-programms",
+              "label": "fonctionnement fiable du programme",
+              "description": ""
+            },
+            {
+              "id": "niveauangemessene-komplexitat-der-verwendeten-codeblocke-z-b-schleifen-b",
+              "label": "complexité des blocs de code adaptée au niveau (p. ex. boucles, conditions, interactivité)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "virtuelle-rundgaenge",
+          "title": "Visites virtuelles",
+          "criteria": [
+            {
+              "id": "angemessene-recherche",
+              "label": "recherche appropriée",
+              "description": ""
+            },
+            {
+              "id": "passende-vernetzung-der-inhalte",
+              "label": "mise en relation pertinente des contenus",
+              "description": ""
+            },
+            {
+              "id": "funktionaler-aufbau-des-rundgangs",
+              "label": "construction fonctionnelle de la visite",
+              "description": ""
+            },
+            {
+              "id": "kreative-einbindung-eigener-multimedialer-elemente",
+              "label": "intégration créative d'éléments multimédias (personnels)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "szenische-interpretation",
+          "title": "Interprétation scénique",
+          "criteria": [
+            {
+              "id": "klare-strukturierung-der-szenen",
+              "label": "structuration claire des scènes",
+              "description": ""
+            },
+            {
+              "id": "uberzeugende-schauspielerische-leistung",
+              "label": "performance théâtrale convaincante",
+              "description": ""
+            },
+            {
+              "id": "wirkungsvoller-einsatz-von-kostumen-requisiten-buhnenbild-licht-und-musi",
+              "label": "emploi efficace des costumes, accessoires, décor, lumière et musique",
+              "description": ""
+            },
+            {
+              "id": "sinnvolle-raumnutzung",
+              "label": "utilisation pertinente de l'espace",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "challenges",
+          "title": "Challenges",
+          "criteria": [
+            {
+              "id": "empfehlung-zum-verzicht-auf-eine-formale-prozessdokumentation-zugunsten",
+              "label": "recommandation de renoncer à une documentation formelle du processus au profit d'un travail créatif et spontané. (Les critères de contenu sont définis de façon flexible selon la tâche concrète via le modèle à curseurs.)",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "debatte",
+          "title": "Débat",
+          "criteria": [
+            {
+              "id": "uberzeugende-sachkenntnis",
+              "label": "connaissance du sujet convaincante",
+              "description": ""
+            },
+            {
+              "id": "klares-ausdrucksvermogen",
+              "label": "capacité d'expression claire",
+              "description": ""
+            },
+            {
+              "id": "angemessene-gesprachsfahigkeit",
+              "label": "aptitude au dialogue appropriée",
+              "description": ""
+            },
+            {
+              "id": "hinreichende-uberzeugungskraft",
+              "label": "force de conviction suffisante",
+              "description": ""
+            },
+            {
+              "id": "nicht-bewertet-werden-die-reinen-deutschkenntnisse-oder-die-politische-a",
+              "label": "Ne sont pas évaluées les simples compétences linguistiques ni la position politique, mais le respect des règles et la conduite du débat.",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "moderation",
+          "title": "Animation",
+          "criteria": [
+            {
+              "id": "zielfuhrende-vorbereitung",
+              "label": "préparation efficace",
+              "description": ""
+            },
+            {
+              "id": "sinnvolle-strukturierung",
+              "label": "structuration pertinente",
+              "description": ""
+            },
+            {
+              "id": "klare-kommunikationsfahigkeit",
+              "label": "capacité de communication claire",
+              "description": ""
+            },
+            {
+              "id": "aktivierender-einbezug-der-teilnehmenden",
+              "label": "implication activante des participants",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-zusammenfassung",
+              "label": "synthèse compréhensible",
+              "description": ""
+            },
+            {
+              "id": "gelungenes-zeitmanagement",
+              "label": "gestion du temps réussie",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "modellpraesentation",
+          "title": "Présentation de maquette",
+          "criteria": [
+            {
+              "id": "klare-themenabgrenzung-und-umsetzung",
+              "label": "délimitation et réalisation claires du sujet",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-zweckerfullung",
+              "label": "réponse compréhensible à l'objectif visé",
+              "description": ""
+            },
+            {
+              "id": "stabile-und-saubere-bauweise",
+              "label": "construction stable et soignée",
+              "description": ""
+            },
+            {
+              "id": "hohe-detailsorgfalt",
+              "label": "grand soin du détail",
+              "description": ""
+            },
+            {
+              "id": "angemessene-materialauswahl",
+              "label": "choix des matériaux approprié",
+              "description": ""
+            },
+            {
+              "id": "kreative-umsetzung",
+              "label": "réalisation créative",
+              "description": ""
+            },
+            {
+              "id": "losungsorientierter-umgang-mit-herausforderungen",
+              "label": "gestion des défis orientée solutions",
+              "description": ""
+            },
+            {
+              "id": "hohe-eigenstandigkeit",
+              "label": "grande autonomie",
+              "description": ""
+            },
+            {
+              "id": "nutzen-von-skizzen-bauplanen-zur-transparenz-der-planung",
+              "label": "recours à des croquis/plans de construction pour la transparence de la planification",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "rollenspiele-und-simulationen",
+          "title": "Jeux de rôle et simulations",
+          "criteria": [
+            {
+              "id": "authentische-verkorperung",
+              "label": "incarnation authentique",
+              "description": ""
+            },
+            {
+              "id": "effektive-kommunikation",
+              "label": "communication efficace",
+              "description": ""
+            },
+            {
+              "id": "umfangreiche-analyse-des-simulierten-prozesses",
+              "label": "analyse approfondie du processus simulé",
+              "description": ""
+            },
+            {
+              "id": "nachvollziehbare-und-fundierte-entscheidungen",
+              "label": "décisions compréhensibles et fondées",
+              "description": ""
+            },
+            {
+              "id": "berucksichtigung-der-reflexion-zu-erfahrungen-wahrend-der-simulation",
+              "label": "prise en compte de la réflexion sur les expériences vécues pendant la simulation",
+              "description": ""
+            },
+            {
+              "id": "ableitung-von-erkenntnissen-aus-dem-rollenspiel-fur-die-reale-situation",
+              "label": "transfert des enseignements du jeu de rôle vers la situation réelle",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

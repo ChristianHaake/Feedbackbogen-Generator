@@ -1,5 +1,7 @@
 # Hilfe
 
+Hinweis: Diese Hilfeseite liegt derzeit in deutscher Sprache vor.
+
 Mit dem Feedbackbogen-Generator erstellen Sie strukturierte Feedback- und Bewertungsbögen. Kriterien, Skalen und Kopfdaten lassen sich passend zur Aufgabe zusammenstellen. Die Vorschau aktualisiert sich automatisch.
 
 ## Schnellstart
@@ -22,6 +24,8 @@ Unter „Produktebene“ können Sie zusätzlich Kriterien für konkrete Formate
 ### Skalen festlegen
 
 Wählen Sie eine Standard-Skala. Falls nötig, können Sie für einzelne Kategorien abweichende Skalen verwenden.
+
+Wenn Sie Gewichtungen vergeben, zeigt der Bogen zusätzlich eine Auswertungsübersicht. Die Gewichtungen bilden den Rahmen für die spätere Bewertung; die eigentliche Bewertung wird im ausgedruckten oder exportierten Bogen eingetragen.
 
 Für eine einfache Übersicht ohne Bewertungsskala wechseln Sie in der Vorschau zu „Nur Checkliste“.
 

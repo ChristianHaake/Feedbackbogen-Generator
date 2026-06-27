@@ -1,8 +1,20 @@
 import JSZip from 'jszip';
 
-import { downloadBlob, groupRows, scaleOptions } from '@/export/export-utils';
+import {
+  categoryHeadingText,
+  downloadBlob,
+  groupRows,
+  scaleOptions,
+  weightedScoreSummary,
+} from '@/export/export-utils';
 import { strings } from '@/strings';
-import type { ExportRow, FooterFieldId, FooterFields, HeaderData, PrintMode } from '@/types';
+import type {
+  ExportRow,
+  FooterFieldId,
+  FooterFields,
+  HeaderData,
+  PrintMode,
+} from '@/types';
 
 const mimeType = 'application/vnd.oasis.opendocument.text';
 
@@ -37,7 +49,9 @@ function metadataTable(header: HeaderData) {
       tableRow(
         fields.map((field) => {
           const label = field.label.trim() || strings.kopfdaten.fallbackField;
-          return tableCell(`${label}: ${field.value || '________________________________'}`);
+          return tableCell(
+            `${label}: ${field.value || '________________________________'}`
+          );
         })
       )
     );
@@ -51,7 +65,10 @@ function metadataTable(header: HeaderData) {
 function categoryColumnStyles(rows: ExportRow[], mode: PrintMode) {
   return groupRows(rows)
     .map((group, index) => {
-      const optionCount = mode === 'full' ? scaleOptions(group.items[0]?.scale ?? null).length : 0;
+      const optionCount =
+        mode === 'full'
+          ? scaleOptions(group.items[0]?.scale ?? null).length
+          : 0;
       const criterionWeight = optionCount > 0 ? optionCount : 5;
       return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="${criterionWeight}*"/></style:style>
     <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="1*"/></style:style>`;
@@ -59,25 +76,48 @@ function categoryColumnStyles(rows: ExportRow[], mode: PrintMode) {
     .join('');
 }
 
-function categoryTable(items: ExportRow[], category: string, mode: PrintMode, index: number) {
+function categoryTable(
+  items: ExportRow[],
+  category: string,
+  mode: PrintMode,
+  index: number
+) {
   const options = mode === 'full' ? scaleOptions(items[0]?.scale ?? null) : [];
   const columns = options.length > 0 ? 1 + options.length : 2;
-  const headerLabel = mode === 'checklist' ? 'Erledigt' : 'Bewertung';
+  const headerLabel =
+    mode === 'checklist'
+      ? strings.documentExport.checklistDone
+      : strings.documentExport.rating;
   const headerCells = [
-    tableCell('Kriterium', 'HeaderCell', 'HeaderText'),
+    tableCell(strings.documentExport.criterion, 'HeaderCell', 'HeaderText'),
     ...(options.length > 0
-      ? options.map((option) => tableCell(option, 'HeaderCell', 'HeaderTextCenter'))
-      : [tableCell(headerLabel, 'HeaderCell', 'HeaderTextCenter')])
+      ? options.map((option) =>
+          tableCell(option, 'HeaderCell', 'HeaderTextCenter')
+        )
+      : [tableCell(headerLabel, 'HeaderCell', 'HeaderTextCenter')]),
   ];
   const rows = items.map((row, rowIndex) =>
-    tableRow(
-      [
-        tableCell(`${rowIndex + 1}. ${row.item}`, rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell'),
-        ...(options.length > 0
-          ? options.map(() => tableCell('☐', rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell', 'Center'))
-          : [tableCell('☐', rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell', 'Center')])
-      ]
-    )
+    tableRow([
+      tableCell(
+        `${row.number}. ${row.item}`,
+        rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell'
+      ),
+      ...(options.length > 0
+        ? options.map(() =>
+            tableCell(
+              '☐',
+              rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell',
+              'Center'
+            )
+          )
+        : [
+            tableCell(
+              '☐',
+              rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell',
+              'Center'
+            ),
+          ]),
+    ])
   );
   return `${paragraph(category.toUpperCase(), 'Category')}
   <table:table table:name="Kategorie-${index + 1}" table:style-name="CriteriaTable">
@@ -92,12 +132,14 @@ function footerFieldOptions(): { id: FooterFieldId; label: string }[] {
   return [
     { id: 'date', label: strings.kopfdaten.date },
     { id: 'signature', label: strings.kopfdaten.signature },
-    { id: 'grade', label: strings.kopfdaten.grade }
+    { id: 'grade', label: strings.kopfdaten.grade },
   ];
 }
 
 function footerFieldsTable(footerFields: FooterFields) {
-  const enabledFields = footerFieldOptions().filter(({ id }) => footerFields[id]);
+  const enabledFields = footerFieldOptions().filter(
+    ({ id }) => footerFields[id]
+  );
   if (enabledFields.length === 0) return '';
   return `${paragraph('', 'Spacer')}<table:table table:name="Abschlussfelder" table:style-name="FooterFieldsTable">
     <table:table-column table:style-name="FooterFieldColumn" table:number-columns-repeated="${enabledFields.length}"/>
@@ -106,7 +148,9 @@ function footerFieldsTable(footerFields: FooterFields) {
 }
 
 function feedbackTable() {
-  const rows = Array.from({ length: 5 }, () => tableRow([tableCell(' ', 'FeedbackCell')]));
+  const rows = Array.from({ length: 5 }, () =>
+    tableRow([tableCell(' ', 'FeedbackCell')])
+  );
   return `${paragraph(strings.kopfdaten.feedback, 'FeedbackHeading')}
   <table:table table:name="Feedback" table:style-name="FeedbackTable">
     <table:table-column table:style-name="FeedbackColumn"/>
@@ -114,9 +158,59 @@ function feedbackTable() {
   </table:table>`;
 }
 
-function contentXml(rows: ExportRow[], title: string, header: HeaderData, footerFields: FooterFields, mode: PrintMode) {
-  const categories = groupRows(rows).map((group, index) => categoryTable(group.items, group.title, mode, index)).join('');
-  const emptyState = rows.length === 0 ? paragraph(strings.labels.previewEmpty) : '';
+function scoreSummaryTable(rows: ExportRow[]) {
+  const summary = weightedScoreSummary(rows);
+  if (!summary) return '';
+  const rowsXml = [
+    tableRow(
+      [
+        tableCell(strings.labels.scoreSummaryTitle, 'HeaderCell', 'HeaderText'),
+        tableCell('', 'HeaderCell', 'HeaderText'),
+      ],
+      'HeaderRow'
+    ),
+    ...summary.groups.map((group) =>
+      tableRow([
+        tableCell(group.title),
+        tableCell(`____ / ${group.weight} %`, 'BodyCell', 'Center'),
+      ])
+    ),
+    tableRow([
+      tableCell(strings.labels.scoreTotalResult(summary.totalWeight), 'ShadedCell', 'Bold'),
+      tableCell('', 'ShadedCell', 'Bold'),
+    ]),
+    tableRow([
+      tableCell(strings.labels.scoreTotalHint, 'BodyCell'),
+      tableCell('', 'BodyCell'),
+    ]),
+  ];
+  return `${paragraph(strings.labels.scoreSummaryTitle, 'Category')}
+  <table:table table:name="Auswertung" table:style-name="ScoreTable">
+    <table:table-column table:style-name="ScoreCategoryColumn"/>
+    <table:table-column table:style-name="ScoreWeightColumn"/>
+    ${rowsXml.join('')}
+  </table:table>${paragraph('', 'Spacer')}`;
+}
+
+function contentXml(
+  rows: ExportRow[],
+  title: string,
+  header: HeaderData,
+  footerFields: FooterFields,
+  mode: PrintMode
+) {
+  const categories = groupRows(rows)
+    .map((group, index) =>
+      categoryTable(
+        group.items,
+        categoryHeadingText(group.title, group.weight),
+        mode,
+        index
+      )
+    )
+    .join('');
+  const emptyState =
+    rows.length === 0 ? paragraph(strings.labels.previewEmpty) : '';
   return `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-content
   xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
@@ -137,10 +231,13 @@ function contentXml(rows: ExportRow[], title: string, header: HeaderData, footer
     <style:style style:name="MetadataTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="CriteriaTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="FeedbackTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
+    <style:style style:name="ScoreTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="FooterFieldsTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="MetadataColumn" style:family="table-column"><style:table-column-properties style:column-width="8.5cm"/></style:style>
     ${categoryColumnStyles(rows, mode)}
     <style:style style:name="FeedbackColumn" style:family="table-column"><style:table-column-properties style:column-width="17cm"/></style:style>
+    <style:style style:name="ScoreCategoryColumn" style:family="table-column"><style:table-column-properties style:column-width="12cm"/></style:style>
+    <style:style style:name="ScoreWeightColumn" style:family="table-column"><style:table-column-properties style:column-width="5cm"/></style:style>
     <style:style style:name="FooterFieldColumn" style:family="table-column"><style:table-column-properties style:rel-column-width="1*"/></style:style>
     <style:style style:name="TableRow" style:family="table-row"><style:table-row-properties fo:keep-together="always"/></style:style>
     <style:style style:name="HeaderRow" style:family="table-row"><style:table-row-properties fo:keep-together="always"/></style:style>
@@ -155,6 +252,7 @@ function contentXml(rows: ExportRow[], title: string, header: HeaderData, footer
       ${metadataTable(header)}
       ${categories}
       ${emptyState}
+      ${scoreSummaryTable(rows)}
       ${feedbackTable()}
       ${footerFieldsTable(footerFields)}
     </office:text>
@@ -230,5 +328,8 @@ export async function exportODT(
   footerFields: FooterFields,
   mode: PrintMode = 'full'
 ) {
-  downloadBlob(await createODTBlob(rows, title, header, footerFields, mode), 'bewertungsbogen.odt');
+  downloadBlob(
+    await createODTBlob(rows, title, header, footerFields, mode),
+    strings.documentExport.fileNames.odt
+  );
 }

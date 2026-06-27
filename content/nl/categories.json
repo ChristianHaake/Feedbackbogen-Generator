@@ -1,0 +1,257 @@
+[
+  {
+    "id": "allgemeine",
+    "title": "Algemeen",
+    "description": "Bepaal de algemene eisen die lerenden steeds overkoepelend in acht moeten nemen.",
+    "items": [
+      {
+        "id": "abgabe",
+        "label": "Tijdige inlevering",
+        "description": ""
+      },
+      {
+        "id": "dateinamen",
+        "label": "Gebruik van de afgesproken bestandsnamen en -paden",
+        "description": ""
+      },
+      {
+        "id": "regeln",
+        "label": "Naleving van de afgesproken regels en richtlijnen",
+        "description": ""
+      },
+      {
+        "id": "vollstaendigkeit",
+        "label": "Volledigheid van de vereiste documenten",
+        "description": ""
+      },
+      {
+        "id": "quellenangaben",
+        "label": "Bronvermelding aanwezig",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sachebene",
+    "title": "Inhoudelijk niveau",
+    "description": "Verwachtingen ten aanzien van kennisverwerving en presentatie.",
+    "items": [
+      {
+        "id": "tiefe",
+        "label": "Diepgang en omvang van de vakinhoudelijke analyse",
+        "description": ""
+      },
+      {
+        "id": "komplexitaet",
+        "label": "Complexiteit van de inhoud",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative",
+        "label": "Initiatief door zelfstandig onderzoek en aanvullende perspectieven",
+        "description": ""
+      },
+      {
+        "id": "selbststaendigkeit",
+        "label": "Zelfstandigheid in de omgang met de inhoud",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sprachgebrauch",
+    "title": "Taalgebruik",
+    "description": "Criteria voor de beoordeling van de taalkundige vormgeving en werking.",
+    "items": [
+      {
+        "id": "sprachliche-richtigkeit",
+        "label": "Taalkundige correctheid",
+        "description": "Grammatica, spelling en interpunctie"
+      },
+      {
+        "id": "ausdrucksfaehigkeit",
+        "label": "Uitdrukkingsvaardigheid",
+        "description": "Precisie van de woordkeuze, beeldend en levendig taalgebruik en het vermijden van herhalingen"
+      },
+      {
+        "id": "stilistische-angemessenheit",
+        "label": "Stilistische gepastheid",
+        "description": "Aanpassing aan doelgroep en situatie, passende taalstijl (zakelijk, argumentatief, creatief enz.) en consistentie van de stijl"
+      },
+      {
+        "id": "kohaerenz-und-kohaesion",
+        "label": "Coherentie en cohesie",
+        "description": "Logische opbouw van gedachten, zinvolle verbinding van zinnen en alinea's en gebruik van overgangen en verbindingswoorden"
+      },
+      {
+        "id": "kommunikative-wirksamkeit",
+        "label": "Communicatieve doeltreffendheid",
+        "description": "Begrijpelijkheid, helderheid van de uitspraken en overtuigingskracht respectievelijk effect op de lezer"
+      },
+      {
+        "id": "sprachliche-vielfalt",
+        "label": "Taalkundige variatie",
+        "description": "Gevarieerde zinsopeningen, verschillende zinstypen en zinslengtes en gevarieerde woordenschat"
+      }
+    ]
+  },
+  {
+    "id": "praesentation",
+    "title": "Presentatie",
+    "description": "Parameters voor de beoordeling van de presentatie.",
+    "items": [
+      {
+        "id": "koerpersprache",
+        "label": "Lichaamstaal en oogcontact",
+        "description": ""
+      },
+      {
+        "id": "aktivierend",
+        "label": "Activerende elementen",
+        "description": ""
+      },
+      {
+        "id": "sprachlicher_ausdruck",
+        "label": "Mondelinge uitdrukking",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative_praes",
+        "label": "Initiatief",
+        "description": ""
+      },
+      {
+        "id": "kreativitaet",
+        "label": "Creativiteit",
+        "description": ""
+      },
+      {
+        "id": "adressatenaufbereitung",
+        "label": "Doelgroepgerichte voorbereiding",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "reflexion",
+    "title": "Reflectie",
+    "description": "Parameters voor de beoordeling van de reflectie.",
+    "items": [
+      {
+        "id": "tiefe_reflexion",
+        "label": "Diepgang en genuanceerdheid van de procesreflectie",
+        "description": ""
+      },
+      {
+        "id": "analyse_schwierigkeiten",
+        "label": "Identificatie/analyse van moeilijkheden",
+        "description": ""
+      },
+      {
+        "id": "loesungsvorschlaege",
+        "label": "Concrete, navolgbare oplossingsvoorstellen",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "darstellung",
+    "title": "Vormgeving",
+    "description": "Parameters voor de beoordeling van de vormgeving.",
+    "items": [
+      {
+        "id": "gestaltung",
+        "label": "Vormgeving (aantrekkelijke lay-out, visuele aantrekkingskracht)",
+        "description": ""
+      },
+      {
+        "id": "farb_schrift",
+        "label": "Consistent kleuren- en lettertypeconcept",
+        "description": ""
+      },
+      {
+        "id": "optische_konsistenz",
+        "label": "Visuele consistentie",
+        "description": ""
+      },
+      {
+        "id": "thematisches_design",
+        "label": "Thematisch passend en ondersteunend ontwerp",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "peer",
+    "title": "Peerfeedback / Reflectie",
+    "description": "Aspecten uit de werk- en presentatiefase met invloed op de kennisverwerving.",
+    "items": [
+      {
+        "id": "erfolg_arbeitsphase",
+        "label": "Succes van de werkfase",
+        "description": ""
+      },
+      {
+        "id": "mitarbeit_gruppe",
+        "label": "Bijdrage aan het groepsproces",
+        "description": ""
+      },
+      {
+        "id": "aktivierende_elemente",
+        "label": "Activerende elementen (bijv. interactiemethoden)",
+        "description": ""
+      },
+      {
+        "id": "adressaten_praesentation",
+        "label": "Doelgroepgerichte presentatie",
+        "description": ""
+      },
+      {
+        "id": "persoenlicher_wissenszuwachs",
+        "label": "Persoonlijke kennisverwerving",
+        "description": ""
+      },
+      {
+        "id": "wissenszuwachs_zuhoerer",
+        "label": "Kennisverwerving van de toehoorder",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "prozess",
+    "title": "Procesdocumentatie",
+    "items": [
+      {
+        "id": "planungsunterlagen",
+        "label": "Planningsdocumenten / procesdocumentatie",
+        "description": ""
+      },
+      {
+        "id": "nachvollziehbarkeit",
+        "label": "Navolgbaarheid en begrijpelijkheid",
+        "description": ""
+      },
+      {
+        "id": "ki_angaben",
+        "label": "AI-gebruik - vermelding/beschrijving van gebruikte prompts en tools",
+        "description": ""
+      },
+      {
+        "id": "ki_nachvollziehbar",
+        "label": "AI-gebruik navolgbaar toegelicht",
+        "description": ""
+      },
+      {
+        "id": "ki_reflexion",
+        "label": "AI-gebruik kritisch gereflecteerd (nut/risico's)",
+        "description": ""
+      },
+      {
+        "id": "eigenes_potential",
+        "label": "Persoonlijk ontwikkelingspotentieel",
+        "description": ""
+      }
+    ]
+  }
+]

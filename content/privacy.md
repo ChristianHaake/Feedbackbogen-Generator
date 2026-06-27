@@ -1,5 +1,7 @@
 # Datenschutzerklärung
 
+Hinweis: Diese Seite liegt derzeit in deutscher Sprache vor. Die deutsche Fassung ist maßgeblich.
+
 ## 1. Verantwortlicher
 
 Verantwortlich für die Datenverarbeitung auf dieser Website:
@@ -47,16 +49,9 @@ https://www.cloudflare.com/privacypolicy/
 
 ## 4. Cloudflare Web Analytics
 
-Diese Website verwendet Cloudflare Web Analytics zur statistischen Analyse der Nutzung der Website.
+Auf der Live-Website kann Cloudflare Web Analytics eingesetzt werden. Dabei lädt Cloudflare ein Analyse-Skript von `static.cloudflareinsights.com`, um technische Nutzungs- und Performancekennzahlen zu erfassen.
 
-Cloudflare Web Analytics verwendet nach Angaben des Anbieters keine Cookies, kein Local Storage und keine geräteübergreifenden Nutzerprofile. Ebenso erfolgt nach Angaben von Cloudflare kein Fingerprinting einzelner Nutzer zu Analysezwecken.
-
-Erfasst werden ausschließlich technisch notwendige und statistische Informationen über die Nutzung der Website, beispielsweise Seitenaufrufe, Referrer, verwendete Gerätetypen, Browserinformationen sowie Zeitpunkte von Zugriffen.
-
-Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Das berechtigte Interesse liegt in der Analyse und Optimierung des Webangebots.
-
-Weitere Informationen:  
-https://www.cloudflare.com/web-analytics/
+Die Anwendung selbst setzt keine Analyse-Cookies, legt keine Local-Storage-Einträge zu Analysezwecken an und erstellt keine nutzungsbezogenen Profile in der Anwendung. Die Auswertung erfolgt über Cloudflare im Rahmen der Bereitstellung und Performanceüberwachung des Webangebots.
 
 ## 5. Lokale Verarbeitung von Eingaben
 

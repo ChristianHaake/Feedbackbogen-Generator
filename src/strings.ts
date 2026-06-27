@@ -1,125 +1,43 @@
-export const strings = {
-  appTitle: 'Feedbackbogen-Generator',
-  watermark: 'Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de',
-  toolbar: {
-    saveConfig: 'Config speichern',
-    loadConfig: 'Config laden',
-    undo: 'Rückgängig',
-    redo: 'Wiederholen',
-    reset: 'Zurücksetzen',
-    resetConfirmTitle: 'Konfiguration zurücksetzen?',
-    resetConfirmBody: 'Alle aktuellen Änderungen werden entfernt. Die Aktion kann anschließend rückgängig gemacht werden.',
-    resetConfirmAction: 'Jetzt zurücksetzen',
-    cancel: 'Abbrechen',
-    exportNow: 'Exportieren',
-    exportPdfPrint: 'PDF (Druck)',
-    exportPdfFillable: 'PDF (Formular)',
-    exportDocx: 'DOCX',
-    exportXlsx: 'XLSX',
-    exportOdt: 'ODT'
-  },
-  keyboard: {
-    save: 'Alt+S: Speichern',
-    export: 'Alt+E: Export'
-  },
-  columns: {
-    selected: 'Ausgewählt',
-    categories: 'Bewertungskriterien',
-    productFormats: 'Produktebene',
-    export: 'Export'
-  },
-  kopfdaten: {
-    documentTitleSection: 'Titel',
-    documentTitle: 'Titel',
-    titleBewertungsbogen: 'Bewertungsbogen',
-    titleFeedbackbogen: 'Feedbackbogen',
-    titleCustom: 'Benutzerdefiniert',
-    customTitlePlaceholder: 'Eigener Titel',
-    title: 'Kopfdaten (optional vorausfüllen)',
-    learner: 'Name',
-    learngroup: 'Lerngruppe',
-    topic: 'Thema',
-    date: 'Datum',
-    feedback: 'Feedback / Anmerkungen',
-    fieldLabel: 'Feld',
-    fieldValue: 'Vorausfüllung',
-    addField: 'Kopffeld hinzufügen',
-    fallbackField: 'Feld',
-    footerTitle: 'Fußzeile',
-    signature: 'Unterschrift',
-    grade: 'Bewertung'
-  },
-  modes: {
-    full: 'Mit Skalen',
-    checklist: 'Nur Checkliste'
-  },
-  labels: {
-    remove: 'Entfernen',
-    itemDescription: (item: string) => `Beschreibung zu ${item}`,
-    scale: 'Skala',
-    scaleMin: 'Minimum',
-    scaleMax: 'Maximum',
-    scaleMaxSteps: (steps: number) => `max. ${steps} Stufen`,
-    add: 'Hinzufügen',
-    defaultScale: 'Standard-Skala',
-    addCustomItem: 'Eigenes Kriterium hinzufügen',
-    customItemPlaceholder: 'Eigenes Kriterium…',
-    customItemBadge: 'Eigenes Kriterium',
-    removeHeaderField: 'Kopffeld entfernen',
-    searchCriteria: 'Kriterien suchen',
-    searchPlaceholder: 'Suchen…',
-    clearSelection: 'Auswahl leeren',
-    reorderSelection: 'Reihenfolge für Vorschau und Export',
-    dragCategory: (category: string) => `Kategorie verschieben: ${category}. Mit Pfeiltasten nach oben oder unten bewegen.`,
-    dragCriterion: (criterion: string) => `Kriterium verschieben: ${criterion}. Mit Pfeiltasten nach oben oder unten bewegen.`,
-    dragHeaderField: (field: string) => `Kopffeld verschieben: ${field}. Mit Pfeiltasten nach oben oder unten bewegen.`,
-    selectCategory: 'Kategorie auswählen',
-    clearCategory: 'Kategorie abwählen',
-    chooseProductFormats: 'Formate auswählen',
-    selectedProductFormatsEmpty: 'Noch keine Produktformate ausgewählt.',
-    productFormatModalTitle: 'Produktformate auswählen',
-    productFormatSearch: 'Formate suchen',
-    productFormatSearchPlaceholder: 'Format oder Kriterium suchen...',
-    addProductFormat: 'Hinzufügen',
-    removeProductFormat: 'Entfernen',
-    close: 'Schließen',
-    previewMode: 'Ansicht',
-    previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
-    selectedEmpty: 'Noch keine Kriterien ausgewählt.',
-    moreActions: 'Weitere Aktionen',
-    mobileEdit: 'Bearbeiten',
-    mobilePreview: 'Vorschau',
-    mobileExport: 'Export',
-    selectedCount: (n: number) => `${n} ${n === 1 ? 'Kriterium' : 'Kriterien'} ausgewählt`
-  },
-  a11y: {
-    status: 'Statusmeldungen',
-    accordionToggle: 'Abschnitt umschalten'
-  },
-  messages: {
-    contentLoadError: 'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
-    saved: 'Konfiguration gespeichert.',
-    loaded: 'Konfiguration geladen.',
-    imported: 'JSON importiert.',
-    importError: 'JSON konnte nicht importiert werden. Bitte prüfen Sie die Datei.',
-    importInvalidJson: 'Die Datei enthält kein gültiges JSON.',
-    importInvalidShape: 'Die Datei enthält keine gültige Feedbackbogen-Konfiguration.',
-    importMissingSelection: 'Die Config ist unvollständig: "selectedItems" muss eine Liste sein.',
-    importInvalidVersion: 'Die Config enthält keine gültige Schema-Version.',
-    importUnsupportedVersion: (found: number, supported: number) =>
-      `Die Config-Version ${found} wird nicht unterstützt. Unterstützt wird Version ${supported}.`,
-    resetDone: 'Konfiguration wurde zurückgesetzt.',
-    undoDone: 'Änderung wurde rückgängig gemacht.',
-    redoDone: 'Änderung wurde wiederhergestellt.',
-    categoryReordered: 'Kategorie wurde verschoben.',
-    criterionReordered: 'Kriterium wurde verschoben.',
-    exported: 'Export gestartet...',
-    customItemAdded: 'Eigenes Kriterium hinzugefügt.',
-    customItemRemoved: 'Eigenes Kriterium entfernt.',
-    headerFieldAdded: 'Kopffeld hinzugefügt.',
-    headerFieldRemoved: 'Kopffeld entfernt.',
-    headerFieldReordered: 'Kopffeld wurde verschoben.',
-    productFormatAdded: 'Produktformat hinzugefügt.',
-    productFormatRemoved: 'Produktformat entfernt.'
+import { de } from './i18n/locales/de';
+import { en } from './i18n/locales/en';
+import { fr } from './i18n/locales/fr';
+import { es } from './i18n/locales/es';
+import { nl } from './i18n/locales/nl';
+
+export type LanguageCode = 'de' | 'en' | 'fr' | 'es' | 'nl';
+
+export const LOCALES: Record<LanguageCode, { label: string; dict: typeof de }> = {
+  de: { label: 'Deutsch', dict: de },
+  en: { label: 'English', dict: en },
+  fr: { label: 'Français', dict: fr },
+  es: { label: 'Español', dict: es },
+  nl: { label: 'Nederlands', dict: nl }
+};
+
+export const LANGUAGE_CODES = Object.keys(LOCALES) as LanguageCode[];
+
+export function getSavedLanguage(): LanguageCode {
+  try {
+    const saved = localStorage.getItem('bbk:lang') as LanguageCode;
+    if (saved && LOCALES[saved]) return saved;
+    
+    // Auto-detect based on browser language
+    const browserLang = navigator.language.split('-')[0] as LanguageCode;
+    if (LOCALES[browserLang]) return browserLang;
+  } catch {
+    // ignore
   }
-} as const;
+  return 'de';
+}
+
+export function setLanguage(lang: LanguageCode) {
+  try {
+    localStorage.setItem('bbk:lang', lang);
+    location.reload();
+  } catch {
+    // ignore
+  }
+}
+
+export const currentLanguage = getSavedLanguage();
+export const strings = LOCALES[currentLanguage].dict;

@@ -3,19 +3,25 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "scripts": {
     "dev": "vite --open",
     "prebuild": "npm run check:content",
     "build": "vite build",
     "check:content": "node scripts/validate-content.mjs",
+    "verify:live": "node scripts/verify-live-deploy.mjs",
+    "icons": "node scripts/generate-icons.mjs",
     "preview": "vite preview --port 4173",
-    "lint": "eslint src tests vite.config.ts",
+    "lint": "eslint src tests vite.config.ts playwright.config.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "verify": "npm run check:content && npm run lint && npm run typecheck && npm test -- --run && npm run build"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "docx": "^8.5.0",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
@@ -23,6 +29,7 @@
     "write-excel-file": "^4.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.0",
     "@types/jszip": "^3.4.1",
     "@types/node": "^22.7.4",
     "@typescript-eslint/eslint-plugin": "^8.9.0",
@@ -33,8 +40,13 @@
     "eslint-plugin-import": "^2.29.1",
     "jsdom": "^29.1.1",
     "prettier": "^3.3.3",
+    "sharp": "^0.35.1",
     "typescript": "^5.6.2",
     "vite": "^7.1.5",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
   }
 }

@@ -1,5 +1,5 @@
 import { announce } from './a11y';
-import { strings } from './strings';
+import { currentLanguage, strings } from './strings';
 import type { Category, CustomItem, Item, Scale } from './types';
 
 export const FALLBACK_CATEGORIES: Category[] = [
@@ -159,11 +159,11 @@ async function loadJson<T>(
 }
 
 export function loadCategories(baseUrl: string): Promise<Category[]> {
-  return loadJson(baseUrl + 'content/categories.json', validateCategories, FALLBACK_CATEGORIES, 'categories');
+  return loadJson(baseUrl + `content/${currentLanguage}/categories.json`, validateCategories, FALLBACK_CATEGORIES, 'categories');
 }
 
 export function loadScales(baseUrl: string): Promise<Scale[]> {
-  return loadJson(baseUrl + 'content/scales.json', validateScales, FALLBACK_SCALES, 'scales');
+  return loadJson(baseUrl + `content/${currentLanguage}/scales.json`, validateScales, FALLBACK_SCALES, 'scales');
 }
 
 export function getAllItemsFromCategory(category: Category): Item[] {
@@ -190,7 +190,7 @@ export function buildCategoriesWithCustom(categories: Category[], customItems: C
     if (customs.length === 0) return category;
     const plainItems: Item[] = customs.map(({ categoryId: _categoryId, custom: _custom, ...item }) => item);
     if (Array.isArray(category.groups)) {
-      return { ...category, groups: [...category.groups, { id: `${category.id}__custom`, title: 'Eigene Kriterien', items: plainItems }] };
+      return { ...category, groups: [...category.groups, { id: `${category.id}__custom`, title: strings.labels.customCriteriaGroup, items: plainItems }] };
     }
     return { ...category, items: [...(category.items ?? []), ...plainItems] };
   });

@@ -6,6 +6,10 @@ import { createDOCXBlob } from '@/export/export-docx';
 import { createODTBlob } from '@/export/export-odt';
 import { createFillablePDFBlob } from '@/export/export-pdf-fillable';
 import { createXLSXBlob } from '@/export/export-xlsx';
+import {
+  categoryHeadingText,
+  weightedScoreSummary,
+} from '@/export/export-utils';
 import type { ExportRow, FooterFields, HeaderData, NumericScale } from '@/types';
 
 const scale: NumericScale = {
@@ -21,8 +25,8 @@ const scale: NumericScale = {
 const header: HeaderData = { fields: [{ id: 'topic', label: 'Thema', value: 'Test & Qualität' }] };
 const footerFields: FooterFields = { date: true, signature: true, grade: false };
 const rows: ExportRow[] = [
-  { categoryId: 'general', category: 'Allgemein', item: 'Inhalt vollständig', scale },
-  { categoryId: 'general', category: 'Allgemein', item: 'Quellen korrekt', scale }
+  { categoryId: 'general', category: 'Allgemein', item: 'Inhalt vollständig', scale, itemId: 'i1', number: 1 },
+  { categoryId: 'general', category: 'Allgemein', item: 'Quellen korrekt', scale, itemId: 'i2', number: 2 }
 ];
 
 describe('document exports', () => {
@@ -40,7 +44,22 @@ describe('document exports', () => {
     expect(sharedStringsXml).toContain('Kategorie');
     expect(sharedStringsXml).toContain('Inhalt vollständig');
     expect(sharedStringsXml).toContain('1 | 2 | 3');
-    expect(stylesXml).toContain('FF1E88E5');
+    expect(stylesXml).toContain('FF245DCC');
+  });
+
+  it('escapes formula-injection prefixes in XLSX cell values', async () => {
+    const malicious: ExportRow[] = [
+      { categoryId: 'a', category: '=cmd|calc', item: 'Inhalt', scale, itemId: 'm1', number: 1 },
+      { categoryId: 'b', category: '@SUM(1+1)', item: 'Quelle', scale, itemId: 'm2', number: 2 }
+    ];
+    const zip = await JSZip.loadAsync(await (await createXLSXBlob(malicious)).arrayBuffer());
+    const sharedStringsXml = await zip.file('xl/sharedStrings.xml')!.async('text');
+
+    // Risky leading chars are neutralised with a leading apostrophe.
+    expect(sharedStringsXml).toContain("'=cmd|calc");
+    expect(sharedStringsXml).toContain("'@SUM(1+1)");
+    // The bare formula must never appear as the start of a cell string.
+    expect(sharedStringsXml).not.toContain('>=cmd|calc');
   });
 
   it('creates a DOCX with structured tables, feedback area and footer', async () => {
@@ -122,6 +141,80 @@ describe('document exports', () => {
     expect(rawPdf).toContain('/Subtype /Widget');
     expect(rawPdf).toContain('/AP');
     expect(rawPdf).not.toContain('/ObjStm');
+  });
+});
+
+describe('category heading with weight', () => {
+  it('appends a weight badge only when a weight is set', () => {
+    expect(categoryHeadingText('Sachebene', 40)).toBe('Sachebene — 40 %');
+    expect(categoryHeadingText('Sachebene', undefined)).toBe('Sachebene');
+    expect(categoryHeadingText('Sachebene', 0)).toBe('Sachebene');
+  });
+
+  it('renders the weighted heading and auto-numbering in DOCX output', async () => {
+    const weighted: ExportRow[] = [
+      { categoryId: 'sach', category: 'Sachebene', item: 'Tiefe', scale, itemId: 't1', number: 1, weight: 40 },
+      { categoryId: 'sach', category: 'Sachebene', item: 'Breite', scale, itemId: 'b1', number: 2, weight: 40 }
+    ];
+    const docXml = await JSZip.loadAsync(await (await createDOCXBlob(weighted, 'Bewertungsbogen', header, footerFields)).arrayBuffer())
+      .then((zip) => zip.file('word/document.xml')!.async('text'));
+    expect(docXml).toContain('SACHEBENE — 40 %');
+    expect(docXml).toContain('1. Tiefe');
+    expect(docXml).toContain('2. Breite');
+  });
+
+  it('adds a weighted scoring summary to exports', async () => {
+    const weighted: ExportRow[] = [
+      {
+        categoryId: 'sach',
+        category: 'Sachebene',
+        item: 'Tiefe',
+        scale,
+        itemId: 't1',
+        number: 1,
+        weight: 40,
+      },
+      {
+        categoryId: 'sprache',
+        category: 'Sprache',
+        item: 'Präzision',
+        scale,
+        itemId: 'p1',
+        number: 1,
+        weight: 60,
+      },
+    ];
+
+    expect(weightedScoreSummary(weighted)).toEqual({
+      groups: [
+        { title: 'Sachebene', weight: 40 },
+        { title: 'Sprache', weight: 60 },
+      ],
+      totalWeight: 100,
+    });
+
+    const xlsxZip = await JSZip.loadAsync(
+      await (await createXLSXBlob(weighted)).arrayBuffer()
+    );
+    const sharedStringsXml = await xlsxZip
+      .file('xl/sharedStrings.xml')!
+      .async('text');
+    expect(sharedStringsXml).toContain('Auswertung');
+    expect(sharedStringsXml).toContain('Gesamtergebnis: ____ / 100 %');
+
+    const docXml = await JSZip.loadAsync(
+      await (
+        await createDOCXBlob(weighted, 'Bewertungsbogen', header, footerFields)
+      ).arrayBuffer()
+    ).then((zip) => zip.file('word/document.xml')!.async('text'));
+    expect(docXml).toContain('Auswertung');
+    expect(docXml).toContain('Gesamtergebnis: ____ / 100 %');
+
+    const odtXml = await odtContentXml(
+      await createODTBlob(weighted, 'Bewertungsbogen', header, footerFields)
+    );
+    expect(odtXml).toContain('Auswertung');
+    expect(odtXml).toContain('Gesamtergebnis: ____ / 100 %');
   });
 });
 

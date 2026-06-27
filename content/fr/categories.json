@@ -1,0 +1,257 @@
+[
+  {
+    "id": "allgemeine",
+    "title": "Général",
+    "description": "Définissez les exigences générales que les apprenants doivent toujours respecter de manière transversale.",
+    "items": [
+      {
+        "id": "abgabe",
+        "label": "Remise dans les délais",
+        "description": ""
+      },
+      {
+        "id": "dateinamen",
+        "label": "Utilisation des noms et chemins de fichiers convenus",
+        "description": ""
+      },
+      {
+        "id": "regeln",
+        "label": "Respect des règles et consignes convenues",
+        "description": ""
+      },
+      {
+        "id": "vollstaendigkeit",
+        "label": "Exhaustivité des documents demandés",
+        "description": ""
+      },
+      {
+        "id": "quellenangaben",
+        "label": "Sources indiquées",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sachebene",
+    "title": "Niveau du contenu",
+    "description": "Attentes en matière d'acquisition de connaissances et de présentation.",
+    "items": [
+      {
+        "id": "tiefe",
+        "label": "Profondeur et étendue de l'analyse disciplinaire",
+        "description": ""
+      },
+      {
+        "id": "komplexitaet",
+        "label": "Complexité du contenu",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative",
+        "label": "Initiative par une recherche autonome et des perspectives supplémentaires",
+        "description": ""
+      },
+      {
+        "id": "selbststaendigkeit",
+        "label": "Autonomie dans le traitement du contenu",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "sprachgebrauch",
+    "title": "Usage de la langue",
+    "description": "Critères d'évaluation de la qualité et de l'effet linguistiques.",
+    "items": [
+      {
+        "id": "sprachliche-richtigkeit",
+        "label": "Correction linguistique",
+        "description": "Grammaire, orthographe et ponctuation"
+      },
+      {
+        "id": "ausdrucksfaehigkeit",
+        "label": "Capacité d'expression",
+        "description": "Précision du choix des mots, caractère imagé et vivant de la langue ainsi qu'évitement des répétitions"
+      },
+      {
+        "id": "stilistische-angemessenheit",
+        "label": "Adéquation stylistique",
+        "description": "Adaptation au destinataire et à la situation, registre approprié (factuel, argumentatif, créatif, etc.) ainsi que cohérence du style"
+      },
+      {
+        "id": "kohaerenz-und-kohaesion",
+        "label": "Cohérence et cohésion",
+        "description": "Structuration logique des idées, articulation pertinente des phrases et des paragraphes ainsi qu'utilisation de transitions et de connecteurs"
+      },
+      {
+        "id": "kommunikative-wirksamkeit",
+        "label": "Efficacité communicative",
+        "description": "Intelligibilité, clarté des propos ainsi que force de conviction ou effet sur le lecteur"
+      },
+      {
+        "id": "sprachliche-vielfalt",
+        "label": "Variété linguistique",
+        "description": "Débuts de phrases variés, types et longueurs de phrases différents ainsi que vocabulaire varié"
+      }
+    ]
+  },
+  {
+    "id": "praesentation",
+    "title": "Présentation",
+    "description": "Paramètres d'évaluation de la présentation.",
+    "items": [
+      {
+        "id": "koerpersprache",
+        "label": "Langage corporel et contact visuel",
+        "description": ""
+      },
+      {
+        "id": "aktivierend",
+        "label": "Éléments activants",
+        "description": ""
+      },
+      {
+        "id": "sprachlicher_ausdruck",
+        "label": "Expression orale",
+        "description": ""
+      },
+      {
+        "id": "eigeninitiative_praes",
+        "label": "Initiative",
+        "description": ""
+      },
+      {
+        "id": "kreativitaet",
+        "label": "Créativité",
+        "description": ""
+      },
+      {
+        "id": "adressatenaufbereitung",
+        "label": "Préparation adaptée au destinataire",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "reflexion",
+    "title": "Réflexion",
+    "description": "Paramètres d'évaluation de la réflexion.",
+    "items": [
+      {
+        "id": "tiefe_reflexion",
+        "label": "Profondeur et finesse de la réflexion sur le processus",
+        "description": ""
+      },
+      {
+        "id": "analyse_schwierigkeiten",
+        "label": "Identification/analyse des difficultés",
+        "description": ""
+      },
+      {
+        "id": "loesungsvorschlaege",
+        "label": "Propositions de solutions concrètes et compréhensibles",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "darstellung",
+    "title": "Mise en forme",
+    "description": "Paramètres d'évaluation de la mise en forme.",
+    "items": [
+      {
+        "id": "gestaltung",
+        "label": "Conception (mise en page attrayante, attrait visuel)",
+        "description": ""
+      },
+      {
+        "id": "farb_schrift",
+        "label": "Concept cohérent de couleurs et de polices",
+        "description": ""
+      },
+      {
+        "id": "optische_konsistenz",
+        "label": "Cohérence visuelle",
+        "description": ""
+      },
+      {
+        "id": "thematisches_design",
+        "label": "Design thématiquement adapté et pertinent",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "peer",
+    "title": "Feedback des pairs / Réflexion",
+    "description": "Aspects de la phase de travail et de présentation ayant une influence sur l'acquisition de connaissances.",
+    "items": [
+      {
+        "id": "erfolg_arbeitsphase",
+        "label": "Réussite de la phase de travail",
+        "description": ""
+      },
+      {
+        "id": "mitarbeit_gruppe",
+        "label": "Participation au processus de groupe",
+        "description": ""
+      },
+      {
+        "id": "aktivierende_elemente",
+        "label": "Éléments activants (p. ex. méthodes d'interaction)",
+        "description": ""
+      },
+      {
+        "id": "adressaten_praesentation",
+        "label": "Présentation adaptée au destinataire",
+        "description": ""
+      },
+      {
+        "id": "persoenlicher_wissenszuwachs",
+        "label": "Acquisition personnelle de connaissances",
+        "description": ""
+      },
+      {
+        "id": "wissenszuwachs_zuhoerer",
+        "label": "Acquisition de connaissances par l'auditeur",
+        "description": ""
+      }
+    ]
+  },
+  {
+    "id": "prozess",
+    "title": "Documentation du processus",
+    "items": [
+      {
+        "id": "planungsunterlagen",
+        "label": "Documents de planification / documentation du processus",
+        "description": ""
+      },
+      {
+        "id": "nachvollziehbarkeit",
+        "label": "Traçabilité et intelligibilité",
+        "description": ""
+      },
+      {
+        "id": "ki_angaben",
+        "label": "Recours à l'IA - indication/description des prompts et outils utilisés",
+        "description": ""
+      },
+      {
+        "id": "ki_nachvollziehbar",
+        "label": "Recours à l'IA expliqué de façon traçable",
+        "description": ""
+      },
+      {
+        "id": "ki_reflexion",
+        "label": "Recours à l'IA réfléchi de façon critique (bénéfices/risques)",
+        "description": ""
+      },
+      {
+        "id": "eigenes_potential",
+        "label": "Potentiel de développement personnel",
+        "description": ""
+      }
+    ]
+  }
+]

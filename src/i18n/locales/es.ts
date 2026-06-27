@@ -211,6 +211,9 @@ export const es = {
     exportSuccess: (label: string) => `${label} ha sido creado.`,
     exportError: (label: string) =>
       `${label} no pudo ser creado. Por favor, inténtelo de nuevo.`,
+    exportWeightWarning: (sum: number) =>
+      `La suma de las ponderaciones es ${sum} % en lugar de 100 %. ¿Exportar de todos modos?`,
+    exportCanceled: 'Exportación cancelada.',
     customItemAdded: 'Criterio personalizado añadido.',
     bulkAdded: (count: number) => `${count} criterios añadidos.`,
     customItemRemoved: 'Criterio personalizado eliminado.',

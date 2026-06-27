@@ -920,7 +920,7 @@ function renderHeaderFieldEditor(
       { class: 'kd-field' },
       el('label', {
         for: labelInputId,
-        class: 'kd-label sr-only',
+        class: 'kd-label',
         text: strings.kopfdaten.fieldLabel,
       }),
       labelInput
@@ -930,7 +930,7 @@ function renderHeaderFieldEditor(
       { class: 'kd-field' },
       el('label', {
         for: valueInputId,
-        class: 'kd-label sr-only',
+        class: 'kd-label',
         text: strings.kopfdaten.fieldValue,
       }),
       valueInput

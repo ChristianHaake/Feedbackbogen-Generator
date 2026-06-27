@@ -211,6 +211,9 @@ export const fr = {
     exportSuccess: (label: string) => `${label} a été créé.`,
     exportError: (label: string) =>
       `${label} n'a pas pu être créé. Veuillez réessayer.`,
+    exportWeightWarning: (sum: number) =>
+      `La somme des pondérations est de ${sum} % au lieu de 100 %. Exporter quand même ?`,
+    exportCanceled: 'Export annulé.',
     customItemAdded: 'Critère personnalisé ajouté.',
     bulkAdded: (count: number) => `${count} critères ajoutés.`,
     customItemRemoved: 'Critère personnalisé supprimé.',

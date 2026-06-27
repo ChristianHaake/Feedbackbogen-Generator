@@ -660,8 +660,8 @@ body {
 .kd-input:focus, .kd-textarea:focus { outline: 3px solid var(--focus); outline-offset: 1px; }
 .header-field-row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 0.95fr) minmax(0, 1.05fr) 40px;
-  align-items: center;
+  grid-template-columns: 40px minmax(118px, 1.05fr) minmax(128px, 1fr) 40px;
+  align-items: end;
   gap: 6px;
   padding: 6px;
   border: 1px solid var(--border);
@@ -674,7 +674,7 @@ body {
 }
 .header-field-head {
   display: grid;
-  grid-template-columns: 40px minmax(0, 0.95fr) minmax(0, 1.05fr) 40px;
+  grid-template-columns: 40px minmax(118px, 1.05fr) minmax(128px, 1fr) 40px;
   gap: 6px;
   color: var(--text-muted);
   font-size: 11px;

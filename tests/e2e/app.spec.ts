@@ -415,6 +415,38 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(page.locator('.a4-items li')).toContainText(
       'Rechtzeitige Abgabe'
     );
+    await expect(page.locator('#config-message')).toHaveText(
+      'JSON importiert.'
+    );
+  });
+
+  test('Export warns when category weights do not total 100 percent', async ({
+    page,
+  }) => {
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('.category-weight-input').first().fill('25');
+    await page.locator('.category-weight-input').first().blur();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+
+    await page.locator('#export-menu-trigger').click();
+    const dialogPromise = new Promise<{ type: string; message: string }>(
+      (resolve) => {
+        page.once('dialog', async (dialog) => {
+          const result = {
+            type: dialog.type(),
+            message: dialog.message(),
+          };
+          await dialog.dismiss();
+          resolve(result);
+        });
+      }
+    );
+    await page.locator('.menu-item[data-export-format="docx"]').click();
+    const dialog = await dialogPromise;
+    expect(dialog.type).toBe('confirm');
+    expect(dialog.message).toContain(
+      'Die Summe der Gewichtungen beträgt 25 % statt 100 %.'
+    );
   });
 
   test('Content Route Renders Markdown Page', async ({ page }) => {
@@ -595,5 +627,33 @@ test.describe('Language Switching', () => {
       'All data remains locally in the browser. No server transmission.'
     );
     await expect(page.locator('#acc-allgemeine')).toContainText('General');
+  });
+
+  test('keeps English header field labels readable', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      window.localStorage.clear();
+      window.localStorage.setItem('bbk:onboarding-dismissed', '1');
+      window.localStorage.setItem('bbk:lang', 'en');
+    });
+    await page.goto('/');
+
+    const metrics = await page.locator('#kd-label-learngroup').evaluate(
+      (input) => {
+        const label = input.closest('.kd-field')?.querySelector('label');
+        return {
+          clientWidth: input.clientWidth,
+          scrollWidth: input.scrollWidth,
+          labelText: label?.textContent?.trim(),
+          labelVisible: label
+            ? getComputedStyle(label).position !== 'absolute'
+            : false,
+        };
+      }
+    );
+
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+    expect(metrics.labelText).toBe('Field');
+    expect(metrics.labelVisible).toBe(true);
   });
 });

@@ -207,6 +207,9 @@ export const en = {
     exportSuccess: (label: string) => `${label} was created.`,
     exportError: (label: string) =>
       `${label} could not be created. Please try again.`,
+    exportWeightWarning: (sum: number) =>
+      `The sum of weights is ${sum} % instead of 100 %. Export anyway?`,
+    exportCanceled: 'Export canceled.',
     customItemAdded: 'Custom criterion added.',
     bulkAdded: (count: number) => `${count} criteria added.`,
     customItemRemoved: 'Custom criterion removed.',

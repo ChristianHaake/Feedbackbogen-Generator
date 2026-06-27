@@ -205,6 +205,9 @@ export const nl = {
     exportSuccess: (label: string) => `${label} is gemaakt.`,
     exportError: (label: string) =>
       `${label} kon niet worden gemaakt. Probeer het opnieuw.`,
+    exportWeightWarning: (sum: number) =>
+      `De som van de wegingen is ${sum} % in plaats van 100 %. Toch exporteren?`,
+    exportCanceled: 'Export geannuleerd.',
     customItemAdded: 'Aangepast criterium toegevoegd.',
     bulkAdded: (count: number) => `${count} criteria toegevoegd.`,
     customItemRemoved: 'Aangepast criterium verwijderd.',

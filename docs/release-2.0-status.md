@@ -19,4 +19,9 @@ Der Check muss bestätigen:
 - `/sw.js`, `/registerSW.js` und `/manifest.webmanifest` liefern echte PWA-Dateien.
 - Die Security-Header aus `public/_headers` sind live aktiv.
 
+Das Repository enthält dafür `wrangler.jsonc` mit statischer Asset-Auslieferung
+aus `dist` und SPA-Fallback. Ein Release ist erst gültig, wenn der Live-Deploy
+mit dieser Build-Ausgabe und den Dateien `public/_headers` sowie
+`public/_redirects` erfolgt ist.
+
 Die Version in `package.json` bleibt bei `1.0.0`, bis das Live-Gate erfolgreich ist.

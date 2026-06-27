@@ -1012,6 +1012,13 @@ async function bootstrap() {
     };
   }
 
+  function configuredWeightSum(): number {
+    return allActiveCategories().reduce(
+      (sum, category) => sum + (categoryWeights[category.id] ?? 0),
+      0
+    );
+  }
+
   function autoPersist() {
     saveConfig(currentConfig());
   }
@@ -1271,11 +1278,14 @@ async function bootstrap() {
   // Toolbar
   const exportJson = () => {
     exportConfigJSON(currentConfig());
+    showToast(strings.messages.saved, 'success');
+    announce(strings.messages.saved);
   };
   const importJson = async () => {
     const result = await importConfigJSON();
     if (result.status === 'success') {
       replaceConfig(result.config, true, strings.history.configLoaded);
+      showConfigMessage(strings.messages.imported);
       announce(strings.messages.imported);
     } else if (result.status === 'error') {
       showConfigMessage(result.message);
@@ -1356,6 +1366,15 @@ async function bootstrap() {
 
   async function exportFormat(fmt: ExportFormat) {
     if (exportInFlight) return;
+    const weightSum = Math.round(configuredWeightSum());
+    if (
+      weightSum > 0 &&
+      weightSum !== 100 &&
+      !window.confirm(strings.messages.exportWeightWarning(weightSum))
+    ) {
+      announce(strings.messages.exportCanceled);
+      return;
+    }
     exportInFlight = true;
     const label = exportLabels[fmt];
     showToast(strings.messages.exporting(label), 'loading');

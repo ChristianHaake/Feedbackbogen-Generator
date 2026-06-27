@@ -209,6 +209,9 @@ export const de = {
     exportSuccess: (label: string) => `${label} wurde erstellt.`,
     exportError: (label: string) =>
       `${label} konnte nicht erstellt werden. Bitte erneut versuchen.`,
+    exportWeightWarning: (sum: number) =>
+      `Die Summe der Gewichtungen beträgt ${sum} % statt 100 %. Trotzdem exportieren?`,
+    exportCanceled: 'Export abgebrochen.',
     customItemAdded: 'Eigenes Kriterium hinzugefügt.',
     bulkAdded: (count: number) => `${count} Kriterien hinzugefügt.`,
     customItemRemoved: 'Eigenes Kriterium entfernt.',

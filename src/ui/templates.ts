@@ -2314,9 +2314,10 @@ function renderA4ScaleTable(
     style: `--a4-criterion-width: ${labelWidth}%; --a4-option-count: ${options.length};`,
   });
   const colgroup = el('colgroup');
-  colgroup.append(el('col', { class: 'a4-scale-col-criterion' }));
+  colgroup.append(el('col', { class: 'a4-scale-col-criterion', style: `width: ${labelWidth}%` }));
+  const optionWidth = (100 - labelWidth) / options.length;
   options.forEach(() =>
-    colgroup.append(el('col', { class: 'a4-scale-col-option' }))
+    colgroup.append(el('col', { class: 'a4-scale-col-option', style: `width: ${optionWidth}%` }))
   );
 
   const headerRow = el('tr');

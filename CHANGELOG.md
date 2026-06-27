@@ -8,7 +8,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
-Keine Einträge.
+### Fixed
+
+- Table layout für numerische Skalen mit vielen Optionen korrigiert, sodass die Kriterium-Spalte nicht mehr unleserlich schmal wird.
 
 ## [2.0.0] - in Vorbereitung
 

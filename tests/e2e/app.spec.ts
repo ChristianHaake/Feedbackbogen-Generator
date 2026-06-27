@@ -103,6 +103,19 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(previewItems).toHaveCount(1);
     await expect(previewItems).toContainText('Rechtzeitige Abgabe');
 
+    const scaleHeaders = page.locator('.a4-scale-opt-text');
+    await expect(scaleHeaders).toHaveCount(5);
+    const previewScaleBoxes = previewItems.first().locator('.a4-scale-boxes .a4-cbox');
+    await expect(previewScaleBoxes).toHaveCount(5);
+    const firstBox = await previewScaleBoxes.nth(0).boundingBox();
+    expect(firstBox).not.toBeNull();
+    for (let index = 1; index < 5; index += 1) {
+      const box = await previewScaleBoxes.nth(index).boundingBox();
+      expect(box).not.toBeNull();
+      expect(Math.abs(box!.y - firstBox!.y)).toBeLessThan(1);
+      expect(box!.x).toBeGreaterThan(firstBox!.x);
+    }
+
     // Search filter: type "Quellen"
     const searchInput = page.locator('#criteria-search');
     await searchInput.fill('Quellen');

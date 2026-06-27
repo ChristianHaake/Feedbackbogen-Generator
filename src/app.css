@@ -1366,6 +1366,12 @@ body {
   table-layout: fixed;
   border: 0.6pt solid #d7dbe0;
 }
+.a4-scale-col-criterion {
+  width: var(--a4-criterion-width);
+}
+.a4-scale-col-option {
+  width: calc((100% - var(--a4-criterion-width)) / var(--a4-option-count));
+}
 .a4-scale-table th,
 .a4-scale-table td {
   border-bottom: 0.4pt solid #e1e4e8;

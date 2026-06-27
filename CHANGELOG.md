@@ -48,6 +48,7 @@ Keine Einträge.
 - DOCX-, XLSX-, ODT-, PDF- und ausfüllbarer-PDF-Export übernehmen Kopfdaten, Fußzeile, Skalenmodus und Gewichtungen konsistenter.
 - Titeloptionen werden auf sehr schmalen deutschen Mobile-Viewports nicht mehr abgeschnitten.
 - Die mobile Vorschau erzwingt keinen horizontalen A4-Scroll mehr als Standardansicht.
+- Skalenoptionen in der A4-Vorschau bleiben horizontal einer Item-Zeile zugeordnet.
 
 ## [1.0.0] - 2026-05-30
 

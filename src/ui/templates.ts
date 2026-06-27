@@ -2358,7 +2358,7 @@ function renderNumericScaleBoxes(
 }
 
 function scaleGridStyle(scale: Scale): string {
-  const minColumnWidth = scale.kind === 'numeric' ? '13pt' : '26pt';
+  const minColumnWidth = scale.kind === 'numeric' ? '13pt' : '42pt';
   return `grid-template-columns: repeat(${scaleOptionLabels(scale).length}, minmax(${minColumnWidth}, 1fr))`;
 }
 

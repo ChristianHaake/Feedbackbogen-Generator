@@ -1325,9 +1325,9 @@ body {
   border: 0.6pt solid #d7dbe0;
 }
 .a4-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 14pt;
   padding: 8pt 8pt;
   border-bottom: 0.4pt solid #e1e4e8;
@@ -1361,14 +1361,15 @@ body {
 }
 .a4-item-remove:hover { background: var(--danger-soft); border-color: var(--danger); }
 .a4-item-numeric {
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
   gap: 9pt;
 }
 
 .a4-item-label {
-  flex: 0 0 42%;
   display: grid;
   grid-template-columns: 20pt minmax(0, 1fr);
   column-gap: 4pt;
+  min-width: 0;
   font-size: 10pt;
   font-weight: 500;
   line-height: 1.35;
@@ -1383,12 +1384,9 @@ body {
   grid-column: 2;
   min-width: 0;
 }
-.a4-item-numeric .a4-item-label {
-  flex-basis: 46%;
-}
-
 .a4-scale-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
   gap: 14pt;
   padding: 5pt 8pt;
   border: 0.6pt solid #d7dbe0;
@@ -1396,20 +1394,18 @@ body {
   background: #f7f8fa;
 }
 .a4-scale-header-spacer {
-  flex: 0 0 42%;
+  min-width: 0;
 }
 .a4-scale-header-numeric {
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
   gap: 9pt;
-}
-.a4-scale-header-numeric .a4-scale-header-spacer {
-  flex: 0 0 46%;
 }
 .a4-scale-options,
 .a4-scale-boxes {
-  flex: 1 1 auto;
   display: grid;
   gap: 5pt;
   align-items: center;
+  min-width: 0;
   text-align: center;
 }
 .a4-scale-options {
@@ -1425,12 +1421,17 @@ body {
 .a4-scale-options-numeric {
   font-size: 8.5pt;
 }
+.a4-scale-opt-text {
+  min-width: 0;
+  overflow-wrap: normal;
+}
 .a4-scale-boxes-numeric .a4-cbox {
   font-size: 10pt;
 }
 .a4-cbox { font-size: 12pt; line-height: 1; color: #333; }
 .a4-scale-boxes .a4-cbox {
   text-align: center;
+  white-space: nowrap;
 }
 .a4-scale-line {
   flex: 1 1 auto;
@@ -1442,8 +1443,8 @@ body {
 
 /* Checkliste mode — item with a single ☐ before the label */
 .a4-item-checklist {
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: flex-start;
-  justify-content: flex-start;
   gap: 8pt;
 }
 .a4-item-checklist > .a4-cbox {

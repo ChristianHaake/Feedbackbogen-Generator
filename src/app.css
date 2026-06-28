@@ -1162,13 +1162,24 @@ body {
   padding: 5px 8px; font-size: 12px; background: #fff;
 }
 .category-title-input:focus { outline: 3px solid var(--focus); outline-offset: 1px; }
-.add-category-row { display: flex; gap: 4px; margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--border); }
+.add-category-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--border);
+}
 .add-category-input {
-  flex: 1; border: 1px solid var(--border); border-radius: 6px;
+  flex: 1 1 220px; min-width: 0;
+  border: 1px solid var(--border); border-radius: 6px;
   padding: 6px 9px; font-size: 13px; background: #fff;
 }
 .add-category-input:focus { outline: 3px solid var(--focus); outline-offset: 1px; }
-.add-category-btn { flex-shrink: 0; }
+.add-category-btn {
+  flex: 0 1 auto;
+  max-width: 100%;
+}
 .category-weight-input {
   width: 64px; border: 1px solid var(--border); border-radius: 6px;
   padding: 5px 8px; font-size: 12px; background: #fff;

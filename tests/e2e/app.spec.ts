@@ -517,6 +517,41 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     );
   });
 
+  test('Add-category row does not overflow in narrow Safari-style editor widths', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 840, height: 720 });
+    await page.reload();
+
+    const row = page.locator('.add-category-row');
+    await expect(row).toBeVisible();
+    await row.scrollIntoViewIfNeeded();
+
+    const metrics = await row.evaluate((element) => {
+      const input = element.querySelector<HTMLElement>('.add-category-input');
+      const button = element.querySelector<HTMLElement>('.add-category-btn');
+      const rowRect = element.getBoundingClientRect();
+      const buttonRect = button?.getBoundingClientRect();
+      const inputRect = input?.getBoundingClientRect();
+
+      return {
+        rowOverflow: element.scrollWidth - element.clientWidth,
+        buttonRight: buttonRect?.right ?? 0,
+        inputRight: inputRect?.right ?? 0,
+        rowRight: rowRect.right,
+        buttonClipped: button
+          ? button.scrollWidth > button.clientWidth + 1 ||
+            button.scrollHeight > button.clientHeight + 1
+          : true,
+      };
+    });
+
+    expect(metrics.rowOverflow).toBeLessThanOrEqual(1);
+    expect(metrics.buttonRight).toBeLessThanOrEqual(metrics.rowRight + 1);
+    expect(metrics.inputRight).toBeLessThanOrEqual(metrics.rowRight + 1);
+    expect(metrics.buttonClipped).toBe(false);
+  });
+
   test('Mobile preview fits A4 page without horizontal scrolling', async ({
     page,
   }) => {

@@ -82,4 +82,4 @@ Die Erstellung von Feedbackbögen erfolgt grundsätzlich lokal im Browser. Einge
 
 Christian Haake
 
-E-Mail: {mein Vorname}{mein Nachname}@gmail.com
+E-Mail: apps@haak3.de

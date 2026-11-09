@@ -36,4 +36,9 @@ describe('config order', () => {
     expect(orderCategories(categories, ['c', 'a']).map((category) => category.id)).toEqual(['c', 'a', 'b']);
     expect(orderByIds(items, ['b']).map((item) => item.id)).toEqual(['b', 'a', 'c']);
   });
+
+  it('merges large or repeated orders without duplicating ids', () => {
+    const ids = Array.from({ length: 1000 }, (_, index) => `${index}`);
+    expect(mergeOrder(['999', '999', 'removed'], ids)).toEqual(['999', ...ids.slice(0, -1)]);
+  });
 });

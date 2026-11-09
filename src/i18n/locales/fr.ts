@@ -152,6 +152,7 @@ export const fr = {
     about: 'À propos du projet',
     imprint: 'Mentions légales',
     privacy: 'Confidentialité',
+    support: 'Soutenir',
   },
   footer: {
     coffee: 'Buy me a coffee',
@@ -179,6 +180,13 @@ export const fr = {
     },
   },
   messages: {
+    exportUnsupportedCharacters: (characters: string) => `La police PDF ne prend pas en charge ces caractères : ${characters}. Remplacez-les ou utilisez DOCX/ODT.`,
+    inputLimit: "La modification dépasse les limites de configuration ou contient des caractères de contrôle non pris en charge. Raccourcissez ou corrigez la saisie.",
+    recoveryNotice: "La configuration enregistrée ne peut pas être chargée en toute sécurité. Les données originales sont conservées. Téléchargez la sauvegarde puis importez un fichier corrigé ou réinitialisez explicitement la configuration. La sauvegarde automatique est suspendue.",
+    recoveryDownload: "Télécharger les données originales",
+    storageError: "La configuration ne peut pas être enregistrée automatiquement. Téléchargez une sauvegarde JSON et vérifiez le stockage du navigateur.",
+    importConfirm: "La configuration actuelle sera remplacée. Les modifications précédentes peuvent être annulées. Continuer ?",
+
     contentLoadError:
       "Les données de contenu n'ont pas pu être chargées ou validées. Solution de repli activée.",
     contentPageLoading: 'Chargement du contenu...',

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // __dirname replacement for ESM
@@ -55,6 +55,12 @@ function contentPlugin() {
         }
       }
       if (fs.existsSync(contentDir)) copyRecursive(contentDir, out);
+      const fontDir = path.resolve(__dirname, 'assets/fonts');
+      const licenseDir = path.resolve(__dirname, 'dist/licenses');
+      fs.mkdirSync(licenseDir, { recursive: true });
+      for (const name of fs.readdirSync(fontDir).filter(name => name.endsWith('LICENSE.txt'))) {
+        fs.copyFileSync(path.join(fontDir, name), path.join(licenseDir, name));
+      }
     },
   } as any;
 }
@@ -98,9 +104,18 @@ export default defineConfig({
         // App shell is precached; runtime-fetched /content/* (markdown + JSON) is
         // cached on first online visit so it stays available offline afterwards.
         globPatterns: ['**/*.{js,css,html,svg,woff2}'],
-        globIgnores: ['favicon.svg', 'icons.svg'],
+        globIgnores: ['favicon.svg', 'icons.svg', '**/FeedbackSans-*'],
         navigateFallback: '/index.html',
         runtimeCaching: [
+          {
+            urlPattern: /\/assets\/FeedbackSans-.*\.(?:ttf|woff2)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pdf-fonts',
+              expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [200] }
+            }
+          },
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/content/'),
             handler: 'StaleWhileRevalidate',

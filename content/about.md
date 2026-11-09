@@ -82,4 +82,14 @@ Die Erstellung von Feedbackbögen erfolgt grundsätzlich lokal im Browser. Einge
 
 Christian Haake
 
-E-Mail: {mein Vorname}{mein Nachname}@gmail.com
+E-Mail: apps@haak3.de
+
+## PDF-Schrift und Lizenzen
+
+Die lokal gebündelte Schrift Feedback Sans basiert auf Inter, Noto Sans SC und Noto Emoji. Die abgeleitete Schrift steht unter der SIL Open Font License 1.1. Die Originalhinweise werden mit dem Build ausgeliefert:
+
+https://fbg.haak3.de/licenses/Inter-LICENSE.txt
+
+https://fbg.haak3.de/licenses/NotoSansSC-LICENSE.txt
+
+https://fbg.haak3.de/licenses/NotoEmoji-LICENSE.txt

@@ -61,3 +61,8 @@ export function downloadBlob(blob: Blob, filename: string) {
   anchor.click();
   URL.revokeObjectURL(anchor.href);
 }
+
+export function sanitizeXmlText(text: string): string {
+  // eslint-disable-next-line no-control-regex -- XML excludes control characters and unpaired surrogates.
+  return text.replace(/[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu, '');
+}

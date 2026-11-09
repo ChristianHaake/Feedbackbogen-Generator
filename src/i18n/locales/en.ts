@@ -149,6 +149,7 @@ export const en = {
     about: 'About the project',
     imprint: 'Imprint',
     privacy: 'Privacy',
+    support: 'Support',
   },
   footer: {
     coffee: 'Buy me a coffee',
@@ -176,6 +177,13 @@ export const en = {
     },
   },
   messages: {
+    exportUnsupportedCharacters: (characters: string) => `The PDF font does not support these characters: ${characters}. Replace them or use DOCX/ODT.`,
+    inputLimit: "The change exceeds the configuration limits or contains unsupported control characters. Shorten or clean up the input.",
+    recoveryNotice: "The saved configuration could not be loaded safely. The original data is preserved. Download the backup and import a corrected file or explicitly reset the configuration. Autosave is paused until then.",
+    recoveryDownload: "Download original saved data",
+    storageError: "The configuration could not be saved automatically. Download a JSON backup and check browser storage.",
+    importConfirm: "The current configuration will be replaced. Previous changes can be undone. Continue?",
+
     contentLoadError:
       'Content data could not be loaded or validated. Fallback activated.',
     contentPageLoading: 'Loading content...',

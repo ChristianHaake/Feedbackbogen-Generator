@@ -1,10 +1,8 @@
-import {
-  PDFDocument,
-  type PDFFont,
-  type PDFPage,
-  rgb,
-  StandardFonts,
-} from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import { PDFDocument, type PDFFont, type PDFPage, rgb } from 'pdf-lib';
+
+import regularFontUrl from '../../assets/fonts/FeedbackSans-Regular.ttf?url';
+import boldFontUrl from '../../assets/fonts/FeedbackSans-Bold.ttf?url';
 
 import {
   categoryHeadingText,
@@ -49,15 +47,36 @@ const colors = {
 type Fonts = {
   regular: PDFFont;
   bold: PDFFont;
-  italic: PDFFont;
 };
 type FillableContext = {
   pdfDoc: PDFDocument;
   page: PDFPage;
   fonts: Fonts;
-  form: ReturnType<PDFDocument['getForm']>;
+  form: ReturnType<PDFDocument['getForm']> | null;
+  interactive: boolean;
   nextFieldId: number;
 };
+
+let fontBytesPromise: Promise<[ArrayBuffer, ArrayBuffer]> | undefined;
+
+function loadFontBytes(): Promise<[ArrayBuffer, ArrayBuffer]> {
+  if (!fontBytesPromise) {
+    fontBytesPromise = Promise.all(
+      [regularFontUrl, boldFontUrl].map(async (url) => {
+        const response = await fetch(url);
+        if (!response.ok)
+          throw new Error(`Failed to load PDF font: ${response.status}`);
+        return response.arrayBuffer();
+      })
+    )
+      .then(([regular, bold]) => [regular, bold] as [ArrayBuffer, ArrayBuffer])
+      .catch((error) => {
+        fontBytesPromise = undefined;
+        throw error;
+      });
+  }
+  return fontBytesPromise;
+}
 
 export async function createFillablePDFBlob(
   rows: ExportRow[],
@@ -66,76 +85,169 @@ export async function createFillablePDFBlob(
   footerFields: FooterFields,
   mode: PrintMode = 'full'
 ): Promise<Blob> {
+  return createPDFBlob(rows, title, header, footerFields, mode, true);
+}
+
+export async function createPDFBlob(
+  rows: ExportRow[],
+  title: string,
+  header: HeaderData,
+  footerFields: FooterFields,
+  mode: PrintMode = 'full',
+  interactive = false
+): Promise<Blob> {
   const pdfDoc = await PDFDocument.create();
+  pdfDoc.registerFontkit(fontkit);
   pdfDoc.setTitle(title);
   pdfDoc.setCreator('Feedbackbogen-Generator');
   pdfDoc.setProducer('Feedbackbogen-Generator');
-
-  const fonts: Fonts = {
-    regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
-    bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
-    italic: await pdfDoc.embedFont(StandardFonts.HelveticaOblique),
-  };
+  const [regularBytes, boldBytes] = await loadFontBytes();
+  const regular = await pdfDoc.embedFont(regularBytes, {
+    // Editable fields need glyphs for text entered after export.
+    subset: !interactive,
+    // Merged fallback substitutions otherwise invalidate full-font PDF widths.
+    features: { locl: false },
+  });
+  const bold = await pdfDoc.embedFont(boldBytes, {
+    subset: true,
+    features: { locl: false },
+  });
+  const fonts: Fonts = { regular, bold };
+  const summary = weightedScoreSummary(rows);
+  const texts = [
+    title,
+    ...header.fields.flatMap((field) => [field.label, field.value]),
+    ...rows.flatMap((row) => [
+      row.category.toUpperCase(),
+      row.item,
+      ...scaleOptions(row.scale),
+    ]),
+    strings.kopfdaten.fallbackField,
+    strings.kopfdaten.feedback,
+    ...footerFieldOptions()
+      .filter(({ id }) => footerFields[id])
+      .map(({ label }) => label),
+    strings.watermark,
+    strings.labels.previewEmpty,
+    ...(summary
+      ? [
+          strings.labels.scoreSummaryTitle.toUpperCase(),
+          strings.labels.scoreTotalResult(summary.totalWeight),
+          strings.labels.scoreTotalHint,
+          ...summary.groups.map((group) => group.title),
+        ]
+      : []),
+  ];
+  const regularCharacters = new Set(regular.getCharacterSet());
+  const boldCharacters = new Set(bold.getCharacterSet());
+  const unsupported = new Set<string>();
+  for (const text of texts) {
+    for (const char of text) {
+      const code = char.codePointAt(0)!;
+      if (
+        !/\s/u.test(char) &&
+        (!regularCharacters.has(code) || !boldCharacters.has(code))
+      )
+        unsupported.add(char);
+    }
+  }
+  if (unsupported.size > 0) {
+    const error = new Error(
+      strings.messages.exportUnsupportedCharacters(
+        [...unsupported].slice(0, 12).join(' ')
+      )
+    );
+    error.name = 'UnsupportedCharactersError';
+    throw error;
+  }
   const ctx: FillableContext = {
     pdfDoc,
     page: pdfDoc.addPage([pageWidth, pageHeight]),
     fonts,
-    form: pdfDoc.getForm(),
+    form: interactive ? pdfDoc.getForm() : null,
+    interactive,
     nextFieldId: 1,
   };
-  let y = marginTop;
-
   const addPage = () => {
     ctx.page = pdfDoc.addPage([pageWidth, pageHeight]);
-    y = marginTop;
+    return marginTop;
   };
-  const ensureSpace = (height: number) => {
-    if (y + height > bottomY) addPage();
-  };
-
-  y = drawTitle(ctx, title, y);
-  y = drawHeaderFields(ctx, header, y);
+  let y = marginTop;
+  const titleLines = splitText(ctx, title, contentWidth, 21, bold);
+  while (titleLines.length > 0) {
+    const count = Math.max(1, Math.floor((bottomY - y - 31) / 24));
+    y = drawTitle(ctx, titleLines.splice(0, count), y);
+    if (titleLines.length > 0) y = addPage();
+  }
+  for (let index = 0; index < header.fields.length; index += 2) {
+    if (y + 24 > bottomY) y = addPage();
+    y = drawHeaderFields(
+      ctx,
+      { fields: header.fields.slice(index, index + 2) },
+      y
+    );
+  }
+  y += 22;
 
   if (rows.length === 0) {
-    ensureSpace(42);
+    if (y + 52 > bottomY) y = addPage();
     drawCenteredText(
       ctx,
       strings.labels.previewEmpty,
       y + 24,
       10,
-      ctx.fonts.italic,
+      regular,
       colors.mutedText
     );
     y += 52;
-  } else {
-    groupRows(rows).forEach((group) => {
-      const headingHeight = categoryHeadingHeight();
-      const scaleHeight =
-        mode === 'full' && group.scale
-          ? scaleHeaderHeight(ctx, group.scale)
-          : 0;
-
-      ensureSpace(headingHeight + scaleHeight + 34);
-      y = drawCategoryHeading(
-        ctx,
-        categoryHeadingText(group.title, group.weight),
-        y
+  }
+  for (const group of groupRows(rows)) {
+    const headingLines = splitText(
+      ctx,
+      categoryHeadingText(group.title, group.weight).toUpperCase(),
+      contentWidth - 14,
+      10,
+      bold
+    );
+    const scaleHeight =
+      mode === 'full' && group.scale ? scaleHeaderHeight(ctx, group.scale) : 0;
+    const drawHeading = () => {
+      const maximum = Math.max(
+        1,
+        Math.floor((bottomY - marginTop - scaleHeight - 46) / 12)
       );
+      for (let index = 0; index < headingLines.length; index += maximum) {
+        const chunk = headingLines.slice(index, index + maximum);
+        const height = Math.max(25, chunk.length * 12 + 12);
+        if (y + height + scaleHeight + 34 > bottomY) y = addPage();
+        y = drawCategoryHeading(ctx, chunk, y);
+        if (index + maximum < headingLines.length) y = addPage();
+      }
       if (mode === 'full' && group.scale)
         y = drawScaleHeader(ctx, group.scale, y);
-
-      group.items.forEach((row, index) => {
-        const rowHeight = itemRowHeight(ctx, row, group.scale, mode);
-        if (y + rowHeight > bottomY) {
-          addPage();
-          y = drawCategoryHeading(
-            ctx,
-            categoryHeadingText(group.title, group.weight),
-            y
-          );
-          if (mode === 'full' && group.scale)
-            y = drawScaleHeader(ctx, group.scale, y);
+    };
+    drawHeading();
+    group.items.forEach((row, index) => {
+      const width =
+        mode === 'checklist'
+          ? contentWidth - 34
+          : scaleLayout(group.scale).labelWidth - 28;
+      const lines = splitText(
+        ctx,
+        row.item,
+        width,
+        10,
+        mode === 'checklist' ? regular : bold
+      );
+      let offset = 0;
+      while (offset < lines.length) {
+        if (y + 34 > bottomY) {
+          y = addPage();
+          drawHeading();
         }
+        const count = Math.max(1, Math.floor((bottomY - y - 16) / 13));
+        const chunk = lines.slice(offset, offset + count);
+        const height = Math.max(34, chunk.length * 13 + 16);
         y = drawItemRow(
           ctx,
           row,
@@ -144,37 +256,33 @@ export async function createFillablePDFBlob(
           row.number,
           y,
           index % 2 === 1,
-          rowHeight
+          height,
+          chunk,
+          offset === 0
         );
-      });
-      y += 18;
+        offset += chunk.length;
+        if (offset < lines.length) {
+          y = addPage();
+          drawHeading();
+        }
+      }
     });
+    y += 18;
   }
 
-  const feedbackTopGap = rows.length > 0 ? 18 : 0;
-  const scoreSummary = weightedScoreSummary(rows);
-  if (scoreSummary) {
-    ensureSpace(scoreSummaryHeight(scoreSummary.groups.length));
-    y = drawScoreSummary(ctx, scoreSummary, y);
-  }
-  ensureSpace(feedbackTopGap + 128);
-  y += feedbackTopGap;
-  y = drawFeedback(ctx, y);
-
+  if (summary) y = drawScoreSummary(ctx, summary, y, addPage);
+  const feedbackGap = rows.length > 0 ? 18 : 0;
+  if (y + feedbackGap + 128 > bottomY) y = addPage();
+  y = drawFeedback(ctx, y + feedbackGap);
   if (footerFieldOptions().some(({ id }) => footerFields[id])) {
-    const footerTopGap = 14;
-    const footerHeight = 24;
-    const footerY = bottomY - footerHeight;
-    if (y + footerTopGap > footerY) addPage();
-    drawFooterFields(ctx, footerFields, footerY);
+    if (y + 14 > bottomY - 24) y = addPage();
+    drawFooterFields(ctx, footerFields, bottomY - 24);
   }
-
   drawWatermarks(ctx);
-  ctx.form.updateFieldAppearances(ctx.fonts.regular);
-
+  ctx.form?.updateFieldAppearances(regular);
   const bytes = await pdfDoc.save({
     useObjectStreams: false,
-    updateFieldAppearances: true,
+    updateFieldAppearances: false,
   });
   const buffer = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(buffer).set(bytes);
@@ -194,8 +302,7 @@ export async function exportFillablePDF(
   );
 }
 
-function drawTitle(ctx: FillableContext, title: string, y: number): number {
-  const lines = splitText(ctx, title, contentWidth, 21, ctx.fonts.bold);
+function drawTitle(ctx: FillableContext, lines: string[], y: number): number {
   lines.forEach((line, index) =>
     drawText(
       ctx,
@@ -277,19 +384,15 @@ function drawHeaderFields(
     );
   });
 
-  return y + Math.ceil(header.fields.length / 2) * rowHeight + 22;
-}
-
-function categoryHeadingHeight(): number {
-  return 25;
+  return y + Math.ceil(header.fields.length / 2) * rowHeight;
 }
 
 function drawCategoryHeading(
   ctx: FillableContext,
-  title: string,
+  lines: string[],
   y: number
 ): number {
-  const height = categoryHeadingHeight();
+  const height = Math.max(25, lines.length * 12 + 12);
   drawRect(
     ctx,
     marginX,
@@ -300,20 +403,25 @@ function drawCategoryHeading(
     colors.lightBorder,
     0.6
   );
-  drawText(
-    ctx,
-    title.toUpperCase(),
-    marginX + 7,
-    y + 16,
-    10,
-    ctx.fonts.bold,
-    colors.headingText
+  lines.forEach((line, index) =>
+    drawText(
+      ctx,
+      line,
+      marginX + 7,
+      y + 16 + index * 12,
+      10,
+      ctx.fonts.bold,
+      colors.headingText
+    )
   );
   return y + height;
 }
 
 function scaleHeaderHeight(ctx: FillableContext, scale: Scale): number {
-  const labelWidth = scaleOptionWidth(scale);
+  const labelWidth = Math.max(
+    12,
+    scaleOptionWidth(scale) - scaleLayout(scale).gap
+  );
   const fontSize = scale.kind === 'numeric' ? 7.5 : 8;
   const maxLines = Math.max(
     ...scaleOptions(scale).map(
@@ -371,20 +479,6 @@ function drawScaleHeader(
   return y + height;
 }
 
-function itemRowHeight(
-  ctx: FillableContext,
-  row: ExportRow,
-  scale: Scale | null,
-  mode: PrintMode
-): number {
-  const labelWidth =
-    mode === 'checklist'
-      ? contentWidth - 32
-      : scaleLayout(scale).labelWidth - 28;
-  const lines = splitText(ctx, row.item, labelWidth, 10, ctx.fonts.regular);
-  return Math.max(34, lines.length * 13 + 16);
-}
-
 function drawItemRow(
   ctx: FillableContext,
   row: ExportRow,
@@ -393,7 +487,9 @@ function drawItemRow(
   number: number,
   y: number,
   shaded: boolean,
-  height: number
+  height: number,
+  lines: string[],
+  firstChunk: boolean
 ): number {
   if (shaded) drawRect(ctx, marginX, y, contentWidth, height, colors.rowFill);
   drawLine(
@@ -407,20 +503,14 @@ function drawItemRow(
   );
 
   if (mode === 'checklist') {
-    addCheckBox(
-      ctx,
-      `checklist_${row.categoryId}_${number}`,
-      marginX + 8,
-      y + 12,
-      9
-    );
-    const lines = splitText(
-      ctx,
-      row.item,
-      contentWidth - 34,
-      10,
-      ctx.fonts.regular
-    );
+    if (firstChunk)
+      addCheckBox(
+        ctx,
+        `checklist_${row.categoryId}_${number}`,
+        marginX + 8,
+        y + 12,
+        9
+      );
     lines.forEach((line, index) =>
       drawText(
         ctx,
@@ -438,19 +528,12 @@ function drawItemRow(
   const layout = scaleLayout(scale);
   drawText(
     ctx,
-    `${number}.`,
+    firstChunk ? `${number}.` : '',
     marginX + 8,
     y + 16,
     10,
     ctx.fonts.regular,
     colors.mutedText
-  );
-  const lines = splitText(
-    ctx,
-    row.item,
-    layout.labelWidth - 28,
-    10,
-    ctx.fonts.bold
   );
   lines.forEach((line, index) =>
     drawText(
@@ -464,6 +547,7 @@ function drawItemRow(
     )
   );
 
+  if (!firstChunk) return y + height;
   if (scale) {
     drawScaleControls(
       ctx,
@@ -511,7 +595,22 @@ function drawScaleControls(
   const optionWidth = width / options.length;
   const size = scale.kind === 'numeric' ? 8 : 9;
   const boxY = y + rowHeight / 2 - size / 2;
-  const radio = ctx.form.createRadioGroup(uniqueFieldName(ctx, fieldName));
+  if (!ctx.interactive) {
+    options.forEach((_label, index) =>
+      drawRect(
+        ctx,
+        x + index * optionWidth + optionWidth / 2 - size / 2,
+        boxY,
+        size,
+        size,
+        undefined,
+        colors.labelText,
+        0.8
+      )
+    );
+    return;
+  }
+  const radio = ctx.form!.createRadioGroup(uniqueFieldName(ctx, fieldName));
   radio.enableOffToggling();
   radio.enableMutualExclusion();
 
@@ -537,7 +636,11 @@ function addCheckBox(
   y: number,
   size: number
 ) {
-  const field = ctx.form.createCheckBox(uniqueFieldName(ctx, name));
+  if (!ctx.interactive) {
+    drawRect(ctx, x, y, size, size, undefined, colors.labelText, 0.8);
+    return;
+  }
+  const field = ctx.form!.createCheckBox(uniqueFieldName(ctx, name));
   field.uncheck();
   field.addToPage(ctx.page, {
     x: x - 1,
@@ -598,80 +701,141 @@ function drawFeedback(ctx: FillableContext, y: number): number {
   return y + 18;
 }
 
-function scoreSummaryHeight(groupCount: number): number {
-  return 42 + groupCount * 18 + 34;
-}
-
 function drawScoreSummary(
   ctx: FillableContext,
   summary: NonNullable<ReturnType<typeof weightedScoreSummary>>,
-  y: number
+  y: number,
+  addPage: () => number
 ): number {
-  const height = scoreSummaryHeight(summary.groups.length);
-  ctx.page.drawRectangle({
-    x: marginX,
-    y: toPdfY(y, height),
-    width: contentWidth,
-    height,
-    borderWidth: 0.6,
-    borderColor: colors.lightBorder,
-    color: colors.scaleFill,
-  });
-  drawText(
-    ctx,
-    strings.labels.scoreSummaryTitle.toUpperCase(),
-    marginX + 9,
-    y + 16,
-    10,
-    ctx.fonts.bold,
-    colors.headingText
-  );
-
-  let rowY = y + 30;
-  summary.groups.forEach((group, index) => {
-    const label = `${group.title}:`;
-    drawText(ctx, label, marginX + 9, rowY + 12, 9.5, ctx.fonts.regular);
+  const drawHeading = () => {
+    if (y + 64 > bottomY) y = addPage();
+    drawRect(
+      ctx,
+      marginX,
+      y,
+      contentWidth,
+      30,
+      colors.scaleFill,
+      colors.lightBorder,
+      0.6
+    );
     drawText(
       ctx,
-      `/ ${group.weight} %`,
-      marginX + contentWidth - 54,
-      rowY + 12,
+      strings.labels.scoreSummaryTitle.toUpperCase(),
+      marginX + 9,
+      y + 18,
+      10,
+      ctx.fonts.bold,
+      colors.headingText
+    );
+    y += 30;
+  };
+  drawHeading();
+  summary.groups.forEach((group, index) => {
+    const lines = splitText(
+      ctx,
+      `${group.title}:`,
+      contentWidth - 150,
       9.5,
       ctx.fonts.regular
     );
-    addTextField(
-      ctx,
-      `score_${index + 1}`,
-      marginX + contentWidth - 128,
-      rowY,
-      66,
-      16,
-      '',
-      false,
-      9.5
-    );
-    rowY += 18;
+    let offset = 0;
+    while (offset < lines.length) {
+      if (y + 22 > bottomY) {
+        y = addPage();
+        drawHeading();
+      }
+      const count = Math.max(1, Math.floor((bottomY - y - 8) / 12));
+      const chunk = lines.slice(offset, offset + count);
+      const height = Math.max(22, chunk.length * 12 + 8);
+      drawRect(
+        ctx,
+        marginX,
+        y,
+        contentWidth,
+        height,
+        colors.scaleFill,
+        colors.lightBorder,
+        0.6
+      );
+      chunk.forEach((line, lineIndex) =>
+        drawText(
+          ctx,
+          line,
+          marginX + 9,
+          y + 14 + lineIndex * 12,
+          9.5,
+          ctx.fonts.regular
+        )
+      );
+      if (offset === 0) {
+        drawText(
+          ctx,
+          `/ ${group.weight} %`,
+          marginX + contentWidth - 54,
+          y + 14,
+          9.5,
+          ctx.fonts.regular
+        );
+        if (ctx.interactive)
+          addTextField(
+            ctx,
+            `score_${index + 1}`,
+            marginX + contentWidth - 128,
+            y + 1,
+            66,
+            16,
+            '',
+            false,
+            9.5
+          );
+        else
+          drawText(
+            ctx,
+            '____',
+            marginX + contentWidth - 118,
+            y + 14,
+            9.5,
+            ctx.fonts.regular
+          );
+      }
+      y += height;
+      offset += chunk.length;
+      if (offset < lines.length) {
+        y = addPage();
+        drawHeading();
+      }
+    }
   });
-
-  drawText(
-    ctx,
-    strings.labels.scoreTotalResult(summary.totalWeight),
-    marginX + 9,
-    rowY + 12,
-    9.5,
-    ctx.fonts.bold
-  );
-  rowY += 18;
-  drawText(
-    ctx,
-    strings.labels.scoreTotalHint,
-    marginX + 9,
-    rowY + 10,
-    8.5,
-    ctx.fonts.regular,
-    colors.mutedText
-  );
-  return y + height + 16;
+  const total = [
+    {
+      text: strings.labels.scoreTotalResult(summary.totalWeight),
+      size: 9.5,
+      font: ctx.fonts.bold,
+    },
+    { text: strings.labels.scoreTotalHint, size: 8.5, font: ctx.fonts.regular },
+  ];
+  total.forEach(({ text, size, font }) => {
+    splitText(ctx, text, contentWidth - 18, size, font).forEach((line) => {
+      if (y + 20 > bottomY) {
+        y = addPage();
+        drawHeading();
+      }
+      drawRect(
+        ctx,
+        marginX,
+        y,
+        contentWidth,
+        20,
+        colors.scaleFill,
+        colors.lightBorder,
+        0.6
+      );
+      drawText(ctx, line, marginX + 9, y + 14, size, font);
+      y += 20;
+    });
+  });
+  return y + 16;
 }
 
 function drawFooterFields(
@@ -709,7 +873,25 @@ function addTextField(
   fontSize = 9
 ) {
   if (width <= 0 || height <= 0) return;
-  const field = ctx.form.createTextField(uniqueFieldName(ctx, name));
+  if (!ctx.interactive) {
+    if (value)
+      drawText(
+        ctx,
+        fitText(
+          ctx,
+          value,
+          Math.max(1, width - 4),
+          fontSize,
+          ctx.fonts.regular
+        ),
+        x + 2,
+        y + 10,
+        fontSize,
+        ctx.fonts.regular
+      );
+    return;
+  }
+  const field = ctx.form!.createTextField(uniqueFieldName(ctx, name));
   field.disableReadOnly();
   field.setText(value);
   if (multiline) field.enableMultiline();
@@ -891,10 +1073,15 @@ function fitText(
   font: PDFFont
 ): string {
   if (textWidth(text, fontSize, font) <= width) return text;
-  let out = text;
-  while (out.length > 1 && textWidth(`${out}...`, fontSize, font) > width)
-    out = out.slice(0, -1);
-  return `${out}...`;
+  const characters = Array.from(text);
+  while (
+    characters.length > 0 &&
+    textWidth(`${characters.join('')}...`, fontSize, font) > width
+  )
+    characters.pop();
+  return textWidth('...', fontSize, font) <= width
+    ? `${characters.join('')}...`
+    : '';
 }
 
 function textWidth(text: string, size: number, font: PDFFont): number {

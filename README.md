@@ -79,7 +79,7 @@ Die Anwendung lädt die Kriterien und Produktformate zur Laufzeit aus:
 
 ## Entwicklung
 
-Voraussetzung: Node.js `>= 20.19.0` oder `>= 22.12.0`
+Voraussetzung: Node.js `26.x` (in `.nvmrc` fixiert) und npm.
 
 ```bash
 npm ci
@@ -96,6 +96,7 @@ Wichtige Skripte:
 
 - `npm run dev`: startet den lokalen Entwicklungsserver
 - `npm run build`: erstellt den Produktionsbuild in `dist/`
+- `npm run check:i18n`: prüft Übersetzungsschlüssel, Leerwerte und Funktionsparameter
 - `npm run check:content`: validiert die Content-JSON-Dateien und prüft ID-Kollisionen
 - `npm run preview`: zeigt den Produktionsbuild lokal an
 - `npm run test`: führt die Unit-Tests aus
@@ -201,13 +202,28 @@ Die ODT-Kompatibilität ist vor allem auf LibreOffice/OpenOffice ausgelegt.
 
 ## Einbettung
 
-Da die Anwendung statisch ausgeliefert wird, kann sie grundsätzlich per `iframe` eingebettet werden, sofern die Zielplattform dies zulässt.
+Die Produktionsseite erlaubt keine iframe-Einbettung. CSP `frame-ancestors 'none'` und `X-Frame-Options: DENY` schützen gegen fremde Einbettung. Verlinke stattdessen direkt auf https://fbg.haak3.de.
 
-```html
-<iframe src="https://fbg.haak3.de" width="100%" height="800" style="border:0"></iframe>
-```
+## Grenzen, Sicherung und Barrierefreiheit
+
+Konfigurationen dürfen höchstens 5 MB als JSON-Datei, 2.000 Zeichen pro Text, 50 Kopffelder, 1.000 ausgewählte oder eigene Kriterien und 200 eigene Kategorien enthalten. Weitere Strukturgrenzen schützen den Import. Der Editor lehnt überschreitende Änderungen ab. Regelmäßige JSON-Downloads bleiben die dauerhafte Sicherung; Browserspeicher kann gelöscht werden oder voll sein.
+
+Ungültige gespeicherte Originaldaten werden nicht durch Standardwerte überschrieben. Ein Hinweis bietet ihren Download an. Erst ein bestätigter Import oder Reset gibt die automatische Speicherung wieder frei. Aufeinanderfolgende Texteingaben im selben Feld bilden innerhalb einer Sekunde eine Undo-Aktion; höchstens 100 Aktionen bleiben erhalten.
+
+Die lokal gebündelte PDF-Schrift unterstützt erweitertes Latein, vereinfachtes Chinesisch und viele monochrome Emojis. Nicht unterstützte Zeichen werden vor dem Export gemeldet. Universelle Unicode-Abdeckung und komplexe Schriftsysteme werden nicht versprochen; DOCX und ODT bleiben alternative Formate. Die Schrift vergrößert besonders Formular-PDFs. Herkunft und Lizenzen stehen unter `assets/fonts/`.
+
+PDFs sind nicht als vollständig getaggte, für Screenreader optimierte Dokumente ausgewiesen. DOCX/ODT bleiben editierbare Alternativen mit Überschriften und Tabellen. Reale Office-/PDF-Viewer und assistive Technik benötigen zusätzliche manuelle Prüfung.
+
+XLSX dient als tabellarische Auswertung der Kriterien, Skalen und Gewichtungen. Dokumenttitel, Kopffelder, Fußfelder und Checklistenlayout werden in XLSX nicht übernommen. Verwende dafür PDF, DOCX oder ODT.
+
+Der Offlinecache lädt Anwendung und Exportbibliotheken vorab. PDF-Schriften werden beim ersten Export lokal geladen und anschließend für weitere Offlineexporte zwischengespeichert. Für den ersten PDF-Export ist eine Onlineverbindung erforderlich.
 
 ## Release-Prüfung
+
+Der GitHub-Workflow `.github/workflows/verify.yml` führt Installation aus dem Lockfile, `verify`, den npm-Sicherheitscheck und Browserprüfungen aus. Er veröffentlicht nichts.
+
+Für lokale Prüfungen mit installiertem Chrome ist `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e` möglich. Der Standardlauf nutzt verwaltetes Chromium; `PLAYWRIGHT_BROWSERS=all` ergänzt Firefox und WebKit.
+
 
 Vor einer Veröffentlichung müssen lokal `npm run verify`, `npm audit --audit-level=low` und `npm run test:e2e` erfolgreich laufen. Nach dem Deployment muss zusätzlich `npm run verify:live` gegen `https://fbg.haak3.de` erfolgreich sein. Dieser Live-Check prüft, dass Cloudflare Pages nicht nur die SPA-Fallbackseite ausliefert, sondern auch `/content/*`, PWA-Dateien und die erwarteten Security-Header.
 

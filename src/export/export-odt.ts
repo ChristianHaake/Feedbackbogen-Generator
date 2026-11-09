@@ -2,6 +2,7 @@ import JSZip from 'jszip';
 
 import {
   categoryHeadingText,
+  sanitizeXmlText,
   downloadBlob,
   groupRows,
   scaleOptions,
@@ -19,7 +20,7 @@ import type {
 const mimeType = 'application/vnd.oasis.opendocument.text';
 
 function escapeXml(value: string) {
-  return value
+  return sanitizeXmlText(value)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')

@@ -18,6 +18,7 @@ import {
 
 import {
   categoryHeadingText,
+  sanitizeXmlText,
   downloadBlob,
   groupRows,
   scaleOptions,
@@ -43,7 +44,7 @@ function textParagraph(
   alignment?: (typeof AlignmentType)[keyof typeof AlignmentType]
 ) {
   return new Paragraph({
-    children: [new TextRun({ text, bold })],
+    children: [new TextRun({ text: sanitizeXmlText(text), bold })],
     alignment,
     spacing: { after: 0 },
   });
@@ -287,7 +288,7 @@ export async function createDOCXBlob(
 ): Promise<Blob> {
   const children: (Paragraph | Table)[] = [
     new Paragraph({
-      text: title,
+      text: sanitizeXmlText(title),
       heading: HeadingLevel.TITLE,
       spacing: { after: 180 },
     }),

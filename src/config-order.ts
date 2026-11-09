@@ -16,7 +16,7 @@ export function swapOrder(order: string[], draggedId: string, targetId: string):
 
 export function mergeOrder(order: string[], ids: string[]): string[] {
   const available = new Set(ids);
-  return [...order.filter((id) => available.has(id)), ...ids.filter((id) => !order.includes(id))];
+  return uniqueStrings([...order.filter((id) => available.has(id)), ...ids]);
 }
 
 export function categoryOrderFromSelection(selectedItems: SelectedItemRef[]): string[] {
@@ -24,7 +24,7 @@ export function categoryOrderFromSelection(selectedItems: SelectedItemRef[]): st
 }
 
 export function itemOrderFromSelection(selectedItems: SelectedItemRef[]): Record<string, string[]> {
-  const order: Record<string, string[]> = {};
+  const order: Record<string, string[]> = Object.create(null);
   selectedItems.forEach(({ categoryId, itemId }) => {
     order[categoryId] ??= [];
     if (!order[categoryId].includes(itemId)) order[categoryId].push(itemId);

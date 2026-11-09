@@ -193,6 +193,44 @@ describe('category editing (rename / add / weight)', () => {
     expect(handlers.onAddCategory).toHaveBeenCalledWith('Sprache');
     container.remove();
   });
+
+  const addControls = [
+    { handler: 'onAddCustomItem', input: '.custom-item-input[data-cat="a"]', button: '#acc-a-panel .add-custom-btn', value: 'Eigenes Kriterium', args: ['a', 'Eigenes Kriterium'] },
+    { handler: 'onBulkAddCustomItems', input: '.bulk-add-input[data-cat="a"]', button: '#acc-a-panel .add-bulk-btn', value: 'Erstes\nZweites', args: ['a', ['Erstes', 'Zweites']] },
+    { handler: 'onAddCategory', input: '.add-category-input', button: '.add-category-btn', value: 'Neue Kategorie', args: ['Neue Kategorie'] }
+  ] as const;
+
+  it.each(addControls)('clears $handler before a synchronous rerender preserves draft inputs', ({ handler, input, button, value, args }) => {
+    const { handlers, container } = renderEditable();
+    handlers[handler] = vi.fn(() => {
+      const draft = container.querySelector<HTMLInputElement | HTMLTextAreaElement>(input)!.value;
+      renderCategories(container, categories, [], new Set(), scales, {}, {}, 'percent', {}, handlers, '', true);
+      container.querySelector<HTMLInputElement | HTMLTextAreaElement>(input)!.value = draft;
+    });
+    container.querySelector<HTMLInputElement | HTMLTextAreaElement>(input)!.value = value;
+    container.querySelector<HTMLButtonElement>(button)!.click();
+
+    expect(handlers[handler]).toHaveBeenCalledWith(...args);
+    expect(container.querySelector<HTMLInputElement | HTMLTextAreaElement>(input)!.value).toBe('');
+    container.remove();
+  });
+
+  it.each(addControls)('preserves the input when $handler rejects the addition', ({ handler, input, button, value }) => {
+    const { handlers, container } = renderEditable();
+    handlers[handler] = vi.fn(() => false);
+    container.querySelector<HTMLInputElement | HTMLTextAreaElement>(input)!.value = value;
+    container.querySelector<HTMLButtonElement>(button)!.click();
+
+    expect(container.querySelector<HTMLInputElement | HTMLTextAreaElement>(input)!.value).toBe(value);
+    container.remove();
+  });
+
+  it('renders count badges for category IDs containing selector punctuation', () => {
+    const container = document.createElement('div');
+    renderCategories(container, [{ id: 'custom_cat_"', title: 'Kategorie', items: [{ id: 'item', label: 'Kriterium' }] }], [], new Set(['custom_cat_"::item']), scales, {}, {}, 'percent', {}, handlerSpies());
+
+    expect(container.querySelector('.acc-count')?.textContent).toBe('1');
+  });
 });
 
 function dataTransfer(): DataTransfer {

@@ -30,6 +30,18 @@ const rows: ExportRow[] = [
 ];
 
 describe('document exports', () => {
+  it('keeps DOCX and ODT XML valid when direct callers supply control characters', async () => {
+    const unsafe = [{ ...rows[0], item: 'Test\u0001Text\ud800' }];
+    const unsafeHeader = { fields: [{ id: 'name', label: 'Name\u0001', value: 'Ada\u0001' }] };
+    for (const [create, entry] of [[createDOCXBlob, 'word/document.xml'], [createODTBlob, 'content.xml']] as const) {
+      const zip = await JSZip.loadAsync(await (await create(unsafe, 'Titel\u0001', unsafeHeader, footerFields)).arrayBuffer());
+      const xml = await zip.file(entry)!.async('text');
+      expect(new DOMParser().parseFromString(xml, 'application/xml').querySelector('parsererror')).toBeNull();
+      expect(xml).toContain('TestText');
+      expect(xml).not.toContain('\u0001');
+    }
+  });
+
   it('creates a styled XLSX workbook with frozen header and criteria', async () => {
     const blob = await createXLSXBlob(rows);
     const zip = await JSZip.loadAsync(await blob.arrayBuffer());

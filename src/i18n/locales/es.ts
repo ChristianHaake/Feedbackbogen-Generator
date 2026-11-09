@@ -153,6 +153,7 @@ export const es = {
     about: 'Sobre el proyecto',
     imprint: 'Aviso legal',
     privacy: 'Privacidad',
+    support: 'Apoyar',
   },
   footer: {
     coffee: 'Buy me a coffee',
@@ -180,6 +181,13 @@ export const es = {
     },
   },
   messages: {
+    exportUnsupportedCharacters: (characters: string) => `La fuente PDF no admite estos caracteres: ${characters}. Sustitúyelos o usa DOCX/ODT.`,
+    inputLimit: "El cambio supera los límites de configuración o contiene caracteres de control no admitidos. Acorta o corrige la entrada.",
+    recoveryNotice: "La configuración guardada no se pudo cargar de forma segura. Se conservan los datos originales. Descarga la copia e importa un archivo corregido o restablece explícitamente la configuración. El guardado automático está pausado.",
+    recoveryDownload: "Descargar los datos originales",
+    storageError: "No se pudo guardar la configuración automáticamente. Descarga una copia JSON y comprueba el almacenamiento del navegador.",
+    importConfirm: "Se sustituirá la configuración actual. Los cambios anteriores se pueden deshacer. ¿Continuar?",
+
     contentLoadError:
       'No se pudieron cargar los datos de contenido. Respaldo activado.',
     contentPageLoading: 'Cargando contenido...',

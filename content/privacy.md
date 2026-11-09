@@ -57,7 +57,19 @@ Die Anwendung selbst setzt keine Analyse-Cookies, legt keine Local-Storage-Eintr
 
 Der Feedbackbogen-Generator verarbeitet die vom Nutzer eingegebenen Inhalte grundsätzlich lokal im Browser.
 
-Die eingegebenen Daten werden nicht an den Betreiber übermittelt und nicht dauerhaft gespeichert, soweit dies nicht ausdrücklich anders angegeben wird.
+Die eingegebenen Dokumentinhalte werden nicht an den Betreiber übermittelt. Die Anwendung speichert die aktuelle Konfiguration automatisch im localStorage dieses Browsers unter `bbk:config`. Sie enthält Titel, Kopffelder, eigene und ausgewählte Kriterien, Skalen, Gewichtungen und Reihenfolgen.
+
+Weitere lokale Einträge speichern die Sprache (`bbk:lang`), aufgeklappte Editorbereiche (`bbk:sections`) und das Ausblenden des Einführungshinweises (`bbk:onboarding-dismissed`). Diese Daten bleiben ohne feste Ablauffrist erhalten, bis sie zurückgesetzt oder über die Website-Daten des Browsers gelöscht werden.
+
+„Konfiguration zurücksetzen“ ersetzt nach Bestätigung ausschließlich die aktuelle Dokumentkonfiguration durch die Standardwerte. Sprache und Darstellungspräferenzen bleiben erhalten. Um sämtliche lokalen Einträge und den Offlinecache zu löschen, entferne die Website-Daten für fbg.haak3.de in den Browsereinstellungen. Heruntergeladene Dateien werden dadurch nicht gelöscht.
+
+Kann eine gespeicherte Konfiguration nicht sicher geladen werden, bleiben die Originaldaten erhalten. Die Anwendung bietet einen Download zur Wiederherstellung an und pausiert die automatische Speicherung bis zu einem ausdrücklich bestätigten Import oder Zurücksetzen.
+
+Importierte JSON-Dateien und erzeugte PDF-, DOCX-, ODT- und XLSX-Dateien werden lokal verarbeitet. Exportierte Dateien können persönliche Inhalte enthalten und werden vom Nutzer selbst gespeichert oder weitergegeben.
+
+## 5a. Freiwillige Unterstützung
+
+Die Unterstützen-Seite enthält einen externen Link zu Buy Me a Coffee. Sie lädt keine Skripte, Bilder oder eingebetteten Inhalte dieses Anbieters. Vor dem Anklicken dieses Links werden über diese Seite keine Daten an den Anbieter übertragen. Nach dem Anklicken gelten dessen Datenschutzbestimmungen.
 
 ## 6. Cookies
 
@@ -88,4 +100,4 @@ Außerdem haben Sie das Recht, Beschwerde bei einer Datenschutzaufsichtsbehörde
 
 Diese Datenschutzerklärung kann angepasst werden, wenn technische oder rechtliche Änderungen dies erforderlich machen. Es gilt jeweils die auf dieser Website veröffentlichte aktuelle Fassung.
 
-Stand: Mai 2026
+Stand: 9. November 2026

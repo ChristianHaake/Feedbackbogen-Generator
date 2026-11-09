@@ -31,6 +31,18 @@ const MAX_IMPORTED_CUSTOM_CATEGORIES = 200;
 const MAX_IMPORTED_ORDER_IDS = 1_500;
 const MAX_IMPORTED_MAP_ENTRIES = 1_500;
 export const CONFIG_SCHEMA_VERSION = 4;
+export const CONFIG_LIMITS = {
+  bytes: MAX_IMPORT_BYTES,
+  stringLength: MAX_IMPORT_STRING_LENGTH,
+  selectedItems: MAX_IMPORTED_SELECTED_ITEMS,
+  productFormats: MAX_IMPORTED_PRODUCT_FORMATS,
+  headerFields: MAX_IMPORTED_HEADER_FIELDS,
+  customItems: MAX_IMPORTED_CUSTOM_ITEMS,
+  customCategories: MAX_IMPORTED_CUSTOM_CATEGORIES,
+  orderIds: MAX_IMPORTED_ORDER_IDS,
+  mapEntries: MAX_IMPORTED_MAP_ENTRIES,
+} as const;
+let configRecovery: string | null = null;
 
 export type SectionState = Record<string, boolean>;
 
@@ -371,26 +383,31 @@ function arrayLength(value: unknown): number {
   return Array.isArray(value) ? value.length : 0;
 }
 
-function hasImportShapeWithinLimits(value: unknown): boolean {
+export function configWithinLimits(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   let nodes = 0;
-  const walk = (entry: unknown): boolean => {
+  const pending: unknown[] = [value];
+  while (pending.length) {
+    const entry = pending.pop();
     nodes += 1;
     if (nodes > MAX_IMPORT_NODES) return false;
-    if (typeof entry === 'string')
-      return entry.length <= MAX_IMPORT_STRING_LENGTH;
-    if (!entry || typeof entry !== 'object') return true;
+    if (typeof entry === 'string') {
+      if (!isConfigText(entry)) return false;
+      continue;
+    }
+    if (!entry || typeof entry !== 'object') continue;
     const entries = Array.isArray(entry)
       ? entry
       : Object.entries(entry as Record<string, unknown>).flatMap(
           ([key, val]) => [key, val]
         );
-    return entries.every(walk);
-  };
-
-  if (!walk(value)) return false;
+    if (nodes + pending.length + entries.length > MAX_IMPORT_NODES)
+      return false;
+    for (const child of entries) pending.push(child);
+  }
   const config = value as Record<string, unknown>;
   const header = config.header as Record<string, unknown> | undefined;
-  return (
+  const withinLimits =
     arrayLength(config.selectedItems) <= MAX_IMPORTED_SELECTED_ITEMS &&
     arrayLength(config.selectedProductFormats) <=
       MAX_IMPORTED_PRODUCT_FORMATS &&
@@ -402,7 +419,71 @@ function hasImportShapeWithinLimits(value: unknown): boolean {
     countKeys(config.scaleByCategory) <= MAX_IMPORTED_MAP_ENTRIES &&
     countKeys(config.scaleSettingsByCategory) <= MAX_IMPORTED_MAP_ENTRIES &&
     countKeys(config.categoryTitleOverrides) <= MAX_IMPORTED_MAP_ENTRIES &&
-    countKeys(config.categoryWeights) <= MAX_IMPORTED_MAP_ENTRIES
+    countKeys(config.categoryWeights) <= MAX_IMPORTED_MAP_ENTRIES;
+  if (!withinLimits) return false;
+  try {
+    return new Blob([JSON.stringify(value, null, 2)]).size <= MAX_IMPORT_BYTES;
+  } catch {
+    return false;
+  }
+}
+
+export function isConfigText(value: string): boolean {
+  return value.length <= MAX_IMPORT_STRING_LENGTH && isDocumentText(value);
+}
+
+function isDocumentText(value: string): boolean {
+  for (const character of value) {
+    const code = character.codePointAt(0)!;
+    if (
+      (code < 32 && code !== 9 && code !== 10 && code !== 13) ||
+      (code >= 0xd800 && code <= 0xdfff) ||
+      code === 0xfffe ||
+      code === 0xffff
+    )
+      return false;
+  }
+  return true;
+}
+
+function isSafeId(value: string): boolean {
+  return (
+    /^[A-Za-z0-9_-]+$/.test(value) &&
+    value !== 'prototype' &&
+    !Object.prototype.hasOwnProperty.call(Object.prototype, value)
+  );
+}
+
+function hasSafeIdentifiers(config: AppConfig): boolean {
+  const uniqueIds = (ids: string[]) =>
+    ids.every(isSafeId) && new Set(ids).size === ids.length;
+  const ids = [
+    ...config.selectedItems.flatMap(({ categoryId, itemId }) => [
+      categoryId,
+      itemId,
+    ]),
+    ...config.customItems.map(({ categoryId }) => categoryId),
+    ...config.categoryOrder,
+    ...config.selectedProductFormats,
+    ...Object.keys(config.itemOrderByCategory),
+    ...Object.values(config.itemOrderByCategory).flat(),
+    ...Object.keys(config.scaleByCategory),
+    ...Object.values(config.scaleByCategory),
+    ...Object.keys(config.scaleSettingsByCategory),
+    ...Object.keys(config.categoryTitleOverrides),
+    ...Object.keys(config.categoryWeights),
+  ];
+  if (config.defaultScaleId !== undefined) ids.push(config.defaultScaleId);
+  return (
+    ids.every(isSafeId) &&
+    uniqueIds(config.header.fields.map(({ id }) => id)) &&
+    uniqueIds(config.customItems.map(({ id }) => id)) &&
+    uniqueIds(config.customCategories.map(({ id }) => id)) &&
+    new Set(
+      config.selectedItems.map(({ categoryId, itemId }) =>
+        JSON.stringify([categoryId, itemId])
+      )
+    ).size === config.selectedItems.length
   );
 }
 
@@ -496,34 +577,80 @@ export function parseConfig(value: unknown): ConfigParseResult {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return { status: 'error', message: strings.messages.importInvalidShape };
   }
-  if (!hasImportShapeWithinLimits(value)) {
+  if (!configWithinLimits(value)) {
     return { status: 'error', message: strings.messages.importTooComplex };
   }
-  return migrateConfig(value as Record<string, unknown>);
+  const raw = value as Record<string, unknown>;
+  // Legacy migration indexes categories before normalization.
+  if (
+    Array.isArray(raw.selectedItems) &&
+    raw.selectedItems.some((entry) => {
+      const item = normalizeSelectedItem(entry);
+      return item && (!isSafeId(item.categoryId) || !isSafeId(item.itemId));
+    })
+  )
+    return { status: 'error', message: strings.messages.importInvalidShape };
+  const result = migrateConfig(raw);
+  return result.status === 'success' && !hasSafeIdentifiers(result.config)
+    ? { status: 'error', message: strings.messages.importInvalidShape }
+    : result;
 }
 
-export function saveConfig(config: AppConfig) {
+export function saveConfig(config: AppConfig): boolean {
+  if (configRecovery !== null || parseConfig(config).status !== 'success')
+    return false;
   try {
     localStorage.setItem(KEY, JSON.stringify(config));
+    return true;
   } catch {
     // localStorage unavailable or quota exceeded (e.g. Safari private mode).
     // Persistence is best-effort — never let it break the active editing session.
+    return false;
   }
 }
 
-export function loadConfig(): AppConfig | null {
+export function loadConfig(accept: (config: AppConfig) => boolean = () => true): AppConfig | null {
+  configRecovery = null;
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return null;
+    if (raw === null) return null;
+    configRecovery = raw;
     const result = parseConfig(JSON.parse(raw));
-    if (result.status === 'success') {
+    if (result.status === 'success' && accept(result.config)) {
+      configRecovery = null;
       saveConfig(result.config);
       return result.config;
     }
   } catch {
-    // Ignore invalid local state and use defaults.
+    // Keep rejected bytes protected until an explicit reset or import succeeds.
   }
   return null;
+}
+
+export function getConfigRecovery(): string | null {
+  return configRecovery;
+}
+
+export function replaceStoredConfig(config: AppConfig): boolean {
+  if (parseConfig(config).status !== 'success') return false;
+  try {
+    localStorage.setItem(KEY, JSON.stringify(config));
+    configRecovery = null;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function downloadConfigRecovery(): void {
+  if (configRecovery === null) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(
+    new Blob([configRecovery], { type: 'application/json' })
+  );
+  a.download = 'feedbackbogen-wiederherstellung.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 export function exportConfigJSON(config: AppConfig) {

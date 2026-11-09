@@ -4,12 +4,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage to ensure a clean state and suppress onboarding hint.
-    // Pin the language to German so assertions don't depend on the browser locale.
+    // Initialize once per isolated test tab so reloads exercise real persistence.
     await page.addInitScript(() => {
+      if (window.sessionStorage.getItem('fbg:e2e-initialized') === '1') return;
       window.localStorage.clear();
       window.localStorage.setItem('bbk:onboarding-dismissed', '1');
       window.localStorage.setItem('bbk:lang', 'de');
+      window.sessionStorage.setItem('fbg:e2e-initialized', '1');
     });
 
     await page.goto('/');
@@ -420,6 +421,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     );
 
     const chooserPromise = page.waitForEvent('filechooser');
+    page.once('dialog', (dialog) => dialog.accept());
     await page.locator('#config-load').click();
     const chooser = await chooserPromise;
     await chooser.setFiles(configPath);
@@ -433,13 +435,16 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     );
   });
 
-  test('Export warns when category weights do not total 100 percent', async ({
+  test('Export excludes unselected categories when checking the weight total', async ({
     page,
   }) => {
     await page.locator('#acc-allgemeine').click();
     await page.locator('.category-weight-input').first().fill('25');
     await page.locator('.category-weight-input').first().blur();
     await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await page.locator('#acc-sachebene').click();
+    await page.locator('#acc-sachebene-panel .category-weight-input').fill('75');
+    await page.locator('#acc-sachebene-panel .category-weight-input').blur();
 
     await page.locator('#export-menu-trigger').click();
     const dialogPromise = new Promise<{ type: string; message: string }>(
@@ -460,6 +465,156 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     expect(dialog.message).toContain(
       'Die Summe der Gewichtungen beträgt 25 % statt 100 %.'
     );
+  });
+
+  test('Title length limit preserves the project across reload', async ({ page }) => {
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await page.locator('[data-title-mode="custom"]').click();
+    const title = page.locator('#document-title-custom');
+    await expect(title).toHaveAttribute('maxlength', '2000');
+    await title.fill('x'.repeat(2001));
+    await expect(title).toHaveValue('x'.repeat(2000));
+    await title.blur();
+    await page.reload();
+
+    await expect(title).toHaveValue('x'.repeat(2000));
+    await expect(page.locator('.a4-item')).toHaveCount(1);
+    await expect(page.locator('#cb-allgemeine-abgabe')).toBeChecked();
+  });
+
+  test('Keyboard criterion selection preserves focus and the next Tab position', async ({ page }) => {
+    await page.locator('#acc-allgemeine').click();
+    const first = page.locator('#cb-allgemeine-abgabe');
+    const second = page.locator('#cb-allgemeine-dateinamen');
+    await first.focus();
+    await page.keyboard.press('Space');
+    await expect(first).toBeChecked();
+    await expect(first).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(second).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(second).toBeChecked();
+    await expect(second).toBeFocused();
+  });
+
+  test('Successful additions clear live inputs and rejected bulk input stays intact', async ({ page }) => {
+    await page.locator('#acc-allgemeine').click();
+    const panel = page.locator('#acc-allgemeine-panel');
+    const custom = panel.locator('.custom-item-input');
+    await custom.fill('Eigenes Kriterium');
+    await custom.press('Enter');
+    await expect(custom).toHaveValue('');
+    await expect(custom).toBeFocused();
+    await expect(panel.locator('.custom-item-row')).toHaveCount(1);
+
+    const bulk = panel.locator('.bulk-add-input');
+    await bulk.fill('Erstes Kriterium\nZweites Kriterium');
+    await panel.locator('.add-bulk-btn').focus();
+    await page.keyboard.press('Space');
+    await expect(bulk).toHaveValue('');
+    await expect(panel.locator('.add-bulk-btn')).toBeFocused();
+    await expect(panel.locator('.custom-item-row')).toHaveCount(3);
+
+    const category = page.locator('.add-category-input');
+    await category.fill('Neue Kategorie');
+    await category.press('Enter');
+    await expect(category).toHaveValue('');
+    await expect(category).toBeFocused();
+    await expect(page.locator('.accordion-header', { hasText: 'Neue Kategorie' })).toHaveCount(1);
+
+    const rejected = `${'x'.repeat(2001)}\nNicht teilweise übernehmen`;
+    await bulk.fill(rejected);
+    await panel.locator('.add-bulk-btn').click();
+    await expect(bulk).toHaveValue(rejected);
+    await expect(panel.locator('.custom-item-row')).toHaveCount(3);
+    await expect(page.locator('#config-message')).toHaveText(
+      'Die Änderung überschreitet die Konfigurationsgrenzen oder enthält nicht unterstützte Steuerzeichen. Bitte Eingabe kürzen oder bereinigen.'
+    );
+  });
+
+  test('Invalid imported category IDs preserve existing work', async ({ page }) => {
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await expect.poll(() => page.evaluate(() => JSON.parse(window.localStorage.getItem('bbk:config')!).selectedItems.length)).toBe(1);
+    const original = await page.evaluate(() => window.localStorage.getItem('bbk:config')!);
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    for (const id of ['custom_cat_"', 'constructor', '__proto__']) {
+      const config = JSON.parse(original);
+      config.customCategories = [{ id, title: 'Ungültige Kategorie' }];
+      await page.locator('#config-message').evaluate((element) => { element.textContent = ''; });
+      const chooserPromise = page.waitForEvent('filechooser');
+      await page.locator('#config-load').click();
+      await (await chooserPromise).setFiles({
+        name: 'invalid-id.json',
+        mimeType: 'application/json',
+        buffer: Buffer.from(JSON.stringify(config)),
+      });
+      await expect(page.locator('#config-message')).toBeVisible();
+      await expect(page.locator('#config-message')).toHaveText('Die Datei enthält keine gültige Feedbackbogen-Konfiguration.');
+      await expect(page.locator('.a4-item')).toHaveCount(1);
+      expect(await page.evaluate(() => window.localStorage.getItem('bbk:config'))).toBe(original);
+    }
+    expect(errors).toEqual([]);
+  });
+
+  test('Replacing existing work with a valid import requires confirmation', async ({ page }) => {
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await expect.poll(() => page.evaluate(() => JSON.parse(window.localStorage.getItem('bbk:config')!).selectedItems.length)).toBe(1);
+    const config = await page.evaluate(() => JSON.parse(window.localStorage.getItem('bbk:config')!));
+    config.documentTitle = { mode: 'custom', custom: 'Bestätigter Import' };
+
+    for (const accept of [false, true]) {
+      const dialogPromise = page.waitForEvent('dialog');
+      const chooserPromise = page.waitForEvent('filechooser');
+      await page.locator('#config-load').click();
+      await (await chooserPromise).setFiles({
+        name: 'replace.json',
+        mimeType: 'application/json',
+        buffer: Buffer.from(JSON.stringify(config)),
+      });
+      const dialog = await dialogPromise;
+      expect(dialog.type()).toBe('confirm');
+      if (accept) await dialog.accept();
+      else await dialog.dismiss();
+      await expect(page.locator('.a4-title')).toHaveText(accept ? 'Bestätigter Import' : 'Feedbackbogen');
+      await expect(page.locator('.a4-item')).toHaveCount(1);
+    }
+  });
+
+  test('Undo groups a typed sequence but keeps separate fields independent', async ({ page }) => {
+    const name = page.locator('#kd-value-name');
+    const topic = page.locator('#kd-value-topic');
+    await name.pressSequentially('Erika', { delay: 10 });
+    await topic.pressSequentially('Biologie', { delay: 10 });
+
+    await page.locator('#history-undo').click();
+    await expect(topic).toHaveValue('');
+    await expect(name).toHaveValue('Erika');
+    await page.locator('#history-undo').click();
+    await expect(name).toHaveValue('');
+    await page.locator('#history-redo').click();
+    await expect(name).toHaveValue('Erika');
+    await expect(topic).toHaveValue('');
+  });
+
+  test('Support route opens directly and keeps its footer link localized', async ({ page }) => {
+    await page.goto('/support');
+    await expect(page.locator('#content-page-title')).toHaveText('Unterstützen');
+    const support = page.locator('.app-footer [data-app-route="support"]');
+    await expect(support).toHaveText('Unterstützen');
+    await expect(support).toHaveAttribute('aria-current', 'page');
+    const coffee = page.locator('#content-page a[href="https://www.buymeacoffee.com/Haake"]');
+    await expect(coffee).toHaveAttribute('target', '_blank');
+    await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
+
+    await page.locator('[data-action="language-switch"][data-language-code="en"]').click();
+    await expect(support).toHaveText(/Support/i);
+    await expect(page.locator('#content-page-title')).not.toHaveText('Unterstützen');
+    await expect(page.locator('.workspace')).toBeHidden();
   });
 
   test('Content Route Renders Markdown Page', async ({ page }) => {

@@ -43,6 +43,12 @@ import {
 } from './content-pages';
 import {
   saveConfig,
+  configWithinLimits,
+  CONFIG_LIMITS,
+  isConfigText,
+  getConfigRecovery,
+  downloadConfigRecovery,
+  replaceStoredConfig,
   loadConfig,
   exportConfigJSON,
   importConfigJSON,
@@ -83,6 +89,7 @@ import type {
   NumericScaleSettings,
 } from './types';
 import type { ExportFormat, MobileView, SelectedSummary } from './ui/templates';
+import { weightedScoreSummary } from './export/export-utils';
 
 /** Look up a required element by id, failing loud (and naming it) instead of a silent null cast. */
 function requireById<T extends HTMLElement = HTMLElement>(id: string): T {
@@ -142,7 +149,7 @@ async function bootstrap() {
   let resetConfirmReturnFocus: HTMLElement | null = null;
   let mobileView: MobileView = 'edit';
 
-  const persisted = loadConfig();
+  const persisted = loadConfig(importMatchesCatalog);
   if (persisted) {
     selected = persisted.selectedItems;
     selectedProductFormats = persisted.selectedProductFormats;
@@ -191,9 +198,15 @@ async function bootstrap() {
   const onboardingHintEl = requireById('onboarding-hint');
   const onboardingDismissEl = requireById('onboarding-dismiss');
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
-  let exportInFlight = false;
+  let activeExport: symbol | null = null;
   const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
   let routeRenderId = 0;
+  let previewFrame: number | undefined;
+  let persistTimer: ReturnType<typeof setTimeout> | undefined;
+  let lastTextEdit: { key: string; time: number } | undefined;
+  const MAX_HISTORY = 100;
+  let configBytes: number | undefined;
+  const jsonBytes = (value: unknown) => new Blob([JSON.stringify(value, null, 2)]).size;
 
   const handlers = {
     onToggle: (categoryId: string, itemId: string, checked: boolean) => {
@@ -202,8 +215,8 @@ async function bootstrap() {
           const idx = selected.findIndex(
             (s) => s.categoryId === categoryId && s.itemId === itemId
           );
-          if (checked && idx === -1) selected.push({ categoryId, itemId });
-          if (!checked && idx !== -1) selected.splice(idx, 1);
+          if (checked && idx === -1) selected = [...selected, { categoryId, itemId }];
+          if (!checked && idx !== -1) selected = selected.filter((_, index) => index !== idx);
         },
         true,
         checked
@@ -214,7 +227,7 @@ async function bootstrap() {
     onCategoryScaleChange: (categoryId: string, scaleId: string) => {
       commitConfigChange(
         () => {
-          scaleByCategoryMap[categoryId] = scaleId;
+          scaleByCategoryMap = { ...scaleByCategoryMap, [categoryId]: scaleId };
         },
         true,
         strings.history.scaleChanged
@@ -244,34 +257,34 @@ async function bootstrap() {
     },
     onAddCustomItem: (categoryId: string, label: string) => {
       const trimmed = label.trim();
-      if (!trimmed) return;
-      const id = `custom_${categoryId}_${Date.now()}`;
-      commitConfigChange(
+      if (!trimmed) return false;
+      const id = `custom_${categoryId}_${crypto.randomUUID()}`;
+      const changed = commitConfigChange(
         () => {
-          customItems.push({ id, label: trimmed, custom: true, categoryId });
-          selected.push({ categoryId, itemId: id });
+          customItems = [...customItems, { id, label: trimmed, custom: true, categoryId }];
+          selected = [...selected, { categoryId, itemId: id }];
         },
         true,
         strings.history.customAdded
       );
-      announce(strings.messages.customItemAdded);
+      if (changed) announce(strings.messages.customItemAdded);
+      return changed;
     },
     onBulkAddCustomItems: (categoryId: string, labels: string[]) => {
       const trimmed = labels.map((label) => label.trim()).filter(Boolean);
-      if (!trimmed.length) return;
-      const stamp = Date.now();
-      commitConfigChange(
+      if (!trimmed.length) return false;
+      const stamp = crypto.randomUUID();
+      const changed = commitConfigChange(
         () => {
-          trimmed.forEach((label, i) => {
-            const id = `custom_${categoryId}_${stamp}_${i}`;
-            customItems.push({ id, label, custom: true, categoryId });
-            selected.push({ categoryId, itemId: id });
-          });
+          const added = trimmed.map((label, i) => ({ id: `custom_${categoryId}_${stamp}_${i}`, label, custom: true as const, categoryId }));
+          customItems = [...customItems, ...added];
+          selected = [...selected, ...added.map(({ id }) => ({ categoryId, itemId: id }))];
         },
         true,
         strings.history.bulkAdded
       );
-      announce(strings.messages.bulkAdded(trimmed.length));
+      if (changed) announce(strings.messages.bulkAdded(trimmed.length));
+      return changed;
     },
     onRemoveCustomItem: (itemId: string) => {
       commitConfigChange(
@@ -303,7 +316,7 @@ async function bootstrap() {
               (s) => s.categoryId === categoryId && s.itemId === itemId
             )
           )
-            selected.push({ categoryId, itemId });
+            selected = [...selected, { categoryId, itemId }];
         });
       });
     },
@@ -407,16 +420,17 @@ async function bootstrap() {
     },
     onAddCategory: (title: string) => {
       const trimmed = title.trim();
-      if (!trimmed) return;
-      const id = `custom_cat_${Date.now()}`;
-      commitConfigChange(
+      if (!trimmed) return false;
+      const id = `custom_cat_${crypto.randomUUID()}`;
+      const changed = commitConfigChange(
         () => {
           customCategories = [...customCategories, { id, title: trimmed }];
         },
         true,
         strings.history.categoryAdded
       );
-      announce(strings.messages.categoryAdded);
+      if (changed) announce(strings.messages.categoryAdded);
+      return changed;
     },
     onRemoveCategory: (categoryId: string) => {
       if (!customCategories.some((cc) => cc.id === categoryId)) return;
@@ -530,11 +544,13 @@ async function bootstrap() {
       });
     },
     onDocumentTitleCustomChange: (value: string) => {
+      if (!acceptText(value)) return;
       commitConfigChange(() => {
         documentTitle = { ...documentTitle, custom: value };
-      }, false);
+      }, false, strings.history.generic, 'document-title');
     },
     onHeaderFieldLabelChange: (fieldId: string, label: string) => {
+      if (!acceptText(label)) return;
       commitConfigChange(() => {
         header = {
           ...header,
@@ -542,9 +558,10 @@ async function bootstrap() {
             field.id === fieldId ? { ...field, label } : field
           ),
         };
-      }, false);
+      }, false, strings.history.generic, `header-label:${fieldId}`);
     },
     onHeaderFieldValueChange: (fieldId: string, value: string) => {
+      if (!acceptText(value)) return;
       commitConfigChange(() => {
         header = {
           ...header,
@@ -552,7 +569,7 @@ async function bootstrap() {
             field.id === fieldId ? { ...field, value } : field
           ),
         };
-      }, false);
+      }, false, strings.history.generic, `header-value:${fieldId}`);
     },
     onAddHeaderField: () => {
       commitConfigChange(
@@ -562,7 +579,7 @@ async function bootstrap() {
             fields: [
               ...header.fields,
               {
-                id: `field_${Date.now()}`,
+                id: `field_${crypto.randomUUID()}`,
                 label: strings.kopfdaten.fallbackField,
                 value: '',
               },
@@ -630,6 +647,7 @@ async function bootstrap() {
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
     },
     onLanguageChange: (lang: string) => {
+      autoPersist();
       setLanguage(lang as LanguageCode);
     },
   };
@@ -692,10 +710,6 @@ async function bootstrap() {
     };
   }
 
-  function cloneConfig(config: AppConfig): AppConfig {
-    return JSON.parse(JSON.stringify(config)) as AppConfig;
-  }
-
   function restoreConfig(config: AppConfig) {
     selected = config.selectedItems.map((item) => ({ ...item }));
     selectedProductFormats = [...config.selectedProductFormats];
@@ -722,6 +736,7 @@ async function bootstrap() {
     }));
     categoryWeights = { ...(config.categoryWeights ?? {}) };
     normalizeOrderState();
+    configBytes = undefined;
   }
 
   function normalizeOrderState() {
@@ -742,20 +757,55 @@ async function bootstrap() {
     );
   }
 
+  function acceptText(value: string): boolean {
+    if (isConfigText(value)) return true;
+    showConfigMessage(strings.messages.inputLimit);
+    announce(strings.messages.inputLimit);
+    renderEditor();
+    return false;
+  }
+
+  function remember(config: AppConfig, label: string) {
+    // State updates replace arrays/objects; snapshots safely share unchanged data.
+    undoStack.push({ config, label });
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+  }
+
   function commitConfigChange(
     mutator: () => void,
     rerenderEditor = true,
-    label: string = strings.history.generic
-  ) {
-    const before = cloneConfig(currentConfig());
+    label: string = strings.history.generic,
+    textKey?: string
+  ): boolean {
+    const before = currentConfig();
+    configBytes ??= jsonBytes(before);
     mutator();
-    normalizeOrderState();
-    if (JSON.stringify(before) === JSON.stringify(currentConfig())) return;
-    undoStack.push({ config: before, label });
+    const after = currentConfig();
+    if (Object.keys(before).every((key) => before[key as keyof AppConfig] === after[key as keyof AppConfig])) return false;
+    if (!textKey) normalizeOrderState();
+    const textValue = (config: AppConfig) => textKey === 'document-title' ? config.documentTitle.custom
+      : config.header.fields.find(field => field.id === textKey?.split(':')[1])?.[textKey?.startsWith('header-label:') ? 'label' : 'value'] ?? '';
+    const nextBytes = textKey ? configBytes + jsonBytes(textValue(after)) - jsonBytes(textValue(before)) : jsonBytes(currentConfig());
+    if (nextBytes > CONFIG_LIMITS.bytes || (!textKey && !configWithinLimits(currentConfig()))) {
+      restoreConfig(before);
+      showConfigMessage(strings.messages.inputLimit);
+      announce(strings.messages.inputLimit);
+      return false;
+    }
+    configBytes = nextBytes;
+    const now = performance.now();
+    if (!textKey || lastTextEdit?.key !== textKey || now - lastTextEdit.time > 1000) remember(before, label);
+    lastTextEdit = textKey ? { key: textKey, time: now } : undefined;
     redoStack.length = 0;
     if (rerenderEditor) renderEditor();
-    renderA4();
+    if (previewFrame === undefined) previewFrame = requestAnimationFrame(() => {
+      previewFrame = undefined;
+      renderA4();
+    });
+    if (persistTimer) clearTimeout(persistTimer);
+    persistTimer = setTimeout(autoPersist, 250);
     updateHistoryButtons();
+    return true;
   }
 
   function replaceConfig(
@@ -764,48 +814,58 @@ async function bootstrap() {
     label: string = strings.history.generic
   ) {
     if (rememberCurrent) {
-      undoStack.push({ config: cloneConfig(currentConfig()), label });
+      remember(currentConfig(), label);
       redoStack.length = 0;
     }
+    lastTextEdit = undefined;
     restoreConfig(config);
     renderEditor();
     renderA4();
+    autoPersist();
     updateHistoryButtons();
   }
 
   function undo() {
+    lastTextEdit = undefined;
     const previous = undoStack.pop();
     if (!previous) return;
     redoStack.push({
-      config: cloneConfig(currentConfig()),
+      config: currentConfig(),
       label: previous.label,
     });
     restoreConfig(previous.config);
     renderEditor();
     renderA4();
+    autoPersist();
     updateHistoryButtons();
     announce(strings.messages.undoLabeled(previous.label));
   }
 
   function redo() {
+    lastTextEdit = undefined;
     const next = redoStack.pop();
     if (!next) return;
-    undoStack.push({ config: cloneConfig(currentConfig()), label: next.label });
+    remember(currentConfig(), next.label);
     restoreConfig(next.config);
     renderEditor();
     renderA4();
+    autoPersist();
     updateHistoryButtons();
     announce(strings.messages.redoLabeled(next.label));
   }
 
   function confirmResetConfig() {
+    const defaults = createDefaultConfig(scales[0]?.id ?? 'verbal_5');
+    const stored = replaceStoredConfig(defaults);
+    if (stored) recoveryNotice?.remove();
     replaceConfig(
-      createDefaultConfig(scales[0]?.id ?? 'verbal_5'),
+      defaults,
       true,
       strings.history.reset
     );
     closeResetConfirm();
-    announce(strings.messages.resetDone);
+    if (!stored) showConfigMessage(strings.messages.storageError);
+    announce(stored ? strings.messages.resetDone : strings.messages.storageError);
   }
 
   function openResetConfirm() {
@@ -1012,18 +1072,20 @@ async function bootstrap() {
     };
   }
 
-  function configuredWeightSum(): number {
-    return allActiveCategories().reduce(
-      (sum, category) => sum + (categoryWeights[category.id] ?? 0),
-      0
-    );
-  }
-
   function autoPersist() {
-    saveConfig(currentConfig());
+    if (persistTimer) clearTimeout(persistTimer);
+    persistTimer = undefined;
+    if (!saveConfig(currentConfig()) && getConfigRecovery() === null) {
+      showConfigMessage(strings.messages.storageError);
+    }
   }
 
   function renderEditor() {
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusId = focused?.id;
+    const focusContainer = focused?.parentElement?.closest<HTMLElement>('[id]');
+    const focusControls = focusContainer ? Array.from(focusContainer.querySelectorAll<HTMLElement>('input, button, select, textarea, a[href]')) : [];
+    const focusIndex = focused ? focusControls.indexOf(focused) : -1;
     // Preserve any in-progress custom item inputs
     const savedInputs: Record<string, string> = {};
     document
@@ -1134,13 +1196,13 @@ async function bootstrap() {
     // Restore inputs
     Object.entries(savedInputs).forEach(([catId, val]) => {
       const el = document.querySelector<HTMLInputElement>(
-        `.custom-item-input[data-cat="${catId}"]`
+        `.custom-item-input[data-cat="${cssEscape(catId)}"]`
       );
       if (el) el.value = val;
     });
     Object.entries(savedBulk).forEach(([catId, val]) => {
       const el = document.querySelector<HTMLTextAreaElement>(
-        `.bulk-add-input[data-cat="${catId}"]`
+        `.bulk-add-input[data-cat="${cssEscape(catId)}"]`
       );
       if (el) el.value = val;
     });
@@ -1160,6 +1222,11 @@ async function bootstrap() {
         (panel as HTMLDivElement).hidden = false;
       }
     });
+    if (focused && !focused.isConnected) {
+      const controls = focusContainer?.id ? document.getElementById(focusContainer.id)?.querySelectorAll<HTMLElement>('input, button, select, textarea, a[href]') : null;
+      const target = (focusId ? document.getElementById(focusId) : null) ?? (controls && focusIndex >= 0 ? controls[Math.min(focusIndex, controls.length - 1)] : null);
+      target?.focus({ preventScroll: true });
+    }
   }
 
   function renderProductFormatModalOnly(focusSearch = false) {
@@ -1200,7 +1267,6 @@ async function bootstrap() {
   }
 
   function renderA4() {
-    autoPersist();
     renderPreview(
       a4El,
       buildExportRows(),
@@ -1273,7 +1339,30 @@ async function bootstrap() {
   renderModeSwitch(modeSwitchEl, previewMode, handlers);
   renderMobileTabs(mobileTabsEl, mobileView, handlers);
   renderA4();
+  autoPersist();
   renderRoute();
+  window.addEventListener('pagehide', autoPersist);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) autoPersist(); });
+  const recoveryNotice = getConfigRecovery() !== null ? document.createElement('div') : null;
+  if (recoveryNotice) {
+    recoveryNotice.className = 'recovery-notice';
+    recoveryNotice.setAttribute('role', 'alert');
+    const message = document.createElement('p');
+    message.textContent = strings.messages.recoveryNotice;
+    const download = document.createElement('button');
+    download.type = 'button'; download.className = 'btn';
+    download.textContent = strings.messages.recoveryDownload;
+    download.addEventListener('click', downloadConfigRecovery);
+    recoveryNotice.append(message, download);
+    workspaceEl.before(recoveryNotice);
+  }
+
+  function importMatchesCatalog(config: AppConfig): boolean {
+    const baseCategories = [...categories, ...selectedProductFormatCategories(productFormats, productFormats.groups.flatMap(group => group.formats.map(format => format.id)))];
+    if (config.customCategories.some(custom => baseCategories.some(base => base.id === custom.id))) return false;
+    const baseItemIds = new Set(baseCategories.flatMap(category => flattenedCategoryItems(category).map(item => item.id)));
+    return config.customItems.every(custom => !baseItemIds.has(custom.id));
+  }
 
   // Toolbar
   const exportJson = () => {
@@ -1284,9 +1373,15 @@ async function bootstrap() {
   const importJson = async () => {
     const result = await importConfigJSON();
     if (result.status === 'success') {
+      if (!importMatchesCatalog(result.config)) { showConfigMessage(strings.messages.importInvalidShape); return; }
+      const defaults = createDefaultConfig(scales[0]?.id ?? 'verbal_5');
+      if ((getConfigRecovery() !== null || JSON.stringify(currentConfig()) !== JSON.stringify(defaults)) && !window.confirm(strings.messages.importConfirm)) return;
+      const stored = replaceStoredConfig(result.config);
+      if (stored) recoveryNotice?.remove();
       replaceConfig(result.config, true, strings.history.configLoaded);
-      showConfigMessage(strings.messages.imported);
-      announce(strings.messages.imported);
+      const message = stored ? strings.messages.imported : strings.messages.storageError;
+      showConfigMessage(message);
+      announce(message);
     } else if (result.status === 'error') {
       showConfigMessage(result.message);
       announce(result.message);
@@ -1365,8 +1460,9 @@ async function bootstrap() {
   };
 
   async function exportFormat(fmt: ExportFormat) {
-    if (exportInFlight) return;
-    const weightSum = Math.round(configuredWeightSum());
+    if (activeExport) return;
+    const exportRows = buildExportRows();
+    const weightSum = weightedScoreSummary(exportRows)?.totalWeight ?? 0;
     if (
       weightSum > 0 &&
       weightSum !== 100 &&
@@ -1375,7 +1471,12 @@ async function bootstrap() {
       announce(strings.messages.exportCanceled);
       return;
     }
-    exportInFlight = true;
+    const operation = Symbol('export');
+    activeExport = operation;
+    const exportTitle = documentTitleText(documentTitle);
+    const exportHeader = header;
+    const exportFooter = footerFields;
+    const exportMode = previewMode;
     const label = exportLabels[fmt];
     showToast(strings.messages.exporting(label), 'loading');
     announce(strings.messages.exporting(label));
@@ -1385,51 +1486,51 @@ async function bootstrap() {
     const watchdog = setTimeout(() => {
       if (settled) return;
       settled = true;
-      exportInFlight = false;
+      if (activeExport === operation) activeExport = null;
       showToast(strings.messages.exportError(label), 'error');
       announce(strings.messages.exportError(label));
     }, 30_000);
     try {
       if (fmt === 'pdf-print') {
         const { exportPDF } = await import('./export/export-pdf');
-        exportPDF(
-          buildExportRows(),
-          documentTitleText(documentTitle),
-          header,
-          footerFields,
-          previewMode
+        await exportPDF(
+          exportRows,
+          exportTitle,
+          exportHeader,
+          exportFooter,
+          exportMode
         );
       } else if (fmt === 'pdf-fillable') {
         const { exportFillablePDF } = await import(
           './export/export-pdf-fillable'
         );
         await exportFillablePDF(
-          buildExportRows(),
-          documentTitleText(documentTitle),
-          header,
-          footerFields,
-          previewMode
+          exportRows,
+          exportTitle,
+          exportHeader,
+          exportFooter,
+          exportMode
         );
       } else if (fmt === 'docx') {
         const { exportDOCX } = await import('./export/export-docx');
         await exportDOCX(
-          buildExportRows(),
-          documentTitleText(documentTitle),
-          header,
-          footerFields,
-          previewMode
+          exportRows,
+          exportTitle,
+          exportHeader,
+          exportFooter,
+          exportMode
         );
       } else if (fmt === 'xlsx') {
         const { exportXLSX } = await import('./export/export-xlsx');
-        await exportXLSX(buildExportRows());
+        await exportXLSX(exportRows);
       } else if (fmt === 'odt') {
         const { exportODT } = await import('./export/export-odt');
         await exportODT(
-          buildExportRows(),
-          documentTitleText(documentTitle),
-          header,
-          footerFields,
-          previewMode
+          exportRows,
+          exportTitle,
+          exportHeader,
+          exportFooter,
+          exportMode
         );
       }
       if (!settled) {
@@ -1439,13 +1540,14 @@ async function bootstrap() {
     } catch (error) {
       console.error('Export fehlgeschlagen', error);
       if (!settled) {
-        showToast(strings.messages.exportError(label), 'error');
-        announce(strings.messages.exportError(label));
+        const message = error instanceof Error && error.name === 'UnsupportedCharactersError' ? error.message : strings.messages.exportError(label);
+        showToast(message, 'error');
+        announce(message);
       }
     } finally {
       settled = true;
       clearTimeout(watchdog);
-      exportInFlight = false;
+      if (activeExport === operation) activeExport = null;
     }
   }
 

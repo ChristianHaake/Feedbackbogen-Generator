@@ -1,13 +1,30 @@
 import { describe, expect, it } from 'vitest';
 
-import { contentPages, routeFromPath } from '@/content-pages';
+import { contentPages, renderContentPage, routeFromPath } from '@/content-pages';
 import { renderLayout } from '@/ui/templates';
 
 describe('help content page', () => {
+  it('renders localized safe external Markdown links without enabling script links', () => {
+    const container = document.createElement('div');
+    renderContentPage(container, 'support', '# Unterstützen\n\n[Kaffee spendieren](https://www.buymeacoffee.com/Haake) [Unsafe](javascript:alert(1))');
+    const link = container.querySelector<HTMLAnchorElement>('a[href="https://www.buymeacoffee.com/Haake"]')!;
+    expect(link.textContent).toBe('Kaffee spendieren');
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toBe('noopener noreferrer');
+    expect(link.closest('p')!.textContent).toBe('Kaffee spendieren [Unsafe](javascript:alert(1))');
+    expect(container.querySelector('a[href^="javascript:"]')).toBeNull();
+  });
+
   it('registers and resolves the help route', () => {
     expect(contentPages.help).toEqual({ title: 'Hilfe', file: 'help.md', path: '/help' });
     expect(routeFromPath('/help')).toBe('help');
     expect(routeFromPath('/help/')).toBe('help');
+  });
+
+  it('registers and resolves the support route', () => {
+    expect(contentPages.support).toEqual({ title: 'Unterstützen', file: 'support.md', path: '/support' });
+    expect(routeFromPath('/support')).toBe('support');
+    expect(routeFromPath('/support/')).toBe('support');
   });
 
   it('renders the help link before project information in the footer', () => {
@@ -16,6 +33,7 @@ describe('help content page', () => {
 
     expect(footerLinks.map((link) => link.textContent)).toEqual([
       'Hilfe',
+      'Unterstützen',
       'Über das Projekt',
       'Impressum',
       'Datenschutz'
@@ -44,6 +62,29 @@ describe('help content page', () => {
     const brand = renderLayout().querySelector<HTMLAnchorElement>('.app-header .brand');
     expect(brand).not.toBeNull();
     expect(brand!.dataset.appRoute).toBe('generator');
+  });
+});
+
+describe('Markdown rendering', () => {
+  it('renders indented headings and consumes incomplete headings as text', () => {
+    const container = document.createElement('div');
+    renderContentPage(container, 'help', '   # Hilfe\n\n  ## Details\n\n#   \nWeiterer Text\n\n-   \nNach Liste');
+
+    expect(container.querySelector('h1')?.textContent).toBe('Hilfe');
+    expect(container.querySelector('h2')?.textContent).toBe('Details');
+    expect(container.querySelector('p')?.textContent).toBe('#Weiterer Text');
+    expect(container.querySelector('li')?.textContent).toBe('');
+    expect(container.querySelector('p:last-child')?.textContent).toBe('Nach Liste');
+  });
+
+  it('renders raw HTML as text without creating executable elements', () => {
+    const container = document.createElement('div');
+    const raw = '<script>alert(1)</script>\n<img src=x onerror=alert(1)>';
+    renderContentPage(container, 'help', `# Hilfe\n\n${raw}`);
+
+    expect(container.querySelector('script, img, [onerror]')).toBeNull();
+    expect(container.textContent).toContain('<script>alert(1)</script>');
+    expect(container.textContent).toContain('<img src=x onerror=alert(1)>');
   });
 });
 

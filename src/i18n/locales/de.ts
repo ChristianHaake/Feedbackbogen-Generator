@@ -149,6 +149,7 @@ export const de = {
     about: 'Über das Projekt',
     imprint: 'Impressum',
     privacy: 'Datenschutz',
+    support: 'Unterstützen',
   },
   footer: {
     coffee: 'Buy me a coffee',
@@ -176,6 +177,13 @@ export const de = {
     },
   },
   messages: {
+    exportUnsupportedCharacters: (characters: string) => `Die PDF-Schrift unterstützt diese Zeichen nicht: ${characters}. Bitte ersetze sie oder verwende DOCX/ODT.`,
+    inputLimit: "Die Änderung überschreitet die Konfigurationsgrenzen oder enthält nicht unterstützte Steuerzeichen. Bitte Eingabe kürzen oder bereinigen.",
+    recoveryNotice: "Die gespeicherte Konfiguration konnte nicht sicher geladen werden. Die Originaldaten bleiben erhalten. Lade die Sicherung herunter und importiere eine korrigierte Datei oder setze die Konfiguration ausdrücklich zurück. Bis dahin ist die automatische Speicherung pausiert.",
+    recoveryDownload: "Gespeicherte Originaldaten herunterladen",
+    storageError: "Die Konfiguration konnte nicht automatisch gespeichert werden. Lade eine JSON-Sicherung herunter und prüfe den Browserspeicher.",
+    importConfirm: "Die aktuelle Konfiguration wird ersetzt. Vorherige Änderungen können rückgängig gemacht werden. Fortfahren?",
+
     contentLoadError:
       'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
     contentPageLoading: 'Inhalt wird geladen...',

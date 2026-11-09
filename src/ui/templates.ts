@@ -7,6 +7,7 @@ import {
   scaleOptionLabels,
 } from '@/scale-utils';
 import { productFormatCategoryId } from '@/product-formats';
+import { CONFIG_LIMITS } from '@/storage';
 import { contentPages } from '@/content-pages';
 import { orderByIds } from '@/config-order';
 import {
@@ -55,8 +56,8 @@ export type RenderHandlers = {
     max: number
   ) => void;
   onDefaultScaleChange: (scaleId: string) => void;
-  onAddCustomItem: (categoryId: string, label: string) => void;
-  onBulkAddCustomItems: (categoryId: string, labels: string[]) => void;
+  onAddCustomItem: (categoryId: string, label: string) => boolean | void;
+  onBulkAddCustomItems: (categoryId: string, labels: string[]) => boolean | void;
   onRemoveCustomItem: (itemId: string) => void;
   onRemoveSelected: (categoryId: string, itemId: string) => void;
   onSelectCategory: (categoryId: string) => void;
@@ -67,7 +68,7 @@ export type RenderHandlers = {
     targetCategoryId: string
   ) => void;
   onCategoryTitleChange: (categoryId: string, title: string) => void;
-  onAddCategory: (title: string) => void;
+  onAddCategory: (title: string) => boolean | void;
   onRemoveCategory: (categoryId: string) => void;
   onCategoryWeightChange: (categoryId: string, weight: number | null) => void;
   onReorderItem: (
@@ -415,6 +416,7 @@ export function renderLayout(): HTMLElement {
           'data-app-route': 'help',
           text: strings.contentLinks.help,
         }),
+        supportLink(),
         el('a', {
           href: contentPages.about.path,
           'data-app-route': 'about',
@@ -431,7 +433,6 @@ export function renderLayout(): HTMLElement {
           text: strings.contentLinks.privacy,
         })
       ),
-      coffeeLink(),
       githubLink()
     )
   );
@@ -655,18 +656,17 @@ function exportButton(format: ExportFormat, label: string, iconId: string) {
   return btn;
 }
 
-function coffeeLink(): HTMLAnchorElement {
+function supportLink(): HTMLAnchorElement {
   const link = el('a', {
     class: 'bmc-link',
-    href: 'https://www.buymeacoffee.com/Haake',
-    target: '_blank',
-    rel: 'noopener noreferrer',
-    title: strings.footer.coffee,
-    'aria-label': strings.footer.coffee,
+    href: contentPages.support.path,
+    'data-app-route': 'support',
+    title: strings.contentLinks.support,
+    'aria-label': strings.contentLinks.support,
   });
   link.append(
     coffeeIcon(),
-    el('span', { class: 'bmc-link-label', text: strings.footer.coffee })
+    el('span', { class: 'bmc-link-label', text: strings.contentLinks.support })
   );
   return link;
 }
@@ -785,6 +785,7 @@ export function renderDocumentTitleForm(
       id: inputId,
       class: 'kd-input',
       type: 'text',
+      maxlength: CONFIG_LIMITS.stringLength,
       value: documentTitle.custom,
       placeholder: strings.kopfdaten.customTitlePlaceholder,
     }) as HTMLInputElement;
@@ -883,6 +884,7 @@ function renderHeaderFieldEditor(
     type: 'text',
     id: labelInputId,
     class: 'kd-input',
+    maxlength: CONFIG_LIMITS.stringLength,
     value: field.label,
     placeholder: strings.kopfdaten.fieldLabel,
   }) as HTMLInputElement;
@@ -890,6 +892,7 @@ function renderHeaderFieldEditor(
     type: 'text',
     id: valueInputId,
     class: 'kd-input',
+    maxlength: CONFIG_LIMITS.stringLength,
     value: field.value,
     placeholder: '',
   }) as HTMLInputElement;
@@ -1543,7 +1546,9 @@ export function renderCategories(
     if (editable) {
       const titleInput = el('input', {
         type: 'text',
+        id: `category-title-${domSafeId(c.id)}`,
         class: 'category-title-input',
+        maxlength: CONFIG_LIMITS.stringLength,
         'data-cat': c.id,
         value: c.title,
         'aria-label': strings.labels.renameCategory,
@@ -1584,6 +1589,7 @@ export function renderCategories(
 
       const weightInput = el('input', {
         type: 'number',
+        id: `category-weight-${domSafeId(c.id)}`,
         class: 'category-weight-input',
         'data-cat': c.id,
         min: '0',
@@ -1674,12 +1680,15 @@ export function renderCategories(
 
     const customInput = el('input', {
       type: 'text',
+      id: `custom-input-${domSafeId(c.id)}`,
       class: 'custom-item-input',
+      maxlength: CONFIG_LIMITS.stringLength,
       'data-cat': c.id,
       placeholder: strings.labels.customItemPlaceholder,
       'aria-label': strings.labels.addCustomItem,
     }) as HTMLInputElement;
     const addCustomBtn = el('button', {
+      id: `add-custom-${domSafeId(c.id)}`,
       class: 'btn btn-small btn-primary add-custom-btn',
       type: 'button',
       'aria-label': strings.labels.addCustomItem,
@@ -1688,15 +1697,18 @@ export function renderCategories(
       icon('icon-plus'),
       el('span', { text: strings.labels.add })
     );
-    addCustomBtn.addEventListener('click', () => {
-      handlers.onAddCustomItem(c.id, customInput.value);
+    const commitCustom = () => {
+      const value = customInput.value;
+      if (!value.trim()) return;
       customInput.value = '';
-    });
+      if (handlers.onAddCustomItem(c.id, value) === false)
+        customInput.value = value;
+    };
+    addCustomBtn.addEventListener('click', commitCustom);
     customInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        handlers.onAddCustomItem(c.id, customInput.value);
-        customInput.value = '';
+        commitCustom();
       }
     });
     panel.append(
@@ -1704,6 +1716,7 @@ export function renderCategories(
     );
 
     const bulkInput = el('textarea', {
+      id: `bulk-input-${domSafeId(c.id)}`,
       class: 'bulk-add-input',
       'data-cat': c.id,
       rows: '3',
@@ -1711,6 +1724,7 @@ export function renderCategories(
       'aria-label': strings.labels.bulkAdd,
     }) as HTMLTextAreaElement;
     const bulkBtn = el('button', {
+      id: `add-bulk-${domSafeId(c.id)}`,
       class: 'btn btn-small add-bulk-btn',
       type: 'button',
     });
@@ -1719,13 +1733,15 @@ export function renderCategories(
       el('span', { text: strings.labels.bulkAddButton })
     );
     const commitBulk = () => {
-      const labels = bulkInput.value
+      const value = bulkInput.value;
+      const labels = value
         .split('\n')
         .map((line) => line.trim())
         .filter(Boolean);
       if (!labels.length) return;
-      handlers.onBulkAddCustomItems(c.id, labels);
       bulkInput.value = '';
+      if (handlers.onBulkAddCustomItems(c.id, labels) === false)
+        bulkInput.value = value;
     };
     bulkBtn.addEventListener('click', commitBulk);
     panel.append(el('div', { class: 'bulk-add-row' }, bulkInput, bulkBtn));
@@ -1771,11 +1787,14 @@ export function renderCategories(
   if (editable && !normalizedQuery) {
     const input = el('input', {
       type: 'text',
+      id: 'add-category-input',
       class: 'add-category-input',
+      maxlength: CONFIG_LIMITS.stringLength,
       placeholder: strings.labels.addCategoryPlaceholder,
       'aria-label': strings.labels.addCategory,
     }) as HTMLInputElement;
     const btn = el('button', {
+      id: 'add-category-button',
       class: 'btn btn-small btn-primary add-category-btn',
       type: 'button',
       'aria-label': strings.labels.addCategory,
@@ -1785,9 +1804,10 @@ export function renderCategories(
       el('span', { text: strings.labels.addCategory })
     );
     const commit = () => {
-      if (input.value.trim()) {
-        handlers.onAddCategory(input.value);
+      const value = input.value;
+      if (value.trim()) {
         input.value = '';
+        if (handlers.onAddCategory(value) === false) input.value = value;
       }
     };
     btn.addEventListener('click', commit);
@@ -1809,6 +1829,7 @@ function categoryScaleRow(
   handlers: RenderHandlers
 ): HTMLElement {
   const select = el('select', {
+    id: `category-scale-${domSafeId(category.id)}`,
     class: 'category-scale-select',
     'aria-label': `${category.title} – ${strings.labels.scale}`,
   }) as HTMLSelectElement;
@@ -1968,9 +1989,9 @@ function refreshCategoryCounts(
     const count = all.filter((id) =>
       selectedKeys.has(selectionKey(c.id, id))
     ).length;
-    const badge = container.querySelector<HTMLElement>(
-      `.acc-count[data-cat="${c.id}"]`
-    );
+    const badge = Array.from(
+      container.querySelectorAll<HTMLElement>('.acc-count')
+    ).find((candidate) => candidate.dataset.cat === c.id);
     if (badge) badge.textContent = count > 0 ? `${count}` : '';
     if (badge) badge.classList.toggle('has-selection', count > 0);
   });

@@ -19,11 +19,11 @@ export const LANGUAGE_CODES = Object.keys(LOCALES) as LanguageCode[];
 export function getSavedLanguage(): LanguageCode {
   try {
     const saved = localStorage.getItem('bbk:lang') as LanguageCode;
-    if (saved && LOCALES[saved]) return saved;
+    if (LANGUAGE_CODES.includes(saved)) return saved;
     
     // Auto-detect based on browser language
     const browserLang = navigator.language.split('-')[0] as LanguageCode;
-    if (LOCALES[browserLang]) return browserLang;
+    if (LANGUAGE_CODES.includes(browserLang)) return browserLang;
   } catch {
     // ignore
   }
@@ -31,6 +31,7 @@ export function getSavedLanguage(): LanguageCode {
 }
 
 export function setLanguage(lang: LanguageCode) {
+  if (!LANGUAGE_CODES.includes(lang)) return;
   try {
     localStorage.setItem('bbk:lang', lang);
     location.reload();

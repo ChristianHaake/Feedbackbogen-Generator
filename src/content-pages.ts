@@ -1,11 +1,12 @@
-import { strings } from './strings';
+import { strings, currentLanguage } from './strings';
 import { el } from './ui/components';
 
-export type ContentPageId = 'help' | 'about' | 'imprint' | 'privacy';
+export type ContentPageId = 'help' | 'support' | 'about' | 'imprint' | 'privacy';
 export type AppRoute = 'generator' | ContentPageId;
 
 export const contentPages: Record<ContentPageId, { title: string; file: string; path: string }> = {
   help: { title: 'Hilfe', file: 'help.md', path: '/help' },
+  support: { title: 'Unterstützen', file: 'support.md', path: '/support' },
   about: { title: 'Über das Projekt', file: 'about.md', path: '/about' },
   imprint: { title: 'Impressum', file: 'imprint.md', path: '/imprint' },
   privacy: { title: 'Datenschutz', file: 'privacy.md', path: '/privacy' }
@@ -14,6 +15,7 @@ export const contentPages: Record<ContentPageId, { title: string; file: string; 
 export function routeFromPath(pathname: string): AppRoute {
   const normalized = pathname.replace(/\/+$/, '') || '/';
   if (normalized === contentPages.help.path) return 'help';
+  if (normalized === contentPages.support.path) return 'support';
   if (normalized === contentPages.about.path) return 'about';
   if (normalized === contentPages.imprint.path) return 'imprint';
   if (normalized === contentPages.privacy.path) return 'privacy';
@@ -21,7 +23,8 @@ export function routeFromPath(pathname: string): AppRoute {
 }
 
 export async function loadContentMarkdown(pageId: ContentPageId): Promise<string> {
-  const response = await fetch(`/content/${contentPages[pageId].file}`);
+  const localized = pageId === 'support' && currentLanguage !== 'de' ? `${currentLanguage}/` : '';
+  const response = await fetch(`/content/${localized}${contentPages[pageId].file}`);
   if (!response.ok) throw new Error(`Failed to load ${contentPages[pageId].file}`);
   return response.text();
 }
@@ -44,16 +47,17 @@ export function renderContentPage(container: HTMLElement, pageId: ContentPageId,
 function markdownToNodes(markdown: string): HTMLElement[] {
   const nodes: HTMLElement[] = [];
   const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+  const headingPattern = /^(#{1,3})\s+(.+)$/;
   let index = 0;
 
   while (index < lines.length) {
-    const line = lines[index].trimEnd();
-    if (!line.trim()) {
+    const line = lines[index].trim();
+    if (!line) {
       index++;
       continue;
     }
 
-    const heading = /^(#{1,3})\s+(.+)$/.exec(line);
+    const heading = headingPattern.exec(line);
     if (heading) {
       const level = heading[1].length as 1 | 2 | 3;
       nodes.push(headingNode(level, heading[2].trim()));
@@ -61,7 +65,7 @@ function markdownToNodes(markdown: string): HTMLElement[] {
       continue;
     }
 
-    if (/^-\s+/.test(line.trimStart())) {
+    if (/^-\s+/.test(lines[index].trimStart())) {
       const list = el('ul');
       while (index < lines.length && /^-\s+/.test(lines[index].trimStart())) {
         list.append(el('li', {}, ...inlineNodes(lines[index].trimStart().replace(/^-\s+/, ''))));
@@ -75,7 +79,7 @@ function markdownToNodes(markdown: string): HTMLElement[] {
     while (
       index < lines.length
       && lines[index].trim()
-      && !/^(#{1,3})\s+/.test(lines[index].trimStart())
+      && !headingPattern.test(lines[index].trim())
       && !/^-\s+/.test(lines[index].trimStart())
     ) {
       paragraphLines.push(lines[index].trimEnd().replace(/\s{2}$/, ''));
@@ -104,15 +108,15 @@ function paragraph(lines: string[]): HTMLElement {
 
 function inlineNodes(text: string): (Node | string)[] {
   const nodes: (Node | string)[] = [];
-  const urlPattern = /(https?:\/\/[^\s]+)/g;
+  const urlPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s]+)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = urlPattern.exec(text)) !== null) {
     if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
-    const url = match[0];
-    nodes.push(el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: url }));
-    lastIndex = match.index + url.length;
+    const url = match[2] ?? match[3];
+    nodes.push(el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: match[1] ?? url }));
+    lastIndex = match.index + match[0].length;
   }
 
   if (lastIndex < text.length) nodes.push(text.slice(lastIndex));

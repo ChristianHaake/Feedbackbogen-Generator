@@ -150,6 +150,7 @@ export const nl = {
     about: 'Over het project',
     imprint: 'Colofon',
     privacy: 'Privacy',
+    support: 'Ondersteunen',
   },
   footer: {
     coffee: 'Buy me a coffee',
@@ -177,6 +178,13 @@ export const nl = {
     },
   },
   messages: {
+    exportUnsupportedCharacters: (characters: string) => `Het PDF-lettertype ondersteunt deze tekens niet: ${characters}. Vervang ze of gebruik DOCX/ODT.`,
+    inputLimit: "De wijziging overschrijdt de configuratielimieten of bevat niet ondersteunde besturingstekens. Verkort of corrigeer de invoer.",
+    recoveryNotice: "De opgeslagen configuratie kon niet veilig worden geladen. De oorspronkelijke gegevens blijven bewaard. Download de reservekopie en importeer een gecorrigeerd bestand of stel de configuratie uitdrukkelijk opnieuw in. Automatisch opslaan is gepauzeerd.",
+    recoveryDownload: "Oorspronkelijke gegevens downloaden",
+    storageError: "De configuratie kon niet automatisch worden opgeslagen. Download een JSON-reservekopie en controleer de browseropslag.",
+    importConfirm: "De huidige configuratie wordt vervangen. Eerdere wijzigingen kunnen ongedaan worden gemaakt. Doorgaan?",
+
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',
     contentPageLoading: 'Inhoud wordt geladen...',
     contentPageLoadError: 'De inhoud kon niet worden geladen.',

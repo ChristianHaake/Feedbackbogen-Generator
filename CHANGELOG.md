@@ -11,6 +11,20 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Fixed
 
 - Table layout für numerische Skalen mit vielen Optionen korrigiert, sodass die Kriterium-Spalte nicht mehr unleserlich schmal wird.
+- Ungültige Autosave-Daten bleiben als herunterladbare Originaldaten erhalten; Eingabe-, Import- und Wiederherstellungsgrenzen sind vereinheitlicht.
+- Reservierte, unsichere und kollidierende Import-IDs werden vor der Zustandsübernahme abgelehnt.
+- PDF-Exporte verwenden einen gemeinsamen Renderer mit lokaler Unicode-Schrift und Seitenumbrüchen innerhalb langer Kriterien, Titel und Auswertungen.
+- DOCX und ODT erzeugen auch bei direkten Aufrufen mit unzulässigen Steuerzeichen gültiges XML.
+- Tastaturfokus und Hinzufügefelder bleiben bei Editoraktualisierungen konsistent; Gewichtsprüfungen verwenden ausschließlich exportierte Kategorien.
+- Undo gruppiert Texteingaben und hält höchstens 100 Aktionen; unveränderte Daten werden zwischen früheren Zuständen geteilt.
+- Exportparameter werden vor asynchronem Laden gemeinsam erfasst; abgelaufene Exporte entsperren keine später gestarteten Operationen.
+- Markdown-Rendering blockiert nicht mehr bei eingerückten Überschriften oder leeren Markern.
+- Sichere Paketstände aktualisiert und ungenutztes jsPDF entfernt. Ein ungepatchter niedriger Build-Befund bleibt transparent dokumentiert.
+
+### Added
+
+- Lokalisierte Unterstützen-Seite, Speicher-/Wiederherstellungshinweise und präzisierte Exportgrenzen.
+- Übersetzungsprüfung, Node-26-Fixierung, CI-Workflow und Regressionstests für Persistenz, PDF-Geometrie und Browserabläufe.
 
 ## [2.0.0] - in Vorbereitung
 

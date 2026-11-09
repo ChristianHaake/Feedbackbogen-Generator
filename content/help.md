@@ -56,3 +56,18 @@ Der Generator unterstützt die systematische Zusammenstellung passender Kriterie
 
 Weiterführende Informationen:
 https://haak3.de/2025/02/artikel/transparentes-und-systematisches-feedback/
+
+
+## Eingabegrenzen und Wiederherstellung
+
+Eine JSON-Konfiguration darf höchstens 5 MB enthalten. Ein Text darf höchstens 2.000 Zeichen lang sein. Bis zu 50 Kopffelder, 1.000 eigene oder ausgewählte Kriterien und 200 eigene Kategorien sind möglich. Zusätzliche Strukturgrenzen schützen vor zu komplexen Dateien. Abgelehnte Änderungen ersetzen den bisherigen Stand nicht.
+
+Kann eine gespeicherte Konfiguration nicht sicher geladen werden, erscheint ein Hinweis mit einem Download der Originaldaten. Die automatische Speicherung bleibt pausiert. Lade zuerst diese Sicherung herunter. Importiere anschließend eine korrigierte Datei oder setze die Konfiguration ausdrücklich zurück. Lösche den Browserspeicher nicht vor der Sicherung.
+
+Aufeinanderfolgende Texteingaben im selben Feld werden innerhalb einer Sekunde zu einer Undo-Aktion zusammengefasst. Es bleiben höchstens 100 Aktionen erhalten. Eine JSON-Datei ist die dauerhafte Sicherung.
+
+## Grenzen der Exportformate
+
+Der erste PDF-Export benötigt eine Onlineverbindung zum Laden der mitgelieferten Schriften. Danach werden sie für Offlineexporte zwischengespeichert. Die PDF-Schrift unterstützt erweitertes Latein, vereinfachtes Chinesisch und viele monochrome Emojis. Bei nicht unterstützten Zeichen benennt die Fehlermeldung eine Alternative: DOCX oder ODT.
+
+XLSX enthält Kriterien, Skalen und Gewichtungen als tabellarische Auswertung. Für Dokumenttitel, Kopffelder, Fußzeilen oder das Checklistenlayout verwende PDF, DOCX oder ODT. PDFs sind nicht als vollständig für Screenreader getaggt ausgewiesen. DOCX und ODT bleiben editierbare Alternativen.

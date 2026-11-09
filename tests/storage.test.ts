@@ -2,11 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   CONFIG_SCHEMA_VERSION,
+  CONFIG_LIMITS,
+  configWithinLimits,
+  createDefaultConfig,
+  downloadConfigRecovery,
   exportConfigJSON,
+  getConfigRecovery,
   importConfigJSON,
+  isConfigText,
   loadConfig,
   parseConfig,
   resolveSectionState,
+  replaceStoredConfig,
   saveConfig,
 } from '@/storage';
 import type { AppConfig } from '@/types';
@@ -38,6 +45,7 @@ const config: AppConfig = {
 describe('config storage', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', memoryStorage());
+    loadConfig();
   });
 
   afterEach(() => {
@@ -50,6 +58,225 @@ describe('config storage', () => {
     saveConfig(config);
 
     expect(loadConfig()).toEqual(config);
+  });
+
+  it('uses the same text and count limits for editor, saving and restoring', () => {
+    const maximum = {
+      ...config,
+      documentTitle: {
+        mode: 'custom' as const,
+        custom: 'x'.repeat(CONFIG_LIMITS.stringLength),
+      },
+      header: {
+        fields: Array.from({ length: CONFIG_LIMITS.headerFields }, (_, i) => ({
+          id: `field_${i}`,
+          label: 'Feld',
+          value: '',
+        })),
+      },
+    };
+    expect(configWithinLimits(maximum)).toBe(true);
+    expect(saveConfig(maximum)).toBe(true);
+    expect(loadConfig()).toEqual(maximum);
+    const saved = localStorage.getItem('bbk:config');
+    expect(
+      saveConfig({
+        ...maximum,
+        documentTitle: {
+          mode: 'custom',
+          custom: 'x'.repeat(CONFIG_LIMITS.stringLength + 1),
+        },
+      })
+    ).toBe(false);
+    expect(
+      saveConfig({
+        ...maximum,
+        header: {
+          fields: [
+            ...maximum.header.fields,
+            { id: 'extra', label: 'Extra', value: '' },
+          ],
+        },
+      })
+    ).toBe(false);
+    expect(localStorage.getItem('bbk:config')).toBe(saved);
+  });
+
+  it.each([
+    '',
+    '{invalid',
+    JSON.stringify({ ...config, schemaVersion: 99 }),
+    JSON.stringify({
+      ...config,
+      documentTitle: { mode: 'custom', custom: 'x'.repeat(2001) },
+    }),
+  ])(
+    'protects rejected stored bytes until an explicit replacement: %s',
+    (raw) => {
+      localStorage.setItem('bbk:config', raw);
+      expect(loadConfig()).toBeNull();
+      expect(getConfigRecovery()).toBe(raw);
+      expect(saveConfig(createDefaultConfig())).toBe(false);
+      expect(localStorage.getItem('bbk:config')).toBe(raw);
+      expect(replaceStoredConfig({ ...config, schemaVersion: 99 })).toBe(false);
+      expect(getConfigRecovery()).toBe(raw);
+      expect(replaceStoredConfig(config)).toBe(true);
+      expect(getConfigRecovery()).toBeNull();
+      expect(saveConfig(createDefaultConfig())).toBe(true);
+    }
+  );
+
+  it('retains recovery protection when explicit replacement cannot be saved', () => {
+    localStorage.setItem('bbk:config', '{invalid');
+    loadConfig();
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+    expect(replaceStoredConfig(config)).toBe(false);
+    expect(getConfigRecovery()).toBe('{invalid');
+    expect(localStorage.getItem('bbk:config')).toBe('{invalid');
+  });
+
+  it('downloads the exact rejected bytes for recovery', async () => {
+    const raw = '{original invalid JSON';
+    localStorage.setItem('bbk:config', raw);
+    loadConfig();
+    let blob: Blob | undefined;
+    vi.stubGlobal('URL', {
+      createObjectURL: (value: Blob) => {
+        blob = value;
+        return 'blob:recovery';
+      },
+      revokeObjectURL: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement
+    ) {
+      expect(this.download).toBe('feedbackbogen-wiederherstellung.json');
+    });
+    downloadConfigRecovery();
+    expect(await blob?.text()).toBe(raw);
+    expect(getConfigRecovery()).toBe(raw);
+  });
+
+  it.each([
+    ...Object.getOwnPropertyNames(Object.prototype),
+    'prototype',
+    'custom_"',
+    'category id',
+  ])(
+    'rejects unsafe IDs before current and legacy migration: %s',
+    (categoryId) => {
+      for (const schemaVersion of [undefined, CONFIG_SCHEMA_VERSION]) {
+        expect(
+          parseConfig({
+            schemaVersion,
+            selectedItems: [{ categoryId, itemId: 'x' }],
+          }).status
+        ).toBe('error');
+      }
+      expect(
+        parseConfig({
+          ...config,
+          customCategories: [{ id: categoryId, title: 'Custom' }],
+        }).status
+      ).toBe('error');
+      expect(
+        parseConfig({
+          ...config,
+          categoryTitleOverrides: Object.fromEntries([[categoryId, 'Title']]),
+        }).status
+      ).toBe('error');
+    }
+  );
+
+  it('rejects duplicate header, custom item, category and selection identities', () => {
+    const item = {
+      id: 'custom_1',
+      label: 'Item',
+      categoryId: 'allgemeine',
+      custom: true as const,
+    };
+    const category = { id: 'custom_cat_1', title: 'Category' };
+    for (const duplicate of [
+      {
+        header: { fields: [config.header.fields[0], config.header.fields[0]] },
+      },
+      { customItems: [item, item] },
+      { customCategories: [category, category] },
+      { selectedItems: [config.selectedItems[0], config.selectedItems[0]] },
+    ])
+      expect(parseConfig({ ...config, ...duplicate }).status).toBe('error');
+  });
+
+  it.each([
+    '\u0000',
+    '\u0001',
+    '\u000b',
+    '\u001f',
+    '\ufffe',
+    '\uffff',
+    '\ud800',
+    '\udfff',
+  ])('rejects XML-disallowed document characters: %j', (character) => {
+    expect(
+      parseConfig({
+        ...config,
+        documentTitle: { mode: 'custom', custom: `Test${character}Text` },
+      }).status
+    ).toBe('error');
+    expect(
+      parseConfig({
+        ...config,
+        customItems: [
+          { id: 'custom_1', categoryId: 'allgemeine', label: character },
+        ],
+      }).status
+    ).toBe('error');
+    expect(
+      saveConfig({
+        ...config,
+        header: { fields: [{ id: 'h', label: 'Label', value: character }] },
+      })
+    ).toBe(false);
+  });
+
+  it('preserves tabs, line endings and supplementary Unicode document text', () => {
+    const title = 'Test\tZeile\nText\r\n\u{1f9ea}';
+    expect(isConfigText(title)).toBe(true);
+    expect(isConfigText('x'.repeat(CONFIG_LIMITS.stringLength))).toBe(true);
+    expect(isConfigText('x'.repeat(CONFIG_LIMITS.stringLength + 1))).toBe(
+      false
+    );
+    expect(isConfigText('Text\u0001')).toBe(false);
+    const value = {
+      ...config,
+      documentTitle: { mode: 'custom' as const, custom: title },
+    };
+    expect(saveConfig(value)).toBe(true);
+    expect(loadConfig()?.documentTitle.custom).toBe(title);
+  });
+
+  it('rejects deeply nested input without overflowing the call stack', () => {
+    let value: unknown = 'x';
+    for (let i = 0; i < 25_000; i++) value = [value];
+    expect(parseConfig({ selectedItems: [], unknown: value }).status).toBe(
+      'error'
+    );
+  });
+
+  it('applies the file byte limit to saved configurations too', () => {
+    const tooLarge = {
+      ...config,
+      categoryTitleOverrides: Object.fromEntries(
+        Array.from({ length: 1400 }, (_, i) => [
+          `category_${i}`,
+          'ä'.repeat(2000),
+        ])
+      ),
+    };
+    expect(configWithinLimits(tooLarge)).toBe(false);
+    expect(saveConfig(tooLarge)).toBe(false);
   });
 
   it('falls back to defaults when localStorage reads throw', () => {

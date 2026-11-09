@@ -2,9 +2,9 @@
 
 ## Ergebnis
 
-**11 der 13 Auditbefunde sind lokal behoben.** Die beiden verbleibenden Punkte hängen von einem ungepatchten Build-Paket und dem noch unveränderten Live-Deployment ab.
+**12 der 13 Auditbefunde sind lokal behoben.** Offen ist nur noch die Prüfung und Korrektur der Live-Auslieferung nach dem Produktionsdeployment.
 
-127 Unit- und Integrationstests sowie 52 Browserprüfungen in Chromium und WebKit bestehen. Content-, Übersetzungs-, Lint-, Typ- und Buildprüfungen bestehen ebenfalls. Es wurde nichts veröffentlicht oder committed.
+128 Unit- und Integrationstests, 52 frühere Browserprüfungen in Chromium und WebKit sowie die erneute Chromium-Regressionssuite mit 26 Fällen bestehen. Content-, Übersetzungs-, Lint-, Typ-, Build- und npm-Sicherheitsprüfung bestehen ebenfalls.
 
 ## Befunde und Belege
 
@@ -71,13 +71,11 @@ Die erste PDF-Nutzung lädt rund 7,4 MB unkomprimierte lokale Schriftdateien. Di
 
 ## Verbleibende externe Abhängigkeiten
 
-### Ungepatchtes Build-Paket
+### Gepatchtes Build-Paket
 
-Die vier npm-Meldungen stammen aus `vite-plugin-pwa` → `workbox-build` → `@rollup/plugin-node-resolve` → `deepmerge@4.3.1`.
+Die vier npm-Meldungen stammten aus `vite-plugin-pwa` → `workbox-build` → `@rollup/plugin-node-resolve` → `deepmerge@4.3.1`. Da die [Advisory GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4) keinen Upstream-Patch nennt, ersetzt eine npm-Override diese transitive Abhängigkeit durch `vendor/deepmerge@4.3.2`.
 
-Die [Advisory GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4) nennt keinen gepatchten Stand. Ein separat geprüfter Downgrade auf 4.1.1 bleibt verwundbar und entfernt zusätzliche Schutzprüfungen. Deshalb wurde weder zurückgestuft noch das Audit abgeschwächt.
-
-Der konkrete Build-Aufruf kopiert eine fest definierte Konstante aus Strings und Booleans. Er verarbeitet keine Nutzerkonfiguration und wird nicht in den Browserbuild aufgenommen. Der offene Befund bleibt dennoch im unveränderten strengen Releasegate sichtbar.
+Die lokale Kopie behält die bestehende API bei und verhindert die Prototypveränderung durch eigene `__proto__`-Schlüssel. Der Regressionstest deckt den betroffenen Pfad ab; `npm audit --audit-level=low` ist mit 0 Befunden erfolgreich. Die Kopie ist zu entfernen, sobald ein offizielles Upstream-Release vorliegt.
 
 ### Live-Auslieferung
 

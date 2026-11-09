@@ -17,7 +17,8 @@ Gespeicherte Arbeit darf nicht beim Neuladen verschwinden. Importe müssen vor Z
 - [x] Unicode, Paginierung und XML-Exporte korrigieren.
 - [x] Markdown, Support, Datenschutz, Runtime, CI und Übersetzungsprüfung vervollständigen.
 - [x] Sicherheitsupdates installiert; lokale Gates und zwei Browser geprüft.
-- [ ] Extern offen: ungepatchtes deepmerge-Build-Paket; autorisiertes Live-Deployment und Live-Cacheprüfung.
+- [x] Transitives deepmerge-Paket lokal gegen Prototypveränderung gepatcht; strenges npm-Audit ist grün.
+- [ ] Extern offen: autorisiertes Produktionsdeployment und Live-Cacheprüfung.
 - [ ] Umgebungsbedingt offen: Firefox-Anwendungslauf; leerer Browserstart scheitert isoliert.
 - [x] Live-Abweichung dokumentieren und Deploymentvorbereitung prüfen.
 
@@ -37,7 +38,7 @@ Der Audit zeigte einen unterschiedlichen Vertrag zwischen Editor und Wiederherst
 ## Outcomes & Retrospective
 
 
-11 Auditbefunde sind lokal behoben. 127 Unit-/Integrationstests und 52 Chromium-/WebKit-Prüfungen bestehen. Ein isolierter Firefox-Start scheitert am Betriebssystem. npm meldet nur noch vier niedrige Meldungen derselben ungepatchten Build-Kette. Es wurde nichts veröffentlicht; npm- und Live-Releasegates bleiben aus dokumentierten Gründen offen. Der Abschlussbericht steht in docs/audit-fixes-2026-11-09.md.
+12 Auditbefunde sind lokal behoben. 128 Unit-/Integrationstests, 52 frühere Chromium-/WebKit-Prüfungen sowie 26 erneute Chromium-Prüfungen bestehen; npm meldet 0 Befunde. Ein isolierter Firefox-Start scheitert am Betriebssystem. Die Produktionsauslieferung und Live-Cacheprüfung bleiben offen. Der Abschlussbericht steht in docs/audit-fixes-2026-11-09.md.
 
 ## Context and Orientation
 

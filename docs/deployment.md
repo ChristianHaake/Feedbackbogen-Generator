@@ -27,12 +27,8 @@ Die Prüfung darf nicht durch Akzeptieren von `max-age=3600` abgeschwächt werde
 
 Quelle: [Cloudflare Static Assets: Headers](https://developers.cloudflare.com/workers/static-assets/headers/). Cloudflare beschreibt dort `_headers` als Überschreibung statischer Standardheader und grenzt Worker-generierte Antworten ausdrücklich aus.
 
-## Verbleibender npm-Befund
+## Behobener npm-Befund
 
-Nach den Sicherheitsupdates bleiben vier niedrige Paketmeldungen aus einer einzigen Build-Kette: `vite-plugin-pwa` → `workbox-build` → `@rollup/plugin-node-resolve` → `deepmerge`.
+`workbox-build` benötigt weiter `deepmerge@4.3.1`, für das [GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4) keinen Upstream-Patch veröffentlicht. Die npm-Override nutzt deshalb die lokale, versionierte Kopie `vendor/deepmerge@4.3.2`. Sie übernimmt die 4.3.1-Implementierung und schreibt Schlüssel über `Object.defineProperty`; damit kann ein eigener `__proto__`-Schlüssel nicht den Prototyp des zurückgegebenen Objekts verändern.
 
-Für `deepmerge@4.3.1` gibt es laut [Advisory GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4) keinen gepatchten Stand. Ein geprüfter Downgrade auf 4.1.1 behebt den Angriff nicht und entfernt zusätzliche Schutzprüfungen.
-
-Der konkrete installierte Aufruf kopiert ausschließlich eine fest definierte Konstante mit Strings und Booleans. Er verarbeitet keine Nutzerkonfiguration. Das Paket wird nicht in die Browseranwendung eingebunden.
-
-Der Befund bleibt transparent offen. Es gibt keine Audit-Ausnahmeliste, kein `--force` und keine abgeschwächte Sicherheitsstufe. Das strenge npm-Releasegate bleibt deshalb rot, bis eine belastbare Behebung verfügbar ist.
+`tests/deepmerge.test.ts` deckt den betroffenen Pfad ab. `npm audit --audit-level=low` meldet danach 0 Befunde. Die Override bleibt bis zu einem offiziellen Upstream-Release notwendig und muss dann entfernt werden.

@@ -2,7 +2,7 @@
 
 Stand: 2026-06-27
 
-Nachtrag 2026-11-09: Die lokalen Auditkorrekturen und 127 Unit-/Integrationstests sowie 52 Chromium-/WebKit-Prüfungen bestehen. Vier niedrige, ungepatchte Build-Meldungen halten das strenge npm-Gate rot. Ein Deployment erfolgte nicht. Der Firefox-Start ist auf dem geprüften Rechner durch einen Betriebssystemfehler blockiert. Siehe [Auditkorrekturen](audit-fixes-2026-11-09.md) und [Deploymentprüfung](deployment.md). Die Release-Freigabe bleibt offen.
+Nachtrag 2026-11-09: Die lokalen Auditkorrekturen, 128 Unit-/Integrationstests, die erneute Chromium-Regression mit 26 Fällen sowie `npm audit --audit-level=low` bestehen. Die transitive deepmerge-Schwachstelle ist bis zu einem Upstream-Release lokal gepatcht und regressionsgetestet. Ein Produktionsdeployment und die Live-Cacheprüfung stehen noch aus. Der Firefox-Start ist auf dem geprüften Rechner durch einen Betriebssystemfehler blockiert. Siehe [Auditkorrekturen](audit-fixes-2026-11-09.md) und [Deploymentprüfung](deployment.md). Die Release-Freigabe bleibt offen.
 
 ## Release-Funktionen
 

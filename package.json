@@ -38,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^8.9.0",
     "@typescript-eslint/parser": "^8.9.0",
     "@vitest/coverage-v8": "^5.1.0",
+    "deepmerge": "file:vendor/deepmerge",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",

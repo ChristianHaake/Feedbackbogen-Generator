@@ -14,9 +14,9 @@ Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeld
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 
-## Release 2.0
+## Release 2.1
 
-Der aktuelle Release-Kandidat baut den Generator zu einem mehrsprachigen, exportfähigen Werkzeug für Feedback- und Bewertungsbögen aus. Die wichtigsten Release-Funktionen:
+Release 2.1 ergänzt den Generator um einen dokumentierten Workflow für KI-erzeugte Config-Dateien und bündelt die Stabilitätskorrekturen seit 2.0. Die wichtigsten Release-Funktionen:
 
 - Mehrsprachige Oberfläche und Inhaltsdaten für Deutsch, Englisch, Französisch, Spanisch und Niederländisch
 - 8 allgemeine Bewertungskategorien mit 40 Kriterien
@@ -28,12 +28,14 @@ Der aktuelle Release-Kandidat baut den Generator zu einem mehrsprachigen, export
 - Papiernahe A4-Vorschau mit Skalenmodus und Checklistenmodus
 - Export als PDF/Druckansicht, ausfüllbares PDF, DOCX, XLSX und ODT
 - Versionierter JSON-Import und -Export mit Migrationen und Import-Schutzgrenzen
+- Striktes Config-Format Version 5 mit öffentlichem JSON Schema, Beispielen und verständlichen Importdiagnosen
+- Repository-Skill mit Tutorial zur Erstellung und Weiterbearbeitung von Config-Dateien
 - Autospeicherung im Browser, Undo/Redo, explizites Zurücksetzen und wiederherstellbare Konfiguration
 - Responsives Layout mit mobiler Bearbeiten-/Vorschau-/Export-Navigation ab 320 px
 - Tastaturbedienung, sichtbarer Fokus, Screenreader-Statusmeldungen und reduzierte Bewegung
 - Statisches Cloudflare-Deployment mit Security-Headern, PWA-Dateien und Live-Deploy-Verifikation
 
-Die Version in `package.json` bleibt bis zum erfolgreichen Live-Gate bei `1.0.0`. Der Release ist erst freigabefähig, wenn lokal `npm run verify`, `npm audit --audit-level=low`, `npm run test:e2e` und nach Deployment `npm run verify:live` erfolgreich laufen.
+Ein Release ist erst freigabefähig, wenn lokal `npm run verify`, `npm audit --audit-level=low`, `npm run test:e2e` und nach Deployment `npm run verify:live` erfolgreich laufen.
 
 ## Wofür ist das Tool gedacht?
 

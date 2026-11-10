@@ -1,6 +1,6 @@
 {
   "name": "feedbackbogen-generator",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Webbasiertes Werkzeug zur Erstellung strukturierter Feedback- und Bewertungsbögen für Unterricht, Fortbildungen und weitere Lernkontexte.",
   "author": "Christian Haake",
   "private": true,

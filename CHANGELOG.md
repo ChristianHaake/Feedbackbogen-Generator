@@ -8,6 +8,16 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-10
+
+### Added
+
+- Striktes Config-Format Version 5 für KI-erzeugte Dateien mit öffentlichem JSON Schema, minimalem und vollständigem Beispiel.
+- Repository-Skill mit Tutorial für die Erstellung, Prüfung und Weiterbearbeitung von Config-Dateien.
+- Lokalisierte Importdiagnosen mit Feldpfad, Fehlercode und kopierbarer Fehlerausgabe.
+- Lokalisierte Unterstützen-Seite, Speicher-/Wiederherstellungshinweise und präzisierte Exportgrenzen.
+- Übersetzungsprüfung, Node-26-Fixierung, CI-Workflow und Regressionstests für Persistenz, PDF-Geometrie und Browserabläufe.
+
 ### Fixed
 
 - Table layout für numerische Skalen mit vielen Optionen korrigiert, sodass die Kriterium-Spalte nicht mehr unleserlich schmal wird.
@@ -21,12 +31,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Markdown-Rendering blockiert nicht mehr bei eingerückten Überschriften oder leeren Markern.
 - Sichere Paketstände aktualisiert und ungenutztes jsPDF entfernt. Ein ungepatchter niedriger Build-Befund bleibt transparent dokumentiert.
 
-### Added
-
-- Lokalisierte Unterstützen-Seite, Speicher-/Wiederherstellungshinweise und präzisierte Exportgrenzen.
-- Übersetzungsprüfung, Node-26-Fixierung, CI-Workflow und Regressionstests für Persistenz, PDF-Geometrie und Browserabläufe.
-
-## [2.0.0] - in Vorbereitung
+## [2.0.0] - 2026-06-27
 
 ### Added
 
@@ -111,6 +116,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Lokale Speicherung sowie Import und Export der Konfiguration.
 - Erste Dokumentexporte und GitHub-Pages-Deployment.
 
-[Unreleased]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/afb47c5...master
-[2.0.0]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/afb47c5...master
+[Unreleased]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/2.1.0...master
+[2.1.0]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/2.0...2.1.0
+[2.0.0]: https://github.com/ChristianHaake/Feedbackbogen-Generator/compare/afb47c5...2.0
 [1.0.0]: https://github.com/ChristianHaake/Feedbackbogen-Generator/tree/afb47c5

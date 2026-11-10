@@ -7,8 +7,8 @@ export const de = {
   footerNote: 'Alle Daten bleiben lokal im Browser. Keine Serverübertragung.',
   watermark: 'Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de',
   toolbar: {
-    saveConfig: 'Config speichern',
-    loadConfig: 'Config laden',
+    saveConfig: 'Config herunterladen',
+    loadConfig: 'Config öffnen',
     undo: 'Rückgängig',
     redo: 'Wiederholen',
     reset: 'Zurücksetzen',
@@ -183,6 +183,7 @@ export const de = {
     recoveryDownload: "Gespeicherte Originaldaten herunterladen",
     storageError: "Die Konfiguration konnte nicht automatisch gespeichert werden. Lade eine JSON-Sicherung herunter und prüfe den Browserspeicher.",
     importConfirm: "Die aktuelle Konfiguration wird ersetzt. Vorherige Änderungen können rückgängig gemacht werden. Fortfahren?",
+    importConfirmLanguage: "Die aktuelle Konfiguration wird ersetzt und die Sprache gewechselt. Die App wird neu geladen; diese Ersetzung kann nicht rückgängig gemacht werden. Fortfahren?",
 
     contentLoadError:
       'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
@@ -200,6 +201,27 @@ export const de = {
       'Die Datei enthält zu viele oder zu lange Einträge für eine Feedbackbogen-Konfiguration.',
     importInvalidShape:
       'Die Datei enthält keine gültige Feedbackbogen-Konfiguration.',
+    importErrorsTitle: 'Die Config konnte nicht geöffnet werden.',
+    importCopyErrors: 'Fehler kopieren',
+    importErrorsCopied: 'Importfehler wurden kopiert.',
+    importMoreErrors: (count: number) => `${count} weitere Fehler wurden gefunden.`,
+    importedSummary: (categories: number, criteria: number) =>
+      `Config geöffnet: ${categories} ${categories === 1 ? 'Kategorie' : 'Kategorien'} und ${criteria} ${criteria === 1 ? 'Kriterium' : 'Kriterien'}.`,
+    importFieldInvalid: (path: string) => `${path}: Wert oder Datentyp ist ungültig.`,
+    importUnknownField: (path: string) => `${path}: Feld ist im Config-Schema nicht vorgesehen.`,
+    importDuplicateValue: (path: string, value: string) => `${path}: „${value}“ ist doppelt vorhanden.`,
+    importIdentifiersInvalid:
+      'Die Config enthält unsichere oder doppelte IDs.',
+    importUnknownReference: (path: string, id: string) =>
+      `${path}: „${id}“ ist nicht definiert oder nicht aktiv.`,
+    importReferenceCollision: (path: string, id: string) =>
+      `${path}: „${id}“ kollidiert mit einem vorhandenen Katalogeintrag.`,
+    importScaleRangeInvalid: (
+      path: string,
+      min: number,
+      max: number,
+      steps: number
+    ) => `${path}: Bereich muss zwischen ${min} und ${max} liegen und darf höchstens ${steps} Stufen enthalten.`,
     importMissingSelection:
       'Die Config ist unvollständig: "selectedItems" muss eine Liste sein.',
     importInvalidVersion: 'Die Config enthält keine gültige Schema-Version.',

@@ -1,0 +1,11 @@
+{
+  "format": "feedbackbogen-generator",
+  "schemaVersion": 5,
+  "language": "de",
+  "selectedItems": [
+    {
+      "categoryId": "allgemeine",
+      "itemId": "abgabe"
+    }
+  ]
+}

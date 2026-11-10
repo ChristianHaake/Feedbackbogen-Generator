@@ -8,8 +8,8 @@ export const nl = {
     'Alle gegevens blijven lokaal in de browser. Geen serveroverdracht.',
   watermark: 'Gemaakt met de Feedback Formulier Generator op fbg.haak3.de',
   toolbar: {
-    saveConfig: 'Opslaan',
-    loadConfig: 'Laden',
+    saveConfig: 'Config downloaden',
+    loadConfig: 'Config openen',
     undo: 'Ongedaan maken',
     redo: 'Opnieuw',
     reset: 'Resetten',
@@ -184,6 +184,7 @@ export const nl = {
     recoveryDownload: "Oorspronkelijke gegevens downloaden",
     storageError: "De configuratie kon niet automatisch worden opgeslagen. Download een JSON-reservekopie en controleer de browseropslag.",
     importConfirm: "De huidige configuratie wordt vervangen. Eerdere wijzigingen kunnen ongedaan worden gemaakt. Doorgaan?",
+    importConfirmLanguage: "De huidige configuratie wordt vervangen en de taal gewijzigd. De app wordt opnieuw geladen; deze vervanging kan niet ongedaan worden gemaakt. Doorgaan?",
 
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',
     contentPageLoading: 'Inhoud wordt geladen...',
@@ -196,6 +197,26 @@ export const nl = {
     importTooLarge: 'Het bestand is te groot.',
     importTooComplex: 'Het bestand bevat te veel of te lange items.',
     importInvalidShape: 'Het bestand bevat geen geldige configuratie.',
+    importErrorsTitle: 'De config kon niet worden geopend.',
+    importCopyErrors: 'Fouten kopiëren',
+    importErrorsCopied: 'Importfouten gekopieerd.',
+    importMoreErrors: (count: number) => `${count} extra fouten gevonden.`,
+    importedSummary: (categories: number, criteria: number) =>
+      `Config geopend: ${categories} categorieën en ${criteria} criteria.`,
+    importFieldInvalid: (path: string) => `${path}: waarde of gegevenstype is ongeldig.`,
+    importUnknownField: (path: string) => `${path}: veld hoort niet bij het configschema.`,
+    importDuplicateValue: (path: string, value: string) => `${path}: ‘${value}’ komt dubbel voor.`,
+    importIdentifiersInvalid: 'De config bevat onveilige of dubbele ID’s.',
+    importUnknownReference: (path: string, id: string) =>
+      `${path}: ‘${id}’ is niet gedefinieerd of actief.`,
+    importReferenceCollision: (path: string, id: string) =>
+      `${path}: ‘${id}’ conflicteert met een bestaand catalogusitem.`,
+    importScaleRangeInvalid: (
+      path: string,
+      min: number,
+      max: number,
+      steps: number
+    ) => `${path}: bereik moet tussen ${min} en ${max} liggen en maximaal ${steps} stappen bevatten.`,
     importMissingSelection:
       'De configuratie is onvolledig: "selectedItems" moet een lijst zijn.',
     importInvalidVersion: 'De configuratie bevat geen geldige schemaversie.',

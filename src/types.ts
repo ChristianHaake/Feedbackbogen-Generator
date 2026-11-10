@@ -1,3 +1,5 @@
+import type { LanguageCode } from './strings';
+
 export type Item = {
   id: string;
   label: string;
@@ -102,7 +104,9 @@ export type CustomCategory = {
 };
 
 export type AppConfig = {
+  format: 'feedbackbogen-generator';
   schemaVersion: number;
+  language: LanguageCode;
   selectedItems: SelectedItemRef[];
   selectedProductFormats: string[];
   scaleByCategory: Record<string, string>;

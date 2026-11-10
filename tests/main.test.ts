@@ -71,6 +71,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  Reflect.deleteProperty(navigator, 'clipboard');
   document.body.innerHTML = '';
 });
 
@@ -273,19 +274,27 @@ describe('application persistence and history', () => {
   it('keeps near-limit restored work exportable when text edits would exceed the byte cap', async () => {
     const { CONFIG_LIMITS, createDefaultConfig } = await import('@/storage');
     const config = createDefaultConfig('verbal_5');
-    config.categoryTitleOverrides = Object.fromEntries(
-      Array.from({ length: 1250 }, (_, i) => [`unused_${i}`, 'ä'])
-    );
+    config.customCategories = [{ id: 'custom_cat', title: 'Eigene Kategorie' }];
+    config.customItems = Array.from({ length: 1000 }, (_, i) => ({
+      id: `custom_${i}`,
+      label: 'ä',
+      description: 'ä',
+      categoryId: 'custom_cat',
+      custom: true as const,
+    }));
     let remaining =
       CONFIG_LIMITS.bytes -
       100 -
       new Blob([JSON.stringify(config, null, 2)]).size;
-    for (const key of Object.keys(config.categoryTitleOverrides)) {
+    for (const item of config.customItems) {
       const extra = Math.min(
-        CONFIG_LIMITS.stringLength - 1,
-        Math.floor(remaining / 2)
+        (CONFIG_LIMITS.stringLength - 1) * 2,
+        Math.max(0, Math.floor(remaining / 2))
       );
-      config.categoryTitleOverrides[key] = 'ä'.repeat(1 + extra);
+      const labelExtra = Math.min(CONFIG_LIMITS.stringLength - 1, extra);
+      const descriptionExtra = extra - labelExtra;
+      item.label = 'ä'.repeat(1 + labelExtra);
+      item.description = 'ä'.repeat(1 + descriptionExtra);
       remaining -= extra * 2;
     }
     entries.set('bbk:config', JSON.stringify(config));
@@ -390,4 +399,43 @@ describe('application persistence and history', () => {
       expect(document.querySelectorAll('#acc-allgemeine')).toHaveLength(1);
     }
   );
+
+  it('shows copyable diagnostics for an invalid AI-generated config', async () => {
+    await start();
+    control('#cb-allgemeine-abgabe').click();
+    await vi.advanceTimersByTimeAsync(300);
+    const before = entries.get('bbk:config');
+    const writeText = vi.fn(async () => {});
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+    const imported = {
+      ...saved(),
+      selectedItems: [{ categoryId: 'allgemeine', itemId: 'invented' }],
+    };
+    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (
+      this: HTMLInputElement
+    ) {
+      Object.defineProperty(this, 'files', {
+        value: [{ size: 1000, text: async () => JSON.stringify(imported) }],
+      });
+      this.dispatchEvent(new Event('change'));
+    });
+
+    control('#config-load').click();
+    await vi.advanceTimersByTimeAsync(300);
+
+    const message = control('#config-message');
+    expect(message.classList).toContain('config-message--errors');
+    expect(message.textContent).toContain('$.selectedItems[0].itemId');
+    expect(message).toBe(document.activeElement);
+    control<HTMLButtonElement>('#config-message button').click();
+    await vi.runAllTimersAsync();
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining('$.selectedItems[0].itemId')
+    );
+    expect(entries.get('bbk:config')).toBe(before);
+    expect(control<HTMLInputElement>('#cb-allgemeine-abgabe').checked).toBe(true);
+  });
 });

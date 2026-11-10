@@ -1,0 +1,76 @@
+{
+  "format": "feedbackbogen-generator",
+  "schemaVersion": 5,
+  "language": "de",
+  "selectedItems": [
+    {
+      "categoryId": "allgemeine",
+      "itemId": "abgabe"
+    },
+    {
+      "categoryId": "custom_reflexion",
+      "itemId": "custom_transfer"
+    }
+  ],
+  "selectedProductFormats": [],
+  "scaleByCategory": {
+    "custom_reflexion": "punkte_10"
+  },
+  "scaleSettingsByCategory": {
+    "custom_reflexion": {
+      "min": 0,
+      "max": 10
+    }
+  },
+  "defaultScaleId": "verbal_5",
+  "documentTitle": {
+    "mode": "custom",
+    "custom": "Feedback zur Projektarbeit"
+  },
+  "header": {
+    "fields": [
+      {
+        "id": "name",
+        "label": "Name",
+        "value": ""
+      },
+      {
+        "id": "topic",
+        "label": "Thema",
+        "value": "Projektarbeit"
+      }
+    ]
+  },
+  "footerFields": {
+    "date": true,
+    "signature": true,
+    "grade": false
+  },
+  "customItems": [
+    {
+      "id": "custom_transfer",
+      "label": "Erkenntnisse werden auf neue Situationen übertragen",
+      "description": "Der Transfer wird an einem konkreten Beispiel erläutert.",
+      "categoryId": "custom_reflexion",
+      "custom": true
+    }
+  ],
+  "categoryOrder": ["allgemeine", "custom_reflexion"],
+  "itemOrderByCategory": {
+    "allgemeine": ["abgabe"],
+    "custom_reflexion": ["custom_transfer"]
+  },
+  "categoryTitleOverrides": {
+    "allgemeine": "Organisation"
+  },
+  "customCategories": [
+    {
+      "id": "custom_reflexion",
+      "title": "Transfer und Reflexion"
+    }
+  ],
+  "categoryWeights": {
+    "allgemeine": 40,
+    "custom_reflexion": 60
+  }
+}

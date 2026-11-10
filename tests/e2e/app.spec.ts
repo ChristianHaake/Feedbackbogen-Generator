@@ -397,7 +397,9 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await fs.writeFile(
       configPath,
       JSON.stringify({
-        schemaVersion: 4,
+        format: 'feedbackbogen-generator',
+        schemaVersion: 5,
+        language: 'de',
         selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
         selectedProductFormats: [],
         scaleByCategory: {},
@@ -431,7 +433,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
       'Rechtzeitige Abgabe'
     );
     await expect(page.locator('#config-message')).toHaveText(
-      'JSON importiert.'
+      'Config geöffnet: 1 Kategorie und 1 Kriterium.'
     );
   });
 
@@ -553,11 +555,58 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
         buffer: Buffer.from(JSON.stringify(config)),
       });
       await expect(page.locator('#config-message')).toBeVisible();
-      await expect(page.locator('#config-message')).toHaveText('Die Datei enthält keine gültige Feedbackbogen-Konfiguration.');
+      await expect(page.locator('#config-message')).toHaveClass(/config-message--errors/);
+      await expect(page.locator('#config-message')).toContainText(
+        'Die Config konnte nicht geöffnet werden.'
+      );
+      await expect(page.locator('#config-message button')).toHaveText(
+        'Fehler kopieren'
+      );
       await expect(page.locator('.a4-item')).toHaveCount(1);
       expect(await page.evaluate(() => window.localStorage.getItem('bbk:config'))).toBe(original);
     }
     expect(errors).toEqual([]);
+  });
+
+  test('Config language is applied when opening an AI-generated file', async ({ page }) => {
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            JSON.parse(window.localStorage.getItem('bbk:config')!).selectedItems
+              .length
+        )
+      )
+      .toBe(1);
+    const config = await page.evaluate(() =>
+      JSON.parse(window.localStorage.getItem('bbk:config')!)
+    );
+    config.language = 'en';
+    config.documentTitle = { mode: 'custom', custom: 'AI feedback form' };
+
+    const chooserPromise = page.waitForEvent('filechooser');
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toContain('kann nicht rückgängig gemacht werden');
+      await dialog.accept();
+    });
+    await page.locator('#config-load').click();
+    const chooser = await chooserPromise;
+    const loadPromise = page.waitForEvent('load');
+    await chooser.setFiles({
+      name: 'ai-config.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(config)),
+    });
+    await loadPromise;
+
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('#config-load')).toContainText('Open config');
+    await expect(page.locator('.a4-title')).toHaveText('AI feedback form');
+    await expect(page.locator('#config-message')).toContainText(
+      'Config opened:'
+    );
   });
 
   test('Replacing existing work with a valid import requires confirmation', async ({ page }) => {

@@ -30,14 +30,18 @@ export function getSavedLanguage(): LanguageCode {
   return 'de';
 }
 
-export function setLanguage(lang: LanguageCode) {
-  if (!LANGUAGE_CODES.includes(lang)) return;
+export function persistLanguage(lang: LanguageCode): boolean {
+  if (!LANGUAGE_CODES.includes(lang)) return false;
   try {
     localStorage.setItem('bbk:lang', lang);
-    location.reload();
+    return true;
   } catch {
-    // ignore
+    return false;
   }
+}
+
+export function setLanguage(lang: LanguageCode) {
+  if (persistLanguage(lang)) location.reload();
 }
 
 export const currentLanguage = getSavedLanguage();

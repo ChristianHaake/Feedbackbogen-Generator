@@ -8,8 +8,8 @@ export const es = {
     'Todos los datos permanecen localmente en el navegador. Sin transmisión al servidor.',
   watermark: 'Creado con el Generador de Feedback en fbg.haak3.de',
   toolbar: {
-    saveConfig: 'Guardar',
-    loadConfig: 'Cargar',
+    saveConfig: 'Descargar configuración',
+    loadConfig: 'Abrir configuración',
     undo: 'Deshacer',
     redo: 'Rehacer',
     reset: 'Restablecer',
@@ -187,6 +187,7 @@ export const es = {
     recoveryDownload: "Descargar los datos originales",
     storageError: "No se pudo guardar la configuración automáticamente. Descarga una copia JSON y comprueba el almacenamiento del navegador.",
     importConfirm: "Se sustituirá la configuración actual. Los cambios anteriores se pueden deshacer. ¿Continuar?",
+    importConfirmLanguage: "Se sustituirá la configuración actual y se cambiará el idioma. La aplicación se recargará; esta sustitución no se puede deshacer. ¿Continuar?",
 
     contentLoadError:
       'No se pudieron cargar los datos de contenido. Respaldo activado.',
@@ -201,6 +202,26 @@ export const es = {
     importTooComplex:
       'El archivo contiene demasiadas entradas o entradas demasiado largas.',
     importInvalidShape: 'El archivo no contiene una configuración válida.',
+    importErrorsTitle: 'No se pudo abrir la configuración.',
+    importCopyErrors: 'Copiar errores',
+    importErrorsCopied: 'Se copiaron los errores de importación.',
+    importMoreErrors: (count: number) => `Se encontraron ${count} errores más.`,
+    importedSummary: (categories: number, criteria: number) =>
+      `Configuración abierta: ${categories} categorías y ${criteria} criterios.`,
+    importFieldInvalid: (path: string) => `${path}: el valor o tipo de dato no es válido.`,
+    importUnknownField: (path: string) => `${path}: el campo no forma parte del esquema.`,
+    importDuplicateValue: (path: string, value: string) => `${path}: «${value}» está duplicado.`,
+    importIdentifiersInvalid: 'La configuración contiene identificadores inseguros o duplicados.',
+    importUnknownReference: (path: string, id: string) =>
+      `${path}: «${id}» no está definido o activo.`,
+    importReferenceCollision: (path: string, id: string) =>
+      `${path}: «${id}» entra en conflicto con una entrada del catálogo.`,
+    importScaleRangeInvalid: (
+      path: string,
+      min: number,
+      max: number,
+      steps: number
+    ) => `${path}: el intervalo debe estar entre ${min} y ${max} y tener como máximo ${steps} pasos.`,
     importMissingSelection:
       'La configuración está incompleta: "selectedItems" debe ser una lista.',
     importInvalidVersion:

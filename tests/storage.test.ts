@@ -1,6 +1,9 @@
+import fs from 'node:fs/promises';
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  CONFIG_FORMAT,
   CONFIG_SCHEMA_VERSION,
   CONFIG_LIMITS,
   configWithinLimits,
@@ -15,11 +18,46 @@ import {
   resolveSectionState,
   replaceStoredConfig,
   saveConfig,
+  validateConfigCatalog,
 } from '@/storage';
-import type { AppConfig } from '@/types';
+import type { AppConfig, Category, ProductFormatData, Scale } from '@/types';
+
+const catalog = {
+  categories: [
+    {
+      id: 'allgemeine',
+      title: 'Allgemein',
+      items: [
+        { id: 'abgabe', label: 'Abgabe' },
+        { id: 'vollstaendigkeit', label: 'Vollständigkeit' },
+      ],
+    },
+  ] satisfies Category[],
+  scales: [
+    {
+      id: 'verbal_5',
+      label: 'Verbal',
+      kind: 'verbal',
+      labels: ['Ja', 'Nein'],
+    },
+    {
+      id: 'punkte_10',
+      label: 'Punkte',
+      kind: 'numeric',
+      defaultMin: 0,
+      defaultMax: 10,
+      minLimit: 0,
+      maxLimit: 20,
+      maxSteps: 11,
+    },
+  ] satisfies Scale[],
+  productFormats: { groups: [] } satisfies ProductFormatData,
+};
 
 const config: AppConfig = {
+  format: CONFIG_FORMAT,
   schemaVersion: CONFIG_SCHEMA_VERSION,
+  language: 'de',
   selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
   selectedProductFormats: [],
   scaleByCategory: { allgemeine: 'punkte_10' },
@@ -58,6 +96,143 @@ describe('config storage', () => {
     saveConfig(config);
 
     expect(loadConfig()).toEqual(config);
+  });
+
+  it('accepts a minimal v5 config and fills optional defaults', () => {
+    const result = parseConfig({
+      format: CONFIG_FORMAT,
+      schemaVersion: CONFIG_SCHEMA_VERSION,
+      language: 'de',
+      selectedItems: [{ categoryId: 'allgemeine', itemId: 'abgabe' }],
+    });
+
+    expect(result).toMatchObject({
+      status: 'success',
+      config: {
+        format: CONFIG_FORMAT,
+        schemaVersion: CONFIG_SCHEMA_VERSION,
+        language: 'de',
+        selectedProductFormats: [],
+        customItems: [],
+        customCategories: [],
+      },
+    });
+  });
+
+  it('rejects unknown or malformed v5 fields instead of dropping them', () => {
+    const result = parseConfig({
+      format: CONFIG_FORMAT,
+      schemaVersion: CONFIG_SCHEMA_VERSION,
+      language: 'de',
+      selectedItems: [],
+      inventedRule: true,
+      customItems: [{ id: 'custom', label: 42, categoryId: 'allgemeine' }],
+      customCategories: [{ id: '', title: 'Kategorie' }],
+      header: { fields: [{ id: '', label: 'Feld' }] },
+    });
+
+    expect(result.status).toBe('error');
+    if (result.status === 'error')
+      expect(result.diagnostics?.map(({ path }) => path)).toEqual(
+        expect.arrayContaining([
+          '$.inventedRule',
+          '$.customItems[0].label',
+          '$.customCategories[0].id',
+          '$.header.fields[0].id',
+        ])
+      );
+  });
+
+  it('reports unsafe v5 identifiers at their field path', () => {
+    const result = parseConfig({
+      format: CONFIG_FORMAT,
+      schemaVersion: CONFIG_SCHEMA_VERSION,
+      language: 'de',
+      selectedItems: [{ categoryId: 'constructor', itemId: 'item' }],
+    });
+
+    expect(result.status).toBe('error');
+    if (result.status === 'error')
+      expect(result.diagnostics).toContainEqual(
+        expect.objectContaining({ path: '$.selectedItems[0].categoryId' })
+      );
+  });
+
+  it('accepts explicit custom content and rejects unresolved references', () => {
+    const customResult = parseConfig({
+      format: CONFIG_FORMAT,
+      schemaVersion: CONFIG_SCHEMA_VERSION,
+      language: 'de',
+      selectedItems: [{ categoryId: 'custom_cat', itemId: 'custom_item' }],
+      customCategories: [{ id: 'custom_cat', title: 'Eigene Kategorie' }],
+      customItems: [
+        { id: 'custom_item', label: 'Eigenes Kriterium', categoryId: 'custom_cat' },
+      ],
+    });
+    expect(customResult.status).toBe('success');
+    if (customResult.status === 'success')
+      expect(validateConfigCatalog(customResult.config, catalog)).toEqual([]);
+
+    const unresolved = { ...config, selectedItems: [{ categoryId: 'allgemeine', itemId: 'invented' }] };
+    expect(validateConfigCatalog(unresolved, catalog)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '$.selectedItems[0].itemId',
+          code: 'unknown-reference',
+        }),
+      ])
+    );
+  });
+
+  it('validates numeric scale ranges against the referenced catalog scale', () => {
+    expect(
+      validateConfigCatalog(
+        {
+          ...config,
+          scaleSettingsByCategory: { allgemeine: { min: 0, max: 20 } },
+        },
+        catalog
+      )
+    ).toEqual([
+      expect.objectContaining({
+        path: '$.scaleSettingsByCategory.allgemeine',
+        code: 'scale-range',
+      }),
+    ]);
+  });
+
+  it('rejects ordering entries that would be silently removed', () => {
+    expect(
+      validateConfigCatalog(
+        {
+          ...config,
+          customCategories: [{ id: 'unused_category', title: 'Unbenutzt' }],
+          categoryOrder: ['allgemeine', 'unused_category'],
+          itemOrderByCategory: {
+            allgemeine: ['abgabe', 'vollstaendigkeit'],
+          },
+        },
+        catalog
+      ).map(({ path }) => path)
+    ).toEqual(
+      expect.arrayContaining([
+        '$.categoryOrder[1]',
+        '$.itemOrderByCategory.allgemeine[1]',
+      ])
+    );
+  });
+
+  it('keeps the published v5 examples importable', async () => {
+    for (const name of ['minimal-v5.json', 'full-v5.json']) {
+      const raw = await fs.readFile(
+        `content/config/${name}`,
+        'utf8'
+      );
+      const result = parseConfig(JSON.parse(raw));
+      expect(result.status, name).toBe('success');
+      if (result.status === 'success')
+        expect(validateConfigCatalog(result.config, catalog), name).toEqual([]);
+    }
   });
 
   it('uses the same text and count limits for editor, saving and restoring', () => {
@@ -544,11 +719,11 @@ describe('config storage', () => {
     expect(parseConfig({ schemaVersion: 99, selectedItems: [] })).toEqual({
       status: 'error',
       message:
-        'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 4.',
+        'Die Config-Version 99 wird nicht unterstützt. Unterstützt wird Version 5.',
     });
   });
 
-  it('adds v4 fields with empty defaults when migrating a v3 config and preserves its order', () => {
+  it('adds v4 fields when migrating v3 and removes stale order entries', () => {
     const result = parseConfig({
       schemaVersion: 3,
       selectedItems: [{ categoryId: 'sachebene', itemId: 'tiefe' }],
@@ -560,7 +735,7 @@ describe('config storage', () => {
       status: 'success',
       config: {
         schemaVersion: CONFIG_SCHEMA_VERSION,
-        categoryOrder: ['allgemeine', 'sachebene'],
+        categoryOrder: ['sachebene'],
         categoryTitleOverrides: {},
         customCategories: [],
         categoryWeights: {},

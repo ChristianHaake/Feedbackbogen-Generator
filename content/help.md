@@ -42,11 +42,20 @@ Die Vorschau zeigt den fertigen Bogen. Für den Export stehen mehrere Formate be
 - XLSX für tabellarische Auswertung
 - ODT für weiteren Bearbeitung
 
-## Konfiguration speichern
+## Konfiguration herunterladen und öffnen
 
 Ihre Änderungen werden automatisch lokal im Browser gespeichert. Es werden keine eingegebenen Inhalte an den Betreiber übertragen.
 
-Mit „Config speichern“ laden Sie Ihre Konfiguration als JSON-Datei herunter. Über „Config laden“ können Sie diese später wiederverwenden oder weitergeben.
+Mit „Config herunterladen“ laden Sie Ihre Konfiguration als JSON-Datei herunter. Über „Config öffnen“ können Sie diese später wiederverwenden, weitergeben oder im normalen Editor weiterbearbeiten.
+
+Auch ein externes KI-Werkzeug kann eine passende Config-Datei erzeugen. Laden Sie diese anschließend über „Config öffnen“. Die Webapp prüft die Datei vollständig, bevor sie den aktuellen Arbeitsstand ersetzt. Eigene Inhalte müssen in der Datei ausdrücklich als `customItems` beziehungsweise `customCategories` definiert sein. Bei Fehlern bleibt die aktuelle Arbeit erhalten; über „Fehler kopieren“ können Sie die Diagnose zurück in das KI-Werkzeug übernehmen.
+
+Enthält die Config eine andere Sprache, wechselt die Webapp beim Öffnen die Sprache und lädt neu. Eine dadurch ersetzte bestehende Konfiguration kann nicht über Undo wiederhergestellt werden; die Webapp weist vor der Übernahme ausdrücklich darauf hin.
+
+Das Format, das JSON Schema und Beispiele sind öffentlich dokumentiert:
+https://fbg.haak3.de/content/config/schema-v5.json
+
+Die KI-Verarbeitung findet außerhalb dieser Webapp statt. Beim Öffnen einer Config werden keine Inhalte an den Betreiber oder einen KI-Dienst übertragen.
 
 ## Fachlicher Hintergrund
 

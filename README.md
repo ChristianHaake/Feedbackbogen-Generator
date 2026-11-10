@@ -108,6 +108,33 @@ Wichtige Skripte:
 
 ## Konfiguration
 
+### Bearbeitbare Projekt-Config und KI-Werkzeuge
+
+„Config herunterladen“ speichert den aktuellen Arbeitsstand als versionierte
+JSON-Datei. Dieselbe Datei kann von einem externen KI-Werkzeug erzeugt und über
+„Config öffnen“ direkt in den Editor geladen werden. Die Webapp überträgt dabei
+keine Inhalte an einen KI-Dienst oder an den Betreiber.
+
+Version 5 benötigt mindestens `format`, `schemaVersion`, `language` und
+`selectedItems`. Vorhandene Katalogeinträge werden über ihre stabilen IDs
+referenziert. Neue Inhalte müssen ausdrücklich als `customItems` und bei Bedarf
+als `customCategories` definiert werden. Unbekannte Referenzen, kollidierende IDs
+oder fehlerhafte Felder lehnt die Webapp vollständig ab; die aktuelle Arbeit
+bleibt bestehen und die Fehlerliste kann für die Korrektur im KI-Werkzeug
+kopiert werden.
+
+- [Formatbeschreibung](docs/config-format-v5.md)
+- [JSON Schema](content/config/schema-v5.json)
+- [Minimales Beispiel](content/config/minimal-v5.json)
+- [Vollständiges Beispiel](content/config/full-v5.json)
+- [KI-Skill mit Nutzertutorial](skill/feedbackbogen-config/SKILL.md)
+
+Die Katalog-IDs stehen weiterhin in den sprachbezogenen Dateien unter
+`content/<sprache>/`. Ein eingebauter KI-Dienst, YAML und eine zusätzliche
+Regel-Engine gehören nicht zum Config-Format.
+
+### Inhaltskataloge
+
 Die Standardkriterien, Skalen und produktformatspezifischen Kriterien werden pro Sprache in JSON gepflegt.
 
 Vereinfachtes Schema für `content/<sprache>/categories.json`:

@@ -8,8 +8,8 @@ export const en = {
     'All data remains locally in the browser. No server transmission.',
   watermark: 'Created with Feedback Form Generator at fbg.haak3.de',
   toolbar: {
-    saveConfig: 'Save Config',
-    loadConfig: 'Load Config',
+    saveConfig: 'Download config',
+    loadConfig: 'Open config',
     undo: 'Undo',
     redo: 'Redo',
     reset: 'Reset',
@@ -183,6 +183,7 @@ export const en = {
     recoveryDownload: "Download original saved data",
     storageError: "The configuration could not be saved automatically. Download a JSON backup and check browser storage.",
     importConfirm: "The current configuration will be replaced. Previous changes can be undone. Continue?",
+    importConfirmLanguage: "The current configuration will be replaced and the language changed. The app will reload; this replacement cannot be undone. Continue?",
 
     contentLoadError:
       'Content data could not be loaded or validated. Fallback activated.',
@@ -198,6 +199,26 @@ export const en = {
       'The file contains too many or too long entries for a feedback form configuration.',
     importInvalidShape:
       'The file does not contain a valid feedback form configuration.',
+    importErrorsTitle: 'The config could not be opened.',
+    importCopyErrors: 'Copy errors',
+    importErrorsCopied: 'Import errors copied.',
+    importMoreErrors: (count: number) => `${count} more errors were found.`,
+    importedSummary: (categories: number, criteria: number) =>
+      `Config opened: ${categories} categories and ${criteria} criteria.`,
+    importFieldInvalid: (path: string) => `${path}: value or data type is invalid.`,
+    importUnknownField: (path: string) => `${path}: field is not part of the config schema.`,
+    importDuplicateValue: (path: string, value: string) => `${path}: “${value}” is duplicated.`,
+    importIdentifiersInvalid: 'The config contains unsafe or duplicate IDs.',
+    importUnknownReference: (path: string, id: string) =>
+      `${path}: “${id}” is not defined or active.`,
+    importReferenceCollision: (path: string, id: string) =>
+      `${path}: “${id}” conflicts with an existing catalog entry.`,
+    importScaleRangeInvalid: (
+      path: string,
+      min: number,
+      max: number,
+      steps: number
+    ) => `${path}: range must be between ${min} and ${max} and contain at most ${steps} steps.`,
     importMissingSelection:
       'The config is incomplete: "selectedItems" must be a list.',
     importInvalidVersion: 'The config does not contain a valid schema version.',

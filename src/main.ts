@@ -19,6 +19,7 @@ import {
 import {
   strings,
   setLanguage,
+  persistLanguage,
   currentLanguage,
   type LanguageCode,
 } from './strings';
@@ -60,6 +61,9 @@ import {
   loadSectionState,
   saveSectionState,
   localizeDefaultHeaderFields,
+  validateConfigCatalog,
+  CONFIG_FORMAT,
+  type ConfigDiagnostic,
 } from './storage';
 import {
   mergeOrder,
@@ -122,6 +126,8 @@ async function bootstrap() {
     loadScales(baseUrl),
     loadProductFormats(baseUrl),
   ]);
+  const configCatalog = { categories, scales, productFormats };
+  const importSummaryKey = 'bbk:import-summary';
 
   // State
   let selected: SelectedItemRef[] = [];
@@ -203,6 +209,7 @@ async function bootstrap() {
   let routeRenderId = 0;
   let previewFrame: number | undefined;
   let persistTimer: ReturnType<typeof setTimeout> | undefined;
+  let suppressPersist = false;
   let lastTextEdit: { key: string; time: number } | undefined;
   const MAX_HISTORY = 100;
   let configBytes: number | undefined;
@@ -918,12 +925,58 @@ async function bootstrap() {
 
   let configMessageTimeout: number | undefined;
   function showConfigMessage(message: string) {
+    configMessageEl.classList.remove('config-message--errors');
     configMessageEl.textContent = message;
+    configMessageEl.removeAttribute('tabindex');
     configMessageEl.hidden = false;
     if (configMessageTimeout) window.clearTimeout(configMessageTimeout);
     configMessageTimeout = window.setTimeout(() => {
       configMessageEl.hidden = true;
     }, 8000);
+  }
+
+  function showImportDiagnostics(
+    message: string,
+    diagnostics: ConfigDiagnostic[]
+  ) {
+    if (configMessageTimeout) window.clearTimeout(configMessageTimeout);
+    const visible = diagnostics.slice(0, 20);
+    const title = document.createElement('strong');
+    title.textContent = strings.messages.importErrorsTitle;
+    const summary = document.createElement('p');
+    summary.textContent = message;
+    const list = document.createElement('ul');
+    visible.forEach((diagnostic) => {
+      const item = document.createElement('li');
+      item.textContent = diagnostic.message;
+      list.append(item);
+    });
+    const more = document.createElement('p');
+    more.hidden = diagnostics.length <= visible.length;
+    more.textContent = strings.messages.importMoreErrors(
+      diagnostics.length - visible.length
+    );
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'btn btn-small';
+    copy.textContent = strings.messages.importCopyErrors;
+    copy.addEventListener('click', async () => {
+      const text = diagnostics
+        .map(({ path, code, message: detail }) => `${path} [${code}] ${detail}`)
+        .join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+        announce(strings.messages.importErrorsCopied);
+      } catch {
+        announce(message);
+      }
+    });
+    configMessageEl.replaceChildren(title, summary, list, more, copy);
+    configMessageEl.classList.add('config-message--errors');
+    configMessageEl.tabIndex = -1;
+    configMessageEl.hidden = false;
+    configMessageEl.focus();
+    announce(`${strings.messages.importErrorsTitle} ${message}`);
   }
 
   function showToast(message: string, kind: 'loading' | 'success' | 'error') {
@@ -1054,7 +1107,9 @@ async function bootstrap() {
 
   function currentConfig(): AppConfig {
     return {
+      format: CONFIG_FORMAT,
       schemaVersion: CONFIG_SCHEMA_VERSION,
+      language: currentLanguage,
       selectedItems: selected,
       selectedProductFormats,
       scaleByCategory: scaleByCategoryMap,
@@ -1075,6 +1130,7 @@ async function bootstrap() {
   function autoPersist() {
     if (persistTimer) clearTimeout(persistTimer);
     persistTimer = undefined;
+    if (suppressPersist) return;
     if (!saveConfig(currentConfig()) && getConfigRecovery() === null) {
       showConfigMessage(strings.messages.storageError);
     }
@@ -1357,11 +1413,35 @@ async function bootstrap() {
     workspaceEl.before(recoveryNotice);
   }
 
+  try {
+    const rawSummary = sessionStorage.getItem(importSummaryKey);
+    if (rawSummary) {
+      sessionStorage.removeItem(importSummaryKey);
+      const summary = JSON.parse(rawSummary) as {
+        categories: number;
+        criteria: number;
+      };
+      const message = strings.messages.importedSummary(
+        summary.categories,
+        summary.criteria
+      );
+      showConfigMessage(message);
+      announce(message);
+    }
+  } catch {
+    /* Import succeeded; the one-time summary is non-critical. */
+  }
+
   function importMatchesCatalog(config: AppConfig): boolean {
-    const baseCategories = [...categories, ...selectedProductFormatCategories(productFormats, productFormats.groups.flatMap(group => group.formats.map(format => format.id)))];
-    if (config.customCategories.some(custom => baseCategories.some(base => base.id === custom.id))) return false;
-    const baseItemIds = new Set(baseCategories.flatMap(category => flattenedCategoryItems(category).map(item => item.id)));
-    return config.customItems.every(custom => !baseItemIds.has(custom.id));
+    return validateConfigCatalog(config, configCatalog).length === 0;
+  }
+
+  function importedCounts(config: AppConfig) {
+    return {
+      categories: new Set(config.selectedItems.map(({ categoryId }) => categoryId))
+        .size,
+      criteria: config.selectedItems.length,
+    };
   }
 
   // Toolbar
@@ -1371,20 +1451,52 @@ async function bootstrap() {
     announce(strings.messages.saved);
   };
   const importJson = async () => {
-    const result = await importConfigJSON();
+    const result = await importConfigJSON(configCatalog);
     if (result.status === 'success') {
-      if (!importMatchesCatalog(result.config)) { showConfigMessage(strings.messages.importInvalidShape); return; }
       const defaults = createDefaultConfig(scales[0]?.id ?? 'verbal_5');
-      if ((getConfigRecovery() !== null || JSON.stringify(currentConfig()) !== JSON.stringify(defaults)) && !window.confirm(strings.messages.importConfirm)) return;
+      const changesLanguage = result.config.language !== currentLanguage;
+      const confirmMessage = changesLanguage
+        ? strings.messages.importConfirmLanguage
+        : strings.messages.importConfirm;
+      if ((getConfigRecovery() !== null || JSON.stringify(currentConfig()) !== JSON.stringify(defaults)) && !window.confirm(confirmMessage)) return;
+      const counts = importedCounts(result.config);
+      if (changesLanguage) {
+        if (persistLanguage(result.config.language)) {
+          suppressPersist = true;
+          const stored = replaceStoredConfig(result.config);
+          if (stored) {
+            recoveryNotice?.remove();
+            try {
+              sessionStorage.setItem(importSummaryKey, JSON.stringify(counts));
+            } catch {
+              /* Summary is non-critical. */
+            }
+            location.reload();
+            return;
+          }
+          suppressPersist = false;
+          persistLanguage(currentLanguage);
+        }
+        replaceConfig(result.config, true, strings.history.configLoaded);
+        showConfigMessage(strings.messages.storageError);
+        announce(strings.messages.storageError);
+        return;
+      }
       const stored = replaceStoredConfig(result.config);
       if (stored) recoveryNotice?.remove();
       replaceConfig(result.config, true, strings.history.configLoaded);
-      const message = stored ? strings.messages.imported : strings.messages.storageError;
+      const message = stored
+        ? strings.messages.importedSummary(counts.categories, counts.criteria)
+        : strings.messages.storageError;
       showConfigMessage(message);
       announce(message);
     } else if (result.status === 'error') {
-      showConfigMessage(result.message);
-      announce(result.message);
+      if (result.diagnostics?.length)
+        showImportDiagnostics(result.message, result.diagnostics);
+      else {
+        showConfigMessage(result.message);
+        announce(result.message);
+      }
     }
   };
   document
@@ -1397,7 +1509,8 @@ async function bootstrap() {
     .forEach((btn) => {
       btn.addEventListener('click', async () => {
         await importJson();
-        btn.focus();
+        if (!configMessageEl.classList.contains('config-message--errors'))
+          btn.focus();
       });
     });
   document

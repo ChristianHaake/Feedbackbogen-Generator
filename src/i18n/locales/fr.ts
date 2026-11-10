@@ -8,8 +8,8 @@ export const fr = {
     'Toutes les données restent localement dans le navigateur. Aucune transmission au serveur.',
   watermark: 'Créé avec le Générateur de Feedback sur fbg.haak3.de',
   toolbar: {
-    saveConfig: 'Enregistrer',
-    loadConfig: 'Charger',
+    saveConfig: 'Télécharger la configuration',
+    loadConfig: 'Ouvrir la configuration',
     undo: 'Annuler',
     redo: 'Rétablir',
     reset: 'Réinitialiser',
@@ -186,6 +186,7 @@ export const fr = {
     recoveryDownload: "Télécharger les données originales",
     storageError: "La configuration ne peut pas être enregistrée automatiquement. Téléchargez une sauvegarde JSON et vérifiez le stockage du navigateur.",
     importConfirm: "La configuration actuelle sera remplacée. Les modifications précédentes peuvent être annulées. Continuer ?",
+    importConfirmLanguage: "La configuration actuelle sera remplacée et la langue changée. L’application sera rechargée ; ce remplacement ne pourra pas être annulé. Continuer ?",
 
     contentLoadError:
       "Les données de contenu n'ont pas pu être chargées ou validées. Solution de repli activée.",
@@ -201,6 +202,26 @@ export const fr = {
     importTooComplex:
       'Le fichier contient trop d’entrées ou des entrées trop longues.',
     importInvalidShape: 'Le fichier ne contient pas de configuration valide.',
+    importErrorsTitle: 'La configuration n’a pas pu être ouverte.',
+    importCopyErrors: 'Copier les erreurs',
+    importErrorsCopied: 'Erreurs d’importation copiées.',
+    importMoreErrors: (count: number) => `${count} erreurs supplémentaires ont été trouvées.`,
+    importedSummary: (categories: number, criteria: number) =>
+      `Configuration ouverte : ${categories} catégories et ${criteria} critères.`,
+    importFieldInvalid: (path: string) => `${path} : valeur ou type de données invalide.`,
+    importUnknownField: (path: string) => `${path} : champ absent du schéma de configuration.`,
+    importDuplicateValue: (path: string, value: string) => `${path} : « ${value} » est présent plusieurs fois.`,
+    importIdentifiersInvalid: 'La configuration contient des identifiants non sûrs ou dupliqués.',
+    importUnknownReference: (path: string, id: string) =>
+      `${path} : « ${id} » n’est pas défini ou actif.`,
+    importReferenceCollision: (path: string, id: string) =>
+      `${path} : « ${id} » entre en conflit avec une entrée du catalogue.`,
+    importScaleRangeInvalid: (
+      path: string,
+      min: number,
+      max: number,
+      steps: number
+    ) => `${path} : la plage doit être comprise entre ${min} et ${max} et contenir au maximum ${steps} niveaux.`,
     importMissingSelection:
       'La configuration est incomplète : "selectedItems" doit être une liste.',
     importInvalidVersion:

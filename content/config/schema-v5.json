@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fbg.haak3.de/content/config/schema-v5.json",
+  "title": "Feedbackbogen-Generator Config v5",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "schemaVersion", "language", "selectedItems"],
+  "properties": {
+    "format": { "const": "feedbackbogen-generator" },
+    "schemaVersion": { "const": 5 },
+    "language": { "enum": ["de", "en", "es", "fr", "nl"] },
+    "selectedItems": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/selectedItem" }
+    },
+    "selectedProductFormats": {
+      "type": "array",
+      "maxItems": 300,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "scaleByCategory": { "$ref": "#/$defs/stringMap" },
+    "scaleSettingsByCategory": {
+      "type": "object",
+      "maxProperties": 1500,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/numericRange" }
+    },
+    "defaultScaleId": { "$ref": "#/$defs/id" },
+    "documentTitle": { "$ref": "#/$defs/documentTitle" },
+    "header": { "$ref": "#/$defs/header" },
+    "footerFields": { "$ref": "#/$defs/footerFields" },
+    "customItems": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/customItem" }
+    },
+    "categoryOrder": {
+      "type": "array",
+      "maxItems": 1500,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "itemOrderByCategory": {
+      "type": "object",
+      "maxProperties": 1500,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": {
+        "type": "array",
+        "maxItems": 1500,
+        "uniqueItems": true,
+        "items": { "$ref": "#/$defs/id" }
+      }
+    },
+    "categoryTitleOverrides": {
+      "type": "object",
+      "maxProperties": 1500,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/trimmedText" }
+    },
+    "customCategories": {
+      "type": "array",
+      "maxItems": 200,
+      "items": { "$ref": "#/$defs/customCategory" }
+    },
+    "categoryWeights": {
+      "type": "object",
+      "maxProperties": 1500,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 100
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "maxLength": 2000,
+      "not": {
+        "enum": [
+          "prototype",
+          "constructor",
+          "__defineGetter__",
+          "__defineSetter__",
+          "hasOwnProperty",
+          "__lookupGetter__",
+          "__lookupSetter__",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toString",
+          "valueOf",
+          "__proto__",
+          "toLocaleString"
+        ]
+      }
+    },
+    "text": { "type": "string", "maxLength": 2000 },
+    "nonEmptyText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": ".*\\S.*"
+    },
+    "trimmedText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "^\\S(?:.*\\S)?$"
+    },
+    "selectedItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["categoryId", "itemId"],
+      "properties": {
+        "categoryId": { "$ref": "#/$defs/id" },
+        "itemId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "numericRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer" },
+        "max": { "type": "integer" }
+      }
+    },
+    "documentTitle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["bewertungsbogen", "feedbackbogen", "custom"]
+        },
+        "custom": { "$ref": "#/$defs/text" }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "label": { "$ref": "#/$defs/trimmedText" },
+              "value": { "$ref": "#/$defs/text" }
+            }
+          }
+        }
+      }
+    },
+    "footerFields": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "date": { "type": "boolean" },
+        "signature": { "type": "boolean" },
+        "grade": { "type": "boolean" }
+      }
+    },
+    "customItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "categoryId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "$ref": "#/$defs/nonEmptyText" },
+        "description": { "$ref": "#/$defs/text" },
+        "categoryId": { "$ref": "#/$defs/id" },
+        "custom": { "const": true }
+      }
+    },
+    "customCategory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/trimmedText" }
+      }
+    },
+    "stringMap": {
+      "type": "object",
+      "maxProperties": 1500,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/id" }
+    }
+  }
+}

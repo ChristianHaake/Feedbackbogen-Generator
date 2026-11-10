@@ -3,9 +3,15 @@ import {
   itemOrderFromSelection,
   uniqueStrings,
 } from './config-order';
-import { strings, LOCALES, LANGUAGE_CODES } from './strings';
+import {
+  currentLanguage,
+  strings,
+  LOCALES,
+  LANGUAGE_CODES,
+} from './strings';
 import type {
   AppConfig,
+  Category,
   CustomCategory,
   CustomItem,
   DocumentTitleConfig,
@@ -14,6 +20,8 @@ import type {
   HeaderData,
   HeaderField,
   NumericScaleSettings,
+  ProductFormatData,
+  Scale,
   SelectedItemRef,
 } from './types';
 
@@ -30,7 +38,8 @@ const MAX_IMPORTED_CUSTOM_ITEMS = 1_000;
 const MAX_IMPORTED_CUSTOM_CATEGORIES = 200;
 const MAX_IMPORTED_ORDER_IDS = 1_500;
 const MAX_IMPORTED_MAP_ENTRIES = 1_500;
-export const CONFIG_SCHEMA_VERSION = 4;
+export const CONFIG_FORMAT = 'feedbackbogen-generator' as const;
+export const CONFIG_SCHEMA_VERSION = 5;
 export const CONFIG_LIMITS = {
   bytes: MAX_IMPORT_BYTES,
   stringLength: MAX_IMPORT_STRING_LENGTH,
@@ -85,11 +94,23 @@ export function saveSectionState(state: SectionState): void {
 export type ConfigImportResult =
   | { status: 'success'; config: AppConfig }
   | { status: 'cancelled' }
-  | { status: 'error'; message: string };
+  | { status: 'error'; message: string; diagnostics?: ConfigDiagnostic[] };
+
+export type ConfigDiagnostic = {
+  path: string;
+  code: string;
+  message: string;
+};
+
+export type ConfigCatalog = {
+  categories: Category[];
+  scales: Scale[];
+  productFormats: ProductFormatData;
+};
 
 type ConfigParseResult =
   | { status: 'success'; config: AppConfig }
-  | { status: 'error'; message: string };
+  | { status: 'error'; message: string; diagnostics?: ConfigDiagnostic[] };
 
 export const DEFAULT_HEADER_FIELDS: HeaderField[] = [
   { id: 'name', label: strings.kopfdaten.learner, value: '' },
@@ -143,7 +164,9 @@ export function localizeDefaultHeaderFields(
 
 export function createDefaultConfig(defaultScaleId?: string): AppConfig {
   return {
+    format: CONFIG_FORMAT,
     schemaVersion: CONFIG_SCHEMA_VERSION,
+    language: currentLanguage,
     selectedItems: [],
     selectedProductFormats: [],
     scaleByCategory: {},
@@ -367,7 +390,7 @@ function normalizeWeights(value: unknown): Record<string, number> {
         (entry): entry is [string, number] =>
           typeof entry[1] === 'number' &&
           Number.isFinite(entry[1]) &&
-          entry[1] > 0
+          entry[1] >= 0
       )
       .map(([key, val]) => [key, Math.min(100, Math.max(0, val))])
   );
@@ -454,6 +477,288 @@ function isSafeId(value: string): boolean {
   );
 }
 
+function strictV5Diagnostics(value: Record<string, unknown>): ConfigDiagnostic[] {
+  const diagnostics: ConfigDiagnostic[] = [];
+  const add = (path: string, code: string, message: string) =>
+    diagnostics.push({ path, code, message });
+  const invalid = (path: string) =>
+    add(path, 'invalid-field', strings.messages.importFieldInvalid(path));
+  const object = (
+    candidate: unknown,
+    path: string,
+    allowedKeys: string[] | null
+  ): Record<string, unknown> | null => {
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+      invalid(path);
+      return null;
+    }
+    const record = candidate as Record<string, unknown>;
+    for (const key of Object.keys(record))
+      if (allowedKeys && !allowedKeys.includes(key))
+        add(
+          `${path}.${key}`,
+          'unknown-field',
+          strings.messages.importUnknownField(`${path}.${key}`)
+        );
+    return record;
+  };
+  const stringField = (
+    record: Record<string, unknown>,
+    key: string,
+    path: string,
+    required = false,
+    values?: readonly string[],
+    id = false
+  ) => {
+    const candidate = record[key];
+    if (candidate === undefined && !required) return;
+    if (
+      typeof candidate !== 'string' ||
+      (values && !values.includes(candidate)) ||
+      (id && typeof candidate === 'string' && !isSafeId(candidate))
+    )
+      invalid(`${path}.${key}`);
+  };
+  const stringList = (candidate: unknown, path: string) => {
+    if (!Array.isArray(candidate)) {
+      invalid(path);
+      return;
+    }
+    const seen = new Set<string>();
+    candidate.forEach((entry, index) => {
+      const entryPath = `${path}[${index}]`;
+      if (typeof entry !== 'string') return invalid(entryPath);
+      if (!isSafeId(entry)) invalid(entryPath);
+      if (seen.has(entry))
+        add(
+          entryPath,
+          'duplicate-value',
+          strings.messages.importDuplicateValue(entryPath, entry)
+        );
+      seen.add(entry);
+    });
+  };
+  const stringMap = (
+    candidate: unknown,
+    path: string,
+    trimmed = false,
+    valuesAreIds = true
+  ) => {
+    const record = object(candidate, path, null);
+    if (!record) return;
+    for (const [key, entry] of Object.entries(record)) {
+      if (!isSafeId(key)) invalid(`${path}.${key}`);
+      if (
+        typeof entry !== 'string' ||
+        (trimmed && (entry.trim() === '' || entry !== entry.trim())) ||
+        (valuesAreIds && typeof entry === 'string' && !isSafeId(entry))
+      )
+        invalid(`${path}.${key}`);
+    }
+  };
+
+  const top = object(value, '$', [
+    'format',
+    'schemaVersion',
+    'language',
+    'selectedItems',
+    'selectedProductFormats',
+    'scaleByCategory',
+    'scaleSettingsByCategory',
+    'defaultScaleId',
+    'documentTitle',
+    'header',
+    'footerFields',
+    'customItems',
+    'categoryOrder',
+    'itemOrderByCategory',
+    'categoryTitleOverrides',
+    'customCategories',
+    'categoryWeights',
+  ]);
+  if (!top) return diagnostics;
+
+  stringField(top, 'format', '$', true, [CONFIG_FORMAT]);
+  if (top.schemaVersion !== CONFIG_SCHEMA_VERSION) invalid('$.schemaVersion');
+  stringField(top, 'language', '$', true, LANGUAGE_CODES);
+
+  if (!Array.isArray(top.selectedItems)) invalid('$.selectedItems');
+  else {
+    const seen = new Set<string>();
+    top.selectedItems.forEach((entry, index) => {
+      const path = `$.selectedItems[${index}]`;
+      const item = object(entry, path, ['categoryId', 'itemId']);
+      if (!item) return;
+      stringField(item, 'categoryId', path, true, undefined, true);
+      stringField(item, 'itemId', path, true, undefined, true);
+      if (item.categoryId === 'produktebene') invalid(`${path}.categoryId`);
+      if (typeof item.categoryId === 'string' && typeof item.itemId === 'string') {
+        const key = `${item.categoryId}\u0000${item.itemId}`;
+        if (seen.has(key))
+          add(
+            path,
+            'duplicate-value',
+            strings.messages.importDuplicateValue(
+              path,
+              `${item.categoryId}/${item.itemId}`
+            )
+          );
+        seen.add(key);
+      }
+    });
+  }
+
+  if (top.selectedProductFormats !== undefined)
+    stringList(top.selectedProductFormats, '$.selectedProductFormats');
+  if (top.categoryOrder !== undefined)
+    stringList(top.categoryOrder, '$.categoryOrder');
+  if (top.defaultScaleId !== undefined)
+    stringField(top, 'defaultScaleId', '$', false, undefined, true);
+
+  for (const [key, path] of [
+    ['scaleByCategory', '$.scaleByCategory'],
+    ['categoryTitleOverrides', '$.categoryTitleOverrides'],
+  ] as const) {
+    if (top[key] !== undefined)
+      stringMap(
+        top[key],
+        path,
+        key === 'categoryTitleOverrides',
+        key !== 'categoryTitleOverrides'
+      );
+  }
+
+  if (top.scaleSettingsByCategory !== undefined) {
+    const settings = object(
+      top.scaleSettingsByCategory,
+      '$.scaleSettingsByCategory',
+      null
+    );
+    if (settings)
+      for (const [categoryId, entry] of Object.entries(settings)) {
+        const path = `$.scaleSettingsByCategory.${categoryId}`;
+        if (!isSafeId(categoryId)) invalid(path);
+        const range = object(entry, path, ['min', 'max']);
+        if (!range) continue;
+        for (const key of ['min', 'max'])
+          if (!Number.isInteger(range[key])) invalid(`${path}.${key}`);
+      }
+  }
+
+  if (top.itemOrderByCategory !== undefined) {
+    const order = object(top.itemOrderByCategory, '$.itemOrderByCategory', null);
+    if (order)
+      for (const [categoryId, itemIds] of Object.entries(order)) {
+        if (!isSafeId(categoryId))
+          invalid(`$.itemOrderByCategory.${categoryId}`);
+        stringList(itemIds, `$.itemOrderByCategory.${categoryId}`);
+      }
+  }
+
+  if (top.categoryWeights !== undefined) {
+    const weights = object(top.categoryWeights, '$.categoryWeights', null);
+    if (weights)
+      for (const [categoryId, weight] of Object.entries(weights)) {
+        if (!isSafeId(categoryId)) invalid(`$.categoryWeights.${categoryId}`);
+        if (
+          typeof weight !== 'number' ||
+          !Number.isFinite(weight) ||
+          weight < 0 ||
+          weight > 100
+        )
+          invalid(`$.categoryWeights.${categoryId}`);
+      }
+  }
+
+  if (top.documentTitle !== undefined) {
+    const title = object(top.documentTitle, '$.documentTitle', ['mode', 'custom']);
+    if (title) {
+      stringField(title, 'mode', '$.documentTitle', false, [
+        'bewertungsbogen',
+        'feedbackbogen',
+        'custom',
+      ]);
+      stringField(title, 'custom', '$.documentTitle');
+    }
+  }
+
+  if (top.header !== undefined) {
+    const header = object(top.header, '$.header', ['fields']);
+    if (header?.fields !== undefined) {
+      if (!Array.isArray(header.fields)) invalid('$.header.fields');
+      else
+        header.fields.forEach((entry, index) => {
+          const path = `$.header.fields[${index}]`;
+          const field = object(entry, path, ['id', 'label', 'value']);
+          if (!field) return;
+          stringField(field, 'id', path, true, undefined, true);
+          stringField(field, 'label', path, true);
+          stringField(field, 'value', path);
+          if (
+            typeof field.label === 'string' &&
+            (field.label.trim() === '' || field.label !== field.label.trim())
+          )
+            invalid(`${path}.label`);
+        });
+    }
+  }
+
+  if (top.footerFields !== undefined) {
+    const footer = object(top.footerFields, '$.footerFields', [
+      'date',
+      'signature',
+      'grade',
+    ]);
+    if (footer)
+      for (const key of ['date', 'signature', 'grade'])
+        if (footer[key] !== undefined && typeof footer[key] !== 'boolean')
+          invalid(`$.footerFields.${key}`);
+  }
+
+  if (top.customItems !== undefined) {
+    if (!Array.isArray(top.customItems)) invalid('$.customItems');
+    else
+      top.customItems.forEach((entry, index) => {
+        const path = `$.customItems[${index}]`;
+        const item = object(entry, path, [
+          'id',
+          'label',
+          'description',
+          'categoryId',
+          'custom',
+        ]);
+        if (!item) return;
+        stringField(item, 'id', path, true, undefined, true);
+        stringField(item, 'label', path, true);
+        stringField(item, 'description', path);
+        stringField(item, 'categoryId', path, true, undefined, true);
+        if (item.custom !== undefined && item.custom !== true)
+          invalid(`${path}.custom`);
+        if (typeof item.label === 'string' && item.label.trim() === '')
+          invalid(`${path}.label`);
+      });
+  }
+
+  if (top.customCategories !== undefined) {
+    if (!Array.isArray(top.customCategories)) invalid('$.customCategories');
+    else
+      top.customCategories.forEach((entry, index) => {
+        const path = `$.customCategories[${index}]`;
+        const category = object(entry, path, ['id', 'title']);
+        if (!category) return;
+        stringField(category, 'id', path, true, undefined, true);
+        stringField(category, 'title', path, true);
+        if (
+          typeof category.title === 'string' &&
+          (category.title.trim() === '' || category.title !== category.title.trim())
+        )
+          invalid(`${path}.title`);
+      });
+  }
+
+  return diagnostics;
+}
+
 function hasSafeIdentifiers(config: AppConfig): boolean {
   const uniqueIds = (ids: string[]) =>
     ids.every(isSafeId) && new Set(ids).size === ids.length;
@@ -506,24 +811,68 @@ function migrateConfig(value: Record<string, unknown>): ConfigParseResult {
       ),
     };
   }
-  if (schemaVersion === CONFIG_SCHEMA_VERSION) return normalizeConfig(value);
+  if (value.format !== undefined && value.format !== CONFIG_FORMAT)
+    return {
+      status: 'error',
+      message: strings.messages.importInvalidShape,
+      diagnostics: [
+        {
+          path: '$.format',
+          code: 'invalid-format',
+          message: strings.messages.importFieldInvalid('$.format'),
+        },
+      ],
+    };
+  if (schemaVersion === CONFIG_SCHEMA_VERSION) {
+    const diagnostics = strictV5Diagnostics(value);
+    return diagnostics.length
+      ? {
+          status: 'error',
+          message: strings.messages.importInvalidShape,
+          diagnostics,
+        }
+      : normalizeConfig(value);
+  }
 
-  // Older config: derive ordering from selection only when the fields are absent
-  // (pre-v3). v3 configs already carry explicit order — preserve it, just add the
-  // v4 fields (which normalizeConfig defaults from missing). New fields need no
-  // special migration: their normalizers return empty defaults when absent.
+  // Older configs may contain stale order entries. Preserve the relative order
+  // of selected content and add missing selected IDs before upgrading to v5.
   const selectedItems = Array.isArray(value.selectedItems)
     ? value.selectedItems
         .map(normalizeSelectedItem)
         .filter((item): item is SelectedItemRef => item !== null)
     : [];
+  const selectedCategoryOrder = categoryOrderFromSelection(selectedItems);
+  const rawCategoryOrder = normalizeStringArray(
+    value.categoryOrder ?? selectedCategoryOrder
+  );
+  const selectedCategoryIds = new Set(selectedCategoryOrder);
+  const categoryOrder = uniqueStrings([
+    ...rawCategoryOrder.filter((id) => selectedCategoryIds.has(id)),
+    ...selectedCategoryOrder,
+  ]);
+  const selectedItemOrder = itemOrderFromSelection(selectedItems);
+  const rawItemOrder = normalizeItemOrder(
+    value.itemOrderByCategory ?? selectedItemOrder
+  );
+  const itemOrderByCategory = Object.fromEntries(
+    categoryOrder.map((categoryId) => {
+      const selectedIds = new Set(selectedItemOrder[categoryId] ?? []);
+      return [
+        categoryId,
+        uniqueStrings([
+          ...(rawItemOrder[categoryId] ?? []).filter((id) =>
+            selectedIds.has(id)
+          ),
+          ...(selectedItemOrder[categoryId] ?? []),
+        ]),
+      ];
+    })
+  );
   return normalizeConfig({
     ...value,
     schemaVersion: CONFIG_SCHEMA_VERSION,
-    categoryOrder:
-      value.categoryOrder ?? categoryOrderFromSelection(selectedItems),
-    itemOrderByCategory:
-      value.itemOrderByCategory ?? itemOrderFromSelection(selectedItems),
+    categoryOrder,
+    itemOrderByCategory,
   });
 }
 
@@ -543,7 +892,13 @@ function normalizeConfig(value: Record<string, unknown>): ConfigParseResult {
   return {
     status: 'success',
     config: {
+      format: CONFIG_FORMAT,
       schemaVersion: CONFIG_SCHEMA_VERSION,
+      language:
+        typeof value.language === 'string' &&
+        LANGUAGE_CODES.includes(value.language as (typeof LANGUAGE_CODES)[number])
+          ? (value.language as AppConfig['language'])
+          : currentLanguage,
       selectedItems,
       selectedProductFormats: normalizeStringArray(
         value.selectedProductFormats
@@ -582,7 +937,12 @@ export function parseConfig(value: unknown): ConfigParseResult {
   }
   const raw = value as Record<string, unknown>;
   // Legacy migration indexes categories before normalization.
+  const legacyVersion =
+    raw.schemaVersion === undefined ||
+    (typeof raw.schemaVersion === 'number' &&
+      raw.schemaVersion < CONFIG_SCHEMA_VERSION);
   if (
+    legacyVersion &&
     Array.isArray(raw.selectedItems) &&
     raw.selectedItems.some((entry) => {
       const item = normalizeSelectedItem(entry);
@@ -592,8 +952,198 @@ export function parseConfig(value: unknown): ConfigParseResult {
     return { status: 'error', message: strings.messages.importInvalidShape };
   const result = migrateConfig(raw);
   return result.status === 'success' && !hasSafeIdentifiers(result.config)
-    ? { status: 'error', message: strings.messages.importInvalidShape }
+    ? {
+        status: 'error',
+        message: strings.messages.importInvalidShape,
+        diagnostics: [
+          {
+            path: '$',
+            code: 'unsafe-or-duplicate-id',
+            message: strings.messages.importIdentifiersInvalid,
+          },
+        ],
+      }
     : result;
+}
+
+export function validateConfigCatalog(
+  config: AppConfig,
+  catalog: ConfigCatalog
+): ConfigDiagnostic[] {
+  const diagnostics: ConfigDiagnostic[] = [];
+  const addUnknown = (path: string, id: string) =>
+    diagnostics.push({
+      path,
+      code: 'unknown-reference',
+      message: strings.messages.importUnknownReference(path, id),
+    });
+  const itemsByCategory = new Map<string, Set<string>>();
+  const catalogItemIds = new Set<string>();
+  const catalogCategoryIds = new Set<string>();
+
+  const addCategory = (categoryId: string, itemIds: string[]) => {
+    catalogCategoryIds.add(categoryId);
+    itemsByCategory.set(categoryId, new Set(itemIds));
+    itemIds.forEach((id) => catalogItemIds.add(id));
+  };
+  for (const category of catalog.categories)
+    addCategory(category.id, [
+      ...(category.items ?? []).map(({ id }) => id),
+      ...(category.groups ?? []).flatMap(({ items }) =>
+        items.map(({ id }) => id)
+      ),
+    ]);
+
+  const productIds = new Set<string>();
+  for (const group of catalog.productFormats.groups)
+    for (const format of group.formats) {
+      productIds.add(format.id);
+      addCategory(
+        format.id,
+        format.criteria.map(({ id }) => id)
+      );
+    }
+
+  const scaleById = new Map(catalog.scales.map((scale) => [scale.id, scale]));
+  const customCategoryIds = new Set<string>();
+  config.customCategories.forEach((category, index) => {
+    if (catalogCategoryIds.has(category.id))
+      diagnostics.push({
+        path: `$.customCategories[${index}].id`,
+        code: 'catalog-collision',
+        message: strings.messages.importReferenceCollision(
+          `$.customCategories[${index}].id`,
+          category.id
+        ),
+      });
+    customCategoryIds.add(category.id);
+    itemsByCategory.set(category.id, new Set());
+  });
+
+  config.selectedProductFormats.forEach((id, index) => {
+    if (!productIds.has(id))
+      addUnknown(`$.selectedProductFormats[${index}]`, id);
+  });
+
+  const activeCategoryIds = new Set([
+    ...catalog.categories.map(({ id }) => id),
+    ...config.selectedProductFormats.filter((id) => productIds.has(id)),
+    ...customCategoryIds,
+  ]);
+
+  config.customItems.forEach((item, index) => {
+    const path = `$.customItems[${index}]`;
+    if (!activeCategoryIds.has(item.categoryId))
+      addUnknown(`${path}.categoryId`, item.categoryId);
+    if (catalogItemIds.has(item.id))
+      diagnostics.push({
+        path: `${path}.id`,
+        code: 'catalog-collision',
+        message: strings.messages.importReferenceCollision(
+          `${path}.id`,
+          item.id
+        ),
+      });
+    itemsByCategory.get(item.categoryId)?.add(item.id);
+  });
+
+  config.selectedItems.forEach((item, index) => {
+    const path = `$.selectedItems[${index}]`;
+    if (!activeCategoryIds.has(item.categoryId)) {
+      addUnknown(`${path}.categoryId`, item.categoryId);
+      return;
+    }
+    if (!itemsByCategory.get(item.categoryId)?.has(item.itemId))
+      addUnknown(`${path}.itemId`, item.itemId);
+  });
+
+  const validateCategoryKeys = (
+    record: Record<string, unknown>,
+    path: string
+  ) => {
+    for (const categoryId of Object.keys(record))
+      if (!activeCategoryIds.has(categoryId))
+        addUnknown(`${path}.${categoryId}`, categoryId);
+  };
+  validateCategoryKeys(config.scaleByCategory, '$.scaleByCategory');
+  validateCategoryKeys(
+    config.scaleSettingsByCategory,
+    '$.scaleSettingsByCategory'
+  );
+  validateCategoryKeys(
+    config.itemOrderByCategory,
+    '$.itemOrderByCategory'
+  );
+  validateCategoryKeys(
+    config.categoryTitleOverrides,
+    '$.categoryTitleOverrides'
+  );
+  validateCategoryKeys(config.categoryWeights, '$.categoryWeights');
+
+  const selectedCategoryIds = new Set(
+    config.selectedItems.map(({ categoryId }) => categoryId)
+  );
+  config.categoryOrder.forEach((categoryId, index) => {
+    if (
+      !activeCategoryIds.has(categoryId) ||
+      !selectedCategoryIds.has(categoryId)
+    )
+      addUnknown(`$.categoryOrder[${index}]`, categoryId);
+  });
+  const selectedItemsByCategory = new Map<string, Set<string>>();
+  for (const { categoryId, itemId } of config.selectedItems) {
+    const selectedIds = selectedItemsByCategory.get(categoryId) ?? new Set();
+    selectedIds.add(itemId);
+    selectedItemsByCategory.set(categoryId, selectedIds);
+  }
+  for (const [categoryId, itemIds] of Object.entries(
+    config.itemOrderByCategory
+  ))
+    itemIds.forEach((itemId, index) => {
+      if (!selectedItemsByCategory.get(categoryId)?.has(itemId))
+        addUnknown(`$.itemOrderByCategory.${categoryId}[${index}]`, itemId);
+    });
+
+  if (config.defaultScaleId && !scaleById.has(config.defaultScaleId))
+    addUnknown('$.defaultScaleId', config.defaultScaleId);
+  for (const [categoryId, scaleId] of Object.entries(config.scaleByCategory))
+    if (!scaleById.has(scaleId))
+      addUnknown(`$.scaleByCategory.${categoryId}`, scaleId);
+
+  for (const [categoryId, settings] of Object.entries(
+    config.scaleSettingsByCategory
+  )) {
+    const scaleId =
+      config.scaleByCategory[categoryId] ?? config.defaultScaleId;
+    const scale = scaleId ? scaleById.get(scaleId) : undefined;
+    const path = `$.scaleSettingsByCategory.${categoryId}`;
+    if (!scale || scale.kind !== 'numeric') {
+      diagnostics.push({
+        path,
+        code: 'invalid-scale-settings',
+        message: strings.messages.importFieldInvalid(path),
+      });
+      continue;
+    }
+    if (
+      settings.min < scale.minLimit ||
+      settings.max > scale.maxLimit ||
+      settings.min >= settings.max ||
+      settings.max - settings.min + 1 > scale.maxSteps
+    )
+      diagnostics.push({
+        path,
+        code: 'scale-range',
+        message: strings.messages.importScaleRangeInvalid(
+          path,
+          scale.minLimit,
+          scale.maxLimit,
+          scale.maxSteps
+        ),
+      });
+  }
+
+  return diagnostics;
 }
 
 export function saveConfig(config: AppConfig): boolean {
@@ -700,7 +1250,9 @@ function configDownloadFilename(config: AppConfig): string {
   return `${date}_${base}${topic ? `_${topic}` : ''}.json`;
 }
 
-export async function importConfigJSON(): Promise<ConfigImportResult> {
+export async function importConfigJSON(
+  catalog?: ConfigCatalog
+): Promise<ConfigImportResult> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -714,7 +1266,18 @@ export async function importConfigJSON(): Promise<ConfigImportResult> {
           message: strings.messages.importTooLarge,
         });
       try {
-        resolve(parseConfig(JSON.parse(await file.text())));
+        const result = parseConfig(JSON.parse(await file.text()));
+        if (result.status !== 'success' || !catalog) return resolve(result);
+        const diagnostics = validateConfigCatalog(result.config, catalog);
+        resolve(
+          diagnostics.length
+            ? {
+                status: 'error',
+                message: strings.messages.importInvalidShape,
+                diagnostics,
+              }
+            : result
+        );
       } catch {
         resolve({
           status: 'error',

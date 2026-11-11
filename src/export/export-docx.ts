@@ -331,16 +331,20 @@ export async function createDOCXBlob(
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 120, after: 80 },
     }),
-    table(
-      Array.from(
-        { length: 5 },
-        () =>
-          new TableRow({
-            cantSplit: true,
-            children: [cell(' ', { width: contentWidth })],
-          })
-      ),
-      [contentWidth]
+    ...Array.from(
+      { length: 5 },
+      (_, index) =>
+        new Paragraph({
+          children: [new TextRun('\u00a0')],
+          // shortcut: LibreOffice merges identical adjacent borders; remove when DOCX has a portable horizontal-rule primitive.
+          border: {
+            bottom: {
+              ...border,
+              color: index % 2 === 0 ? 'D5D9E0' : 'D5D9E1',
+            },
+          },
+          spacing: { after: 120 },
+        })
     )
   );
 

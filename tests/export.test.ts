@@ -79,12 +79,23 @@ describe('document exports', () => {
     const zip = await JSZip.loadAsync(await blob.arrayBuffer());
     const documentXml = await zip.file('word/document.xml')!.async('text');
     const footerXml = await zip.file('word/footer1.xml')!.async('text');
+    const feedbackStart = documentXml.indexOf('Feedback / Anmerkungen');
+    const footerTableStart = documentXml.lastIndexOf(
+      '<w:tbl>',
+      documentXml.indexOf('Unterschrift: ____________________')
+    );
+    const feedbackXml = documentXml.slice(feedbackStart, footerTableStart);
 
     expect(documentXml).toContain('<w:tbl>');
     expect(documentXml).toContain('Feedbackbogen');
     expect(documentXml).toContain('ALLGEMEIN');
     expect(documentXml).toContain('Inhalt vollständig');
     expect(documentXml).toContain('Feedback / Anmerkungen');
+    expect(feedbackXml).not.toContain('<w:tbl>');
+    expect(feedbackXml.match(/<w:pBdr>/g)).toHaveLength(5);
+    expect(feedbackXml.match(/<w:bottom /g)).toHaveLength(5);
+    expect(feedbackXml.match(/w:color="D5D9E0"/g)).toHaveLength(3);
+    expect(feedbackXml.match(/w:color="D5D9E1"/g)).toHaveLength(2);
     expect(documentXml).toContain('Unterschrift: ____________________');
     expect(footerXml).toContain('Erstellt mit dem Feedbackbogen-Generator auf fbg.haak3.de');
   });

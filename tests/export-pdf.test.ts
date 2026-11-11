@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { PDFDocument, PDFPage, type PDFFont } from 'pdf-lib';
+import { PDFDocument, PDFPage, type EmbedFontOptions, type PDFFont } from 'pdf-lib';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createFillablePDFBlob, createPDFBlob } from '@/export/export-pdf-fillable';
@@ -13,9 +13,11 @@ const footer: FooterFields = { date: false, signature: false, grade: false };
 const row: ExportRow = { categoryId: 'general', category: 'ALLGEMEIN', item: 'Kriterium', scale: null, itemId: 'item', number: 1 };
 type DrawnText = { text: string; page: string; x: number; y: number; width: number; size: number; pageWidth: number; pageHeight: number };
 let drawn: DrawnText[];
+let embeddedFontOptions: (EmbedFontOptions | undefined)[];
 
 beforeEach(() => {
   drawn = [];
+  embeddedFontOptions = [];
   vi.stubGlobal('fetch', vi.fn(async (url: string) => {
     const name = path.basename(url);
     if (!['FeedbackSans-Regular.ttf', 'FeedbackSans-Bold.ttf'].includes(name)) throw new Error(`Unexpected font URL: ${url}`);
@@ -26,6 +28,11 @@ beforeEach(() => {
     const { x = 0, y = 0, size = 24, font } = options ?? {};
     drawn.push({ text, page: this.ref.toString(), x, y, width: (font as PDFFont).widthOfTextAtSize(text, size), size, pageWidth: this.getWidth(), pageHeight: this.getHeight() });
     return drawText.call(this, text, options);
+  });
+  const embedFont = PDFDocument.prototype.embedFont;
+  vi.spyOn(PDFDocument.prototype, 'embedFont').mockImplementation(function (this: PDFDocument, font, options) {
+    embeddedFontOptions.push(options);
+    return embedFont.call(this, font, options);
   });
 });
 
@@ -46,6 +53,18 @@ function expectTextInsideMargins() {
 }
 
 describe('PDF pagination and embedded fonts', () => {
+  it('fully embeds both font styles for Apple PDFKit compatibility', async () => {
+    await createPDFBlob([row], 'Feedbackbogen', header, footer);
+
+    expect(embeddedFontOptions).toHaveLength(2);
+    embeddedFontOptions.forEach((options) => {
+      expect(options).toMatchObject({
+        subset: false,
+        features: { locl: false },
+      });
+    });
+  }, 15_000);
+
   it('splits a 1997-character unbroken criterion across pages without losing text', async () => {
     const item = 'W'.repeat(1997);
     const blob = await createPDFBlob([{ ...row, item }], 'Feedbackbogen', header, footer);

@@ -37,3 +37,21 @@ https://github.com/ChristianHaake/haak3-webapp-standard
 
 - Run the repository's test, lint, typecheck, and build commands.
 - Complete the relevant sections of the shared review checklist.
+
+## DEV-Memory (local development context)
+
+- When the sibling DEV-Memory checkout is available, read
+  [the project guide](../DEV-Memory/repos/guides/feedbackbogen-generator.md)
+  before changing persistence, imports, content, export formats, or UI ordering.
+- Use the guide to locate implementation files and regression tests; verify
+  its claims against this repository's current code and instructions.
+- The [development check](../DEV-Memory/runbooks/checks/2026-10-24-feedbackbogen-generator.md)
+  records the tested runtime, setup, content delivery and verification limits.
+- When DEV-Memory is available and writable, record new reusable findings as
+  new files in DEV-Memory/inbox using its
+  [submission schema](../DEV-Memory/inbox/README.md). Do not edit existing
+  entries or canonical documents without an explicit curation task.
+- If DEV-Memory is unavailable, unreadable, or not writable, continue from the
+  local project documentation and report the missing context or pending
+  finding. These links do not change permissions or override this repository's
+  rules.

@@ -103,13 +103,13 @@ export async function createPDFBlob(
   pdfDoc.setProducer('Feedbackbogen-Generator');
   const [regularBytes, boldBytes] = await loadFontBytes();
   const regular = await pdfDoc.embedFont(regularBytes, {
-    // Editable fields need glyphs for text entered after export.
-    subset: !interactive,
+    // Subsets of the merged fallback font render with missing glyphs in Apple PDFKit.
+    subset: false,
     // Merged fallback substitutions otherwise invalidate full-font PDF widths.
     features: { locl: false },
   });
   const bold = await pdfDoc.embedFont(boldBytes, {
-    subset: true,
+    subset: false,
     features: { locl: false },
   });
   const fonts: Fonts = { regular, bold };

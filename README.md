@@ -239,7 +239,7 @@ Konfigurationen dürfen höchstens 5 MB als JSON-Datei, 2.000 Zeichen pro Text, 
 
 Ungültige gespeicherte Originaldaten werden nicht durch Standardwerte überschrieben. Ein Hinweis bietet ihren Download an. Erst ein bestätigter Import oder Reset gibt die automatische Speicherung wieder frei. Aufeinanderfolgende Texteingaben im selben Feld bilden innerhalb einer Sekunde eine Undo-Aktion; höchstens 100 Aktionen bleiben erhalten.
 
-Die lokal gebündelte PDF-Schrift unterstützt erweitertes Latein, vereinfachtes Chinesisch und viele monochrome Emojis. Nicht unterstützte Zeichen werden vor dem Export gemeldet. Universelle Unicode-Abdeckung und komplexe Schriftsysteme werden nicht versprochen; DOCX und ODT bleiben alternative Formate. Die Schrift vergrößert besonders Formular-PDFs. Herkunft und Lizenzen stehen unter `assets/fonts/`.
+Die lokal gebündelte PDF-Schrift unterstützt erweitertes Latein, vereinfachtes Chinesisch und viele monochrome Emojis. Nicht unterstützte Zeichen werden vor dem Export gemeldet. Universelle Unicode-Abdeckung und komplexe Schriftsysteme werden nicht versprochen; DOCX und ODT bleiben alternative Formate. Die vollständig eingebetteten Schriften vergrößern alle PDFs auf etwa 4,8 bis 5 MB. Herkunft und Lizenzen stehen unter `assets/fonts/`.
 
 PDFs sind nicht als vollständig getaggte, für Screenreader optimierte Dokumente ausgewiesen. DOCX/ODT bleiben editierbare Alternativen mit Überschriften und Tabellen. Reale Office-/PDF-Viewer und assistive Technik benötigen zusätzliche manuelle Prüfung.
 

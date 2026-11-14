@@ -20,6 +20,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Fixed
 
+- PDF-Schriften werden vollständig eingebettet, damit Apple PDFKit und iPadOS alle unterstützten Zeichen darstellen.
+- DOCX-Feedbacklinien behalten in Apple Quick Look ihre volle Breite.
+
 - Table layout für numerische Skalen mit vielen Optionen korrigiert, sodass die Kriterium-Spalte nicht mehr unleserlich schmal wird.
 - Ungültige Autosave-Daten bleiben als herunterladbare Originaldaten erhalten; Eingabe-, Import- und Wiederherstellungsgrenzen sind vereinheitlicht.
 - Reservierte, unsichere und kollidierende Import-IDs werden vor der Zustandsübernahme abgelehnt.

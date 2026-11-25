@@ -10,4 +10,11 @@ Bijdragen ondersteunen beheer, onderhoud en ontwikkeling: hosting, foutoplossing
 
 ## Helpen zonder geld
 
-[Meld een fout of stel een verbetering voor per e-mail](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). Meld reproduceerbare fouten in de [GitHub-repository](https://github.com/ChristianHaake/Feedbackbogen-Generator/issues), stel verbeteringen voor of deel het hulpmiddel met andere docenten.
+- [Een fout melden](https://haak3.atlassian.net/jira/software/form/69a50efc-0474-445e-8f01-66eb6b747cc1)
+- [Een functie voorstellen](https://haak3.atlassian.net/jira/software/form/50d4fc51-bff4-4e21-b46e-8fd987b90d24)
+
+De formulieren openen in een nieuw tabblad. Laat projectinhoud en persoonsgegevens weg.
+
+Voor andere vragen kun je mailen naar [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback).
+
+Meld reproduceerbare fouten in de [GitHub-repository](https://github.com/ChristianHaake/Feedbackbogen-Generator/issues), stel verbeteringen voor of deel het hulpmiddel met andere docenten.

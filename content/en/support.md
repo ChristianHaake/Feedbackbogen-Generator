@@ -10,4 +10,11 @@ Contributions support operation, maintenance and development, including hosting,
 
 ## Help without donating
 
-[Email a bug report or suggest an improvement](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). Report reproducible bugs in the [GitHub repository](https://github.com/ChristianHaake/Feedbackbogen-Generator/issues), suggest improvements or share the tool with other educators.
+- [Report a bug](https://haak3.atlassian.net/jira/software/form/69a50efc-0474-445e-8f01-66eb6b747cc1)
+- [Suggest a feature](https://haak3.atlassian.net/jira/software/form/50d4fc51-bff4-4e21-b46e-8fd987b90d24)
+
+The forms open in a new tab. Leave out project content and personal data.
+
+For other questions, email [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback).
+
+Report reproducible bugs in the [GitHub repository](https://github.com/ChristianHaake/Feedbackbogen-Generator/issues), suggest improvements or share the tool with other educators.

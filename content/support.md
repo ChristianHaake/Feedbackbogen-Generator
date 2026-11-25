@@ -10,4 +10,11 @@ Beiträge unterstützen den Betrieb, die Wartung und die Weiterentwicklung des P
 
 ## Ohne Geld helfen
 
-[Schicke Fehler oder Ideen per E-Mail](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). Melde reproduzierbare Fehler im [GitHub-Repository](https://github.com/ChristianHaake/Feedbackbogen-Generator/issues), schlage Verbesserungen vor oder teile das Werkzeug mit anderen Lehrkräften.
+- [Fehler melden](https://haak3.atlassian.net/jira/software/form/69a50efc-0474-445e-8f01-66eb6b747cc1)
+- [Funktion vorschlagen](https://haak3.atlassian.net/jira/software/form/50d4fc51-bff4-4e21-b46e-8fd987b90d24)
+
+Die Formulare öffnen sich in einem neuen Tab. Gib dort keine Projektinhalte oder personenbezogenen Daten ein.
+
+Für andere Fragen erreichst du uns unter [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback).
+
+Melde reproduzierbare Fehler im [GitHub-Repository](https://github.com/ChristianHaake/Feedbackbogen-Generator/issues), schlage Verbesserungen vor oder teile das Werkzeug mit anderen Lehrkräften.

@@ -108,14 +108,19 @@ function paragraph(lines: string[]): HTMLElement {
 
 function inlineNodes(text: string): (Node | string)[] {
   const nodes: (Node | string)[] = [];
-  const urlPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s]+)/g;
+  const urlPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:apps@haak3\.de\?subject=Feedbackbogen-Generator%20Feedback)\)|(https?:\/\/[^\s]+)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = urlPattern.exec(text)) !== null) {
     if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
     const url = match[2] ?? match[3];
-    nodes.push(el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: match[1] ?? url }));
+    const link = el('a', { href: url, text: match[1] ?? url });
+    if (url.startsWith('http')) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+    nodes.push(link);
     lastIndex = match.index + match[0].length;
   }
 

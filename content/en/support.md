@@ -2,11 +2,11 @@
 
 The Feedback Form Generator is free to use. Financial contributions are voluntary.
 
-Contributions support operation, maintenance and development, including hosting, bug fixes, testing, accessible controls and content updates.
-
 [Buy me a coffee](https://www.buymeacoffee.com/Haake)
 
 This link opens Buy Me a Coffee in a new tab. The page sends no data to the provider before you follow the link. After it opens, the provider’s [privacy policy](https://www.buymeacoffee.com/privacy-policy) applies.
+
+Contributions support operation, maintenance and development, including hosting, bug fixes, testing, accessible controls and content updates.
 
 ## Help without donating
 

@@ -660,6 +660,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     const coffee = page.locator('#content-page a[href="https://www.buymeacoffee.com/Haake"]');
     await expect(coffee).toHaveAttribute('target', '_blank');
     await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(coffee).toBeInViewport({ ratio: 1 });
     expect((await coffee.boundingBox())?.height).toBeGreaterThanOrEqual(44);
     await expect(page.locator('a[href="mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback"]')).toBeVisible();
     await expect(page.locator('a[href="https://www.buymeacoffee.com/privacy-policy"]')).toBeVisible();

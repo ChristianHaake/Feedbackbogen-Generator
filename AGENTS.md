@@ -1,7 +1,7 @@
 # Agent Instructions
 
 This app follows the shared haak3 web app standard:
-https://github.com/ChristianHaake/DEV-Memory/tree/main/standards/haak3-webapps
+https://git.2p4.org/Christian/Agent-Memory/src/branch/main/25_Development/standards/haak3-webapps
 
 ## Required skills
 
@@ -38,20 +38,18 @@ https://github.com/ChristianHaake/DEV-Memory/tree/main/standards/haak3-webapps
 - Run the repository's test, lint, typecheck, and build commands.
 - Complete the relevant sections of the shared review checklist.
 
-## DEV-Memory (local development context)
+## Agent-Memory (local development context)
 
-- When the sibling DEV-Memory checkout is available, read
-  [the project guide](../DEV-Memory/repos/guides/feedbackbogen-generator.md)
+- When the authorized Agent-Memory checkout is available, read
+  [the project guide](https://git.2p4.org/Christian/Agent-Memory/src/branch/main/25_Development/repos/guides/feedbackbogen-generator.md)
   before changing persistence, imports, content, export formats, or UI ordering.
 - Use the guide to locate implementation files and regression tests; verify
   its claims against this repository's current code and instructions.
-- The [development check](../DEV-Memory/runbooks/checks/2026-10-24-feedbackbogen-generator.md)
+- The [development check](https://git.2p4.org/Christian/Agent-Memory/src/branch/main/25_Development/runbooks/checks/2026-10-24-feedbackbogen-generator.md)
   records the tested runtime, setup, content delivery and verification limits.
-- When DEV-Memory is available and writable, record new reusable findings as
-  new files in DEV-Memory/inbox using its
-  [submission schema](../DEV-Memory/inbox/README.md). Do not edit existing
-  entries or canonical documents without an explicit curation task.
-- If DEV-Memory is unavailable, unreadable, or not writable, continue from the
-  local project documentation and report the missing context or pending
-  finding. These links do not change permissions or override this repository's
-  rules.
+- Record new reusable findings under Agent-Memory's `AGENTS.md` rules. Raw
+  submissions belong in `50_Inbox/`; canonical notes require an explicit
+  curation task.
+- If Agent-Memory is unavailable, continue from the local project documentation
+  and report the missing context or pending finding. These links do not change
+  permissions or override this repository's rules.

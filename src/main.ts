@@ -1552,17 +1552,29 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
     .forEach((btn) => {
       btn.addEventListener('click', exportJson);
     });
+  const configFile = requireById<HTMLInputElement>('config-file');
+  let importTrigger: HTMLButtonElement;
+  let latestFileSelection = 0;
+  configFile.addEventListener('change', async () => {
+    const file = configFile.files?.[0];
+    if (!file) return;
+    configFile.value = ''; // Allow selecting the same project again.
+    const selection = ++latestFileSelection;
+    const trigger = importTrigger;
+    const result = await importConfigJSON(file, configCatalog);
+    if (signal.aborted || selection !== latestFileSelection) return;
+    applyImport(result);
+    if (!configMessageEl.classList.contains('config-message--errors')) {
+      (trigger?.closest('[hidden]') ? requireById('sec-selected-btn') : trigger)?.focus();
+    }
+  }, { signal });
   document
     .querySelectorAll<HTMLButtonElement>('#config-load, #config-load-mobile, #config-load-start')
     .forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        const result = await importConfigJSON(configCatalog);
-        if (signal.aborted) return;
-        applyImport(result);
-        if (!configMessageEl.classList.contains('config-message--errors')) {
-          (btn.closest('[hidden]') ? requireById('sec-selected-btn') : btn).focus();
-        }
-      });
+      btn.addEventListener('click', () => {
+        importTrigger = btn;
+        configFile.click();
+      }, { signal });
     });
   document
     .querySelectorAll<HTMLButtonElement>('#history-undo, #history-undo-mobile')

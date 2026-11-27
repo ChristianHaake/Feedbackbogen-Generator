@@ -476,6 +476,7 @@ export function GeneratorShell({
   return (
     <div id="app-root" className="app">
       <Header onLanguageChange={onLanguageChange} />
+      <input id="config-file" type="file" accept="application/json" hidden />
       <div id="config-message" className="config-message" role="alert" hidden />
       <Workspace />
       <main id="content-page" className="content-page" hidden>

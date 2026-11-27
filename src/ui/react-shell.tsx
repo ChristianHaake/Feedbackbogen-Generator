@@ -205,13 +205,6 @@ function EditorPane() {
             autoComplete="off"
           />
         </div>
-        <div className="criteria-source">
-          <h3 className="criteria-source-title">
-            {strings.columns.categories}
-            <span id="criteria-count" className="editor-section-count" hidden />
-          </h3>
-          <div id="categories" className="accordion" />
-        </div>
         <div className="criteria-source" id="product-format-source">
           <h3 className="criteria-source-title">
             {strings.columns.productFormats}
@@ -222,6 +215,13 @@ function EditorPane() {
             id="product-format-categories"
             className="accordion product-format-categories"
           />
+        </div>
+        <div className="criteria-source">
+          <h3 className="criteria-source-title">
+            {strings.columns.categories}
+            <span id="criteria-count" className="editor-section-count" hidden />
+          </h3>
+          <div id="categories" className="accordion" />
         </div>
       </EditorSection>
       <EditorSection id="selected" title={strings.columns.selected}>

@@ -93,6 +93,8 @@ export const nl = {
     reorderSelection: 'Wijzig de volgorde via drag-and-drop of pijltjestoetsen',
     dragCategory: (category: string) =>
       `Verplaats categorie: ${category}. Gebruik pijltjes omhoog/omlaag.`,
+    moveCriterionUp: 'Criterium omhoog verplaatsen',
+    moveCriterionDown: 'Criterium omlaag verplaatsen',
     dragCriterion: (criterion: string) =>
       `Verplaats criterium: ${criterion}. Gebruik pijltjes omhoog/omlaag.`,
     dragHeaderField: (field: string) =>

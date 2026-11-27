@@ -92,6 +92,8 @@ export const en = {
     reorderSelection: 'Change order via drag-and-drop or arrow keys',
     dragCategory: (category: string) =>
       `Move category: ${category}. Use up/down arrow keys.`,
+    moveCriterionUp: 'Move criterion up',
+    moveCriterionDown: 'Move criterion down',
     dragCriterion: (criterion: string) =>
       `Move criterion: ${criterion}. Use up/down arrow keys.`,
     dragHeaderField: (field: string) =>

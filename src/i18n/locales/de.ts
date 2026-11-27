@@ -93,6 +93,8 @@ export const de = {
     reorderSelection: 'Reihenfolge per Drag-and-drop oder Pfeiltasten ändern',
     dragCategory: (category: string) =>
       `Kategorie verschieben: ${category}. Mit Pfeiltasten nach oben oder unten bewegen.`,
+    moveCriterionUp: 'Kriterium nach oben verschieben',
+    moveCriterionDown: 'Kriterium nach unten verschieben',
     dragCriterion: (criterion: string) =>
       `Kriterium verschieben: ${criterion}. Mit Pfeiltasten nach oben oder unten bewegen.`,
     dragHeaderField: (field: string) =>

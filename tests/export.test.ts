@@ -87,6 +87,17 @@ describe('document exports', () => {
     expect(workbookXml).toContain('name="Feedbackbogen"');
     expect(sheetXml).toContain('<pane ySplit="1"');
     expect(sheetXml).toContain('width="72"');
+    const parse = (xml: string) => new DOMParser().parseFromString(xml, 'application/xml').documentElement;
+    const sheet = parse(sheetXml);
+    expect(sheet.firstElementChild?.localName).toBe('sheetPr');
+    expect(sheet.querySelector('sheetPr > pageSetUpPr')?.getAttribute('fitToPage')).toBe('1');
+    expect(sheet.querySelector('pageSetup')?.getAttribute('fitToWidth')).toBe('1');
+    expect(sheet.querySelector('pageSetup')?.getAttribute('fitToHeight')).toBe('0');
+    const workbook = parse(workbookXml);
+    expect(workbook.querySelectorAll('definedNames')).toHaveLength(1);
+    const names = workbook.querySelector('sheets + definedNames');
+    expect(names?.nextElementSibling?.localName).toBe('calcPr');
+    expect(names?.querySelector('definedName[name="_xlnm.Print_Titles"]')?.textContent).toBe("'Feedbackbogen'!$1:$1");
     expect(sharedStringsXml).toContain('Kategorie');
     expect(sharedStringsXml).toContain('Inhalt vollständig');
     expect(sharedStringsXml).toContain('1 | 2 | 3');

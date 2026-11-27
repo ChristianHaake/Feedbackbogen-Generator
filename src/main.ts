@@ -424,25 +424,29 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
     onReorderItem: (
       categoryId: string,
       draggedItemId: string,
-      targetItemId: string
+      targetItemId: string,
+      source: 'editor' | 'preview' = 'editor'
     ) => {
+      const order = itemOrderByCategory[categoryId] ?? [];
+      const from = order.indexOf(draggedItemId);
+      const to = order.indexOf(targetItemId);
+      if (from < 0 || to < 0 || from === to) return;
+      const next = [...order];
+      if (source === 'preview') {
+        next.splice(from, 1);
+        next.splice(to, 0, draggedItemId);
+      } else {
+        [next[from], next[to]] = [next[to], next[from]];
+      }
       commitConfigChange(
-        () => {
-          itemOrderByCategory = {
-            ...itemOrderByCategory,
-            [categoryId]: swapOrder(
-              itemOrderByCategory[categoryId] ?? [],
-              draggedItemId,
-              targetItemId
-            ),
-          };
-        },
+        () => { itemOrderByCategory = { ...itemOrderByCategory, [categoryId]: next }; },
         true,
         strings.history.criterionReordered
       );
       announce(strings.messages.criterionReordered);
-      focusDragHandle(
-        `[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`
+      focusDragHandle(source === 'preview'
+        ? `.preview-order-handle[data-order-category="${cssEscape(categoryId)}"][data-order-item="${cssEscape(draggedItemId)}"]`
+        : `[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`
       );
     },
     onCategoryTitleChange: (categoryId: string, title: string) => {
@@ -1364,7 +1368,8 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       header,
       footerFields,
       previewMode,
-      handlers.onRemoveSelected
+      handlers.onRemoveSelected,
+      (category, from, to) => handlers.onReorderItem(category, from, to, 'preview')
     );
   }
 

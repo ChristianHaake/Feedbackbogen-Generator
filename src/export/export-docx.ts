@@ -24,6 +24,7 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
+import { criterionWidthPercent } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -121,7 +122,7 @@ function categoryTable(
   const fixedGradeScale = mode === 'full' && scale?.kind === 'numeric' && scale.fixedRange;
   const options = mode === 'full' ? scaleOptions(scale) : [];
   const criterionWidth =
-    fixedGradeScale ? Math.floor(contentWidth * 0.4) : mode === 'checklist' || options.length === 0 ? 8700 : 5400;
+    options.length ? Math.floor(contentWidth * criterionWidthPercent(scale) / 100) : 8700;
   const ratingWidth =
     mode === 'checklist' || options.length === 0
       ? contentWidth - criterionWidth

@@ -348,21 +348,14 @@ function Header({
         </a>
       }
       controls={
-        <div className="header-meta">
-          <div className="header-meta__top">
-            <CreatorLanguageMenu
-              value={currentLanguage}
-              languages={LANGUAGE_CODES}
-              id="language-switch"
-              className="language-switcher"
-              label={strings.a11y.languageSwitcher}
-              onChange={onLanguageChange}
-            />
-            <span className="local-badge" title={strings.localProcessingHint}>
-              <span className="local-badge__dot" aria-hidden="true" />
-              <span>{strings.localProcessing}</span>
-            </span>
-          </div>
+        <>
+          <CreatorLanguageMenu
+            value={currentLanguage}
+            languages={LANGUAGE_CODES}
+            id="language-switch"
+            className="language-switcher"
+            onChange={onLanguageChange}
+          />
           <div
             className="mode-switch"
             role="group"
@@ -385,7 +378,7 @@ function Header({
               {strings.modes.checklist}
             </button>
           </div>
-        </div>
+        </>
       }
     />
   );
@@ -408,7 +401,14 @@ function Footer() {
       innerClassName="app-footer-links"
       navClassName="app-footer-nav"
       navigationLabel={strings.a11y.footerNav}
-      identity={<span className="app-footer-note">{strings.footerNote}</span>}
+      identity={
+        <div className="footer-identity">
+          <a href="https://haak3.de/" className="footer-brand">
+            haak3
+          </a>
+          <span className="app-footer-note">{strings.footerNote}</span>
+        </div>
+      }
       links={pages.map((id) =>
         id === 'support' ? (
           <a
@@ -445,18 +445,19 @@ function Footer() {
         <a
           className="github-link"
           href="https://github.com/ChristianHaake/Feedbackbogen-Generator"
-          aria-label={strings.footer.githubAria}
-          title={strings.footer.githubAria}
+          aria-label={strings.appTitle + ' – ' + strings.footer.githubAria}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16">
             <path
               fill="currentColor"
-              d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.2.8-.6v-2.1c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.4 5.9.4.4.8 1.1.8 2.2v3.7c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.5 7.5 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
             />
           </svg>
-          <span className="github-link-label">{strings.footer.github}</span>
+          <span className="github-link-label" aria-hidden="true">
+            {strings.footer.githubAria}
+          </span>
         </a>
       }
     />

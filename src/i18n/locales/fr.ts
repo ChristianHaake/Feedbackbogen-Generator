@@ -95,6 +95,8 @@ export const fr = {
       "Modifier l'ordre par glisser-déposer ou avec les flèches",
     dragCategory: (category: string) =>
       `Déplacer la catégorie : ${category}. Utilisez les flèches haut/bas.`,
+    moveCriterionUp: 'Monter le critère',
+    moveCriterionDown: 'Descendre le critère',
     dragCriterion: (criterion: string) =>
       `Déplacer le critère : ${criterion}. Utilisez les flèches haut/bas.`,
     dragHeaderField: (field: string) =>

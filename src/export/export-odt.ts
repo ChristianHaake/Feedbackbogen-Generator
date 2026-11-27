@@ -8,6 +8,7 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
+import { criterionWidthPercent } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -67,17 +68,15 @@ function categoryColumnStyles(rows: ExportRow[], mode: PrintMode) {
   return groupRows(rows)
     .map((group, index) => {
       const scale = group.items[0]?.scale ?? null;
-      const fixedGradeScale = mode === 'full' && scale?.kind === 'numeric' && scale.fixedRange;
-      const optionCount =
-        mode === 'full'
-          ? scaleOptions(scale).length
-          : 0;
-      // The A4 criteria table is 17 cm wide. Writer needs explicit widths
-      // for a fixed-width table with 16 repeated option columns.
-      const criterionWidth = fixedGradeScale ? 'style:column-width="6.8cm"' : `style:rel-column-width="${optionCount || 5}*"`;
-      const optionWidth = fixedGradeScale ? 'style:column-width="0.6375cm"' : 'style:rel-column-width="1*"';
-      return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties ${criterionWidth}/></style:style>
-    <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties ${optionWidth}/></style:style>`;
+      const options = mode === 'full' ? scaleOptions(scale) : [];
+      // Relative widths in fixed-width tables are ignored by some ODT readers.
+      const tableWidth = 17;
+      const criterionWidth = options.length
+        ? tableWidth * criterionWidthPercent(scale) / 100
+        : tableWidth * 5 / 6;
+      const optionWidth = (tableWidth - criterionWidth) / (options.length || 1);
+      return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties style:column-width="${criterionWidth.toFixed(4)}cm"/></style:style>
+    <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties style:column-width="${optionWidth.toFixed(4)}cm"/></style:style>`;
     })
     .join('');
 }
@@ -232,7 +231,7 @@ function contentXml(
     <style:style style:name="HeaderText" style:family="paragraph"><style:text-properties fo:font-size="10pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="HeaderTextCenter" style:family="paragraph"><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:font-size="10pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="Spacer" style:family="paragraph"><style:paragraph-properties fo:margin-bottom="0.15cm"/></style:style>
-    <style:style style:name="Category" style:family="paragraph"><style:paragraph-properties fo:margin-top="0.12cm" fo:margin-bottom="0.08cm"/><style:text-properties fo:font-size="11pt" fo:font-weight="bold"/></style:style>
+    <style:style style:name="Category" style:family="paragraph"><style:paragraph-properties fo:margin-top="0.12cm" fo:margin-bottom="0.08cm" fo:keep-with-next="always"/><style:text-properties fo:font-size="11pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="FeedbackHeading" style:family="paragraph"><style:paragraph-properties fo:margin-top="0.12cm" fo:margin-bottom="0.08cm"/><style:text-properties fo:font-size="14pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="MetadataTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="CriteriaTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>

@@ -101,3 +101,36 @@ test('Zurücksetzen lässt sich per Tastatur abbrechen und gibt den Fokus zurüc
   const trigger = page.locator('#config-reset');
   await expectCreatorDialogCancellation(page, trigger, 'Konfiguration zurücksetzen?', 'Abbrechen');
 });
+
+test('Mischbogen hält die Skalentexte auf schmalen Bildschirmen in ihrer Spalte', async ({ page }) => {
+  const scaleByCategory = { allgemeine: 'verbal_5', sachebene: 'punkte_10', sprachgebrauch: 'notenpunkte_15' };
+  await page.setViewportSize({ width: 320, height: 850 });
+  await page.addInitScript(scales => {
+    const customItems = Object.keys(scales).map(categoryId => ({
+      id: 'custom_' + categoryId, categoryId, custom: true, label: 'Ein ausführlich formuliertes Kriterium',
+    }));
+    localStorage.setItem('bbk:config', JSON.stringify({
+      format: 'feedbackbogen-generator', schemaVersion: 5, language: 'de',
+      selectedItems: customItems.map(({ id, categoryId }) => ({ itemId: id, categoryId })),
+      customItems, scaleByCategory: scales, defaultScaleId: 'verbal_5',
+    }));
+  }, scaleByCategory);
+  await page.goto('/');
+  await page.locator('[data-mobile-view="preview"]').click();
+  const tables = page.locator('.a4-scale-table');
+  await expect(tables).toHaveCount(3);
+  for (const table of await tables.all()) {
+    const maxOffset = await table.evaluate(element => {
+      const headings = Array.from(element.querySelectorAll('.a4-scale-option-head'));
+      const cells = element.querySelector('tbody tr')!.querySelectorAll('.a4-scale-cell');
+      return Math.max(...headings.map((heading, i) => {
+        const box = heading.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(heading);
+        return Math.max(Math.abs(box.x - cells[i].getBoundingClientRect().x),
+          ...Array.from(range.getClientRects(), text => Math.max(box.left - text.left, text.right - box.right)));
+      }));
+    });
+    expect(maxOffset).toBeLessThanOrEqual(1);
+  }
+});

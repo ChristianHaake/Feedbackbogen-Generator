@@ -1,3 +1,14 @@
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type DragEvent,
+  type ReactNode,
+} from 'react';
+
+import './preview-order.css';
+
 import { renderView } from './react-view';
 
 import { strings } from '@/strings';
@@ -5,7 +16,7 @@ import {
   categoryHeadingText,
   weightedScoreSummary,
 } from '@/export/export-utils';
-import { scaleOptionLabels } from '@/scale-utils';
+import { criterionWidthPercent, scaleOptionLabels } from '@/scale-utils';
 import type {
   DocumentTitleConfig,
   ExportRow,
@@ -25,39 +36,182 @@ export function documentTitleText(config: DocumentTitleConfig) {
 
 type Remove = (categoryId: string, itemId: string) => void;
 
-function RemoveButton({ row, remove }: { row: ExportRow; remove?: Remove }) {
-  if (!remove) return null;
-  const label = strings.labels.removeFromPreview(row.item);
+type Move = (categoryId: string, itemId: string, destinationId: string) => void;
+type RowActions = (index: number) => ReactNode;
+
+function RowControls({
+  rows,
+  index,
+  move,
+  remove,
+  startDrag,
+  endDrag,
+}: {
+  rows: ExportRow[];
+  index: number;
+  move?: Move;
+  remove?: Remove;
+  startDrag: (event: DragEvent<HTMLButtonElement>, row: ExportRow) => void;
+  endDrag: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const controls = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !controls.current?.contains(event.target)
+      )
+        setOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [open]);
+  const row = rows[index];
+  const removeLabel = strings.labels.removeFromPreview(row.item);
+  const handleLabel = strings.labels.dragCriterion(row.item);
+  const moveBy = (offset: number) => {
+    const target = rows[index + offset];
+    if (!target || !move) return;
+    setOpen(false);
+    move(row.categoryId, row.itemId, target.itemId);
+  };
+
+  if (!move || rows.length < 2) {
+    if (!remove) return null;
+    return (
+      <button
+        type="button"
+        className="a4-item-remove"
+        aria-label={removeLabel}
+        title={removeLabel}
+        onClick={() => remove(row.categoryId, row.itemId)}
+      >
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
+          <use href="/icons.svg#icon-trash" />
+        </svg>
+      </button>
+    );
+  }
   return (
-    <button
-      type="button"
-      className="a4-item-remove"
-      aria-label={label}
-      title={label}
-      onClick={() => remove(row.categoryId, row.itemId)}
+    <div
+      className="preview-row-controls"
+      ref={controls}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && open) {
+          event.preventDefault();
+          setOpen(false);
+          trigger.current?.focus();
+        }
+      }}
     >
-      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
-        <use href="/icons.svg#icon-trash" />
-      </svg>
-    </button>
+      <button
+        ref={trigger}
+        type="button"
+        className="preview-order-handle"
+        data-order-category={row.categoryId}
+        data-order-item={row.itemId}
+        aria-label={handleLabel}
+        title={handleLabel}
+        aria-expanded={open}
+        aria-keyshortcuts="ArrowUp ArrowDown"
+        draggable
+        onClick={() => setOpen(!open)}
+        onDragStart={(event) => {
+          setOpen(false);
+          startDrag(event, row);
+        }}
+        onDragEnd={endDrag}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            event.preventDefault();
+            moveBy(event.key === 'ArrowUp' ? -1 : 1);
+          }
+        }}
+      >
+        <svg
+          aria-hidden="true"
+          width="14"
+          height="20"
+          viewBox="0 0 14 20"
+          fill="currentColor"
+        >
+          <circle cx="4" cy="4" r="1.5" />
+          <circle cx="10" cy="4" r="1.5" />
+          <circle cx="4" cy="10" r="1.5" />
+          <circle cx="10" cy="10" r="1.5" />
+          <circle cx="4" cy="16" r="1.5" />
+          <circle cx="10" cy="16" r="1.5" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          className="preview-order-actions"
+          role="group"
+          aria-label={handleLabel}
+        >
+          <button
+            type="button"
+            disabled={index === 0}
+            aria-label={strings.labels.moveCriterionUp}
+            title={strings.labels.moveCriterionUp}
+            onClick={() => moveBy(-1)}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            disabled={index === rows.length - 1}
+            aria-label={strings.labels.moveCriterionDown}
+            title={strings.labels.moveCriterionDown}
+            onClick={() => moveBy(1)}
+          >
+            ↓
+          </button>
+          {remove && (
+            <button
+              type="button"
+              aria-label={removeLabel}
+              title={removeLabel}
+              onClick={() => remove(row.categoryId, row.itemId)}
+            >
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <use href="/icons.svg#icon-trash" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
 function ScaleTable({
   rows,
   scale,
-  remove,
+  rowActions,
 }: {
   rows: ExportRow[];
   scale: Scale;
-  remove?: Remove;
+  rowActions: RowActions;
 }) {
   const numeric = scale.kind === 'numeric';
   const options = scaleOptionLabels(scale);
   const gradePoints = numeric && scale.fixedRange;
-  const criterionWidth = gradePoints ? 40 : numeric ? 46 : 42;
+  const criterionWidth = criterionWidthPercent(scale);
   return (
     <table
+      style={{ '--a4-option-count': options.length } as CSSProperties}
       className={[
         'a4-scale-table',
         numeric && 'a4-scale-table-numeric',
@@ -94,19 +248,18 @@ function ScaleTable({
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
+        {rows.map((row, index) => (
           <tr
             key={row.itemId}
-            className={
-              'a4-item a4-scale-row' + (remove ? ' a4-item-removable' : '')
-            }
+            className="a4-item a4-scale-row a4-item-removable"
+            data-preview-item={row.itemId}
           >
             <td className="a4-scale-criterion-cell">
               <div className="a4-item-label">
                 <span className="a4-item-number">{row.number}.</span>
                 <span className="a4-item-text">{row.item}</span>
               </div>
-              <RemoveButton row={row} remove={remove} />
+              {rowActions(index)}
             </td>
             {options.map((_, i) => (
               <td key={i} className="a4-scale-cell">
@@ -123,25 +276,26 @@ function ScaleTable({
 function Criteria({
   rows,
   mode,
-  remove,
+  rowActions,
 }: {
   rows: ExportRow[];
   mode: PrintMode;
-  remove?: Remove;
+  rowActions: RowActions;
 }) {
   const { scale } = rows[0];
   const checklist = mode === 'checklist';
   if (!checklist && scale)
-    return <ScaleTable rows={rows} scale={scale} remove={remove} />;
+    return <ScaleTable rows={rows} scale={scale} rowActions={rowActions} />;
   return (
     <ol className="a4-items">
-      {rows.map((row) => (
+      {rows.map((row, index) => (
         <li
           key={row.itemId}
+          data-preview-item={row.itemId}
           className={[
             'a4-item',
             checklist && 'a4-item-checklist',
-            remove && 'a4-item-removable',
+            'a4-item-removable',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -151,10 +305,101 @@ function Criteria({
             <span className="a4-item-text">{row.item}</span>
           </span>
           {!checklist && <div className="a4-scale-line" />}
-          <RemoveButton row={row} remove={remove} />
+          {rowActions(index)}
         </li>
       ))}
     </ol>
+  );
+}
+
+function CategorySection({
+  rows,
+  mode,
+  move,
+  remove,
+}: {
+  rows: ExportRow[];
+  mode: PrintMode;
+  move?: Move;
+  remove?: Remove;
+}) {
+  const dragged = useRef<string | null>(null);
+  const highlighted = useRef<HTMLElement | null>(null);
+  const highlight = (next: HTMLElement | null) => {
+    if (next === highlighted.current) return;
+    highlighted.current?.classList.remove('preview-drop-target');
+    next?.classList.add('preview-drop-target');
+    highlighted.current = next;
+  };
+  const endDrag = () => {
+    dragged.current = null;
+    highlight(null);
+  };
+  const targetRow = (event: DragEvent<HTMLElement>) => {
+    const row =
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('[data-preview-item]')
+        : null;
+    return row && row.dataset.previewItem !== dragged.current ? row : null;
+  };
+  return (
+    <section
+      className="a4-cat-section"
+      onDragOver={(event) => {
+        if (!dragged.current) return;
+        const target = targetRow(event);
+        highlight(target);
+        if (target) {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'move';
+        }
+      }}
+      onDragLeave={(event) => {
+        if (
+          !(event.relatedTarget instanceof Node) ||
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          highlight(null);
+      }}
+      onDrop={(event) => {
+        const from = dragged.current;
+        const to = targetRow(event)?.dataset.previewItem;
+        endDrag();
+        if (from && to && move) {
+          event.preventDefault();
+          move(rows[0].categoryId, from, to);
+        }
+      }}
+    >
+      <h2 className="a4-cat-heading">
+        {categoryHeadingText(
+          rows[0].category,
+          rows[0].weight,
+          mode === 'full' ? rows[0].scale : null
+        )}
+      </h2>
+      <Criteria
+        rows={rows}
+        mode={mode}
+        rowActions={(index) => (
+          <RowControls
+            rows={rows}
+            index={index}
+            move={move}
+            remove={remove}
+            endDrag={endDrag}
+            startDrag={(event, row) => {
+              dragged.current = row.itemId;
+              event.dataTransfer.setData(
+                'application/x-feedback-preview-item',
+                row.itemId
+              );
+              event.dataTransfer.effectAllowed = 'move';
+            }}
+          />
+        )}
+      />
+    </section>
   );
 }
 
@@ -165,7 +410,8 @@ export function renderPreview(
   header: HeaderData,
   footer: FooterFields,
   mode: PrintMode,
-  remove?: Remove
+  remove?: Remove,
+  move?: Move
 ) {
   const groups = new Map<string, ExportRow[]>();
   for (const row of rows) {
@@ -193,16 +439,13 @@ export function renderPreview(
       ) : (
         <div className="a4-body">
           {Array.from(groups, ([id, items]) => (
-            <section key={id} className="a4-cat-section">
-              <h2 className="a4-cat-heading">
-                {categoryHeadingText(
-                  items[0].category,
-                  items[0].weight,
-                  mode === 'full' ? items[0].scale : null
-                )}
-              </h2>
-              <Criteria rows={items} mode={mode} remove={remove} />
-            </section>
+            <CategorySection
+              key={id}
+              rows={items}
+              mode={mode}
+              move={move}
+              remove={remove}
+            />
           ))}
         </div>
       )}

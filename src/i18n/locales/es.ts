@@ -94,6 +94,8 @@ export const es = {
     reorderSelection: 'Cambiar el orden arrastrando o con las flechas',
     dragCategory: (category: string) =>
       `Mover categoría: ${category}. Usa las flechas arriba/abajo.`,
+    moveCriterionUp: 'Subir el criterio',
+    moveCriterionDown: 'Bajar el criterio',
     dragCriterion: (criterion: string) =>
       `Mover criterio: ${criterion}. Usa las flechas arriba/abajo.`,
     dragHeaderField: (field: string) =>

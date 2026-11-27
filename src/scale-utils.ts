@@ -32,6 +32,12 @@ export function numericScaleLabel(scale: NumericScale): string {
   return `${min}–${max}`;
 }
 
+/** Share of each rating table reserved for the criterion on A4. */
+export function criterionWidthPercent(scale: Scale | null): number {
+  if (scale?.kind === 'numeric') return scale.fixedRange ? 40 : 46;
+  return 42;
+}
+
 export function scaleOptionLabels(scale: Scale): string[] {
   switch (scale.kind) {
     case 'verbal': return scale.labels;

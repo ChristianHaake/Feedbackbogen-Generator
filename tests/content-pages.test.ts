@@ -48,7 +48,7 @@ describe('help content page', () => {
       'Beispiele',
       'Unterstützen',
       'Über das Projekt',
-      'AGB',
+      'Hinweise zur Nutzung',
       'Impressum',
       'Datenschutz'
     ]);

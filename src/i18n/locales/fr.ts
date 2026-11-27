@@ -149,7 +149,7 @@ export const fr = {
   },
   contentLinks: {
     examples: 'Exemples',
-    terms: 'Conditions d’utilisation',
+    terms: 'Conseils d’utilisation',
     openExample: 'Ouvrir l’exemple',
     help: 'Aide',
     about: 'À propos du projet',

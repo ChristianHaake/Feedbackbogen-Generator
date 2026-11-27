@@ -685,18 +685,28 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   for (const [lang, headings] of Object.entries({
-    de: ['Hilfe', 'Beispiele', 'Über das Projekt', 'Allgemeine Geschäftsbedingungen', 'Datenschutzerklärung', 'Impressum'],
-    en: ['Help', 'Examples', 'About the project', 'Terms of use', 'Privacy notice', 'Legal notice'],
-    fr: ['Aide', 'Exemples', 'À propos du projet', 'Conditions d’utilisation', 'Protection des données', 'Mentions légales'],
-    es: ['Ayuda', 'Ejemplos', 'Acerca del proyecto', 'Condiciones de uso', 'Política de privacidad', 'Aviso legal'],
-    nl: ['Help', 'Voorbeelden', 'Over het project', 'Gebruiksvoorwaarden', 'Privacyverklaring', 'Colofon'],
+    de: ['Hilfe', 'Beispiele', 'Über das Projekt', 'Hinweise zur Nutzung', 'Datenschutzerklärung', 'Impressum'],
+    en: ['Help', 'Examples', 'About the project', 'Usage notes', 'Privacy notice', 'Legal notice'],
+    fr: ['Aide', 'Exemples', 'À propos du projet', 'Conseils d’utilisation', 'Protection des données', 'Mentions légales'],
+    es: ['Ayuda', 'Ejemplos', 'Acerca del proyecto', 'Indicaciones de uso', 'Política de privacidad', 'Aviso legal'],
+    nl: ['Help', 'Voorbeelden', 'Over het project', 'Toelichting bij het gebruik', 'Privacyverklaring', 'Colofon'],
   })) {
     test(`opens localized content in ${lang} and preserves return navigation`, async ({ page }) => {
       await page.locator('#language-switch').selectOption(lang);
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
       for (const [index, route] of ['help', 'examples', 'about', 'terms', 'privacy', 'imprint'].entries()) {
         const link = page.locator(`.app-footer [data-app-route="${route}"]`);
+        if (route === 'terms') {
+          await expect(link).toHaveText(headings[index]);
+          await expect(link).toHaveAttribute('href', '/agb');
+        }
         await link.click();
+        if (route === 'terms') {
+          await expect(page).toHaveURL(/\/agb$/);
+          await expect(page.getByRole('link', { name: 'GPL-3.0-only', exact: true })).toHaveAttribute(
+            'href', 'https://github.com/ChristianHaake/Feedbackbogen-Generator/blob/master/LICENSE'
+          );
+        }
         await expect(page.locator('#content-page h1')).toHaveText(headings[index]);
         await expect(page.locator('#content-page h1')).toBeFocused();
         await page.goBack();

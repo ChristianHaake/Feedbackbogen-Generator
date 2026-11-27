@@ -148,7 +148,7 @@ export const de = {
   },
   contentLinks: {
     examples: 'Beispiele',
-    terms: 'AGB',
+    terms: 'Hinweise zur Nutzung',
     openExample: 'Beispiel öffnen',
     help: 'Hilfe',
     about: 'Über das Projekt',

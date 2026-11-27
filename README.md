@@ -61,6 +61,8 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 - Import und Export der Konfiguration als JSON
 - Export als PDF/Druckansicht, ausfüllbares PDF, DOCX, XLSX und ODT
 
+Die Seite unter `/agb` heißt in dieser App auf Betreiberwunsch „Hinweise zur Nutzung“. Sie enthält praktische Hinweise zur Arbeit mit dem Generator. Footer und Überschrift verwenden in jeder Sprache dieselbe Bezeichnung.
+
 ## Datenschutz
 
 Die eingegebenen Inhalte werden lokal im Browser verarbeitet. Sie werden nicht an den Betreiber übermittelt.

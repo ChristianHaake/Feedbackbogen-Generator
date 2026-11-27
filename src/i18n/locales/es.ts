@@ -150,7 +150,7 @@ export const es = {
   },
   contentLinks: {
     examples: 'Ejemplos',
-    terms: 'Condiciones de uso',
+    terms: 'Indicaciones de uso',
     openExample: 'Abrir ejemplo',
     help: 'Ayuda',
     about: 'Sobre el proyecto',

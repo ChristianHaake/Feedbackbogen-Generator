@@ -5,7 +5,7 @@ export type AppRoute = 'generator' | ContentPageId;
 
 export const contentPages: Record<ContentPageId, { title: string; file: string; path: string }> = {
   examples: { title: 'Beispiele', file: 'examples.md', path: '/examples' },
-  terms: { title: 'AGB', file: 'terms.md', path: '/agb' },
+  terms: { title: 'Hinweise zur Nutzung', file: 'terms.md', path: '/agb' },
   help: { title: 'Hilfe', file: 'help.md', path: '/help' },
   support: { title: 'Unterstützen', file: 'support.md', path: '/support' },
   about: { title: 'Über das Projekt', file: 'about.md', path: '/about' },

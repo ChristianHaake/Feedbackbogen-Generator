@@ -147,7 +147,7 @@ export const nl = {
   },
   contentLinks: {
     examples: 'Voorbeelden',
-    terms: 'Gebruiksvoorwaarden',
+    terms: 'Toelichting bij het gebruik',
     openExample: 'Voorbeeld openen',
     help: 'Help',
     about: 'Over het project',

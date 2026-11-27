@@ -1494,7 +1494,7 @@ export function renderCategories(
       'button',
       {
         class: 'accordion-header',
-        'aria-expanded': 'false',
+        'aria-expanded': String(Boolean(normalizedQuery)),
         id: buttonId,
         'aria-controls': `${buttonId}-panel`,
         type: 'button',
@@ -1504,11 +1504,11 @@ export function renderCategories(
     );
     const panel = el('div', {
       id: `${buttonId}-panel`,
-      class: 'accordion-panel',
+      class: normalizedQuery ? 'accordion-panel open' : 'accordion-panel',
       role: 'region',
       'aria-labelledby': buttonId,
     });
-    (panel as HTMLDivElement).hidden = true;
+    panel.hidden = !normalizedQuery;
     if (editable) {
       const titleInput = el('input', {
         type: 'text',
@@ -1606,6 +1606,7 @@ export function renderCategories(
       )
     );
 
+    const results = document.createDocumentFragment();
     if (Array.isArray(c.groups)) {
       visibleRegular.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
@@ -1613,11 +1614,11 @@ export function renderCategories(
         g.items.forEach((it) =>
           groupBlock.append(itemCheckboxRow(c.id, it, selectedKeys, handlers))
         );
-        panel.append(groupBlock);
+        results.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
       visibleRegular.items.forEach((it) =>
-        panel.append(itemCheckboxRow(c.id, it, selectedKeys, handlers))
+        results.append(itemCheckboxRow(c.id, it, selectedKeys, handlers))
       );
     }
 
@@ -1641,8 +1642,11 @@ export function renderCategories(
         row.querySelector('.item-actions')?.append(removeBtn);
         customSection.append(row);
       });
-      panel.append(customSection);
+      results.append(customSection);
     }
+
+    if (normalizedQuery) panel.prepend(results);
+    else panel.append(results);
 
     const customInput = el('input', {
       type: 'text',

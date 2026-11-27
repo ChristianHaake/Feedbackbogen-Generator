@@ -115,7 +115,7 @@ export const de = {
       count === 1 ? '1 Format ausgewählt' : `${count} Formate ausgewählt`,
     close: 'Schließen',
     previewMode: 'Ansicht',
-    previewEmpty: 'Noch keine Kriterien ausgewählt — links auswählen.',
+    previewEmpty: 'Noch keine Kriterien ausgewählt. Wähle im Editor „Kriterien auswählen“. Auf kleinen Bildschirmen erreichst du den Editor über „Bearbeiten“.',
     scoreSummaryTitle: 'Auswertung',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category}: ____ / ${weight} %`,

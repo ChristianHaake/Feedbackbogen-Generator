@@ -136,6 +136,7 @@ type EditorSession = {
   mobileView: MobileView;
   previewMode: PrintMode;
   search: string;
+  openBeforeSearch: string[];
 };
 
 async function loadCatalog(language: LanguageCode): Promise<ConfigCatalog> {
@@ -194,6 +195,7 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
   const redoStack = session?.redo ?? [];
   let previewMode: PrintMode = session?.previewMode ?? 'full';
   let searchQuery = session?.search ?? '';
+  let openBeforeSearch = session?.openBeforeSearch ?? [];
   let productFormatModalOpen = false;
   let productFormatSearchQuery = '';
   let productFormatModalReturnFocus: HTMLElement | null = null;
@@ -545,8 +547,10 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       );
     },
     onSearchChange: (value: string) => {
+      const previous = editorDrafts();
+      if (!searchQuery.trim()) openBeforeSearch = previous.openCats;
       searchQuery = value;
-      renderEditor();
+      renderEditor({ ...previous, openCats: value.trim() ? [] : openBeforeSearch });
     },
     onOpenProductFormatModal: () => {
       productFormatModalReturnFocus =
@@ -723,7 +727,7 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       autoPersist();
       const nextSession = {
         config: currentConfig(), undo: undoStack, redo: redoStack,
-        mobileView, previewMode, search: searchQuery, draftState: editorDrafts(),
+        mobileView, previewMode, search: searchQuery, openBeforeSearch, draftState: editorDrafts(),
       };
       listeners.abort();
       if (previewFrame !== undefined) cancelAnimationFrame(previewFrame);
@@ -1295,6 +1299,14 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       productFormatSearchQuery,
       handlers
     );
+    const showProductMatches = Boolean(searchQuery.trim() && productFormatCategoriesEl.querySelector('.accordion-header'));
+    if (showProductMatches) {
+      categoriesEl.after(productFormatCategoriesEl);
+      const empty = categoriesEl.querySelector<HTMLElement>('.search-empty');
+      if (empty) empty.hidden = true;
+    } else {
+      productFormatControlsEl.after(productFormatCategoriesEl);
+    }
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 

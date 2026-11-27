@@ -116,8 +116,7 @@ export const nl = {
       count === 1 ? '1 formaat geselecteerd' : `${count} formaten geselecteerd`,
     close: 'Sluiten',
     previewMode: 'Weergave',
-    previewEmpty:
-      'Nog geen criteria geselecteerd — selecteer aan de linkerkant.',
+    previewEmpty: 'Nog geen criteria geselecteerd. Selecteer ‘Criteria kiezen’ in de editor. Open op een klein scherm eerst het tabblad ‘Bewerken’.',
     scoreSummaryTitle: 'Beoordeling',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category}: ____ / ${weight} %`,

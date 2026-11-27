@@ -6,6 +6,15 @@ for (const [lang, width] of [['de', 320], ['en', 360], ['fr', 390], ['es', 768],
     await page.goto('/');
     await page.locator('#language-switch').selectOption(lang);
     await expect(page.locator('html')).toHaveAttribute('lang', lang);
+    const editTab = page.locator('.mobile-tab[data-mobile-view="edit"]');
+    const editLabel = (await editTab.textContent())!.trim();
+    const startLabel = (await page.locator('#start-criteria').textContent())!.trim();
+    if (width <= 900) await page.locator('.mobile-tab[data-mobile-view="preview"]').click();
+    const emptyPreview = page.locator('.a4-empty');
+    await expect(emptyPreview).toBeVisible();
+    await expect(emptyPreview).toContainText(editLabel);
+    await expect(emptyPreview).toContainText(startLabel);
+    if (width <= 900) await editTab.click();
     await page.locator('#start-criteria').click();
     await expect(page.locator('#criteria-search')).toBeFocused();
     await page.locator('#acc-allgemeine').click();
@@ -53,4 +62,18 @@ test('Browserdruck enthält auf Desktop und im mobilen Editor mehrere Seiten', a
     const pdf = await PDFDocument.load(await page.pdf({ preferCSSPageSize: true }));
     expect(pdf.getPageCount()).toBeGreaterThan(2);
   }
+});
+
+test('Suchtreffer sind ohne Aufklappen per Tastatur auswählbar', async ({ page }) => {
+  await page.goto('/');
+  const search = page.locator('#criteria-search');
+  await search.fill('Körpersprache');
+  const hit = page.locator('#cb-praesentation-koerpersprache');
+  await expect(hit).toBeVisible();
+  await hit.focus();
+  await page.keyboard.press('Space');
+  await expect(hit).toBeChecked();
+  await expect(page.locator('.a4-item')).toContainText('Körpersprache');
+  await search.fill('');
+  await expect(page.locator('#acc-praesentation')).toHaveAttribute('aria-expanded', 'false');
 });

@@ -119,8 +119,7 @@ export const es = {
         : `${count} formatos seleccionados`,
     close: 'Cerrar',
     previewMode: 'Vista',
-    previewEmpty:
-      'Aún no se han seleccionado criterios — selecciona a la izquierda.',
+    previewEmpty: 'Aún no hay criterios seleccionados. Pulsa «Elegir criterios» en el editor. En pantallas pequeñas, abre primero la pestaña «Editar».',
     scoreSummaryTitle: 'Evaluación',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category}: ____ / ${weight} %`,

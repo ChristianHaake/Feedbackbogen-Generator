@@ -118,8 +118,7 @@ export const fr = {
       count === 1 ? '1 format sélectionné' : `${count} formats sélectionnés`,
     close: 'Fermer',
     previewMode: 'Vue',
-    previewEmpty:
-      'Aucun critère sélectionné — veuillez en sélectionner à gauche.',
+    previewEmpty: 'Aucun critère sélectionné. Dans l’éditeur, utilisez « Choisir les critères ». Sur petit écran, ouvrez d’abord l’onglet « Modifier ».',
     scoreSummaryTitle: 'Évaluation',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category} : ____ / ${weight} %`,

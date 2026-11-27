@@ -1768,8 +1768,25 @@ body {
   }
   .a4-print-row .a4-item-label { padding: 8pt; }
   .a4-print-row .a4-cbox { text-align: center; }
+  /* Let the page fragment between rows in normal block flow. WebKit loses
+     the trailing content when it paginates an atomic box inside a table. */
+  @supports (-webkit-hyphens: auto) {
+    .a4-scale-table, .a4-scale-table thead, .a4-scale-table tbody,
+    .a4-scale-table tbody .a4-scale-row, .a4-scale-row > .a4-print-criterion {
+      display: block;
+    }
+    .a4-scale-table colgroup { display: none; }
+    .a4-scale-table thead tr {
+      display: grid;
+      grid-template-columns: var(--a4-criterion-width) repeat(var(--a4-option-count), minmax(0, 1fr));
+      break-after: avoid;
+    }
+    .a4-scale-table tbody .a4-scale-row { padding: 0; }
+  }
+  .a4-watermark { position: static; margin-top: 12pt; text-align: right; }
   .a4-cat-heading { break-after: avoid; }
   .a4-page {
+    position: static;
     display: block;
     box-shadow: none !important;
     border-radius: 0 !important;

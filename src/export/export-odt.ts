@@ -72,9 +72,12 @@ function categoryColumnStyles(rows: ExportRow[], mode: PrintMode) {
         mode === 'full'
           ? scaleOptions(scale).length
           : 0;
-      const criterionWeight = fixedGradeScale ? 32 : optionCount || 5;
-      return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="${criterionWeight}*"/></style:style>
-    <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="1*"/></style:style>`;
+      // The A4 criteria table is 17 cm wide. Writer needs explicit widths
+      // for a fixed-width table with 16 repeated option columns.
+      const criterionWidth = fixedGradeScale ? 'style:column-width="6.8cm"' : `style:rel-column-width="${optionCount || 5}*"`;
+      const optionWidth = fixedGradeScale ? 'style:column-width="0.6375cm"' : 'style:rel-column-width="1*"';
+      return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties ${criterionWidth}/></style:style>
+    <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties ${optionWidth}/></style:style>`;
     })
     .join('');
 }

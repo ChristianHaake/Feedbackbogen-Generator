@@ -1234,7 +1234,7 @@ body {
   font-size: 10pt;
 }
 
-.a4-empty { color: #888; font-style: italic; padding: 20pt 0; text-align: center; }
+.a4-empty { color: #666; font-style: italic; padding: 20pt 0; text-align: center; }
 
 .a4-score-summary {
   margin: 16pt 0 18pt;
@@ -1388,7 +1388,7 @@ body {
 }
 .a4-item-number {
   grid-column: 1;
-  color: #888;
+  color: #666;
   font-weight: 400;
 }
 .grade-points-options {
@@ -1434,7 +1434,7 @@ body {
 }
 .a4-item-label::before {
   content: counter(item) '.';
-  color: #888;
+  color: #666;
   font-weight: 400;
   grid-column: 1;
 }
@@ -1556,7 +1556,7 @@ body {
   position: absolute;
   right: 16pt;
   bottom: 12pt;
-  color: #aaa;
+  color: #666;
   font-size: 7pt;
   line-height: 1;
 }

@@ -25,6 +25,8 @@ import {
 } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import {
+  FALLBACK_CATEGORIES,
+  FALLBACK_SCALES,
   loadCategories,
   loadScales,
   scaleById,
@@ -141,8 +143,10 @@ async function bootstrap(session?: EditorSession) {
   document.title = strings.appTitle;
 
   const root = document.getElementById('app')!;
-  const app = renderLayout();
-  root.replaceChildren(app);
+  const pending = document.createElement('p');
+  pending.setAttribute('role', 'status');
+  pending.textContent = strings.messages.contentPageLoading;
+  root.replaceChildren(pending);
 
   const baseUrl = import.meta.env.BASE_URL as string;
   const [categories, scales, productFormats] = await Promise.all([
@@ -150,6 +154,15 @@ async function bootstrap(session?: EditorSession) {
     loadScales(baseUrl),
     loadProductFormats(baseUrl),
   ]);
+  const app = renderLayout();
+  root.replaceChildren(app);
+  if (categories === FALLBACK_CATEGORIES || scales === FALLBACK_SCALES) {
+    const warning = document.createElement('p');
+    warning.className = 'recovery-notice';
+    warning.setAttribute('role', 'alert');
+    warning.textContent = strings.messages.contentLoadError;
+    app.prepend(warning);
+  }
   const configCatalog = { categories, scales, productFormats };
   const importSummaryKey = 'bbk:import-summary';
 

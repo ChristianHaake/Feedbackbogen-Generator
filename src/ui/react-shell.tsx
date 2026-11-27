@@ -191,8 +191,7 @@ function EditorPane() {
       </div>
       <EditorSection
         id="criteria"
-        title={strings.columns.categories}
-        countId="criteria-count"
+        title={strings.columns.addCriteria}
       >
         <div className="search-wrap">
           <label htmlFor="criteria-search" className="small-label">
@@ -206,6 +205,26 @@ function EditorPane() {
             autoComplete="off"
           />
         </div>
+        <div className="criteria-source">
+          <h3 className="criteria-source-title">
+            {strings.columns.categories}
+            <span id="criteria-count" className="editor-section-count" hidden />
+          </h3>
+          <div id="categories" className="accordion" />
+        </div>
+        <div className="criteria-source" id="product-format-source">
+          <h3 className="criteria-source-title">
+            {strings.columns.productFormats}
+            <span id="product-format-count" className="editor-section-count" hidden />
+          </h3>
+          <div id="product-format-controls" className="product-format-controls" />
+          <div
+            id="product-format-categories"
+            className="accordion product-format-categories"
+          />
+        </div>
+      </EditorSection>
+      <EditorSection id="selected" title={strings.columns.selected}>
         <details className="scale-default-wrap">
           <summary>{strings.labels.defaultScale}</summary>
           <select
@@ -215,20 +234,6 @@ function EditorPane() {
           />
           <p className="scale-hint">{strings.labels.defaultScaleHint}</p>
         </details>
-        <div id="categories" className="accordion" />
-      </EditorSection>
-      <EditorSection
-        id="formats"
-        title={strings.columns.productFormats}
-        countId="product-format-count"
-      >
-        <div id="product-format-controls" className="product-format-controls" />
-        <div
-          id="product-format-categories"
-          className="accordion product-format-categories"
-        />
-      </EditorSection>
-      <EditorSection id="selected" title={strings.columns.selected}>
         <div className="selected-head">
           <div id="selected-counter" className="selected-counter" />
           <ToolbarButton

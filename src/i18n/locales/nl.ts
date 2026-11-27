@@ -29,9 +29,10 @@ export const nl = {
     export: 'Alt+E: Exporteren',
   },
   columns: {
-    selected: 'Geselecteerd',
-    categories: 'Beoordelingscriteria',
-    productFormats: 'Productformaten',
+    addCriteria: 'Criteria toevoegen',
+    selected: 'Mijn formulier',
+    categories: 'Afzonderlijke criteria',
+    productFormats: 'Kies een productvorm',
     export: 'Export',
   },
   kopfdaten: {

@@ -29,9 +29,10 @@ export const fr = {
     export: 'Alt+E : Exporter',
   },
   columns: {
-    selected: 'Sélectionné',
-    categories: "Critères d'évaluation",
-    productFormats: 'Formats de produit',
+    addCriteria: 'Ajouter des critères',
+    selected: 'Ma grille',
+    categories: 'Critères individuels',
+    productFormats: 'Choisir un format de production',
     export: 'Export',
   },
   kopfdaten: {

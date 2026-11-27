@@ -585,6 +585,19 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
         () => {
           if (isSelected && !selectedProductFormats.includes(categoryId)) {
             selectedProductFormats = [...selectedProductFormats, categoryId];
+            const formatCategory = selectedProductFormatCategories(
+              productFormats,
+              [categoryId]
+            )[0];
+            if (formatCategory) {
+              selected = [
+                ...selected,
+                ...(formatCategory.items ?? []).map((item) => ({
+                  categoryId,
+                  itemId: item.id,
+                })),
+              ];
+            }
             announce(strings.messages.productFormatAdded);
           } else if (!isSelected) {
             selectedProductFormats = selectedProductFormats.filter(
@@ -1303,13 +1316,8 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       handlers
     );
     const showProductMatches = Boolean(searchQuery.trim() && productFormatCategoriesEl.querySelector('.accordion-header'));
-    if (showProductMatches) {
-      categoriesEl.after(productFormatCategoriesEl);
-      const empty = categoriesEl.querySelector<HTMLElement>('.search-empty');
-      if (empty) empty.hidden = true;
-    } else {
-      productFormatControlsEl.after(productFormatCategoriesEl);
-    }
+    const empty = categoriesEl.querySelector<HTMLElement>('.search-empty');
+    if (empty) empty.hidden = showProductMatches;
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 

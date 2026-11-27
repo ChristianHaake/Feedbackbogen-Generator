@@ -29,9 +29,10 @@ export const de = {
     export: 'Alt+E: Export',
   },
   columns: {
-    selected: 'Ausgewählt',
-    categories: 'Bewertungskriterien',
-    productFormats: 'Produktebene',
+    addCriteria: 'Kriterien hinzufügen',
+    selected: 'Mein Bogen',
+    categories: 'Einzelkriterien',
+    productFormats: 'Produktformat wählen',
     export: 'Export',
   },
   kopfdaten: {

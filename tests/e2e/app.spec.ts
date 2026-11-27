@@ -217,10 +217,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   test('Product Formats Modal Selection', async ({ page }) => {
-    // Expand the "Produktebene" (formats) editor section first
-    const sectionToggle = page.locator('#sec-formats-btn');
-    await expect(sectionToggle).toBeVisible();
-    await sectionToggle.click();
+    await expect(page.locator('#product-format-source')).toBeVisible();
 
     // Open product format selection modal
     const openModalBtn = page.locator('.choose-product-formats-btn');
@@ -257,15 +254,13 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(podcastAccordion).toBeVisible();
     await podcastAccordion.click();
 
-    // Select/check a criterion under Podcast category (e.g., 'tempo')
+    // The format contributes its criteria immediately. A criterion remains removable.
     const tempoCheckbox = page.locator('#cb-podcast-tempo');
     await expect(tempoCheckbox).toBeVisible();
-    await page.locator('label[for="cb-podcast-tempo"]').click();
     await expect(tempoCheckbox).toBeChecked();
-
-    // Verify it was added to selection list
-    const selectedList = page.locator('#selected-list');
-    await expect(selectedList).toContainText('Tempo');
+    await expect(page.locator('#selected-list')).toContainText('Tempo');
+    await page.locator('label[for="cb-podcast-tempo"]').click();
+    await expect(tempoCheckbox).not.toBeChecked();
   });
 
   test('Footer Toggles & Preview Modes', async ({ page }) => {

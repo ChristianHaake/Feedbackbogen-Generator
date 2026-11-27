@@ -108,7 +108,7 @@ describe('collapsible editor sections', () => {
     const sections = Array.from(layout.querySelectorAll<HTMLElement>('.editor-pane [data-section-id]'));
 
     expect(sections.map((s) => s.dataset.sectionId)).toEqual([
-      'criteria', 'formats', 'selected', 'kopfdaten', 'footer'
+      'criteria', 'selected', 'kopfdaten', 'footer'
     ]);
 
     for (const section of sections) {

@@ -522,6 +522,22 @@ body {
 /* Tighten the divider when the panel is collapsed. */
 .editor-section:has(.section-toggle[aria-expanded="false"]) .editor-section-title { margin-bottom: 0; }
 
+.criteria-source + .criteria-source {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.criteria-source-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .search-wrap { display: flex; flex-direction: column; gap: 3px; margin-bottom: var(--space-3); }
 .criteria-search {
   width: 100%;

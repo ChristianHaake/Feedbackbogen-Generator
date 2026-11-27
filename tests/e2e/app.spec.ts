@@ -651,18 +651,44 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   test('Support route opens directly and keeps its footer link localized', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
     await page.goto('/support');
-    await expect(page.locator('#content-page-title')).toHaveText('Unterstützen');
+    await expect(page.locator('#content-page-title')).toHaveText('Hilf mit, Feedbackbögen für den Unterricht zu verbessern');
     const support = page.locator('.app-footer [data-app-route="support"]');
     await expect(support).toHaveText('Unterstützen');
     await expect(support).toHaveAttribute('aria-current', 'page');
     const coffee = page.locator('#content-page a[href="https://www.buymeacoffee.com/Haake"]');
     await expect(coffee).toHaveAttribute('target', '_blank');
     await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(coffee).toBeInViewport({ ratio: 1 });
+    expect((await coffee.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    await expect(page.locator('a[href="mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback"]')).toBeVisible();
+    await expect(page.locator('a[href="https://www.buymeacoffee.com/privacy-policy"]')).toBeVisible();
 
-    await page.locator('[data-action="language-switch"][data-language-code="en"]').click();
-    await expect(support).toHaveText(/Support/i);
-    await expect(page.locator('#content-page-title')).not.toHaveText('Unterstützen');
+    for (const [locale, report, suggest] of [
+      ['de', 'Fehler melden', 'Funktion vorschlagen'],
+      ['en', 'Report a bug', 'Suggest a feature'],
+      ['es', 'Notificar un error', 'Sugerir una función'],
+      ['fr', 'Signaler un problème', 'Proposer une fonctionnalité'],
+      ['nl', 'Een fout melden', 'Een functie voorstellen'],
+    ] as const) {
+      if (locale !== 'de') {
+        await page.locator(`[data-action="language-switch"][data-language-code="${locale}"]`).click();
+      }
+      for (const [name, href] of [
+        [report, 'https://haak3.atlassian.net/jira/software/form/69a50efc-0474-445e-8f01-66eb6b747cc1'],
+        [suggest, 'https://haak3.atlassian.net/jira/software/form/50d4fc51-bff4-4e21-b46e-8fd987b90d24'],
+      ]) {
+        const form = page.locator('#content-page').getByRole('link', { name, exact: true });
+        await expect(form).toHaveAttribute('href', href);
+        await expect(form).toHaveAttribute('target', '_blank');
+        await expect(form).toHaveAttribute('rel', 'noopener noreferrer');
+      }
+      if (locale === 'en') {
+        await expect(support).toHaveText(/Support/i);
+        await expect(page.locator('#content-page-title')).toHaveText('Help improve feedback forms for teaching');
+      }
+    }
     await expect(page.locator('.workspace')).toBeHidden();
   });
 

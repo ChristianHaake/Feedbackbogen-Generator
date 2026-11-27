@@ -464,6 +464,31 @@ body {
   color: var(--primary);
   overflow-wrap: anywhere;
 }
+.content-page-card a[href="https://www.buymeacoffee.com/Haake"] {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #b84a00;
+  color: white;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.content-page-card a[href="https://www.buymeacoffee.com/Haake"]:hover {
+  background: #943900;
+}
+
+.content-page-card a[href="https://www.buymeacoffee.com/Haake"]:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
 .app-footer {
   flex-shrink: 0;
   display: flex;

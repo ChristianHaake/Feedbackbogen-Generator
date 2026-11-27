@@ -173,7 +173,7 @@ export function createDefaultConfig(defaultScaleId?: string): AppConfig {
     scaleSettingsByCategory: {},
     defaultScaleId,
     documentTitle: { ...DEFAULT_DOCUMENT_TITLE },
-    header: { fields: DEFAULT_HEADER_FIELDS.map((field) => ({ ...field })) },
+    header: { fields: localizeDefaultHeaderFields(DEFAULT_HEADER_FIELDS).map((field) => ({ ...field })) },
     footerFields: { ...DEFAULT_FOOTER_FIELDS },
     customItems: [],
     categoryOrder: [],
@@ -1126,6 +1126,7 @@ export function validateConfigCatalog(
       continue;
     }
     if (
+      (scale.fixedRange && (settings.min !== scale.defaultMin || settings.max !== scale.defaultMax)) ||
       settings.min < scale.minLimit ||
       settings.max > scale.maxLimit ||
       settings.min >= settings.max ||
@@ -1250,6 +1251,15 @@ function configDownloadFilename(config: AppConfig): string {
   return `${date}_${base}${topic ? `_${topic}` : ''}.json`;
 }
 
+export function validateImportedConfig(value: unknown, catalog?: ConfigCatalog): ConfigImportResult {
+  const result = parseConfig(value);
+  if (result.status !== 'success' || !catalog) return result;
+  const diagnostics = validateConfigCatalog(result.config, catalog);
+  return diagnostics.length
+    ? { status: 'error', message: strings.messages.importInvalidShape, diagnostics }
+    : result;
+}
+
 export async function importConfigJSON(
   catalog?: ConfigCatalog
 ): Promise<ConfigImportResult> {
@@ -1266,18 +1276,7 @@ export async function importConfigJSON(
           message: strings.messages.importTooLarge,
         });
       try {
-        const result = parseConfig(JSON.parse(await file.text()));
-        if (result.status !== 'success' || !catalog) return resolve(result);
-        const diagnostics = validateConfigCatalog(result.config, catalog);
-        resolve(
-          diagnostics.length
-            ? {
-                status: 'error',
-                message: strings.messages.importInvalidShape,
-                diagnostics,
-              }
-            : result
-        );
+        resolve(validateImportedConfig(JSON.parse(await file.text()), catalog));
       } catch {
         resolve({
           status: 'error',

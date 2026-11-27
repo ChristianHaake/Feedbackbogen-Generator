@@ -121,22 +121,13 @@ export function renderLayout(): HTMLElement {
         'div',
         { class: 'header-meta__top' },
         el(
-          'div',
-          {
-            class: 'language-switcher',
-            role: 'group',
-            'aria-label': strings.a11y.languageSwitcher,
-          },
-          ...LANGUAGE_CODES.map((code) =>
-            el('button', {
-              type: 'button',
-              class: `language-switcher__option${code === currentLanguage ? ' is-active' : ''}`,
-              'aria-label': LOCALES[code].label,
-              'aria-pressed': code === currentLanguage ? 'true' : 'false',
-              'data-action': 'language-switch',
-              'data-language-code': code,
-              text: code.toUpperCase(),
-            })
+          'label',
+          { class: 'language-switcher', for: 'language-switch' },
+          el('span', { text: strings.a11y.languageSwitcher }),
+          el('select', { id: 'language-switch', disabled: true },
+            ...LANGUAGE_CODES.map((code) => el('option', {
+              value: code, selected: code === currentLanguage, lang: code, text: LOCALES[code].label,
+            }))
           )
         ),
         el(
@@ -150,7 +141,7 @@ export function renderLayout(): HTMLElement {
         'div',
         {
           class: 'mode-switch',
-          role: 'tablist',
+          role: 'group',
           'aria-label': strings.labels.previewMode,
         },
         modeTab('full', strings.modes.full, true),
@@ -203,33 +194,6 @@ export function renderLayout(): HTMLElement {
     )
   );
 
-  const onboardingHint = el(
-    'aside',
-    {
-      id: 'onboarding-hint',
-      class: 'onboarding-hint onboarding-hint--floating',
-      'aria-label': strings.onboarding.intro,
-      hidden: 'true',
-    },
-    el('span', {
-      class: 'onboarding-hint__intro',
-      text: strings.onboarding.intro,
-    }),
-    el(
-      'ol',
-      { class: 'onboarding-hint__steps' },
-      ...strings.onboarding.steps.map((step) => el('li', { text: step }))
-    ),
-    el('button', {
-      id: 'onboarding-dismiss',
-      class: 'onboarding-hint__dismiss',
-      type: 'button',
-      'aria-label': strings.onboarding.dismiss,
-      title: strings.onboarding.dismiss,
-      text: '✕',
-    })
-  );
-
   const workspace = el(
     'div',
     { class: 'workspace' },
@@ -249,33 +213,13 @@ export function renderLayout(): HTMLElement {
       {
         class: 'editor-pane',
         'aria-label': strings.a11y.editorPane,
+        id: 'workspace-edit',
         'data-mobile-panel': 'edit',
       },
-      editorSectionCounted(
-        strings.kopfdaten.title,
-        'header-field-count',
-        'kopfdaten',
-        el('div', {
-          id: 'document-title-form',
-          class: 'document-title-fields',
-        }),
-        el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })
-      ),
-      editorSection(
-        strings.columns.selected,
-        'selected',
-        el(
-          'div',
-          { class: 'selected-head' },
-          el('div', { id: 'selected-counter', class: 'selected-counter' }),
-          toolbarButton(
-            'trash',
-            strings.labels.clearSelection,
-            'clear-selection',
-            { class: 'btn btn-small' }
-          )
-        ),
-        el('div', { id: 'selected-list', class: 'selected-list' })
+      el('div', { class: 'editor-start', id: 'editor-start' },
+        el('button', { id: 'start-criteria', class: 'btn btn-primary', type: 'button', text: strings.start.criteria }),
+        el('a', { href: '/examples', 'data-app-route': 'examples', class: 'btn', text: strings.start.example }),
+        el('button', { id: 'config-load-start', class: 'btn', type: 'button', text: strings.start.project })
       ),
       editorSectionCounted(
         strings.columns.categories,
@@ -298,13 +242,9 @@ export function renderLayout(): HTMLElement {
           })
         ),
         el(
-          'div',
+          'details',
           { class: 'scale-default-wrap' },
-          el('label', {
-            for: 'default-scale',
-            class: 'small-label',
-            text: strings.labels.defaultScale,
-          }),
+          el('summary', { text: strings.labels.defaultScale }),
           el('select', {
             id: 'default-scale',
             class: 'default-scale-select',
@@ -330,10 +270,31 @@ export function renderLayout(): HTMLElement {
           class: 'accordion product-format-categories',
         })
       ),
+      editorSection(
+        strings.columns.selected,
+        'selected',
+        el(
+          'div',
+          { class: 'selected-head' },
+          el('div', { id: 'selected-counter', class: 'selected-counter' }),
+          toolbarButton(
+            'trash',
+            strings.labels.clearSelection,
+            'clear-selection',
+            { class: 'btn btn-small' }
+          )
+        ),
+        el('div', { id: 'selected-list', class: 'selected-list' })
+      ),
+      el('div', { id: 'document-title-form', class: 'editor-title document-title-fields' }),
+      editorSectionCounted(
+        strings.kopfdaten.title, 'header-field-count', 'kopfdaten',
+        el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })
+      ),
       editorSectionCounted(
         strings.kopfdaten.footerTitle,
         'footer-field-count',
-        undefined,
+        'footer',
         el('div', { id: 'footer-fields', class: 'footer-fields' })
       )
     ),
@@ -342,9 +303,9 @@ export function renderLayout(): HTMLElement {
       {
         class: 'preview-pane',
         'aria-label': strings.a11y.previewPane,
+        id: 'workspace-preview',
         'data-mobile-panel': 'preview',
       },
-      onboardingHint,
       el(
         'div',
         { class: 'preview-pane-inner' },
@@ -357,6 +318,7 @@ export function renderLayout(): HTMLElement {
       {
         class: 'mobile-export-pane',
         'aria-label': strings.columns.export,
+        id: 'workspace-export',
         'data-mobile-panel': 'export',
       },
       editorSection(
@@ -416,11 +378,15 @@ export function renderLayout(): HTMLElement {
           'data-app-route': 'help',
           text: strings.contentLinks.help,
         }),
+        el('a', { href: contentPages.examples.path, 'data-app-route': 'examples', text: strings.contentLinks.examples }),
         supportLink(),
         el('a', {
           href: contentPages.about.path,
           'data-app-route': 'about',
           text: strings.contentLinks.about,
+        }),
+        el('a', {
+          href: contentPages.terms.path, 'data-app-route': 'terms', text: strings.contentLinks.terms,
         }),
         el('a', {
           href: contentPages.imprint.path,
@@ -559,8 +525,7 @@ function modeTab(
   const btn = el('button', {
     type: 'button',
     class: `mode-tab ${active ? 'active' : ''}`,
-    role: 'tab',
-    'aria-selected': String(active),
+    'aria-pressed': String(active),
     'data-mode': mode,
   }) as HTMLButtonElement;
   btn.textContent = label;
@@ -577,6 +542,7 @@ function mobileTab(
     class: `mobile-tab ${active ? 'active' : ''}`,
     role: 'tab',
     'aria-selected': String(active),
+    'aria-controls': `workspace-${view}`,
     'data-mobile-view': view,
   }) as HTMLButtonElement;
   btn.textContent = label;
@@ -1528,7 +1494,7 @@ export function renderCategories(
       'button',
       {
         class: 'accordion-header',
-        'aria-expanded': 'false',
+        'aria-expanded': String(Boolean(normalizedQuery)),
         id: buttonId,
         'aria-controls': `${buttonId}-panel`,
         type: 'button',
@@ -1538,11 +1504,11 @@ export function renderCategories(
     );
     const panel = el('div', {
       id: `${buttonId}-panel`,
-      class: 'accordion-panel',
+      class: normalizedQuery ? 'accordion-panel open' : 'accordion-panel',
       role: 'region',
       'aria-labelledby': buttonId,
     });
-    (panel as HTMLDivElement).hidden = true;
+    panel.hidden = !normalizedQuery;
     if (editable) {
       const titleInput = el('input', {
         type: 'text',
@@ -1640,6 +1606,7 @@ export function renderCategories(
       )
     );
 
+    const results = document.createDocumentFragment();
     if (Array.isArray(c.groups)) {
       visibleRegular.groups.forEach((g) => {
         const groupBlock = el('div', { class: 'group-block' });
@@ -1647,11 +1614,11 @@ export function renderCategories(
         g.items.forEach((it) =>
           groupBlock.append(itemCheckboxRow(c.id, it, selectedKeys, handlers))
         );
-        panel.append(groupBlock);
+        results.append(groupBlock);
       });
     } else if (Array.isArray(c.items)) {
       visibleRegular.items.forEach((it) =>
-        panel.append(itemCheckboxRow(c.id, it, selectedKeys, handlers))
+        results.append(itemCheckboxRow(c.id, it, selectedKeys, handlers))
       );
     }
 
@@ -1675,8 +1642,11 @@ export function renderCategories(
         row.querySelector('.item-actions')?.append(removeBtn);
         customSection.append(row);
       });
-      panel.append(customSection);
+      results.append(customSection);
     }
+
+    if (normalizedQuery) panel.prepend(results);
+    else panel.append(results);
 
     const customInput = el('input', {
       type: 'text',
@@ -1849,7 +1819,7 @@ function categoryScaleRow(
     select,
     el('p', { class: 'scale-hint', text: strings.labels.categoryScaleHint })
   );
-  if (scale?.kind !== 'numeric') return row;
+  if (scale?.kind !== 'numeric' || scale.fixedRange) return row;
 
   const bounds = sanitizeNumericScaleSettings(scale, scaleSettings);
   const range = el('div', { class: 'numeric-scale-range' });
@@ -2105,7 +2075,7 @@ export function renderModeSwitch(
   container.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach((btn) => {
     const isActive = btn.dataset.mode === mode;
     btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', String(isActive));
+    btn.setAttribute('aria-pressed', String(isActive));
     btn.onclick = () =>
       handlers.onPreviewModeChange(btn.dataset.mode as PrintMode);
   });
@@ -2116,12 +2086,24 @@ export function renderMobileTabs(
   activeView: MobileView,
   handlers: RenderHandlers
 ) {
-  container
-    .querySelectorAll<HTMLButtonElement>('.mobile-tab')
-    .forEach((btn) => {
+  const tabs = Array.from(container.querySelectorAll<HTMLButtonElement>('.mobile-tab'));
+  tabs.forEach((btn, index) => {
       const isActive = btn.dataset.mobileView === activeView;
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-selected', String(isActive));
+      btn.tabIndex = isActive ? 0 : -1;
+      btn.onkeydown = (event) => {
+        const next = {
+          ArrowLeft: (index + tabs.length - 1) % tabs.length,
+          ArrowRight: (index + 1) % tabs.length,
+          Home: 0,
+          End: tabs.length - 1,
+        }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        tabs[next].focus();
+        tabs[next].click();
+      };
       btn.onclick = () =>
         handlers.onMobileViewChange(btn.dataset.mobileView as MobileView);
     });
@@ -2253,7 +2235,7 @@ function renderA4Body(
     section.append(
       el('h2', {
         class: 'a4-cat-heading',
-        text: categoryHeadingText(title, weight),
+        text: categoryHeadingText(title, weight, mode === 'full' ? scale : null),
       })
     );
     if (mode === 'full' && scale) {
@@ -2328,6 +2310,10 @@ function renderA4ScaleTable(
   scale: Scale,
   onRemoveItem?: (categoryId: string, itemId: string) => void
 ): HTMLElement {
+  if (scale.kind === 'numeric' && scale.fixedRange) {
+    return el('ol', { class: 'a4-items' },
+      ...items.map(row => renderA4Item(row, 'full', scale, onRemoveItem)));
+  }
   const options = scaleOptionLabels(scale);
   const labelWidth = scale.kind === 'numeric' ? 46 : 42;
   const table = el('table', {
@@ -2394,6 +2380,10 @@ function renderA4ScaleTableRow(
 }
 
 function renderScaleBoxes(scale: Scale): HTMLElement {
+  if (scale.kind === 'numeric' && scale.fixedRange) {
+    return el('div', { class: 'grade-points-options' },
+      ...scaleOptionLabels(scale).map(label => el('span', { text: `${label}\u00a0☐` })));
+  }
   if (scale.kind === 'numeric') return renderNumericScaleBoxes(scale);
 
   const wrap = el('div', {

@@ -41,8 +41,11 @@ export function persistLanguage(lang: LanguageCode): boolean {
 }
 
 export function setLanguage(lang: LanguageCode) {
-  if (persistLanguage(lang)) location.reload();
+  if (!LANGUAGE_CODES.includes(lang)) return;
+  persistLanguage(lang);
+  currentLanguage = lang;
+  strings = LOCALES[lang].dict;
 }
 
-export const currentLanguage = getSavedLanguage();
-export const strings = LOCALES[currentLanguage].dict;
+export let currentLanguage = getSavedLanguage();
+export let strings = LOCALES[currentLanguage].dict;

@@ -1,11 +1,10 @@
 export const en = {
+  start: { criteria: 'Choose criteria', example: 'Open example', project: 'Open project' },
   appTitle: 'Feedback Form Generator',
   appTagline: 'Feedback forms for future-oriented assessment formats',
   localProcessing: 'Local processing in browser',
-  localProcessingHint:
-    'All inputs remain locally in your browser. No server transmission.',
-  footerNote:
-    'All data remains locally in the browser. No server transmission.',
+  localProcessingHint: 'Your feedback form is processed locally in your browser.',
+  footerNote: 'Your feedback form is processed locally in your browser.',
   watermark: 'Created with Feedback Form Generator at fbg.haak3.de',
   toolbar: {
     saveConfig: 'Download config',
@@ -19,8 +18,8 @@ export const en = {
     resetConfirmAction: 'Reset now',
     cancel: 'Cancel',
     exportNow: 'Export',
-    exportPdfPrint: 'PDF (Print)',
-    exportPdfFillable: 'PDF (Form)',
+    exportPdfPrint: 'Printable PDF',
+    exportPdfFillable: 'Fillable PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -114,7 +113,7 @@ export const en = {
       count === 1 ? '1 format selected' : `${count} formats selected`,
     close: 'Close',
     previewMode: 'View',
-    previewEmpty: 'No criteria selected yet — select on the left.',
+    previewEmpty: 'No criteria selected yet. Select “Choose criteria” in the editor. On smaller screens, open the “Edit” tab first.',
     scoreSummaryTitle: 'Scoring',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category}: ____ / ${weight} %`,
@@ -145,9 +144,12 @@ export const en = {
     footerNav: 'Legal and project information',
   },
   contentLinks: {
+    examples: 'Examples',
+    terms: 'Terms of use',
+    openExample: 'Open example',
     help: 'Help',
     about: 'About the project',
-    imprint: 'Imprint',
+    imprint: 'Legal notice',
     privacy: 'Privacy',
     support: 'Support',
   },
@@ -185,6 +187,7 @@ export const en = {
     importConfirm: "The current configuration will be replaced. Previous changes can be undone. Continue?",
     importConfirmLanguage: "The current configuration will be replaced and the language changed. The app will reload; this replacement cannot be undone. Continue?",
 
+    languageSwitchError: 'The language could not be changed. Your form is still open. Try again.',
     contentLoadError:
       'Content data could not be loaded or validated. Fallback activated.',
     contentPageLoading: 'Loading content...',

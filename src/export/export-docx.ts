@@ -24,6 +24,7 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
+import { compactRatingLines } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -51,7 +52,7 @@ function textParagraph(
 }
 
 function cell(
-  text: string,
+  text: string | string[],
   options: {
     bold?: boolean;
     width?: number;
@@ -61,7 +62,7 @@ function cell(
   } = {}
 ) {
   return new TableCell({
-    children: [textParagraph(text, options.bold, options.alignment)],
+    children: (Array.isArray(text) ? text : [text]).map(line => textParagraph(line, options.bold, options.alignment)),
     borders,
     columnSpan: options.columnSpan,
     margins: cellMargins,
@@ -114,9 +115,10 @@ function categoryTable(
   mode: PrintMode
 ): Table {
   const scale = items[0]?.scale ?? null;
-  const options = mode === 'full' ? scaleOptions(scale) : [];
+  const compact = mode === 'full' ? compactRatingLines(scale) : null;
+  const options = mode === 'full' && !compact ? scaleOptions(scale) : [];
   const criterionWidth =
-    mode === 'checklist' || options.length === 0 ? 8700 : 5400;
+    compact ? 4600 : mode === 'checklist' || options.length === 0 ? 8700 : 5400;
   const ratingWidth =
     mode === 'checklist' || options.length === 0
       ? contentWidth - criterionWidth
@@ -186,7 +188,7 @@ function categoryTable(
                 })
               )
             : [
-                cell('☐', {
+                cell(compact ?? '☐', {
                   width: ratingWidth,
                   fill,
                   alignment: AlignmentType.CENTER,
@@ -304,7 +306,7 @@ export async function createDOCXBlob(
     children.push(
       categoryTable(
         group.items,
-        categoryHeadingText(group.title, group.weight),
+        categoryHeadingText(group.title, group.weight, mode === 'full' ? group.scale : null),
         mode
       ),
       new Paragraph({ text: '', spacing: { after: 120 } })

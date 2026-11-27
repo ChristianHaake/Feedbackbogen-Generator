@@ -2,6 +2,7 @@ import JSZip from 'jszip';
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 
+import { FALLBACK_SCALES } from '@/content-data';
 import { createDOCXBlob } from '@/export/export-docx';
 import { createODTBlob } from '@/export/export-odt';
 import { createFillablePDFBlob } from '@/export/export-pdf-fillable';
@@ -39,6 +40,29 @@ describe('document exports', () => {
       expect(new DOMParser().parseFromString(xml, 'application/xml').querySelector('parsererror')).toBeNull();
       expect(xml).toContain('TestText');
       expect(xml).not.toContain('\u0001');
+    }
+  });
+
+  it('exports all 16 grade points and reopens either endpoint in a single PDF radio group', async () => {
+    const gradeScale = FALLBACK_SCALES.find(candidate => candidate.id === 'notenpunkte_15')!;
+    const gradeRows = [{ ...rows[0], scale: gradeScale }];
+    for (const [create, entry] of [[createDOCXBlob, 'word/document.xml'], [createODTBlob, 'content.xml']] as const) {
+      const zip = await JSZip.loadAsync(await (await create(gradeRows, 'Oberstufe', header, footerFields)).arrayBuffer());
+      const xml = await zip.file(entry)!.async('text');
+      expect(xml).toContain(gradeScale.label.toUpperCase());
+      for (let point = 0; point <= 15; point++) expect(xml).toContain(`${point}\u00a0☐`);
+    }
+    const workbook = await JSZip.loadAsync(await (await createXLSXBlob(gradeRows)).arrayBuffer());
+    expect(await workbook.file('xl/sharedStrings.xml')!.async('text')).toContain(gradeScale.label);
+    let pdf = await PDFDocument.load(await (await createFillablePDFBlob(gradeRows, 'Oberstufe', header, footerFields)).arrayBuffer());
+    const names = pdf.getForm().getFields().map(f => f.getName()).filter(name => name.includes('scale_general'));
+    expect(names).toHaveLength(1);
+    const options = pdf.getForm().getRadioGroup(names[0]).getOptions();
+    expect(options).toEqual(Array.from({ length: 16 }, (_, i) => `${i}_${i}`));
+    for (const option of [options[0], options[15]]) {
+      pdf.getForm().getRadioGroup(names[0]).select(option);
+      pdf = await PDFDocument.load(await pdf.save());
+      expect(pdf.getForm().getRadioGroup(names[0]).getSelected()).toBe(option);
     }
   });
 

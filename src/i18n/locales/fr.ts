@@ -1,11 +1,10 @@
 export const fr = {
+  start: { criteria: 'Choisir les critères', example: 'Ouvrir un exemple', project: 'Ouvrir un projet' },
   appTitle: 'Générateur de Feedback',
   appTagline: "Formulaires de feedback pour des formats d'évaluation modernes",
   localProcessing: 'Traitement local',
-  localProcessingHint:
-    "Toutes les saisies restent locales dans votre navigateur. Aucune donnée n'est envoyée au serveur.",
-  footerNote:
-    'Toutes les données restent localement dans le navigateur. Aucune transmission au serveur.',
+  localProcessingHint: 'Votre grille d’évaluation est traitée localement dans votre navigateur.',
+  footerNote: 'Votre grille d’évaluation est traitée localement dans votre navigateur.',
   watermark: 'Créé avec le Générateur de Feedback sur fbg.haak3.de',
   toolbar: {
     saveConfig: 'Télécharger la configuration',
@@ -19,8 +18,8 @@ export const fr = {
     resetConfirmAction: 'Réinitialiser maintenant',
     cancel: 'Annuler',
     exportNow: 'Exporter',
-    exportPdfPrint: 'PDF (Impression)',
-    exportPdfFillable: 'PDF (Formulaire)',
+    exportPdfPrint: 'PDF à imprimer',
+    exportPdfFillable: 'PDF remplissable',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -58,7 +57,7 @@ export const fr = {
   },
   modes: {
     full: 'Avec échelles',
-    checklist: 'Check-list uniquement',
+    checklist: 'Liste de contrôle',
   },
   labels: {
     remove: 'Supprimer',
@@ -117,8 +116,7 @@ export const fr = {
       count === 1 ? '1 format sélectionné' : `${count} formats sélectionnés`,
     close: 'Fermer',
     previewMode: 'Vue',
-    previewEmpty:
-      'Aucun critère sélectionné — veuillez en sélectionner à gauche.',
+    previewEmpty: 'Aucun critère sélectionné. Dans l’éditeur, utilisez « Choisir les critères ». Sur petit écran, ouvrez d’abord l’onglet « Modifier ».',
     scoreSummaryTitle: 'Évaluation',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category} : ____ / ${weight} %`,
@@ -148,6 +146,9 @@ export const fr = {
     footerNav: 'Informations légales et sur le projet',
   },
   contentLinks: {
+    examples: 'Exemples',
+    terms: 'Conditions d’utilisation',
+    openExample: 'Ouvrir l’exemple',
     help: 'Aide',
     about: 'À propos du projet',
     imprint: 'Mentions légales',
@@ -188,6 +189,7 @@ export const fr = {
     importConfirm: "La configuration actuelle sera remplacée. Les modifications précédentes peuvent être annulées. Continuer ?",
     importConfirmLanguage: "La configuration actuelle sera remplacée et la langue changée. L’application sera rechargée ; ce remplacement ne pourra pas être annulé. Continuer ?",
 
+    languageSwitchError: 'Le changement de langue a échoué. Votre grille reste ouverte. Réessayez.',
     contentLoadError:
       "Les données de contenu n'ont pas pu être chargées ou validées. Solution de repli activée.",
     contentPageLoading: 'Chargement du contenu...',

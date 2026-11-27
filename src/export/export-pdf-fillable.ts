@@ -118,7 +118,7 @@ export async function createPDFBlob(
     title,
     ...header.fields.flatMap((field) => [field.label, field.value]),
     ...rows.flatMap((row) => [
-      row.category.toUpperCase(),
+      categoryHeadingText(row.category, row.weight, mode === 'full' ? row.scale : null).toUpperCase(),
       row.item,
       ...scaleOptions(row.scale),
     ]),
@@ -204,7 +204,7 @@ export async function createPDFBlob(
   for (const group of groupRows(rows)) {
     const headingLines = splitText(
       ctx,
-      categoryHeadingText(group.title, group.weight).toUpperCase(),
+      categoryHeadingText(group.title, group.weight, mode === 'full' ? group.scale : null).toUpperCase(),
       contentWidth - 14,
       10,
       bold

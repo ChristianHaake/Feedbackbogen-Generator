@@ -100,6 +100,7 @@ function validateScales(scales, lang) {
         break;
       case 'numeric':
         if (
+          (scale.fixedRange !== undefined && typeof scale.fixedRange !== 'boolean') ||
           typeof scale.defaultMin !== 'number' ||
           typeof scale.defaultMax !== 'number' ||
           typeof scale.minLimit !== 'number' ||

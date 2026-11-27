@@ -1,11 +1,10 @@
 export const es = {
+  start: { criteria: 'Elegir criterios', example: 'Abrir ejemplo', project: 'Abrir proyecto' },
   appTitle: 'Generador de Feedback',
   appTagline: 'Formularios de feedback para formatos de evaluación modernos',
   localProcessing: 'Procesamiento local en el navegador',
-  localProcessingHint:
-    'Todas las entradas permanecen localmente en su navegador. Sin transmisión al servidor.',
-  footerNote:
-    'Todos los datos permanecen localmente en el navegador. Sin transmisión al servidor.',
+  localProcessingHint: 'Tu ficha de evaluación se procesa localmente en tu navegador.',
+  footerNote: 'Tu ficha de evaluación se procesa localmente en tu navegador.',
   watermark: 'Creado con el Generador de Feedback en fbg.haak3.de',
   toolbar: {
     saveConfig: 'Descargar configuración',
@@ -19,8 +18,8 @@ export const es = {
     resetConfirmAction: 'Restablecer ahora',
     cancel: 'Cancelar',
     exportNow: 'Exportar',
-    exportPdfPrint: 'PDF (Impresión)',
-    exportPdfFillable: 'PDF (Formulario)',
+    exportPdfPrint: 'PDF para imprimir',
+    exportPdfFillable: 'PDF rellenable',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -58,7 +57,7 @@ export const es = {
   },
   modes: {
     full: 'Con escalas',
-    checklist: 'Solo lista de verificación',
+    checklist: 'Lista de verificación',
   },
   labels: {
     remove: 'Eliminar',
@@ -118,8 +117,7 @@ export const es = {
         : `${count} formatos seleccionados`,
     close: 'Cerrar',
     previewMode: 'Vista',
-    previewEmpty:
-      'Aún no se han seleccionado criterios — selecciona a la izquierda.',
+    previewEmpty: 'Aún no hay criterios seleccionados. Pulsa «Elegir criterios» en el editor. En pantallas pequeñas, abre primero la pestaña «Editar».',
     scoreSummaryTitle: 'Evaluación',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category}: ____ / ${weight} %`,
@@ -149,6 +147,9 @@ export const es = {
     footerNav: 'Información legal y del proyecto',
   },
   contentLinks: {
+    examples: 'Ejemplos',
+    terms: 'Condiciones de uso',
+    openExample: 'Abrir ejemplo',
     help: 'Ayuda',
     about: 'Sobre el proyecto',
     imprint: 'Aviso legal',
@@ -189,6 +190,7 @@ export const es = {
     importConfirm: "Se sustituirá la configuración actual. Los cambios anteriores se pueden deshacer. ¿Continuar?",
     importConfirmLanguage: "Se sustituirá la configuración actual y se cambiará el idioma. La aplicación se recargará; esta sustitución no se puede deshacer. ¿Continuar?",
 
+    languageSwitchError: 'No se ha podido cambiar el idioma. El formulario sigue abierto. Vuelve a intentarlo.',
     contentLoadError:
       'No se pudieron cargar los datos de contenido. Respaldo activado.',
     contentPageLoading: 'Cargando contenido...',

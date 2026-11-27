@@ -25,12 +25,15 @@ import {
 } from './strings';
 import { setupKeyboardShortcuts, announce, focusVisiblePolyfill } from './a11y';
 import {
+  FALLBACK_CATEGORIES,
+  FALLBACK_SCALES,
   loadCategories,
   loadScales,
   scaleById,
   buildCategoriesWithCustom,
 } from './content-data';
 import {
+  FALLBACK_PRODUCT_FORMATS,
   loadProductFormats,
   selectedProductFormatCategories,
 } from './product-formats';
@@ -53,6 +56,9 @@ import {
   loadConfig,
   exportConfigJSON,
   importConfigJSON,
+  validateImportedConfig,
+  type ConfigCatalog,
+  type ConfigImportResult,
   EMPTY_HEADER,
   DEFAULT_FOOTER_FIELDS,
   DEFAULT_DOCUMENT_TITLE,
@@ -112,21 +118,62 @@ function requireEl<T extends HTMLElement = HTMLElement>(
   return node;
 }
 
-async function bootstrap() {
-  document.documentElement.lang = currentLanguage;
-  document.title = strings.appTitle;
-  focusVisiblePolyfill();
-  const root = document.getElementById('app')!;
-  const app = renderLayout();
-  root.append(app);
+type HistoryEntry = { config: AppConfig; label: string };
+function editorDrafts() {
+  const drafts = Array.from(document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+    '.custom-item-input, .bulk-add-input, .add-category-input'
+  )).filter(input => input.value).map(input => [input.id, input.value] as const);
+  const openCats = Array.from(document.querySelectorAll('.accordion-header[aria-expanded="true"]'),
+    header => header.id.replace(/^acc-/, ''));
+  return { drafts, openCats };
+}
 
+type EditorSession = {
+  draftState: ReturnType<typeof editorDrafts>;
+  config: AppConfig;
+  undo: HistoryEntry[];
+  redo: HistoryEntry[];
+  mobileView: MobileView;
+  previewMode: PrintMode;
+  search: string;
+  openBeforeSearch: string[];
+};
+
+async function loadCatalog(language: LanguageCode): Promise<ConfigCatalog> {
   const baseUrl = import.meta.env.BASE_URL as string;
   const [categories, scales, productFormats] = await Promise.all([
-    loadCategories(baseUrl),
-    loadScales(baseUrl),
-    loadProductFormats(baseUrl),
+    loadCategories(baseUrl, language), loadScales(baseUrl, language), loadProductFormats(baseUrl, language),
   ]);
-  const configCatalog = { categories, scales, productFormats };
+  return { categories, scales, productFormats };
+}
+
+function usesFallback({ categories, scales, productFormats }: ConfigCatalog) {
+  return categories === FALLBACK_CATEGORIES || scales === FALLBACK_SCALES || productFormats === FALLBACK_PRODUCT_FORMATS;
+}
+
+async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog) {
+  const listeners = new AbortController();
+  const { signal } = listeners;
+  document.documentElement.lang = currentLanguage;
+  document.title = strings.appTitle;
+
+  const root = document.getElementById('app')!;
+  const pending = document.createElement('p');
+  pending.setAttribute('role', 'status');
+  pending.textContent = strings.messages.contentPageLoading;
+  root.replaceChildren(pending);
+
+  const configCatalog = loadedCatalog ?? await loadCatalog(currentLanguage);
+  const { categories, scales, productFormats } = configCatalog;
+  const app = renderLayout();
+  root.replaceChildren(app);
+  if (usesFallback(configCatalog)) {
+    const warning = document.createElement('p');
+    warning.className = 'recovery-notice';
+    warning.setAttribute('role', 'alert');
+    warning.textContent = strings.messages.contentLoadError;
+    app.prepend(warning);
+  }
   const importSummaryKey = 'bbk:import-summary';
 
   // State
@@ -144,18 +191,18 @@ async function bootstrap() {
   let categoryTitleOverrides: Record<string, string> = {};
   let customCategories: CustomCategory[] = [];
   let categoryWeights: Record<string, number> = {};
-  type HistoryEntry = { config: AppConfig; label: string };
-  const undoStack: HistoryEntry[] = [];
-  const redoStack: HistoryEntry[] = [];
-  let previewMode: PrintMode = 'full';
-  let searchQuery = '';
+  const undoStack = session?.undo ?? [];
+  const redoStack = session?.redo ?? [];
+  let previewMode: PrintMode = session?.previewMode ?? 'full';
+  let searchQuery = session?.search ?? '';
+  let openBeforeSearch = session?.openBeforeSearch ?? [];
   let productFormatModalOpen = false;
   let productFormatSearchQuery = '';
   let productFormatModalReturnFocus: HTMLElement | null = null;
   let resetConfirmReturnFocus: HTMLElement | null = null;
-  let mobileView: MobileView = 'edit';
+  let mobileView: MobileView = session?.mobileView ?? 'edit';
 
-  const persisted = loadConfig(importMatchesCatalog);
+  const persisted = session?.config ?? loadConfig(importMatchesCatalog);
   if (persisted) {
     selected = persisted.selectedItems;
     selectedProductFormats = persisted.selectedProductFormats;
@@ -195,14 +242,13 @@ async function bootstrap() {
   const a4El = requireById('a4-page');
   const defaultScaleSelectEl = requireById<HTMLSelectElement>('default-scale');
   const criteriaSearchEl = requireById<HTMLInputElement>('criteria-search');
+  criteriaSearchEl.value = searchQuery;
   const clearSelectionEl = requireById<HTMLButtonElement>('clear-selection');
   const toolbarActionsEl = requireEl('.action-bar');
   const modeSwitchEl = requireEl('.mode-switch');
   const mobileTabsEl = requireEl('.mobile-tabs');
   const configMessageEl = requireById('config-message');
   const toastEl = requireById('app-toast');
-  const onboardingHintEl = requireById('onboarding-hint');
-  const onboardingDismissEl = requireById('onboarding-dismiss');
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
   let activeExport: symbol | null = null;
   const contentMarkdownCache: Partial<Record<ContentPageId, string>> = {};
@@ -235,6 +281,11 @@ async function bootstrap() {
       commitConfigChange(
         () => {
           scaleByCategoryMap = { ...scaleByCategoryMap, [categoryId]: scaleId };
+          const nextScale = scaleById(scales, scaleId);
+          if (nextScale?.kind !== 'numeric' || nextScale.fixedRange) {
+            const { [categoryId]: _oldRange, ...remaining } = scaleSettingsByCategory;
+            scaleSettingsByCategory = remaining;
+          }
         },
         true,
         strings.history.scaleChanged
@@ -260,6 +311,12 @@ async function bootstrap() {
     onDefaultScaleChange: (scaleId: string) => {
       commitConfigChange(() => {
         defaultScaleId = scaleId;
+        const nextScale = scaleById(scales, scaleId);
+        if (nextScale?.kind !== 'numeric' || nextScale.fixedRange) {
+          scaleSettingsByCategory = Object.fromEntries(
+            Object.entries(scaleSettingsByCategory).filter(([id]) => scaleByCategoryMap[id])
+          );
+        }
       });
     },
     onAddCustomItem: (categoryId: string, label: string) => {
@@ -490,8 +547,10 @@ async function bootstrap() {
       );
     },
     onSearchChange: (value: string) => {
+      const previous = editorDrafts();
+      if (!searchQuery.trim()) openBeforeSearch = previous.openCats;
       searchQuery = value;
-      renderEditor();
+      renderEditor({ ...previous, openCats: value.trim() ? [] : openBeforeSearch });
     },
     onOpenProductFormatModal: () => {
       productFormatModalReturnFocus =
@@ -653,9 +712,27 @@ async function bootstrap() {
       mobileView = view;
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
     },
-    onLanguageChange: (lang: string) => {
+    onLanguageChange: async (lang: string) => {
+      if (lang === currentLanguage) return;
+      languageSwitch.disabled = true;
+      const nextCatalog = await loadCatalog(lang as LanguageCode);
+      if (signal.aborted) return;
+      if (usesFallback(nextCatalog) || validateConfigCatalog(currentConfig(), nextCatalog).length || activeExport) {
+        languageSwitch.value = currentLanguage;
+        languageSwitch.disabled = Boolean(activeExport);
+        showToast(strings.messages.languageSwitchError, 'error');
+        announce(strings.messages.languageSwitchError);
+        return;
+      }
       autoPersist();
+      const nextSession = {
+        config: currentConfig(), undo: undoStack, redo: redoStack,
+        mobileView, previewMode, search: searchQuery, openBeforeSearch, draftState: editorDrafts(),
+      };
+      listeners.abort();
+      if (previewFrame !== undefined) cancelAnimationFrame(previewFrame);
       setLanguage(lang as LanguageCode);
+      void bootstrap(nextSession, nextCatalog);
     },
   };
 
@@ -1100,7 +1177,7 @@ async function bootstrap() {
   }
 
   function selectedScaleLabel(scale: NonNullable<ExportRow['scale']>): string {
-    return scale.kind === 'numeric'
+    return scale.kind === 'numeric' && !scale.fixedRange
       ? `${scaleDisplay(scale)} (${normalizeScaleValue(scale)})`
       : scaleDisplay(scale);
   }
@@ -1136,38 +1213,13 @@ async function bootstrap() {
     }
   }
 
-  function renderEditor() {
+  function renderEditor(previous?: ReturnType<typeof editorDrafts>) {
     const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusId = focused?.id;
     const focusContainer = focused?.parentElement?.closest<HTMLElement>('[id]');
     const focusControls = focusContainer ? Array.from(focusContainer.querySelectorAll<HTMLElement>('input, button, select, textarea, a[href]')) : [];
     const focusIndex = focused ? focusControls.indexOf(focused) : -1;
-    // Preserve any in-progress custom item inputs
-    const savedInputs: Record<string, string> = {};
-    document
-      .querySelectorAll<HTMLInputElement>('.custom-item-input[data-cat]')
-      .forEach((el) => {
-        if (el.dataset.cat) savedInputs[el.dataset.cat] = el.value;
-      });
-    const savedBulk: Record<string, string> = {};
-    document
-      .querySelectorAll<HTMLTextAreaElement>('.bulk-add-input[data-cat]')
-      .forEach((el) => {
-        if (el.dataset.cat) savedBulk[el.dataset.cat] = el.value;
-      });
-    const savedAddCategory =
-      document.querySelector<HTMLInputElement>('.add-category-input')?.value ??
-      '';
-    // Preserve accordion open state
-    const openCats = new Set<string>();
-    document
-      .querySelectorAll<HTMLButtonElement>(
-        '.accordion-header[aria-expanded="true"]'
-      )
-      .forEach((h) => {
-        const id = h.id.replace(/^acc-/, '');
-        openCats.add(id);
-      });
+    const { drafts, openCats } = previous ?? editorDrafts();
 
     renderDocumentTitleForm(documentTitleEl, documentTitle, handlers);
     renderKopfdaten(kopfdatenEl, header, handlers);
@@ -1178,6 +1230,7 @@ async function bootstrap() {
       defaultScaleId,
       handlers
     );
+    requireById('editor-start').hidden = selected.length > 0;
     renderSelectedCounter(counterEl, selected.length);
     setSectionCount(
       criteriaCountEl,
@@ -1246,28 +1299,21 @@ async function bootstrap() {
       productFormatSearchQuery,
       handlers
     );
+    const showProductMatches = Boolean(searchQuery.trim() && productFormatCategoriesEl.querySelector('.accordion-header'));
+    if (showProductMatches) {
+      categoriesEl.after(productFormatCategoriesEl);
+      const empty = categoriesEl.querySelector<HTMLElement>('.search-empty');
+      if (empty) empty.hidden = true;
+    } else {
+      productFormatControlsEl.after(productFormatCategoriesEl);
+    }
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 
-    // Restore inputs
-    Object.entries(savedInputs).forEach(([catId, val]) => {
-      const el = document.querySelector<HTMLInputElement>(
-        `.custom-item-input[data-cat="${cssEscape(catId)}"]`
-      );
-      if (el) el.value = val;
+    drafts.forEach(([id, value]) => {
+      const input = document.getElementById(id);
+      if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) input.value = value;
     });
-    Object.entries(savedBulk).forEach(([catId, val]) => {
-      const el = document.querySelector<HTMLTextAreaElement>(
-        `.bulk-add-input[data-cat="${cssEscape(catId)}"]`
-      );
-      if (el) el.value = val;
-    });
-    if (savedAddCategory) {
-      const addCatEl = document.querySelector<HTMLInputElement>(
-        '.add-category-input'
-      );
-      if (addCatEl) addCatEl.value = savedAddCategory;
-    }
     // Restore accordion state
     openCats.forEach((catId) => {
       const header = document.getElementById(`acc-${catId}`);
@@ -1338,6 +1384,7 @@ async function bootstrap() {
     return route !== 'generator';
   }
 
+  let editorReturnFocus: HTMLElement | null = null;
   async function renderRoute() {
     const route = routeFromPath(window.location.pathname);
     const renderId = ++routeRenderId;
@@ -1346,7 +1393,13 @@ async function bootstrap() {
     workspaceEl.hidden = route !== 'generator';
     contentPageEl.hidden = route === 'generator';
     toolbarActionsEl.hidden = route !== 'generator';
-    if (!isContentRoute(route)) return;
+    if (!isContentRoute(route)) {
+      if (renderId > 1) {
+        const target = editorReturnFocus?.isConnected ? editorReturnFocus : document.querySelector<HTMLElement>('.brand');
+        target?.focus();
+      }
+      return;
+    }
 
     contentPageEl.innerHTML = '';
     contentPageEl.append(
@@ -1356,15 +1409,22 @@ async function bootstrap() {
       const markdown =
         contentMarkdownCache[route] ?? (await loadContentMarkdown(route));
       contentMarkdownCache[route] = markdown;
-      if (renderId !== routeRenderId) return;
+      if (signal.aborted || renderId !== routeRenderId) return;
       renderContentPage(contentPageEl, route, markdown);
+      const heading = contentPageEl.querySelector<HTMLElement>('h1');
+      if (heading) { heading.tabIndex = -1; heading.focus(); }
       contentPageEl.scrollTo({ top: 0 });
     } catch {
-      if (renderId !== routeRenderId) return;
+      if (signal.aborted || renderId !== routeRenderId) return;
       contentPageEl.innerHTML = '';
-      contentPageEl.append(
-        simpleContentMessage(strings.messages.contentPageLoadError)
-      );
+      const error = simpleContentMessage(strings.messages.contentPageLoadError);
+      const back = document.createElement('a');
+      back.href = '/';
+      back.dataset.appRoute = 'generator';
+      back.textContent = strings.footer.backToApp(strings.appTitle);
+      error.append(back);
+      contentPageEl.append(error);
+      back.focus();
     }
   }
 
@@ -1391,14 +1451,14 @@ async function bootstrap() {
   }
 
   normalizeOrderState();
-  renderEditor();
+  renderEditor(session?.draftState);
   renderModeSwitch(modeSwitchEl, previewMode, handlers);
   renderMobileTabs(mobileTabsEl, mobileView, handlers);
   renderA4();
   autoPersist();
   renderRoute();
-  window.addEventListener('pagehide', autoPersist);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) autoPersist(); });
+  window.addEventListener('pagehide', autoPersist, { signal });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) autoPersist(); }, { signal });
   const recoveryNotice = getConfigRecovery() !== null ? document.createElement('div') : null;
   if (recoveryNotice) {
     recoveryNotice.className = 'recovery-notice';
@@ -1450,8 +1510,7 @@ async function bootstrap() {
     showToast(strings.messages.saved, 'success');
     announce(strings.messages.saved);
   };
-  const importJson = async () => {
-    const result = await importConfigJSON(configCatalog);
+  const applyImport = (result: ConfigImportResult) => {
     if (result.status === 'success') {
       const defaults = createDefaultConfig(scales[0]?.id ?? 'verbal_5');
       const changesLanguage = result.config.language !== currentLanguage;
@@ -1490,6 +1549,7 @@ async function bootstrap() {
         : strings.messages.storageError;
       showConfigMessage(message);
       announce(message);
+      return true;
     } else if (result.status === 'error') {
       if (result.diagnostics?.length)
         showImportDiagnostics(result.message, result.diagnostics);
@@ -1499,18 +1559,35 @@ async function bootstrap() {
       }
     }
   };
+  contentPageEl.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest('#open-example')) return;
+    const sample = {
+      format: CONFIG_FORMAT, schemaVersion: CONFIG_SCHEMA_VERSION, language: currentLanguage,
+      selectedItems: ['koerpersprache', 'aktivierend', 'sprachlicher_ausdruck']
+        .map((itemId) => ({ categoryId: 'praesentation', itemId })),
+    };
+    if (applyImport(validateImportedConfig(sample, configCatalog))) {
+      window.history.pushState(null, '', '/');
+      void renderRoute();
+      handlers.onMobileViewChange('edit');
+      document.getElementById('sec-selected-btn')?.focus();
+    }
+  });
   document
     .querySelectorAll<HTMLButtonElement>('#config-save, #config-save-mobile')
     .forEach((btn) => {
       btn.addEventListener('click', exportJson);
     });
   document
-    .querySelectorAll<HTMLButtonElement>('#config-load, #config-load-mobile')
+    .querySelectorAll<HTMLButtonElement>('#config-load, #config-load-mobile, #config-load-start')
     .forEach((btn) => {
       btn.addEventListener('click', async () => {
-        await importJson();
-        if (!configMessageEl.classList.contains('config-message--errors'))
-          btn.focus();
+        const result = await importConfigJSON(configCatalog);
+        if (signal.aborted) return;
+        applyImport(result);
+        if (!configMessageEl.classList.contains('config-message--errors')) {
+          (btn.closest('[hidden]') ? requireById('sec-selected-btn') : btn).focus();
+        }
       });
     });
   document
@@ -1549,20 +1626,22 @@ async function bootstrap() {
     if (!path) return;
 
     event.preventDefault();
+    if (routeFromPath(location.pathname) === 'generator' && route !== 'generator') editorReturnFocus = link;
     if (window.location.pathname !== path)
       window.history.pushState(null, '', path);
     renderRoute();
-  });
+  }, { signal });
 
-  document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement;
-    if (target.matches('[data-action="language-switch"]')) {
-      const lang = target.dataset.languageCode;
-      if (lang) handlers.onLanguageChange(lang);
-    }
+  requireById('start-criteria').addEventListener('click', () => {
+    const toggle = requireById<HTMLButtonElement>('sec-criteria-btn');
+    if (toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+    criteriaSearchEl.focus();
   });
+  const languageSwitch = requireById<HTMLSelectElement>('language-switch');
+  languageSwitch.disabled = false;
+  languageSwitch.addEventListener('change', () => handlers.onLanguageChange(languageSwitch.value));
 
-  window.addEventListener('popstate', renderRoute);
+  window.addEventListener('popstate', renderRoute, { signal });
 
   const exportLabels: Record<ExportFormat, string> = {
     'pdf-print': strings.toolbar.exportPdfPrint,
@@ -1586,6 +1665,7 @@ async function bootstrap() {
     }
     const operation = Symbol('export');
     activeExport = operation;
+    languageSwitch.disabled = true;
     const exportTitle = documentTitleText(documentTitle);
     const exportHeader = header;
     const exportFooter = footerFields;
@@ -1599,7 +1679,10 @@ async function bootstrap() {
     const watchdog = setTimeout(() => {
       if (settled) return;
       settled = true;
-      if (activeExport === operation) activeExport = null;
+      if (activeExport === operation) {
+        activeExport = null;
+        languageSwitch.disabled = false;
+      }
       showToast(strings.messages.exportError(label), 'error');
       announce(strings.messages.exportError(label));
     }, 30_000);
@@ -1660,7 +1743,10 @@ async function bootstrap() {
     } finally {
       settled = true;
       clearTimeout(watchdog);
-      if (activeExport === operation) activeExport = null;
+      if (activeExport === operation) {
+        activeExport = null;
+        languageSwitch.disabled = false;
+      }
     }
   }
 
@@ -1702,30 +1788,13 @@ async function bootstrap() {
       });
     });
 
-  // Compact onboarding hint: shown once until dismissed (persisted in localStorage).
-  const ONBOARDING_KEY = 'bbk:onboarding-dismissed';
-  try {
-    if (localStorage.getItem(ONBOARDING_KEY) !== '1')
-      onboardingHintEl.hidden = false;
-  } catch {
-    /* localStorage unavailable — keep the hint hidden */
-  }
-  onboardingDismissEl.addEventListener('click', () => {
-    onboardingHintEl.hidden = true;
-    try {
-      localStorage.setItem(ONBOARDING_KEY, '1');
-    } catch {
-      /* ignore persistence failure */
-    }
-    onboardingDismissEl.blur();
-  });
-
   setupSectionToggles();
-  setupKeyboardShortcuts(exportJson, openExportMenu, undo, redo);
+  setupKeyboardShortcuts(exportJson, openExportMenu, undo, redo, signal);
+  if (session && routeFromPath(location.pathname) === 'generator') languageSwitch.focus();
 }
 
 // Section ids open by default on first load (no persisted state yet).
-const DEFAULT_OPEN_SECTIONS = ['title', 'kopfdaten', 'criteria'];
+const DEFAULT_OPEN_SECTIONS = ['criteria', 'selected'];
 
 // Wires the collapse/expand toggles on the editor blocks. Sections are built
 // once in renderLayout, so this is a one-time DOM-state setup: child re-renders
@@ -1758,4 +1827,5 @@ function setupSectionToggles(): void {
   }
 }
 
-bootstrap();
+focusVisiblePolyfill();
+void bootstrap();

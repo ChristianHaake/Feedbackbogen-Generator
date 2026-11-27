@@ -30,6 +30,10 @@ export const FALLBACK_SCALES: Scale[] = [
     maxLimit: 20,
     maxSteps: 11
   },
+  {
+    id: 'notenpunkte_15', label: 'Notenpunkte (0–15)', kind: 'numeric',
+    fixedRange: true, defaultMin: 0, defaultMax: 15, minLimit: 0, maxLimit: 15, maxSteps: 16
+  },
   { id: 'ascii_3', label: 'ASCII-Feedback (3 Stufen)', kind: 'symbol', set: [':(', ':/', ':)'] },
   { id: 'ampel', label: 'Ampelbewertung', kind: 'traffic', colors: ['#2e7d32', '#fbc02d', '#c62828'] },
   { id: 'prozent', label: 'Prozentbewertung', kind: 'percent' }
@@ -102,6 +106,7 @@ export function validateScales(value: unknown): value is Scale[] {
         break;
       case 'numeric':
         if (
+          (scale.fixedRange !== undefined && typeof scale.fixedRange !== 'boolean') ||
           typeof scale.defaultMin !== 'number' ||
           typeof scale.defaultMax !== 'number' ||
           typeof scale.minLimit !== 'number' ||
@@ -158,12 +163,12 @@ async function loadJson<T>(
   }
 }
 
-export function loadCategories(baseUrl: string): Promise<Category[]> {
-  return loadJson(baseUrl + `content/${currentLanguage}/categories.json`, validateCategories, FALLBACK_CATEGORIES, 'categories');
+export function loadCategories(baseUrl: string, language = currentLanguage): Promise<Category[]> {
+  return loadJson(baseUrl + `content/${language}/categories.json`, validateCategories, FALLBACK_CATEGORIES, 'categories');
 }
 
-export function loadScales(baseUrl: string): Promise<Scale[]> {
-  return loadJson(baseUrl + `content/${currentLanguage}/scales.json`, validateScales, FALLBACK_SCALES, 'scales');
+export function loadScales(baseUrl: string, language = currentLanguage): Promise<Scale[]> {
+  return loadJson(baseUrl + `content/${language}/scales.json`, validateScales, FALLBACK_SCALES, 'scales');
 }
 
 export function getAllItemsFromCategory(category: Category): Item[] {

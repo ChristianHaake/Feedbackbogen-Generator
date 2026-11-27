@@ -111,12 +111,14 @@ export function validateProductFormats(
   return true;
 }
 
+export const FALLBACK_PRODUCT_FORMATS: ProductFormatData = { groups: [] };
+
 export async function loadProductFormats(
-  baseUrl: string
+  baseUrl: string, language = currentLanguage
 ): Promise<ProductFormatData> {
   try {
     const res = await fetch(
-      baseUrl + `content/${currentLanguage}/product-formats.json`
+      baseUrl + `content/${language}/product-formats.json`
     );
     if (!res.ok) throw new Error('fetch failed');
     const parsed = await res.json();
@@ -128,6 +130,6 @@ export async function loadProductFormats(
       err
     );
     announce(strings.messages.contentLoadError);
-    return { groups: [] };
+    return FALLBACK_PRODUCT_FORMATS;
   }
 }

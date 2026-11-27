@@ -1,7 +1,5 @@
 # Datenschutzerklärung
 
-Hinweis: Diese Seite liegt derzeit in deutscher Sprache vor. Die deutsche Fassung ist maßgeblich.
-
 ## 1. Verantwortlicher
 
 Verantwortlich für die Datenverarbeitung auf dieser Website:
@@ -11,7 +9,7 @@ Alte Ziegelei 7
 26197 Großenkneten
 Deutschland
 
-E-Mail: {mein Vorname}{mein Nachname}@gmail.com
+E-Mail: apps@haak3.de
 
 ## 2. Bereitstellung der Website
 
@@ -49,9 +47,7 @@ https://www.cloudflare.com/privacypolicy/
 
 ## 4. Cloudflare Web Analytics
 
-Auf der Live-Website kann Cloudflare Web Analytics eingesetzt werden. Dabei lädt Cloudflare ein Analyse-Skript von `static.cloudflareinsights.com`, um technische Nutzungs- und Performancekennzahlen zu erfassen.
-
-Die Anwendung selbst setzt keine Analyse-Cookies, legt keine Local-Storage-Einträge zu Analysezwecken an und erstellt keine nutzungsbezogenen Profile in der Anwendung. Die Auswertung erfolgt über Cloudflare im Rahmen der Bereitstellung und Performanceüberwachung des Webangebots.
+Cloudflare Web Analytics ist für fbg.haak3.de in allen Regionen deaktiviert. Der Browser sendet keine Messdaten an diesen Analysedienst. Beim Aufruf der Website verarbeitet Cloudflare die in Abschnitt 2 beschriebenen Verbindungsdaten.
 
 ## 5. Lokale Verarbeitung von Eingaben
 
@@ -59,7 +55,7 @@ Der Feedbackbogen-Generator verarbeitet die vom Nutzer eingegebenen Inhalte grun
 
 Die eingegebenen Dokumentinhalte werden nicht an den Betreiber übermittelt. Die Anwendung speichert die aktuelle Konfiguration automatisch im localStorage dieses Browsers unter `bbk:config`. Sie enthält Titel, Kopffelder, eigene und ausgewählte Kriterien, Skalen, Gewichtungen und Reihenfolgen.
 
-Weitere lokale Einträge speichern die Sprache (`bbk:lang`), aufgeklappte Editorbereiche (`bbk:sections`) und das Ausblenden des Einführungshinweises (`bbk:onboarding-dismissed`). Diese Daten bleiben ohne feste Ablauffrist erhalten, bis sie zurückgesetzt oder über die Website-Daten des Browsers gelöscht werden.
+Weitere lokale Einträge speichern die Sprache (`bbk:lang`) und aufgeklappte Editorbereiche (`bbk:sections`). Diese Daten bleiben ohne feste Ablauffrist erhalten, bis sie zurückgesetzt oder über die Website-Daten des Browsers gelöscht werden.
 
 „Konfiguration zurücksetzen“ ersetzt nach Bestätigung ausschließlich die aktuelle Dokumentkonfiguration durch die Standardwerte. Sprache und Darstellungspräferenzen bleiben erhalten. Um sämtliche lokalen Einträge und den Offlinecache zu löschen, entferne die Website-Daten für fbg.haak3.de in den Browsereinstellungen. Heruntergeladene Dateien werden dadurch nicht gelöscht.
 
@@ -100,4 +96,4 @@ Außerdem haben Sie das Recht, Beschwerde bei einer Datenschutzaufsichtsbehörde
 
 Diese Datenschutzerklärung kann angepasst werden, wenn technische oder rechtliche Änderungen dies erforderlich machen. Es gilt jeweils die auf dieser Website veröffentlichte aktuelle Fassung.
 
-Stand: 9. November 2026
+Stand: 27. November 2026

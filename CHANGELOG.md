@@ -8,6 +8,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- Direkter Einstieg über Kriterien, Projektdatei oder Präsentationsbeispiel. Kopffelder und Fußzeile sind einklappbar.
+- Sprachmenü mit fünf ausgeschriebenen Sprachnamen und lokalisierten Inhaltsseiten einschließlich Beispielen und AGB.
+- Feste Notenpunkteskala 0–15 für Vorschau, Config und alle Exportformate.
+
 ## [2.1.0] - 2026-11-10
 
 ### Added

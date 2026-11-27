@@ -1,11 +1,10 @@
 export const nl = {
+  start: { criteria: 'Criteria kiezen', example: 'Voorbeeld openen', project: 'Project openen' },
   appTitle: 'Feedback Formulier Generator',
   appTagline: 'Feedbackformulieren voor toekomstgerichte beoordelingsformaten',
   localProcessing: 'Lokale verwerking in browser',
-  localProcessingHint:
-    'Alle invoer blijft lokaal in uw browser. Geen serveroverdracht.',
-  footerNote:
-    'Alle gegevens blijven lokaal in de browser. Geen serveroverdracht.',
+  localProcessingHint: 'Je beoordelingsformulier wordt lokaal in je browser verwerkt.',
+  footerNote: 'Je beoordelingsformulier wordt lokaal in je browser verwerkt.',
   watermark: 'Gemaakt met de Feedback Formulier Generator op fbg.haak3.de',
   toolbar: {
     saveConfig: 'Config downloaden',
@@ -19,8 +18,8 @@ export const nl = {
     resetConfirmAction: 'Nu resetten',
     cancel: 'Annuleren',
     exportNow: 'Exporteren',
-    exportPdfPrint: 'PDF (Afdrukken)',
-    exportPdfFillable: 'PDF (Formulier)',
+    exportPdfPrint: 'PDF om af te drukken',
+    exportPdfFillable: 'Invulbare PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -115,8 +114,7 @@ export const nl = {
       count === 1 ? '1 formaat geselecteerd' : `${count} formaten geselecteerd`,
     close: 'Sluiten',
     previewMode: 'Weergave',
-    previewEmpty:
-      'Nog geen criteria geselecteerd — selecteer aan de linkerkant.',
+    previewEmpty: 'Nog geen criteria geselecteerd. Selecteer ‘Criteria kiezen’ in de editor. Open op een klein scherm eerst het tabblad ‘Bewerken’.',
     scoreSummaryTitle: 'Beoordeling',
     scoreCategoryResult: (category: string, weight: number) =>
       `${category}: ____ / ${weight} %`,
@@ -126,7 +124,7 @@ export const nl = {
     selectedEmpty: 'Nog geen criteria geselecteerd.',
     moreActions: 'Meer acties',
     mobileEdit: 'Bewerken',
-    mobilePreview: 'Voorbeeld',
+    mobilePreview: 'Voorvertoning',
     mobileExport: 'Export',
     selectedCount: (n: number) =>
       `${n} criteri${n === 1 ? 'um' : 'a'} geselecteerd`,
@@ -146,6 +144,9 @@ export const nl = {
     footerNav: 'Juridische en projectinformatie',
   },
   contentLinks: {
+    examples: 'Voorbeelden',
+    terms: 'Gebruiksvoorwaarden',
+    openExample: 'Voorbeeld openen',
     help: 'Help',
     about: 'Over het project',
     imprint: 'Colofon',
@@ -186,6 +187,7 @@ export const nl = {
     importConfirm: "De huidige configuratie wordt vervangen. Eerdere wijzigingen kunnen ongedaan worden gemaakt. Doorgaan?",
     importConfirmLanguage: "De huidige configuratie wordt vervangen en de taal gewijzigd. De app wordt opnieuw geladen; deze vervanging kan niet ongedaan worden gemaakt. Doorgaan?",
 
+    languageSwitchError: 'De taal kon niet worden gewijzigd. Je formulier blijft open. Probeer het opnieuw.',
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',
     contentPageLoading: 'Inhoud wordt geladen...',
     contentPageLoadError: 'De inhoud kon niet worden geladen.',

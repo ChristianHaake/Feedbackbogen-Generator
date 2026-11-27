@@ -1,10 +1,12 @@
 import { strings, currentLanguage } from './strings';
 import { el } from './ui/components';
 
-export type ContentPageId = 'help' | 'support' | 'about' | 'imprint' | 'privacy';
+export type ContentPageId = 'help' | 'examples' | 'terms' | 'support' | 'about' | 'imprint' | 'privacy';
 export type AppRoute = 'generator' | ContentPageId;
 
 export const contentPages: Record<ContentPageId, { title: string; file: string; path: string }> = {
+  examples: { title: 'Beispiele', file: 'examples.md', path: '/examples' },
+  terms: { title: 'AGB', file: 'terms.md', path: '/agb' },
   help: { title: 'Hilfe', file: 'help.md', path: '/help' },
   support: { title: 'Unterstützen', file: 'support.md', path: '/support' },
   about: { title: 'Über das Projekt', file: 'about.md', path: '/about' },
@@ -14,16 +16,14 @@ export const contentPages: Record<ContentPageId, { title: string; file: string; 
 
 export function routeFromPath(pathname: string): AppRoute {
   const normalized = pathname.replace(/\/+$/, '') || '/';
-  if (normalized === contentPages.help.path) return 'help';
-  if (normalized === contentPages.support.path) return 'support';
-  if (normalized === contentPages.about.path) return 'about';
-  if (normalized === contentPages.imprint.path) return 'imprint';
-  if (normalized === contentPages.privacy.path) return 'privacy';
+  for (const page of Object.keys(contentPages) as ContentPageId[]) {
+    if (normalized === contentPages[page].path) return page;
+  }
   return 'generator';
 }
 
 export async function loadContentMarkdown(pageId: ContentPageId): Promise<string> {
-  const localized = pageId === 'support' && currentLanguage !== 'de' ? `${currentLanguage}/` : '';
+  const localized = currentLanguage !== 'de' ? `${currentLanguage}/` : '';
   const response = await fetch(`/content/${localized}${contentPages[pageId].file}`);
   if (!response.ok) throw new Error(`Failed to load ${contentPages[pageId].file}`);
   return response.text();
@@ -41,6 +41,9 @@ export function renderContentPage(container: HTMLElement, pageId: ContentPageId,
   else article.append(el('h1', { id: 'content-page-title', text: strings.contentLinks[pageId] }));
   nodes.forEach((node) => article.append(node));
 
+  if (pageId === 'examples') {
+    article.append(el('button', { type: 'button', class: 'btn btn-primary', id: 'open-example', text: strings.contentLinks.openExample }));
+  }
   container.append(article);
 }
 
@@ -108,14 +111,19 @@ function paragraph(lines: string[]): HTMLElement {
 
 function inlineNodes(text: string): (Node | string)[] {
   const nodes: (Node | string)[] = [];
-  const urlPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s]+)/g;
+  const urlPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:apps@haak3\.de\?subject=Feedbackbogen-Generator%20Feedback)\)|(https?:\/\/[^\s]+)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = urlPattern.exec(text)) !== null) {
     if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
     const url = match[2] ?? match[3];
-    nodes.push(el('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: match[1] ?? url }));
+    const link = el('a', { href: url, text: match[1] ?? url });
+    if (url.startsWith('http')) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+    nodes.push(link);
     lastIndex = match.index + match[0].length;
   }
 

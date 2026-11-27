@@ -47,11 +47,19 @@ export function scaleOptionLabels(scale: Scale): string[] {
   }
 }
 
+/** Print long scales in two labeled lines per criterion, left to right. */
+export function compactRatingLines(scale: Scale | null): string[] | null {
+  if (scale?.kind !== 'numeric' || !scale.fixedRange) return null;
+  const labels = scaleOptionLabels(scale).map(label => `${label}\u00a0☐`);
+  return [labels.slice(0, 8).join('  '), labels.slice(8).join('  ')];
+}
+
 export function sanitizeNumericScaleSettings(
   scale: NumericScale,
   value: Partial<NumericScaleSettings> | null | undefined,
   anchor: 'min' | 'max' = 'min'
 ): NumericScaleSettings {
+  if (scale.fixedRange) return { min: scale.defaultMin, max: scale.defaultMax };
   const fallback = numericScaleBounds(scale);
   let min = integerOr(value?.min, fallback.min);
   let max = integerOr(value?.max, fallback.max);

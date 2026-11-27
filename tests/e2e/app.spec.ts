@@ -32,6 +32,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(previewTitle).toHaveText('Test Feedbackbogen-Titel');
 
     // Fill in a default header field (Name)
+    await page.locator('#sec-kopfdaten-btn').click();
     const nameValueInput = page.locator('#kd-value-name');
     await expect(nameValueInput).toBeVisible();
     await nameValueInput.fill('Erika Mustermann');
@@ -278,6 +279,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(previewFooter).toHaveCount(3); // Date, Signature, Grade
 
     // Disable Signature footer field (toggle chip)
+    await page.locator('#sec-footer-btn').click();
     const signatureChip = page.locator('#footer-signature');
     await expect(signatureChip).toBeVisible();
     await expect(signatureChip).toHaveAttribute('aria-checked', 'true');
@@ -635,6 +637,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
   });
 
   test('Undo groups a typed sequence but keeps separate fields independent', async ({ page }) => {
+    await page.locator('#sec-kopfdaten-btn').click();
     const name = page.locator('#kd-value-name');
     const topic = page.locator('#kd-value-topic');
     await name.pressSequentially('Erika', { delay: 10 });
@@ -652,7 +655,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
 
   test('Support route opens directly and keeps its footer link localized', async ({ page }) => {
     await page.goto('/support');
-    await expect(page.locator('#content-page-title')).toHaveText('Unterstützen');
+    await expect(page.locator('#content-page-title')).toHaveText('Hilf mit, Feedbackbögen für den Unterricht zu verbessern');
     const support = page.locator('.app-footer [data-app-route="support"]');
     await expect(support).toHaveText('Unterstützen');
     await expect(support).toHaveAttribute('aria-current', 'page');
@@ -660,11 +663,47 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(coffee).toHaveAttribute('target', '_blank');
     await expect(coffee).toHaveAttribute('rel', 'noopener noreferrer');
 
-    await page.locator('[data-action="language-switch"][data-language-code="en"]').click();
+    await page.locator('#language-switch').selectOption('en');
     await expect(support).toHaveText(/Support/i);
-    await expect(page.locator('#content-page-title')).not.toHaveText('Unterstützen');
+    await expect(page.locator('#content-page-title')).toHaveText('Help improve feedback forms for teaching');
     await expect(page.locator('.workspace')).toBeHidden();
   });
+
+  test('Opening a local example protects existing work and imports its criteria', async ({ page }) => {
+    await page.locator('[data-title-mode="custom"]').click();
+    await page.locator('#document-title-custom').fill('Bestehende Arbeit');
+    await page.locator('.app-footer a[href="/examples"]').click();
+    await expect(page.locator('#content-page-title')).toBeFocused();
+    page.once('dialog', (dialog) => dialog.dismiss());
+    await page.locator('#open-example').click();
+    await expect(page).toHaveURL(/examples$/);
+    page.once('dialog', (dialog) => dialog.accept());
+    await page.locator('#open-example').click();
+    await expect(page.locator('#selected-list .selected-item')).toHaveCount(3);
+    await page.reload();
+    await expect(page.locator('#selected-list .selected-item')).toHaveCount(3);
+  });
+
+  for (const [lang, headings] of Object.entries({
+    de: ['Hilfe', 'Beispiele', 'Über das Projekt', 'Allgemeine Geschäftsbedingungen', 'Datenschutzerklärung', 'Impressum'],
+    en: ['Help', 'Examples', 'About the project', 'Terms of use', 'Privacy notice', 'Legal notice'],
+    fr: ['Aide', 'Exemples', 'À propos du projet', 'Conditions d’utilisation', 'Protection des données', 'Mentions légales'],
+    es: ['Ayuda', 'Ejemplos', 'Acerca del proyecto', 'Condiciones de uso', 'Política de privacidad', 'Aviso legal'],
+    nl: ['Help', 'Voorbeelden', 'Over het project', 'Gebruiksvoorwaarden', 'Privacyverklaring', 'Colofon'],
+  })) {
+    test(`opens localized content in ${lang} and preserves return navigation`, async ({ page }) => {
+      await page.locator('#language-switch').selectOption(lang);
+      await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      for (const [index, route] of ['help', 'examples', 'about', 'terms', 'privacy', 'imprint'].entries()) {
+        const link = page.locator(`.app-footer [data-app-route="${route}"]`);
+        await link.click();
+        await expect(page.locator('#content-page h1')).toHaveText(headings[index]);
+        await expect(page.locator('#content-page h1')).toBeFocused();
+        await page.goBack();
+        await expect(link).toBeFocused();
+      }
+    });
+  }
 
   test('Content Route Renders Markdown Page', async ({ page }) => {
     await page.goto('/help');
@@ -785,8 +824,9 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
 
     const problems = await page.evaluate(() => {
       const selectors = [
-        '.language-switcher',
-        '.language-switcher__option',
+        '#language-switch',
+        '#criteria-search',
+        '.editor-start .btn',
         '.mobile-tab',
         '.title-segment__opt',
         '.btn-small',
@@ -806,7 +846,7 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
               rect.height > 0 &&
               style.display !== 'none' &&
               style.visibility !== 'hidden' &&
-              (rect.width < 40 || rect.height < 40)
+              (rect.width < 44 || rect.height < 44)
             );
           })
           .map((element) => {
@@ -863,6 +903,27 @@ test.describe('Language Switching', () => {
     }
   });
 
+  test('language changes preserve the project, drafts and undo when storage is blocked', async ({ page }) => {
+    await page.addInitScript(() => {
+      Storage.prototype.setItem = () => { throw new Error('blocked'); };
+    });
+    await page.goto('/');
+    await page.locator('#start-criteria').click();
+    await expect(page.locator('#criteria-search')).toBeFocused();
+    await page.locator('#acc-allgemeine').click();
+    await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await page.locator('#custom-input-allgemeine').fill('Mein Entwurf');
+    for (const language of ['nl', 'fr', 'en']) {
+      await page.locator('#language-switch').selectOption(language);
+      await expect(page.locator('html')).toHaveAttribute('lang', language);
+      await expect(page.locator('#custom-input-allgemeine')).toHaveValue('Mein Entwurf');
+      await expect(page.locator('#cb-allgemeine-abgabe')).toBeChecked();
+    }
+    await page.locator('#history-undo').click();
+    await expect(page.locator('#cb-allgemeine-abgabe')).not.toBeChecked();
+    await expect(page.locator('#editor-start')).toBeVisible();
+  });
+
   test('switches UI and content JSON language', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => {
@@ -872,7 +933,7 @@ test.describe('Language Switching', () => {
     });
     await page.goto('/');
 
-    await page.locator('[data-action="language-switch"][data-language-code="en"]').click();
+    await page.locator('#language-switch').selectOption('en');
     await page.waitForLoadState('load');
 
     await expect(page.locator('.app-footer-note')).toHaveText(
@@ -890,6 +951,7 @@ test.describe('Language Switching', () => {
     });
     await page.goto('/');
 
+    await page.locator('#sec-kopfdaten-btn').click();
     const metrics = await page.locator('#kd-label-learngroup').evaluate(
       (input) => {
         const label = input.closest('.kd-field')?.querySelector('label');

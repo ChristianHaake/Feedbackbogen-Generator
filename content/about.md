@@ -1,7 +1,5 @@
 # Über das Projekt
 
-Hinweis: Diese Projektseite liegt derzeit in deutscher Sprache vor.
-
 Ein Open-Source-Werkzeug zur Entwicklung transparenter und systematischer Feedbackbögen für zukunftsorientierte Prüfungsformate.
 
 ## Feedbackbogen-Generator

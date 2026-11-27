@@ -121,22 +121,13 @@ export function renderLayout(): HTMLElement {
         'div',
         { class: 'header-meta__top' },
         el(
-          'div',
-          {
-            class: 'language-switcher',
-            role: 'group',
-            'aria-label': strings.a11y.languageSwitcher,
-          },
-          ...LANGUAGE_CODES.map((code) =>
-            el('button', {
-              type: 'button',
-              class: `language-switcher__option${code === currentLanguage ? ' is-active' : ''}`,
-              'aria-label': LOCALES[code].label,
-              'aria-pressed': code === currentLanguage ? 'true' : 'false',
-              'data-action': 'language-switch',
-              'data-language-code': code,
-              text: code.toUpperCase(),
-            })
+          'label',
+          { class: 'language-switcher', for: 'language-switch' },
+          el('span', { text: strings.a11y.languageSwitcher }),
+          el('select', { id: 'language-switch', disabled: true },
+            ...LANGUAGE_CODES.map((code) => el('option', {
+              value: code, selected: code === currentLanguage, lang: code, text: LOCALES[code].label,
+            }))
           )
         ),
         el(
@@ -203,33 +194,6 @@ export function renderLayout(): HTMLElement {
     )
   );
 
-  const onboardingHint = el(
-    'aside',
-    {
-      id: 'onboarding-hint',
-      class: 'onboarding-hint onboarding-hint--floating',
-      'aria-label': strings.onboarding.intro,
-      hidden: 'true',
-    },
-    el('span', {
-      class: 'onboarding-hint__intro',
-      text: strings.onboarding.intro,
-    }),
-    el(
-      'ol',
-      { class: 'onboarding-hint__steps' },
-      ...strings.onboarding.steps.map((step) => el('li', { text: step }))
-    ),
-    el('button', {
-      id: 'onboarding-dismiss',
-      class: 'onboarding-hint__dismiss',
-      type: 'button',
-      'aria-label': strings.onboarding.dismiss,
-      title: strings.onboarding.dismiss,
-      text: '✕',
-    })
-  );
-
   const workspace = el(
     'div',
     { class: 'workspace' },
@@ -251,31 +215,10 @@ export function renderLayout(): HTMLElement {
         'aria-label': strings.a11y.editorPane,
         'data-mobile-panel': 'edit',
       },
-      editorSectionCounted(
-        strings.kopfdaten.title,
-        'header-field-count',
-        'kopfdaten',
-        el('div', {
-          id: 'document-title-form',
-          class: 'document-title-fields',
-        }),
-        el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })
-      ),
-      editorSection(
-        strings.columns.selected,
-        'selected',
-        el(
-          'div',
-          { class: 'selected-head' },
-          el('div', { id: 'selected-counter', class: 'selected-counter' }),
-          toolbarButton(
-            'trash',
-            strings.labels.clearSelection,
-            'clear-selection',
-            { class: 'btn btn-small' }
-          )
-        ),
-        el('div', { id: 'selected-list', class: 'selected-list' })
+      el('div', { class: 'editor-start', id: 'editor-start' },
+        el('button', { id: 'start-criteria', class: 'btn btn-primary', type: 'button', text: strings.start.criteria }),
+        el('a', { href: '/examples', 'data-app-route': 'examples', class: 'btn', text: strings.start.example }),
+        el('button', { id: 'config-load-start', class: 'btn', type: 'button', text: strings.start.project })
       ),
       editorSectionCounted(
         strings.columns.categories,
@@ -298,13 +241,9 @@ export function renderLayout(): HTMLElement {
           })
         ),
         el(
-          'div',
+          'details',
           { class: 'scale-default-wrap' },
-          el('label', {
-            for: 'default-scale',
-            class: 'small-label',
-            text: strings.labels.defaultScale,
-          }),
+          el('summary', { text: strings.labels.defaultScale }),
           el('select', {
             id: 'default-scale',
             class: 'default-scale-select',
@@ -330,10 +269,31 @@ export function renderLayout(): HTMLElement {
           class: 'accordion product-format-categories',
         })
       ),
+      editorSection(
+        strings.columns.selected,
+        'selected',
+        el(
+          'div',
+          { class: 'selected-head' },
+          el('div', { id: 'selected-counter', class: 'selected-counter' }),
+          toolbarButton(
+            'trash',
+            strings.labels.clearSelection,
+            'clear-selection',
+            { class: 'btn btn-small' }
+          )
+        ),
+        el('div', { id: 'selected-list', class: 'selected-list' })
+      ),
+      el('div', { id: 'document-title-form', class: 'editor-title document-title-fields' }),
+      editorSectionCounted(
+        strings.kopfdaten.title, 'header-field-count', 'kopfdaten',
+        el('div', { id: 'kopfdaten-form', class: 'kopfdaten-fields' })
+      ),
       editorSectionCounted(
         strings.kopfdaten.footerTitle,
         'footer-field-count',
-        undefined,
+        'footer',
         el('div', { id: 'footer-fields', class: 'footer-fields' })
       )
     ),
@@ -344,7 +304,6 @@ export function renderLayout(): HTMLElement {
         'aria-label': strings.a11y.previewPane,
         'data-mobile-panel': 'preview',
       },
-      onboardingHint,
       el(
         'div',
         { class: 'preview-pane-inner' },
@@ -416,11 +375,15 @@ export function renderLayout(): HTMLElement {
           'data-app-route': 'help',
           text: strings.contentLinks.help,
         }),
+        el('a', { href: contentPages.examples.path, 'data-app-route': 'examples', text: strings.contentLinks.examples }),
         supportLink(),
         el('a', {
           href: contentPages.about.path,
           'data-app-route': 'about',
           text: strings.contentLinks.about,
+        }),
+        el('a', {
+          href: contentPages.terms.path, 'data-app-route': 'terms', text: strings.contentLinks.terms,
         }),
         el('a', {
           href: contentPages.imprint.path,
@@ -1849,7 +1812,7 @@ function categoryScaleRow(
     select,
     el('p', { class: 'scale-hint', text: strings.labels.categoryScaleHint })
   );
-  if (scale?.kind !== 'numeric') return row;
+  if (scale?.kind !== 'numeric' || scale.fixedRange) return row;
 
   const bounds = sanitizeNumericScaleSettings(scale, scaleSettings);
   const range = el('div', { class: 'numeric-scale-range' });
@@ -2253,7 +2216,7 @@ function renderA4Body(
     section.append(
       el('h2', {
         class: 'a4-cat-heading',
-        text: categoryHeadingText(title, weight),
+        text: categoryHeadingText(title, weight, mode === 'full' ? scale : null),
       })
     );
     if (mode === 'full' && scale) {
@@ -2328,6 +2291,10 @@ function renderA4ScaleTable(
   scale: Scale,
   onRemoveItem?: (categoryId: string, itemId: string) => void
 ): HTMLElement {
+  if (scale.kind === 'numeric' && scale.fixedRange) {
+    return el('ol', { class: 'a4-items' },
+      ...items.map(row => renderA4Item(row, 'full', scale, onRemoveItem)));
+  }
   const options = scaleOptionLabels(scale);
   const labelWidth = scale.kind === 'numeric' ? 46 : 42;
   const table = el('table', {
@@ -2394,6 +2361,10 @@ function renderA4ScaleTableRow(
 }
 
 function renderScaleBoxes(scale: Scale): HTMLElement {
+  if (scale.kind === 'numeric' && scale.fixedRange) {
+    return el('div', { class: 'grade-points-options' },
+      ...scaleOptionLabels(scale).map(label => el('span', { text: `${label}\u00a0☐` })));
+  }
   if (scale.kind === 'numeric') return renderNumericScaleBoxes(scale);
 
   const wrap = el('div', {

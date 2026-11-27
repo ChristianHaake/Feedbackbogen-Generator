@@ -1,14 +1,8 @@
 # Hilfe
 
-Hinweis: Diese Hilfeseite liegt derzeit in deutscher Sprache vor.
-
 Mit dem Feedbackbogen-Generator erstellen Sie strukturierte Feedback- und Bewertungsbögen. Kriterien, Skalen und Kopfdaten lassen sich passend zur Aufgabe zusammenstellen. Die Vorschau aktualisiert sich automatisch.
 
 ## Schnellstart
-
-### Titel und Kopfdaten festlegen
-
-Wählen Sie einen Titel für den Bogen. Unter „Kopfdaten“ können Sie Felder wie Name, Lerngruppe, Thema oder Datum anpassen und optional vorausfüllen.
 
 ### Kriterien auswählen
 
@@ -20,6 +14,10 @@ Unter „Bewertungskriterien“ finden Sie allgemeine Kriterien für unterschied
 - Nutzen Sie die Suche, um passende Kriterien schneller zu finden.
 
 Unter „Produktebene“ können Sie zusätzlich Kriterien für konkrete Formate auswählen, zum Beispiel Podcast, Präsentation oder Social-Media-Post.
+
+### Titel und Kopfdaten festlegen
+
+Wählen Sie einen Titel für den Bogen. Unter „Kopfdaten“ können Sie Felder wie Name, Lerngruppe, Thema oder Datum anpassen und optional vorausfüllen.
 
 ### Skalen festlegen
 
@@ -38,6 +36,7 @@ Im Bereich „Ausgewählt“ sehen Sie alle verwendeten Kriterien. Kategorien un
 Die Vorschau zeigt den fertigen Bogen. Für den Export stehen mehrere Formate bereit:
 
 - PDF für Druck und Weitergabe
+- Ausfüllbares PDF für die digitale Bewertung
 - DOCX zur weiteren Bearbeitung
 - XLSX für tabellarische Auswertung
 - ODT für weiteren Bearbeitung
@@ -66,7 +65,6 @@ Der Generator unterstützt die systematische Zusammenstellung passender Kriterie
 Weiterführende Informationen:
 https://haak3.de/2025/02/artikel/transparentes-und-systematisches-feedback/
 
-
 ## Eingabegrenzen und Wiederherstellung
 
 Eine JSON-Konfiguration darf höchstens 5 MB enthalten. Ein Text darf höchstens 2.000 Zeichen lang sein. Bis zu 50 Kopffelder, 1.000 eigene oder ausgewählte Kriterien und 200 eigene Kategorien sind möglich. Zusätzliche Strukturgrenzen schützen vor zu komplexen Dateien. Abgelehnte Änderungen ersetzen den bisherigen Stand nicht.
@@ -80,3 +78,7 @@ Aufeinanderfolgende Texteingaben im selben Feld werden innerhalb einer Sekunde z
 Der erste PDF-Export benötigt eine Onlineverbindung zum Laden der mitgelieferten Schriften. Danach werden sie für Offlineexporte zwischengespeichert. Die PDF-Schrift unterstützt erweitertes Latein, vereinfachtes Chinesisch und viele monochrome Emojis. Bei nicht unterstützten Zeichen benennt die Fehlermeldung eine Alternative: DOCX oder ODT.
 
 XLSX enthält Kriterien, Skalen und Gewichtungen als tabellarische Auswertung. Für Dokumenttitel, Kopffelder, Fußzeilen oder das Checklistenlayout verwende PDF, DOCX oder ODT. PDFs sind nicht als vollständig für Screenreader getaggt ausgewiesen. DOCX und ODT bleiben editierbare Alternativen.
+
+## Kontakt
+
+Fehler melden und Verbesserungen vorschlagen: [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback)

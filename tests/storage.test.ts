@@ -184,6 +184,24 @@ describe('config storage', () => {
     );
   });
 
+  it('round-trips a fixed scale as category or default and rejects a shortened interval', () => {
+    const fixed = { id: 'notenpunkte_15', label: 'Notenpunkte (0–15)', kind: 'numeric',
+      fixedRange: true, defaultMin: 0, defaultMax: 15, minLimit: 0, maxLimit: 15, maxSteps: 16 } as const;
+    const catalogs = { ...catalog, scales: [...catalog.scales, fixed] };
+    for (const scaleByCategory of [{}, { allgemeine: fixed.id }] as Record<string, string>[]) {
+      const saved = { ...config, defaultScaleId: fixed.id, scaleByCategory, scaleSettingsByCategory: {} };
+      const reopened = parseConfig(JSON.parse(JSON.stringify(saved)));
+      expect(reopened.status).toBe('success');
+      if (reopened.status === 'success') {
+        expect(reopened.config.defaultScaleId).toBe(fixed.id);
+        expect(reopened.config.scaleByCategory).toEqual(scaleByCategory);
+        expect(validateConfigCatalog(reopened.config, catalogs)).toEqual([]);
+      }
+      expect(validateConfigCatalog({ ...saved, scaleSettingsByCategory: { allgemeine: { min: 2, max: 15 } } }, catalogs))
+        .toEqual([expect.objectContaining({ code: 'scale-range' })]);
+    }
+  });
+
   it('validates numeric scale ranges against the referenced catalog scale', () => {
     expect(
       validateConfigCatalog(

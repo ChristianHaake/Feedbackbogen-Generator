@@ -27,6 +27,7 @@ export type ScaleBase = {
 export type VerbalScale = ScaleBase & { kind: 'verbal'; labels: string[] };
 export type NumericScale = ScaleBase & {
   kind: 'numeric';
+  fixedRange?: boolean;
   defaultMin: number;
   defaultMax: number;
   minLimit: number;

@@ -1,4 +1,5 @@
 export const es = {
+  start: { criteria: 'Elegir criterios', example: 'Abrir ejemplo', project: 'Abrir proyecto' },
   appTitle: 'Generador de Feedback',
   appTagline: 'Formularios de feedback para formatos de evaluación modernos',
   localProcessing: 'Procesamiento local en el navegador',
@@ -149,6 +150,9 @@ export const es = {
     footerNav: 'Información legal y del proyecto',
   },
   contentLinks: {
+    examples: 'Ejemplos',
+    terms: 'Condiciones de uso',
+    openExample: 'Abrir ejemplo',
     help: 'Ayuda',
     about: 'Sobre el proyecto',
     imprint: 'Aviso legal',

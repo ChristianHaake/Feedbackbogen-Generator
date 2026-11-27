@@ -40,6 +40,13 @@ strukturierte Fehler mit JSON-Pfaden, ohne die aktuelle Arbeit zu verändern.
 - Minimales Beispiel: [`content/config/minimal-v5.json`](../content/config/minimal-v5.json)
 - Vollständiges Beispiel: [`content/config/full-v5.json`](../content/config/full-v5.json)
 
+Die Katalog-ID `notenpunkte_15` ist als Standardskala und pro Kategorie
+zulässig. Sie umfasst immer die ganzen Zahlen von 0 bis 15. Für diese
+Kategorien kann `scaleSettingsByCategory` entfallen. Ältere App-Versionen
+ohne diese Katalog-ID lehnen entsprechende Projektdateien als unbekannte
+Skalenreferenz ab. Die einstellbare Skala `punkte_10` verwendet weiterhin
+höchstens elf Stufen.
+
 Das Schema prüft die Dateistruktur. Katalogreferenzen und Skalenbereiche prüft
 zusätzlich die Webapp gegen ihre aktuell geladenen Inhaltsdaten.
 

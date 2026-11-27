@@ -6,13 +6,17 @@ Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeld
 
 - Clientseitig: Keine Server-Persistenz. Konfiguration wird lokal im Browser gespeichert (`localStorage`) und als JSON importiert/exportiert.
 - Konfiguration via JSON: `content/<sprache>/categories.json` liefert allgemeine Bewertungskriterien, `content/<sprache>/scales.json` die Bewertungsskalen und `content/<sprache>/product-formats.json` die Kriterien der Produktebene. Beim Laden wird validiert; bei Fehlern erfolgt ein Fallback.
-- UI: Zweigeteilter Generator – links konfigurierbare Kopffelder, Fußzeilenoptionen, ausgewählte Kriterien, Suche, Bewertungskriterien und Produktebene; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
+- UI: Zweigeteilter Generator – links Kriterienauswahl, Produktauswahl, ausgewählte Kriterien sowie Dokument- und Feldoptionen; rechts die papiernahe Druckvorschau mit Skalen- und Checklistenmodus.
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF/Druck, ausfüllbares PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODT (via ZIP+XML).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), Strg/Cmd+Z (Undo), Strg/Cmd+Shift+Z (Redo), respektiert `prefers-reduced-motion`.
 - Build: Vite + TypeScript (Vanilla), ES Modules. App-Assets lokal gebundled; auf der Live-Website kann betreiberseitig Cloudflare Web Analytics geladen werden.
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
+
+## Aktueller Entwicklungsstand
+
+Der Editor startet mit der Kriterienauswahl. Unter „Beispiel öffnen“ lässt sich ein Präsentationsbogen laden. Bereits begonnene Arbeit wird erst nach Bestätigung ersetzt. Die feste Skala „Notenpunkte (0–15)“ ist pro Kategorie und als Standard verfügbar. Die Navigation bietet sieben Inhaltsseiten in Deutsch, Englisch, Französisch, Spanisch und Niederländisch.
 
 ## Release 2.1
 

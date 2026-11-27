@@ -8,6 +8,7 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
+import { compactRatingLines } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -32,8 +33,8 @@ function paragraph(text: string, style = 'Body') {
   return `<text:p text:style-name="${style}">${escapeXml(text)}</text:p>`;
 }
 
-function tableCell(text: string, style = 'BodyCell', paragraphStyle = 'Body') {
-  return `<table:table-cell table:style-name="${style}" office:value-type="string">${paragraph(text, paragraphStyle)}</table:table-cell>`;
+function tableCell(text: string | string[], style = 'BodyCell', paragraphStyle = 'Body') {
+  return `<table:table-cell table:style-name="${style}" office:value-type="string">${(Array.isArray(text) ? text : [text]).map(line => paragraph(line, paragraphStyle)).join('')}</table:table-cell>`;
 }
 
 function tableRow(cells: string[], style = 'TableRow') {
@@ -70,7 +71,7 @@ function categoryColumnStyles(rows: ExportRow[], mode: PrintMode) {
         mode === 'full'
           ? scaleOptions(group.items[0]?.scale ?? null).length
           : 0;
-      const criterionWeight = optionCount > 0 ? optionCount : 5;
+      const criterionWeight = mode === 'full' && compactRatingLines(group.scale) ? 1 : optionCount || 5;
       return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="${criterionWeight}*"/></style:style>
     <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="1*"/></style:style>`;
     })
@@ -83,7 +84,9 @@ function categoryTable(
   mode: PrintMode,
   index: number
 ) {
-  const options = mode === 'full' ? scaleOptions(items[0]?.scale ?? null) : [];
+  const scale = items[0]?.scale ?? null;
+  const compact = mode === 'full' ? compactRatingLines(scale) : null;
+  const options = mode === 'full' && !compact ? scaleOptions(scale) : [];
   const columns = options.length > 0 ? 1 + options.length : 2;
   const headerLabel =
     mode === 'checklist'
@@ -113,7 +116,7 @@ function categoryTable(
           )
         : [
             tableCell(
-              '☐',
+              compact ?? '☐',
               rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell',
               'Center'
             ),
@@ -204,7 +207,7 @@ function contentXml(
     .map((group, index) =>
       categoryTable(
         group.items,
-        categoryHeadingText(group.title, group.weight),
+        categoryHeadingText(group.title, group.weight, mode === 'full' ? group.scale : null),
         mode,
         index
       )

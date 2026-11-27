@@ -1,4 +1,5 @@
 export const en = {
+  start: { criteria: 'Choose criteria', example: 'Open example', project: 'Open project' },
   appTitle: 'Feedback Form Generator',
   appTagline: 'Feedback forms for future-oriented assessment formats',
   localProcessing: 'Local processing in browser',
@@ -145,6 +146,9 @@ export const en = {
     footerNav: 'Legal and project information',
   },
   contentLinks: {
+    examples: 'Examples',
+    terms: 'Terms of use',
+    openExample: 'Open example',
     help: 'Help',
     about: 'About the project',
     imprint: 'Imprint',

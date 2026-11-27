@@ -1,7 +1,5 @@
 # Datenschutzerklärung
 
-Hinweis: Diese Seite liegt derzeit in deutscher Sprache vor. Die deutsche Fassung ist maßgeblich.
-
 ## 1. Verantwortlicher
 
 Verantwortlich für die Datenverarbeitung auf dieser Website:
@@ -59,7 +57,7 @@ Der Feedbackbogen-Generator verarbeitet die vom Nutzer eingegebenen Inhalte grun
 
 Die eingegebenen Dokumentinhalte werden nicht an den Betreiber übermittelt. Die Anwendung speichert die aktuelle Konfiguration automatisch im localStorage dieses Browsers unter `bbk:config`. Sie enthält Titel, Kopffelder, eigene und ausgewählte Kriterien, Skalen, Gewichtungen und Reihenfolgen.
 
-Weitere lokale Einträge speichern die Sprache (`bbk:lang`), aufgeklappte Editorbereiche (`bbk:sections`) und das Ausblenden des Einführungshinweises (`bbk:onboarding-dismissed`). Diese Daten bleiben ohne feste Ablauffrist erhalten, bis sie zurückgesetzt oder über die Website-Daten des Browsers gelöscht werden.
+Weitere lokale Einträge speichern die Sprache (`bbk:lang`) und aufgeklappte Editorbereiche (`bbk:sections`). Diese Daten bleiben ohne feste Ablauffrist erhalten, bis sie zurückgesetzt oder über die Website-Daten des Browsers gelöscht werden.
 
 „Konfiguration zurücksetzen“ ersetzt nach Bestätigung ausschließlich die aktuelle Dokumentkonfiguration durch die Standardwerte. Sprache und Darstellungspräferenzen bleiben erhalten. Um sämtliche lokalen Einträge und den Offlinecache zu löschen, entferne die Website-Daten für fbg.haak3.de in den Browsereinstellungen. Heruntergeladene Dateien werden dadurch nicht gelöscht.
 

@@ -1,4 +1,5 @@
 export const de = {
+  start: { criteria: 'Kriterien auswählen', example: 'Beispiel öffnen', project: 'Projekt öffnen' },
   appTitle: 'Feedbackbogen-Generator',
   appTagline: 'Feedbackbögen für zukunftsorientierte Prüfungsformate',
   localProcessing: 'Lokale Verarbeitung im Browser',
@@ -145,6 +146,9 @@ export const de = {
     footerNav: 'Rechtliches und Projektinformationen',
   },
   contentLinks: {
+    examples: 'Beispiele',
+    terms: 'AGB',
+    openExample: 'Beispiel öffnen',
     help: 'Hilfe',
     about: 'Über das Projekt',
     imprint: 'Impressum',

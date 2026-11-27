@@ -1,4 +1,5 @@
 export const nl = {
+  start: { criteria: 'Criteria kiezen', example: 'Voorbeeld openen', project: 'Project openen' },
   appTitle: 'Feedback Formulier Generator',
   appTagline: 'Feedbackformulieren voor toekomstgerichte beoordelingsformaten',
   localProcessing: 'Lokale verwerking in browser',
@@ -146,6 +147,9 @@ export const nl = {
     footerNav: 'Juridische en projectinformatie',
   },
   contentLinks: {
+    examples: 'Voorbeelden',
+    terms: 'Gebruiksvoorwaarden',
+    openExample: 'Voorbeeld openen',
     help: 'Help',
     about: 'Over het project',
     imprint: 'Colofon',

@@ -14,7 +14,8 @@ export type WeightedScoreSummary = {
 };
 
 // Section heading text with an optional weight badge, e.g. "Sachebene — 40 %".
-export function categoryHeadingText(title: string, weight?: number): string {
+export function categoryHeadingText(title: string, weight?: number, scale?: Scale | null): string {
+  if (scale?.kind === 'numeric' && scale.fixedRange) title = `${title} · ${scale.label}`;
   return weight ? `${title} — ${Math.round(weight)} %` : title;
 }
 
@@ -39,6 +40,7 @@ export function scaleOptions(scale: Scale | null): string[] {
 }
 
 export function scaleLabel(scale: Scale | null): string {
+  if (scale?.kind === 'numeric' && scale.fixedRange) return scale.label;
   const options = scaleOptions(scale);
   return options.join(' | ');
 }

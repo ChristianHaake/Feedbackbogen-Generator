@@ -33,8 +33,10 @@ describe('help content page', () => {
 
     expect(footerLinks.map((link) => link.textContent)).toEqual([
       'Hilfe',
+      'Beispiele',
       'Unterstützen',
       'Über das Projekt',
+      'AGB',
       'Impressum',
       'Datenschutz'
     ]);
@@ -89,12 +91,12 @@ describe('Markdown rendering', () => {
 });
 
 describe('collapsible editor sections', () => {
-  it('renders a collapse toggle wired to its panel for each of the four collapsible editor blocks', () => {
+  it('renders a collapse toggle wired to its panel for each collapsible editor block in task order', () => {
     const layout = renderLayout();
     const sections = Array.from(layout.querySelectorAll<HTMLElement>('.editor-pane [data-section-id]'));
 
     expect(sections.map((s) => s.dataset.sectionId)).toEqual([
-      'kopfdaten', 'selected', 'criteria', 'formats'
+      'criteria', 'formats', 'selected', 'kopfdaten', 'footer'
     ]);
 
     for (const section of sections) {

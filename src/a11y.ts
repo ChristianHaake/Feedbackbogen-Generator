@@ -9,7 +9,7 @@ export function announce(message: string) {
   }
 }
 
-export function setupKeyboardShortcuts(onSave: () => void, onExport: () => void, onUndo?: () => void, onRedo?: () => void) {
+export function setupKeyboardShortcuts(onSave: () => void, onExport: () => void, onUndo?: () => void, onRedo?: () => void, signal?: AbortSignal) {
   window.addEventListener('keydown', (e) => {
     if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
       if (e.code === 'KeyS') {
@@ -27,7 +27,7 @@ export function setupKeyboardShortcuts(onSave: () => void, onExport: () => void,
     e.preventDefault();
     if (e.shiftKey) onRedo?.();
     else onUndo?.();
-  });
+  }, { signal });
 }
 
 export function focusVisiblePolyfill() {

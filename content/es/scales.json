@@ -16,6 +16,17 @@
     "maxSteps": 11
   },
   {
+    "id": "notenpunkte_15",
+    "label": "Puntos de calificación (0–15)",
+    "kind": "numeric",
+    "fixedRange": true,
+    "defaultMin": 0,
+    "defaultMax": 15,
+    "minLimit": 0,
+    "maxLimit": 15,
+    "maxSteps": 16
+  },
+  {
     "id": "ascii_3",
     "label": "Emojis (3 niveles)",
     "kind": "symbol",

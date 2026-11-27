@@ -1778,7 +1778,8 @@ dialog::backdrop {
 }
 
 /* Match the A4 content box while Safari prepares its native print sheet. */
-.native-print-document { position: absolute; left: -100000px; top: 0; width: 182mm; visibility: hidden; }
+body:has(> .native-print-document) > #app { display: none; }
+.native-print-document { width: 182mm; }
 .native-print-document .a4-page {
   display: flow-root; position: static; width: 182mm; min-height: 0; margin: 0;
   padding: 0; transform: none; box-shadow: none; font-size: 10.5pt;
@@ -1787,8 +1788,5 @@ dialog::backdrop {
 .native-print-document .a4-header-fields { grid-template-columns: 1fr 1fr; gap: 7pt 24pt; }
 .native-print-document .a4-watermark { position: static; text-align: right; margin-top: 12pt; }
 @media print {
-  body:has(> .native-print-document) > #app { display: none; }
-  .native-print-document { position: static; visibility: visible; }
   .native-print-document .a4-page + .a4-page { break-before: page; }
-  .native-print-document .a4-page:not(:last-child) { min-height: 265mm !important; }
 }

@@ -3,10 +3,8 @@ export const nl = {
   appTitle: 'Feedback Formulier Generator',
   appTagline: 'Feedbackformulieren voor toekomstgerichte beoordelingsformaten',
   localProcessing: 'Lokale verwerking in browser',
-  localProcessingHint:
-    'Alle invoer blijft lokaal in uw browser. Geen serveroverdracht.',
-  footerNote:
-    'Alle gegevens blijven lokaal in de browser. Geen serveroverdracht.',
+  localProcessingHint: 'Je beoordelingsformulier wordt lokaal in je browser verwerkt.',
+  footerNote: 'Je beoordelingsformulier wordt lokaal in je browser verwerkt.',
   watermark: 'Gemaakt met de Feedback Formulier Generator op fbg.haak3.de',
   toolbar: {
     saveConfig: 'Config downloaden',
@@ -20,8 +18,8 @@ export const nl = {
     resetConfirmAction: 'Nu resetten',
     cancel: 'Annuleren',
     exportNow: 'Exporteren',
-    exportPdfPrint: 'PDF (Afdrukken)',
-    exportPdfFillable: 'PDF (Formulier)',
+    exportPdfPrint: 'PDF om af te drukken',
+    exportPdfFillable: 'Invulbare PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -126,7 +124,7 @@ export const nl = {
     selectedEmpty: 'Nog geen criteria geselecteerd.',
     moreActions: 'Meer acties',
     mobileEdit: 'Bewerken',
-    mobilePreview: 'Voorbeeld',
+    mobilePreview: 'Voorvertoning',
     mobileExport: 'Export',
     selectedCount: (n: number) =>
       `${n} criteri${n === 1 ? 'um' : 'a'} geselecteerd`,

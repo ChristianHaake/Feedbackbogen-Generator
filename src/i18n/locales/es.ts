@@ -3,10 +3,8 @@ export const es = {
   appTitle: 'Generador de Feedback',
   appTagline: 'Formularios de feedback para formatos de evaluación modernos',
   localProcessing: 'Procesamiento local en el navegador',
-  localProcessingHint:
-    'Todas las entradas permanecen localmente en su navegador. Sin transmisión al servidor.',
-  footerNote:
-    'Todos los datos permanecen localmente en el navegador. Sin transmisión al servidor.',
+  localProcessingHint: 'Tu ficha de evaluación se procesa localmente en tu navegador.',
+  footerNote: 'Tu ficha de evaluación se procesa localmente en tu navegador.',
   watermark: 'Creado con el Generador de Feedback en fbg.haak3.de',
   toolbar: {
     saveConfig: 'Descargar configuración',
@@ -20,8 +18,8 @@ export const es = {
     resetConfirmAction: 'Restablecer ahora',
     cancel: 'Cancelar',
     exportNow: 'Exportar',
-    exportPdfPrint: 'PDF (Impresión)',
-    exportPdfFillable: 'PDF (Formulario)',
+    exportPdfPrint: 'PDF para imprimir',
+    exportPdfFillable: 'PDF rellenable',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -59,7 +57,7 @@ export const es = {
   },
   modes: {
     full: 'Con escalas',
-    checklist: 'Solo lista de verificación',
+    checklist: 'Lista de verificación',
   },
   labels: {
     remove: 'Eliminar',

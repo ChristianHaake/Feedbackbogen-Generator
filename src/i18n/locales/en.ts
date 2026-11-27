@@ -3,10 +3,8 @@ export const en = {
   appTitle: 'Feedback Form Generator',
   appTagline: 'Feedback forms for future-oriented assessment formats',
   localProcessing: 'Local processing in browser',
-  localProcessingHint:
-    'All inputs remain locally in your browser. No server transmission.',
-  footerNote:
-    'All data remains locally in the browser. No server transmission.',
+  localProcessingHint: 'Your feedback form is processed locally in your browser.',
+  footerNote: 'Your feedback form is processed locally in your browser.',
   watermark: 'Created with Feedback Form Generator at fbg.haak3.de',
   toolbar: {
     saveConfig: 'Download config',
@@ -20,8 +18,8 @@ export const en = {
     resetConfirmAction: 'Reset now',
     cancel: 'Cancel',
     exportNow: 'Export',
-    exportPdfPrint: 'PDF (Print)',
-    exportPdfFillable: 'PDF (Form)',
+    exportPdfPrint: 'Printable PDF',
+    exportPdfFillable: 'Fillable PDF',
     exportDocx: 'DOCX',
     exportXlsx: 'XLSX',
     exportOdt: 'ODT',
@@ -151,7 +149,7 @@ export const en = {
     openExample: 'Open example',
     help: 'Help',
     about: 'About the project',
-    imprint: 'Imprint',
+    imprint: 'Legal notice',
     privacy: 'Privacy',
     support: 'Support',
   },

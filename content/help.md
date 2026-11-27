@@ -1,35 +1,34 @@
 # Hilfe
 
-Mit dem Feedbackbogen-Generator erstellen Sie strukturierte Feedback- und Bewertungsbögen. Kriterien, Skalen und Kopfdaten lassen sich passend zur Aufgabe zusammenstellen. Die Vorschau aktualisiert sich automatisch.
+Mit dem Feedbackbogen-Generator erstellst du strukturierte Feedback- und Bewertungsbögen. Kriterien, Skalen und Kopfdaten lassen sich passend zur Aufgabe zusammenstellen. Die Vorschau aktualisiert sich automatisch.
 
 ## Schnellstart
 
 ### Kriterien auswählen
 
-Unter „Bewertungskriterien“ finden Sie allgemeine Kriterien für unterschiedliche Lernprodukte und Arbeitsprozesse.
+Unter „Bewertungskriterien“ findest du allgemeine Kriterien für unterschiedliche Lernprodukte und Arbeitsprozesse.
 
-- Öffnen Sie eine Kategorie.
-- Wählen Sie einzelne Kriterien aus.
-- Ergänzen Sie bei Bedarf eigene Kriterien.
-- Nutzen Sie die Suche, um passende Kriterien schneller zu finden.
+- Suche ein Kriterium und wähle es direkt in der Trefferliste aus.
+- Alternativ kannst du eine Kategorie öffnen und dort Kriterien auswählen.
+- Ergänze bei Bedarf eigene Kriterien.
 
-Unter „Produktebene“ können Sie zusätzlich Kriterien für konkrete Formate auswählen, zum Beispiel Podcast, Präsentation oder Social-Media-Post.
+Unter „Produktebene“ kannst du zusätzlich Kriterien für konkrete Formate auswählen, zum Beispiel Podcast, Präsentation oder Social-Media-Post.
 
 ### Titel und Kopfdaten festlegen
 
-Wählen Sie einen Titel für den Bogen. Unter „Kopfdaten“ können Sie Felder wie Name, Lerngruppe, Thema oder Datum anpassen und optional vorausfüllen.
+Wähle einen Titel für den Bogen. Unter „Kopfdaten“ kannst du Felder wie Name, Lerngruppe, Thema oder Datum anpassen und optional vorausfüllen.
 
 ### Skalen festlegen
 
-Wählen Sie eine Standard-Skala. Falls nötig, können Sie für einzelne Kategorien abweichende Skalen verwenden.
+Wähle eine Standard-Skala. Falls nötig, kannst du für einzelne Kategorien abweichende Skalen verwenden.
 
-Wenn Sie Gewichtungen vergeben, zeigt der Bogen zusätzlich eine Auswertungsübersicht. Die Gewichtungen bilden den Rahmen für die spätere Bewertung; die eigentliche Bewertung wird im ausgedruckten oder exportierten Bogen eingetragen.
+Wenn du Gewichtungen vergibst, zeigt der Bogen zusätzlich eine Auswertungsübersicht. Die Gewichtungen bilden den Rahmen für die spätere Bewertung; die eigentliche Bewertung wird im ausgedruckten oder exportierten Bogen eingetragen.
 
-Für eine einfache Übersicht ohne Bewertungsskala wechseln Sie in der Vorschau zu „Nur Checkliste“.
+Für eine einfache Übersicht ohne Bewertungsskala wechselst du in der Vorschau zu „Nur Checkliste“.
 
 ### Reihenfolge anpassen
 
-Im Bereich „Ausgewählt“ sehen Sie alle verwendeten Kriterien. Kategorien und Kriterien lassen sich per Drag-and-drop oder mit den Pfeiltasten verschieben. Die Reihenfolge wird direkt in Vorschau und Export übernommen.
+Im Bereich „Ausgewählt“ siehst du alle verwendeten Kriterien. Kategorien und Kriterien lassen sich per Drag-and-drop oder mit den Pfeiltasten verschieben. Die Reihenfolge wird direkt in Vorschau und Export übernommen.
 
 ### Vorschau prüfen und exportieren
 
@@ -39,15 +38,15 @@ Die Vorschau zeigt den fertigen Bogen. Für den Export stehen mehrere Formate be
 - Ausfüllbares PDF für die digitale Bewertung
 - DOCX zur weiteren Bearbeitung
 - XLSX für tabellarische Auswertung
-- ODT für weiteren Bearbeitung
+- ODT zur weiteren Bearbeitung
 
 ## Konfiguration herunterladen und öffnen
 
-Ihre Änderungen werden automatisch lokal im Browser gespeichert. Es werden keine eingegebenen Inhalte an den Betreiber übertragen.
+Deine Änderungen werden automatisch lokal im Browser gespeichert. Es werden keine eingegebenen Inhalte an den Betreiber übertragen.
 
-Mit „Config herunterladen“ laden Sie Ihre Konfiguration als JSON-Datei herunter. Über „Config öffnen“ können Sie diese später wiederverwenden, weitergeben oder im normalen Editor weiterbearbeiten.
+Mit „Config herunterladen“ lädst du deine Konfiguration als JSON-Datei herunter. Über „Config öffnen“ kannst du diese später wiederverwenden, weitergeben oder im normalen Editor weiterbearbeiten.
 
-Auch ein externes KI-Werkzeug kann eine passende Config-Datei erzeugen. Laden Sie diese anschließend über „Config öffnen“. Die Webapp prüft die Datei vollständig, bevor sie den aktuellen Arbeitsstand ersetzt. Eigene Inhalte müssen in der Datei ausdrücklich als `customItems` beziehungsweise `customCategories` definiert sein. Bei Fehlern bleibt die aktuelle Arbeit erhalten; über „Fehler kopieren“ können Sie die Diagnose zurück in das KI-Werkzeug übernehmen.
+Auch ein externes KI-Werkzeug kann eine passende Config-Datei erzeugen. Lade diese anschließend über „Config öffnen“. Die Webapp prüft die Datei vollständig, bevor sie den aktuellen Arbeitsstand ersetzt. Eigene Inhalte müssen in der Datei ausdrücklich als `customItems` beziehungsweise `customCategories` definiert sein. Bei Fehlern bleibt die aktuelle Arbeit erhalten; über „Fehler kopieren“ kannst du die Diagnose zurück in das KI-Werkzeug übernehmen.
 
 Enthält die Config eine andere Sprache, wechselt die Webapp beim Öffnen die Sprache und lädt neu. Eine dadurch ersetzte bestehende Konfiguration kann nicht über Undo wiederhergestellt werden; die Webapp weist vor der Übernahme ausdrücklich darauf hin.
 

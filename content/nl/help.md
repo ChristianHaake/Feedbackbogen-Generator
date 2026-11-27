@@ -2,7 +2,7 @@
 
 ## Een formulier maken
 
-Zoek een criterium, open de categorie en kies de gewenste onderdelen. Voeg eigen criteria toe of kies een productvorm. Stel per categorie de schaal in en pas titel, kopvelden en voettekst aan. Gebruik de pijlen om de selectie te ordenen. Bekijk het resultaat in het voorbeeld of kies de checklist zonder schaal.
+Zoek een criterium en selecteer het in de zoekresultaten, of blader door de categorieën. Voeg eigen criteria toe of kies een productvorm. Stel per categorie de schaal in en pas titel, kopvelden en voettekst aan. Gebruik de pijlen om de selectie te ordenen. Bekijk het resultaat in de voorvertoning of kies de checklist zonder schaal.
 
 ## Opslaan en exporteren
 

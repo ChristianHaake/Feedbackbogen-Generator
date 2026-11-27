@@ -960,7 +960,7 @@ test.describe('Language Switching', () => {
     await page.waitForLoadState('load');
 
     await expect(page.locator('.app-footer-note')).toHaveText(
-      'All data remains locally in the browser. No server transmission.'
+      'Your feedback form is processed locally in your browser.'
     );
     await expect(page.locator('#acc-allgemeine')).toContainText('General');
   });

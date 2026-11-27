@@ -6,8 +6,8 @@ Christian Haake et Anna Hegermann ont conçu la première version. Barbara Ehler
 
 ## Publications et code source
 
-- https://doi.org/10.5281/zenodo.15274426
-- https://doi.org/10.5281/zenodo.15383616
-- https://doi.org/10.5281/zenodo.15384229
-- https://doi.org/10.5281/zenodo.15385769
+- [Systematisierung von zukunftsorientierten Prüfungsformaten](https://doi.org/10.5281/zenodo.15274426)
+- [Produktdimensionen und Ausprägungsformen in zukunftsorientierten Prüfungsformaten](https://doi.org/10.5281/zenodo.15383616)
+- [Aufgabengestaltung im Kontext zukunftsorientierter Prüfungsformate](https://doi.org/10.5281/zenodo.15384229)
+- [Zukunftsorientierte Prüfungsformate und deren systematische Entwicklung – Transparentes und systematisches Feedback](https://doi.org/10.5281/zenodo.15385769)
 - GPL-3.0-only: https://github.com/ChristianHaake/Feedbackbogen-Generator

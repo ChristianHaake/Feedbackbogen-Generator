@@ -2,7 +2,7 @@
 
 ## Créer une grille
 
-Recherchez un critère, ouvrez sa catégorie et sélectionnez les éléments pertinents. Ajoutez vos propres critères ou choisissez un format de production. Réglez le barème de chaque catégorie, le titre et les champs d’en-tête et de pied de page. Réorganisez la sélection avec les flèches. Vérifiez l’aperçu ou choisissez le mode liste de contrôle.
+Recherchez un critère et sélectionnez-le dans les résultats, ou parcourez les catégories. Ajoutez vos propres critères ou choisissez un format de production. Réglez l’échelle d’évaluation de chaque catégorie, le titre et les champs d’en-tête et de pied de page. Réorganisez la sélection avec les flèches. Vérifiez l’aperçu ou choisissez le mode « Liste de contrôle ».
 
 ## Sauvegarder et exporter
 

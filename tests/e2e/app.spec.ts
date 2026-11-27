@@ -903,23 +903,27 @@ test.describe('Language Switching', () => {
     }
   });
 
-  test('missing locale catalogs preserve the current language and preview criteria', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('#acc-praesentation').click();
-    await page.locator('label[for="cb-praesentation-koerpersprache"]').click();
-    for (const file of ['categories.json', 'product-formats.json', 'scales.json']) {
-      const pattern = '**/content/en/' + file;
-      await page.route(pattern, route => route.abort());
+  test.describe('catalog network failures', () => {
+    test.use({ serviceWorkers: 'block' });
+
+    test('missing locale catalogs preserve the current language and preview criteria', async ({ page }) => {
+      await page.goto('/');
+      await page.locator('#acc-praesentation').click();
+      await page.locator('label[for="cb-praesentation-koerpersprache"]').click();
+      for (const file of ['categories.json', 'product-formats.json', 'scales.json']) {
+        const pattern = '**/content/en/' + file;
+        await page.route(pattern, route => route.abort());
+        await page.locator('#language-switch').selectOption('en');
+        await expect(page.locator('#language-switch')).toHaveValue('de');
+        await expect(page.locator('#language-switch')).toBeEnabled();
+        await expect(page.locator('.a4-item')).toContainText('Körpersprache');
+        await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+        await page.unroute(pattern);
+      }
       await page.locator('#language-switch').selectOption('en');
-      await expect(page.locator('#language-switch')).toHaveValue('de');
-      await expect(page.locator('#language-switch')).toBeEnabled();
-      await expect(page.locator('.a4-item')).toContainText('Körpersprache');
-      await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-      await page.unroute(pattern);
-    }
-    await page.locator('#language-switch').selectOption('en');
-    await expect(page.locator('.a4-item')).toContainText('Body language');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+      await expect(page.locator('.a4-item')).toContainText('Body language');
+      await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    });
   });
 
   test('language changes preserve the project, drafts and undo when storage is blocked', async ({ page }) => {

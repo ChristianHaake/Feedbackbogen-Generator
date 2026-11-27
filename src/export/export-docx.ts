@@ -24,7 +24,6 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
-import { compactRatingLines } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -38,14 +37,16 @@ const contentWidth = 10440;
 const border = { style: BorderStyle.SINGLE, size: 4, color: 'D5D9E0' };
 const borders = { top: border, right: border, bottom: border, left: border };
 const cellMargins = { top: 80, right: 100, bottom: 80, left: 100 };
+const scaleCellMargins = { top: 60, right: 20, bottom: 60, left: 20 };
 
 function textParagraph(
   text: string,
   bold = false,
-  alignment?: (typeof AlignmentType)[keyof typeof AlignmentType]
+  alignment?: (typeof AlignmentType)[keyof typeof AlignmentType],
+  fontSize?: number
 ) {
   return new Paragraph({
-    children: [new TextRun({ text: sanitizeXmlText(text), bold })],
+    children: [new TextRun({ text: sanitizeXmlText(text), bold, size: fontSize })],
     alignment,
     spacing: { after: 0 },
   });
@@ -59,13 +60,15 @@ function cell(
     fill?: string;
     columnSpan?: number;
     alignment?: (typeof AlignmentType)[keyof typeof AlignmentType];
+    margins?: typeof cellMargins;
+    fontSize?: number;
   } = {}
 ) {
   return new TableCell({
-    children: (Array.isArray(text) ? text : [text]).map(line => textParagraph(line, options.bold, options.alignment)),
+    children: (Array.isArray(text) ? text : [text]).map(line => textParagraph(line, options.bold, options.alignment, options.fontSize)),
     borders,
     columnSpan: options.columnSpan,
-    margins: cellMargins,
+    margins: options.margins ?? cellMargins,
     shading: options.fill
       ? { type: ShadingType.CLEAR, fill: options.fill }
       : undefined,
@@ -115,10 +118,10 @@ function categoryTable(
   mode: PrintMode
 ): Table {
   const scale = items[0]?.scale ?? null;
-  const compact = mode === 'full' ? compactRatingLines(scale) : null;
-  const options = mode === 'full' && !compact ? scaleOptions(scale) : [];
+  const fixedGradeScale = mode === 'full' && scale?.kind === 'numeric' && scale.fixedRange;
+  const options = mode === 'full' ? scaleOptions(scale) : [];
   const criterionWidth =
-    compact ? 4600 : mode === 'checklist' || options.length === 0 ? 8700 : 5400;
+    fixedGradeScale ? Math.floor(contentWidth * 0.4) : mode === 'checklist' || options.length === 0 ? 8700 : 5400;
   const ratingWidth =
     mode === 'checklist' || options.length === 0
       ? contentWidth - criterionWidth
@@ -158,6 +161,8 @@ function categoryTable(
                 fill: 'F7F8FA',
                 width: optionWidth,
                 alignment: AlignmentType.CENTER,
+                margins: fixedGradeScale ? scaleCellMargins : undefined,
+                fontSize: fixedGradeScale ? 16 : undefined,
               })
             )
           : [
@@ -165,7 +170,7 @@ function categoryTable(
                 mode === 'checklist'
                   ? strings.documentExport.checklistDone
                   : strings.documentExport.rating,
-                { bold: true, fill: 'F7F8FA', width: ratingWidth }
+                { bold: true, fill: 'F7F8FA', width: ratingWidth, alignment: AlignmentType.CENTER }
               ),
             ]),
       ],
@@ -185,10 +190,12 @@ function categoryTable(
                   width: optionWidth,
                   fill,
                   alignment: AlignmentType.CENTER,
+                  margins: fixedGradeScale ? scaleCellMargins : undefined,
+                  fontSize: fixedGradeScale ? 18 : undefined,
                 })
               )
             : [
-                cell(compact ?? '☐', {
+                cell('☐', {
                   width: ratingWidth,
                   fill,
                   alignment: AlignmentType.CENTER,

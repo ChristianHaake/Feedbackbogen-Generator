@@ -54,10 +54,17 @@ function ScaleTable({
 }) {
   const numeric = scale.kind === 'numeric';
   const options = scaleOptionLabels(scale);
-  const criterionWidth = numeric ? 46 : 42;
+  const gradePoints = numeric && scale.fixedRange;
+  const criterionWidth = gradePoints ? 40 : numeric ? 46 : 42;
   return (
     <table
-      className={'a4-scale-table' + (numeric ? ' a4-scale-table-numeric' : '')}
+      className={[
+        'a4-scale-table',
+        numeric && 'a4-scale-table-numeric',
+        gradePoints && 'a4-grade-points',
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <colgroup>
         <col
@@ -94,9 +101,11 @@ function ScaleTable({
               'a4-item a4-scale-row' + (remove ? ' a4-item-removable' : '')
             }
           >
-            <td className="a4-item-label a4-scale-criterion-cell">
-              <span className="a4-item-number">{row.number}.</span>
-              <span className="a4-item-text">{row.item}</span>
+            <td className="a4-scale-criterion-cell">
+              <div className="a4-item-label">
+                <span className="a4-item-number">{row.number}.</span>
+                <span className="a4-item-text">{row.item}</span>
+              </div>
               <RemoveButton row={row} remove={remove} />
             </td>
             {options.map((_, i) => (
@@ -122,7 +131,7 @@ function Criteria({
 }) {
   const { scale } = rows[0];
   const checklist = mode === 'checklist';
-  if (!checklist && scale && !(scale.kind === 'numeric' && scale.fixedRange))
+  if (!checklist && scale)
     return <ScaleTable rows={rows} scale={scale} remove={remove} />;
   return (
     <ol className="a4-items">
@@ -132,7 +141,6 @@ function Criteria({
           className={[
             'a4-item',
             checklist && 'a4-item-checklist',
-            !checklist && scale?.kind === 'numeric' && 'a4-item-numeric',
             remove && 'a4-item-removable',
           ]
             .filter(Boolean)
@@ -142,19 +150,7 @@ function Criteria({
           <span className="a4-item-label">
             <span className="a4-item-text">{row.item}</span>
           </span>
-          {!checklist &&
-            (scale ? (
-              <div className="grade-points-options">
-                {scaleOptionLabels(scale).map((label) => (
-                  <span key={label}>
-                    {label}
-                    {'\u00a0☐'}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div className="a4-scale-line" />
-            ))}
+          {!checklist && <div className="a4-scale-line" />}
           <RemoveButton row={row} remove={remove} />
         </li>
       ))}

@@ -49,8 +49,18 @@ describe('document exports', () => {
     for (const [create, entry] of [[createDOCXBlob, 'word/document.xml'], [createODTBlob, 'content.xml']] as const) {
       const zip = await JSZip.loadAsync(await (await create(gradeRows, 'Oberstufe', header, footerFields)).arrayBuffer());
       const xml = await zip.file(entry)!.async('text');
-      expect(xml).toContain(gradeScale.label.toUpperCase());
-      for (let point = 0; point <= 15; point++) expect(xml).toContain(`${point}\u00a0☐`);
+      const rowTag = entry === 'word/document.xml' ? 'w:tr' : 'table:table-row';
+      const cellTag = entry === 'word/document.xml' ? 'w:tc' : 'table:table-cell';
+      const rowsXml = [...xml.matchAll(new RegExp(`<${rowTag}\\b[\\s\\S]*?<\\/${rowTag}>`, 'g'))].map((match) => match[0]);
+      const headerRow = rowsXml.find((row) => row.includes('Kriterium'))!;
+      const valueRow = rowsXml.find((row) => row.includes('Inhalt vollständig'))!;
+      const headerCells = [...headerRow.matchAll(new RegExp(`<${cellTag}\\b[\\s\\S]*?<\\/${cellTag}>`, 'g'))].map((match) => match[0]);
+      const valueCells = [...valueRow.matchAll(new RegExp(`<${cellTag}\\b[\\s\\S]*?<\\/${cellTag}>`, 'g'))].map((match) => match[0]);
+      expect(headerCells).toHaveLength(17);
+      expect(valueCells).toHaveLength(17);
+      expect(headerCells.slice(1).every((cell, index) => cell.includes(String(index)))).toBe(true);
+      expect(valueCells.slice(1).every((cell) => cell.includes('☐'))).toBe(true);
+      expect(gradeScale.label.toUpperCase()).toContain('NOTENPUNKTE');
     }
     const workbook = await JSZip.loadAsync(await (await createXLSXBlob(gradeRows)).arrayBuffer());
     expect(await workbook.file('xl/sharedStrings.xml')!.async('text')).toContain(gradeScale.label);

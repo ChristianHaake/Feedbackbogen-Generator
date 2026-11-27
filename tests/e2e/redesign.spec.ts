@@ -25,6 +25,7 @@ for (const [lang, width] of [['de', 320], ['en', 360], ['fr', 390], ['es', 768],
     await page.locator('#acc-allgemeine').click();
     await page.locator('#acc-allgemeine-panel .category-scale-select').selectOption('notenpunkte_15');
     await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+    await page.locator('label[for="cb-allgemeine-dateinamen"]').click();
     for (const path of ['/help', '/examples', '/about', '/support', '/agb', '/privacy', '/imprint']) {
       await page.locator(`footer a[href="${path}"]`).click();
       await expect(page.locator('#content-page h1')).toBeVisible();
@@ -32,9 +33,17 @@ for (const [lang, width] of [['de', 320], ['en', 360], ['fr', 390], ['es', 768],
       await page.goBack();
     }
     if (width <= 900) await page.locator('.mobile-tab[data-mobile-view="preview"]').click();
-    const options = page.locator('.grade-points-options span');
-    await expect(options).toHaveCount(16);
-    await expect(options.last()).toContainText('15');
+    const matrix = page.locator('.a4-grade-points');
+    const columns = matrix.locator('thead .a4-scale-option-head');
+    await expect(columns).toHaveText(Array.from({ length: 16 }, (_, i) => String(i)));
+    const rows = matrix.locator('tbody tr');
+    await expect(rows).toHaveCount(2);
+    for (const row of await rows.all()) {
+      await expect(row.locator('.a4-scale-cell')).toHaveText(Array(16).fill('☐'));
+      const lastHeading = await columns.last().boundingBox();
+      const lastCell = await row.locator('.a4-scale-cell').last().boundingBox();
+      expect(Math.abs(lastHeading!.x - lastCell!.x)).toBeLessThan(1);
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     if (width <= 900) await page.locator('.mobile-tab[data-mobile-view="export"]').click();
     else await page.locator('#export-menu-trigger').click();

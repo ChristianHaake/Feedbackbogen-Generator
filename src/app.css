@@ -1402,17 +1402,12 @@ body {
   color: #666;
   font-weight: 400;
 }
-.grade-points-options {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 4pt 0;
-  font-size: 9pt;
-  text-align: center;
+.a4-grade-points thead .a4-scale-option-head,
+.a4-grade-points tbody .a4-scale-cell {
+  padding-inline: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
-.a4-item:has(.grade-points-options) {
-  display: block;
-}
-.a4-item .grade-points-options { margin-top: 5pt; }
 .a4-scale-cell {
   padding: 8pt 5pt;
   text-align: center;
@@ -1734,6 +1729,28 @@ body {
   .content-page-card { overflow-wrap: anywhere; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+@media screen and (max-width: 540px) {
+  .a4-grade-points { display: block; }
+  .a4-grade-points colgroup,
+  .a4-grade-points .a4-scale-criterion-head { display: none; }
+  .a4-grade-points thead,
+  .a4-grade-points tbody { display: block; }
+  .a4-grade-points thead tr,
+  .a4-grade-points tbody .a4-scale-row {
+    display: grid;
+    grid-template-columns: repeat(16, minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+  .a4-grade-points .a4-scale-criterion-cell {
+    grid-column: 1 / -1;
+    padding: 6pt 4pt 2pt;
+    border-bottom: 0;
+  }
+  .a4-grade-points tbody .a4-scale-cell { padding-block: 2pt 5pt; }
+  .a4-grade-points .a4-cbox { font-size: 10pt; }
+}
 
 /* ═══════════════════════════════════════
    PRINT

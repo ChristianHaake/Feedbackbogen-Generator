@@ -1734,6 +1734,8 @@ body {
   .a4-scale-table .a4-cbox { font-size: 10pt; }
 }
 
+.a4-print-criterion { display: none; }
+
 /* ═══════════════════════════════════════
    PRINT
    ═══════════════════════════════════════ */
@@ -1751,13 +1753,21 @@ body {
   .preview-pane { background: white; }
   .preview-pane-inner, .a4-page { padding: 0; }
   .a4-item { break-inside: avoid; }
-  /* Safari can fragment a grid inside a table row during native printing. */
-  .a4-scale-table .a4-item-label {
+  /* Safari fragments table cells independently. Keep the complete criterion
+     in one atomic box while retaining the table header for page breaks. */
+  .a4-scale-row > .a4-scale-criterion-cell,
+  .a4-scale-row > .a4-scale-cell { display: none; }
+  .a4-scale-row > .a4-print-criterion { display: table-cell; padding: 0; }
+  .a4-print-row {
     display: inline-grid;
     width: 100%;
+    grid-template-columns: var(--a4-criterion-width) repeat(var(--a4-option-count), minmax(0, 1fr));
+    align-items: center;
     vertical-align: middle;
     break-inside: avoid;
   }
+  .a4-print-row .a4-item-label { padding: 8pt; }
+  .a4-print-row .a4-cbox { text-align: center; }
   .a4-cat-heading { break-after: avoid; }
   .a4-page {
     display: block;

@@ -211,7 +211,7 @@ function ScaleTable({
   const criterionWidth = criterionWidthPercent(scale);
   return (
     <table
-      style={{ '--a4-option-count': options.length } as CSSProperties}
+      style={{ '--a4-option-count': options.length, '--a4-criterion-width': criterionWidth + '%' } as CSSProperties}
       className={[
         'a4-scale-table',
         numeric && 'a4-scale-table-numeric',
@@ -248,26 +248,37 @@ function ScaleTable({
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, index) => (
-          <tr
-            key={row.itemId}
-            className="a4-item a4-scale-row a4-item-removable"
-            data-preview-item={row.itemId}
-          >
-            <td className="a4-scale-criterion-cell">
-              <div className="a4-item-label">
-                <span className="a4-item-number">{row.number}.</span>
-                <span className="a4-item-text">{row.item}</span>
-              </div>
-              {rowActions(index)}
-            </td>
-            {options.map((_, i) => (
-              <td key={i} className="a4-scale-cell">
-                <span className="a4-cbox">☐</span>
+        {rows.map((row, index) => {
+          const label = (
+            <span className="a4-item-label">
+              <span className="a4-item-number">{row.number}.</span>
+              <span className="a4-item-text">{row.item}</span>
+            </span>
+          );
+          return (
+            <tr
+              key={row.itemId}
+              className="a4-item a4-scale-row a4-item-removable"
+              data-preview-item={row.itemId}
+            >
+              <td className="a4-scale-criterion-cell">
+                {label}
+                {rowActions(index)}
               </td>
-            ))}
-          </tr>
-        ))}
+              {options.map((_, i) => (
+                <td key={i} className="a4-scale-cell">
+                  <span className="a4-cbox">☐</span>
+                </td>
+              ))}
+              <td className="a4-print-criterion" colSpan={options.length + 1}>
+                <div className="a4-print-row">
+                  {label}
+                  {options.map((_, i) => <span className="a4-cbox" key={i}>☐</span>)}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

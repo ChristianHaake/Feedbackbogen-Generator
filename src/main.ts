@@ -33,6 +33,7 @@ import {
   buildCategoriesWithCustom,
 } from './content-data';
 import {
+  FALLBACK_PRODUCT_FORMATS,
   loadProductFormats,
   selectedProductFormatCategories,
 } from './product-formats';
@@ -56,6 +57,7 @@ import {
   exportConfigJSON,
   importConfigJSON,
   validateImportedConfig,
+  type ConfigCatalog,
   type ConfigImportResult,
   EMPTY_HEADER,
   DEFAULT_FOOTER_FIELDS,
@@ -136,7 +138,19 @@ type EditorSession = {
   search: string;
 };
 
-async function bootstrap(session?: EditorSession) {
+async function loadCatalog(language: LanguageCode): Promise<ConfigCatalog> {
+  const baseUrl = import.meta.env.BASE_URL as string;
+  const [categories, scales, productFormats] = await Promise.all([
+    loadCategories(baseUrl, language), loadScales(baseUrl, language), loadProductFormats(baseUrl, language),
+  ]);
+  return { categories, scales, productFormats };
+}
+
+function usesFallback({ categories, scales, productFormats }: ConfigCatalog) {
+  return categories === FALLBACK_CATEGORIES || scales === FALLBACK_SCALES || productFormats === FALLBACK_PRODUCT_FORMATS;
+}
+
+async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog) {
   const listeners = new AbortController();
   const { signal } = listeners;
   document.documentElement.lang = currentLanguage;
@@ -148,22 +162,17 @@ async function bootstrap(session?: EditorSession) {
   pending.textContent = strings.messages.contentPageLoading;
   root.replaceChildren(pending);
 
-  const baseUrl = import.meta.env.BASE_URL as string;
-  const [categories, scales, productFormats] = await Promise.all([
-    loadCategories(baseUrl),
-    loadScales(baseUrl),
-    loadProductFormats(baseUrl),
-  ]);
+  const configCatalog = loadedCatalog ?? await loadCatalog(currentLanguage);
+  const { categories, scales, productFormats } = configCatalog;
   const app = renderLayout();
   root.replaceChildren(app);
-  if (categories === FALLBACK_CATEGORIES || scales === FALLBACK_SCALES) {
+  if (usesFallback(configCatalog)) {
     const warning = document.createElement('p');
     warning.className = 'recovery-notice';
     warning.setAttribute('role', 'alert');
     warning.textContent = strings.messages.contentLoadError;
     app.prepend(warning);
   }
-  const configCatalog = { categories, scales, productFormats };
   const importSummaryKey = 'bbk:import-summary';
 
   // State
@@ -699,8 +708,18 @@ async function bootstrap(session?: EditorSession) {
       mobileView = view;
       renderMobileTabs(mobileTabsEl, mobileView, handlers);
     },
-    onLanguageChange: (lang: string) => {
+    onLanguageChange: async (lang: string) => {
       if (lang === currentLanguage) return;
+      languageSwitch.disabled = true;
+      const nextCatalog = await loadCatalog(lang as LanguageCode);
+      if (signal.aborted) return;
+      if (usesFallback(nextCatalog) || validateConfigCatalog(currentConfig(), nextCatalog).length || activeExport) {
+        languageSwitch.value = currentLanguage;
+        languageSwitch.disabled = Boolean(activeExport);
+        showToast(strings.messages.languageSwitchError, 'error');
+        announce(strings.messages.languageSwitchError);
+        return;
+      }
       autoPersist();
       const nextSession = {
         config: currentConfig(), undo: undoStack, redo: redoStack,
@@ -709,7 +728,7 @@ async function bootstrap(session?: EditorSession) {
       listeners.abort();
       if (previewFrame !== undefined) cancelAnimationFrame(previewFrame);
       setLanguage(lang as LanguageCode);
-      void bootstrap(nextSession);
+      void bootstrap(nextSession, nextCatalog);
     },
   };
 

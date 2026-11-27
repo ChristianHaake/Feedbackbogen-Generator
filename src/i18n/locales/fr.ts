@@ -192,6 +192,7 @@ export const fr = {
     importConfirm: "La configuration actuelle sera remplacée. Les modifications précédentes peuvent être annulées. Continuer ?",
     importConfirmLanguage: "La configuration actuelle sera remplacée et la langue changée. L’application sera rechargée ; ce remplacement ne pourra pas être annulé. Continuer ?",
 
+    languageSwitchError: 'Le changement de langue a échoué. Votre grille reste ouverte. Réessayez.',
     contentLoadError:
       "Les données de contenu n'ont pas pu être chargées ou validées. Solution de repli activée.",
     contentPageLoading: 'Chargement du contenu...',

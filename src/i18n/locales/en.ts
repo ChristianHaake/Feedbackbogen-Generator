@@ -189,6 +189,7 @@ export const en = {
     importConfirm: "The current configuration will be replaced. Previous changes can be undone. Continue?",
     importConfirmLanguage: "The current configuration will be replaced and the language changed. The app will reload; this replacement cannot be undone. Continue?",
 
+    languageSwitchError: 'The language could not be changed. Your form is still open. Try again.',
     contentLoadError:
       'Content data could not be loaded or validated. Fallback activated.',
     contentPageLoading: 'Loading content...',

@@ -190,6 +190,7 @@ export const nl = {
     importConfirm: "De huidige configuratie wordt vervangen. Eerdere wijzigingen kunnen ongedaan worden gemaakt. Doorgaan?",
     importConfirmLanguage: "De huidige configuratie wordt vervangen en de taal gewijzigd. De app wordt opnieuw geladen; deze vervanging kan niet ongedaan worden gemaakt. Doorgaan?",
 
+    languageSwitchError: 'De taal kon niet worden gewijzigd. Je formulier blijft open. Probeer het opnieuw.',
     contentLoadError: 'Inhoud kon niet worden geladen. Fallback geactiveerd.',
     contentPageLoading: 'Inhoud wordt geladen...',
     contentPageLoadError: 'De inhoud kon niet worden geladen.',

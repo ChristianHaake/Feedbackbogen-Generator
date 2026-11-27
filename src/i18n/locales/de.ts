@@ -189,6 +189,7 @@ export const de = {
     importConfirm: "Die aktuelle Konfiguration wird ersetzt. Vorherige Änderungen können rückgängig gemacht werden. Fortfahren?",
     importConfirmLanguage: "Die aktuelle Konfiguration wird ersetzt und die Sprache gewechselt. Die App wird neu geladen; diese Ersetzung kann nicht rückgängig gemacht werden. Fortfahren?",
 
+    languageSwitchError: 'Der Sprachwechsel ist fehlgeschlagen. Dein Bogen bleibt geöffnet. Versuche es erneut.',
     contentLoadError:
       'Inhaltsdaten konnten nicht geladen oder validiert werden. Fallback aktiviert.',
     contentPageLoading: 'Inhalt wird geladen...',

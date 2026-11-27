@@ -1579,10 +1579,10 @@ body {
 .sr-only { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 
 /* ─────── Responsive ─────── */
-@media (max-width: 1100px) {
+@media screen and (max-width: 1100px) {
   .a4-page { transform: scale(0.85); transform-origin: top center; }
 }
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
   body { overflow: hidden; }
   .app { height: 100vh; height: 100dvh; }
   .app-header { min-height: 0; padding: var(--space-3); gap: var(--space-2); }
@@ -1679,7 +1679,7 @@ body {
 
 }
 
-@media (max-width: 360px) {
+@media screen and (max-width: 360px) {
   .title-segment {
     display: grid;
     grid-template-columns: 1fr;
@@ -1739,14 +1739,22 @@ body {
    PRINT
    ═══════════════════════════════════════ */
 @media print {
-  @page { size: A4; margin: 0; }
+  @page { size: A4; margin: 14mm; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .app-footer, .content-page, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
-  .workspace { display: block; }
-  .preview-pane { background: white; overflow: visible; }
-  .preview-pane-inner { padding: 0; }
+  .app-header, .action-bar, .editor-pane, .app-footer, .content-page, .mobile-tabs, .mobile-export-pane, .recovery-notice, .config-message, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
+  .app, .workspace, .preview-pane, .preview-pane-inner {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  .preview-pane { background: white; }
+  .preview-pane-inner, .a4-page { padding: 0; }
+  .a4-item { break-inside: avoid; }
+  .a4-cat-heading { break-after: avoid; }
   .a4-page {
+    display: block;
     box-shadow: none !important;
     border-radius: 0 !important;
     margin: 0 !important;

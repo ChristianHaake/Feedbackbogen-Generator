@@ -163,12 +163,12 @@ async function loadJson<T>(
   }
 }
 
-export function loadCategories(baseUrl: string): Promise<Category[]> {
-  return loadJson(baseUrl + `content/${currentLanguage}/categories.json`, validateCategories, FALLBACK_CATEGORIES, 'categories');
+export function loadCategories(baseUrl: string, language = currentLanguage): Promise<Category[]> {
+  return loadJson(baseUrl + `content/${language}/categories.json`, validateCategories, FALLBACK_CATEGORIES, 'categories');
 }
 
-export function loadScales(baseUrl: string): Promise<Scale[]> {
-  return loadJson(baseUrl + `content/${currentLanguage}/scales.json`, validateScales, FALLBACK_SCALES, 'scales');
+export function loadScales(baseUrl: string, language = currentLanguage): Promise<Scale[]> {
+  return loadJson(baseUrl + `content/${language}/scales.json`, validateScales, FALLBACK_SCALES, 'scales');
 }
 
 export function getAllItemsFromCategory(category: Category): Item[] {

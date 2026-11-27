@@ -193,6 +193,7 @@ export const es = {
     importConfirm: "Se sustituirá la configuración actual. Los cambios anteriores se pueden deshacer. ¿Continuar?",
     importConfirmLanguage: "Se sustituirá la configuración actual y se cambiará el idioma. La aplicación se recargará; esta sustitución no se puede deshacer. ¿Continuar?",
 
+    languageSwitchError: 'No se ha podido cambiar el idioma. El formulario sigue abierto. Vuelve a intentarlo.',
     contentLoadError:
       'No se pudieron cargar los datos de contenido. Respaldo activado.',
     contentPageLoading: 'Cargando contenido...',

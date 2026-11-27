@@ -1751,6 +1751,13 @@ body {
   .preview-pane { background: white; }
   .preview-pane-inner, .a4-page { padding: 0; }
   .a4-item { break-inside: avoid; }
+  /* Safari can fragment a grid inside a table row during native printing. */
+  .a4-scale-table .a4-item-label {
+    display: inline-grid;
+    width: 100%;
+    vertical-align: middle;
+    break-inside: avoid;
+  }
   .a4-cat-heading { break-after: avoid; }
   .a4-page {
     display: block;

@@ -1,5 +1,7 @@
 # Privacyverklaring
 
+Deze Nederlandse vertaling is door AI gemaakt. Alleen de Duitse versie is juridisch bindend.
+
 ## Verantwoordelijke en hosting
 
 Christian Haake
@@ -21,6 +23,6 @@ De ondersteuningspagina laadt geen onderdelen van Buy Me a Coffee. Het beleid va
 
 ## Rechten
 
-Onder de toepasselijke voorwaarden heb je recht op inzage, rectificatie, wissing, beperking, overdraagbaarheid en bezwaar (art. 15–18, 20 en 21 AVG). Je kunt een klacht indienen bij een toezichthouder. Contact: [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). Bij technische of juridische wijzigingen kan de verklaring worden aangepast. De gepubliceerde Duitse versie is bepalend.
+Onder de toepasselijke voorwaarden heb je recht op inzage, rectificatie, wissing, beperking, overdraagbaarheid en bezwaar (art. 15–18, 20 en 21 AVG). Je kunt een klacht indienen bij een toezichthouder. Contact: [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). Bij technische of juridische wijzigingen kan de verklaring worden aangepast.
 
 Cloudflare: https://www.cloudflare.com/privacypolicy/

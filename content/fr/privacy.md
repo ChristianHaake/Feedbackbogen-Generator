@@ -1,5 +1,7 @@
 # Protection des données
 
+Cette traduction française a été générée par une intelligence artificielle. Seule la version allemande fait foi.
+
 ## Responsable et hébergement
 
 Christian Haake
@@ -21,6 +23,6 @@ La page de soutien ne charge aucune ressource de Buy Me a Coffee. Sa politique s
 
 ## Vos droits
 
-Selon les conditions prévues, vous disposez des droits d’accès, de rectification, d’effacement, de limitation, de portabilité et d’opposition (art. 15 à 18, 20 et 21 du RGPD) et pouvez saisir une autorité de contrôle. Contact : [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). La déclaration peut évoluer avec les dispositions légales ou techniques. La version allemande publiée fait foi.
+Selon les conditions prévues, vous disposez des droits d’accès, de rectification, d’effacement, de limitation, de portabilité et d’opposition (art. 15 à 18, 20 et 21 du RGPD) et pouvez saisir une autorité de contrôle. Contact : [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). La déclaration peut évoluer avec les dispositions légales ou techniques.
 
 Cloudflare: https://www.cloudflare.com/privacypolicy/

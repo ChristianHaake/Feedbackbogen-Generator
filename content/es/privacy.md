@@ -1,5 +1,7 @@
 # Política de privacidad
 
+Esta traducción al español se ha generado con inteligencia artificial. Solo la versión alemana es jurídicamente vinculante.
+
 ## Responsable y alojamiento
 
 Christian Haake
@@ -21,6 +23,6 @@ La página de apoyo no carga recursos de Buy Me a Coffee. Su política se aplica
 
 ## Derechos
 
-Según los requisitos aplicables puedes solicitar acceso, rectificación, supresión, limitación, portabilidad y oposición (arts. 15 a 18, 20 y 21 del RGPD) y reclamar ante una autoridad de control. Contacto: [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). La declaración puede cambiar por motivos legales o técnicos. Prevalece la versión alemana publicada.
+Según los requisitos aplicables puedes solicitar acceso, rectificación, supresión, limitación, portabilidad y oposición (arts. 15 a 18, 20 y 21 del RGPD) y reclamar ante una autoridad de control. Contacto: [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback). La declaración puede cambiar por motivos legales o técnicos.
 
 Cloudflare: https://www.cloudflare.com/privacypolicy/

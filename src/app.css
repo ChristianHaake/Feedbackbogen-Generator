@@ -123,10 +123,24 @@ body {
   color: var(--text-muted);
   font-size: .875rem;
 }
+.language-switcher { position: relative; }
+.language-switcher::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
 #language-switch {
-  min-height: 44px;
+  appearance: none;
+  height: 44px;
   max-width: 100%;
-  padding: 4px 8px;
+  padding: 4px 30px 4px 8px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--surface);
@@ -1585,7 +1599,7 @@ body {
   .content-page-card h1 { font-size: 24px; }
   .workspace {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
   }
   .mobile-tabs {

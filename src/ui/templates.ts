@@ -141,7 +141,7 @@ export function renderLayout(): HTMLElement {
         'div',
         {
           class: 'mode-switch',
-          role: 'tablist',
+          role: 'group',
           'aria-label': strings.labels.previewMode,
         },
         modeTab('full', strings.modes.full, true),
@@ -213,6 +213,7 @@ export function renderLayout(): HTMLElement {
       {
         class: 'editor-pane',
         'aria-label': strings.a11y.editorPane,
+        id: 'workspace-edit',
         'data-mobile-panel': 'edit',
       },
       el('div', { class: 'editor-start', id: 'editor-start' },
@@ -302,6 +303,7 @@ export function renderLayout(): HTMLElement {
       {
         class: 'preview-pane',
         'aria-label': strings.a11y.previewPane,
+        id: 'workspace-preview',
         'data-mobile-panel': 'preview',
       },
       el(
@@ -316,6 +318,7 @@ export function renderLayout(): HTMLElement {
       {
         class: 'mobile-export-pane',
         'aria-label': strings.columns.export,
+        id: 'workspace-export',
         'data-mobile-panel': 'export',
       },
       editorSection(
@@ -522,8 +525,7 @@ function modeTab(
   const btn = el('button', {
     type: 'button',
     class: `mode-tab ${active ? 'active' : ''}`,
-    role: 'tab',
-    'aria-selected': String(active),
+    'aria-pressed': String(active),
     'data-mode': mode,
   }) as HTMLButtonElement;
   btn.textContent = label;
@@ -540,6 +542,7 @@ function mobileTab(
     class: `mobile-tab ${active ? 'active' : ''}`,
     role: 'tab',
     'aria-selected': String(active),
+    'aria-controls': `workspace-${view}`,
     'data-mobile-view': view,
   }) as HTMLButtonElement;
   btn.textContent = label;
@@ -2068,7 +2071,7 @@ export function renderModeSwitch(
   container.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach((btn) => {
     const isActive = btn.dataset.mode === mode;
     btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', String(isActive));
+    btn.setAttribute('aria-pressed', String(isActive));
     btn.onclick = () =>
       handlers.onPreviewModeChange(btn.dataset.mode as PrintMode);
   });
@@ -2079,12 +2082,24 @@ export function renderMobileTabs(
   activeView: MobileView,
   handlers: RenderHandlers
 ) {
-  container
-    .querySelectorAll<HTMLButtonElement>('.mobile-tab')
-    .forEach((btn) => {
+  const tabs = Array.from(container.querySelectorAll<HTMLButtonElement>('.mobile-tab'));
+  tabs.forEach((btn, index) => {
       const isActive = btn.dataset.mobileView === activeView;
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-selected', String(isActive));
+      btn.tabIndex = isActive ? 0 : -1;
+      btn.onkeydown = (event) => {
+        const next = {
+          ArrowLeft: (index + tabs.length - 1) % tabs.length,
+          ArrowRight: (index + 1) % tabs.length,
+          Home: 0,
+          End: tabs.length - 1,
+        }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        tabs[next].focus();
+        tabs[next].click();
+      };
       btn.onclick = () =>
         handlers.onMobileViewChange(btn.dataset.mobileView as MobileView);
     });

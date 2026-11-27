@@ -10,7 +10,7 @@ Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeld
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF/Druck, ausfüllbares PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODT (via ZIP+XML).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), Strg/Cmd+Z (Undo), Strg/Cmd+Shift+Z (Redo), respektiert `prefers-reduced-motion`.
-- Build: Vite + TypeScript (Vanilla), ES Modules. App-Assets lokal gebundled; auf der Live-Website kann betreiberseitig Cloudflare Web Analytics geladen werden.
+- Build: Vite + TypeScript (Vanilla), ES Modules. App-Assets lokal gebundled; Cloudflare Web Analytics ist für fbg.haak3.de deaktiviert.
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 

@@ -11,7 +11,7 @@ Cloudflare Inc., 101 Townsend St., San Francisco, CA 94107, EE. UU., proporciona
 
 ## Analítica y cookies
 
-El sitio puede cargar Cloudflare Web Analytics desde static.cloudflareinsights.com para métricas técnicas de uso y rendimiento. La aplicación no crea entradas locales de analítica ni perfiles de uso y no utiliza cookies publicitarias o de seguimiento. Las cookies técnicas necesarias pueden basarse en el art. 6.1.f del RGPD.
+Cloudflare Web Analytics está desactivado para fbg.haak3.de en todas las regiones. Tu navegador no envía datos de medición a este servicio. Cloudflare procesa datos de conexión para mostrar el sitio. La aplicación no crea entradas locales de analítica ni perfiles de uso y no utiliza cookies publicitarias o de seguimiento. Las cookies técnicas necesarias pueden basarse en el art. 6.1.f del RGPD.
 
 ## Trabajo local
 

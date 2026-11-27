@@ -11,7 +11,7 @@ Cloudflare Inc., 101 Townsend St., San Francisco, CA 94107, VS verzorgt hosting,
 
 ## Analyse en cookies
 
-De site kan Cloudflare Web Analytics laden van static.cloudflareinsights.com voor technische gebruiks- en prestatiegegevens. De toepassing maakt geen lokale analysegegevens of gebruiksprofielen aan en gebruikt geen advertentie- of trackingcookies. Noodzakelijke technische cookies kunnen berusten op art. 6 lid 1 onder f AVG.
+Cloudflare Web Analytics is voor fbg.haak3.de in alle regio’s uitgeschakeld. Je browser stuurt geen meetgegevens naar deze dienst. Cloudflare verwerkt verbindingsgegevens om de website weer te geven. De toepassing maakt geen lokale analysegegevens of gebruiksprofielen aan en gebruikt geen advertentie- of trackingcookies. Noodzakelijke technische cookies kunnen berusten op art. 6 lid 1 onder f AVG.
 
 ## Lokaal werk
 

@@ -47,9 +47,7 @@ https://www.cloudflare.com/privacypolicy/
 
 ## 4. Cloudflare Web Analytics
 
-Auf der Live-Website kann Cloudflare Web Analytics eingesetzt werden. Dabei lädt Cloudflare ein Analyse-Skript von `static.cloudflareinsights.com`, um technische Nutzungs- und Performancekennzahlen zu erfassen.
-
-Die Anwendung selbst setzt keine Analyse-Cookies, legt keine Local-Storage-Einträge zu Analysezwecken an und erstellt keine nutzungsbezogenen Profile in der Anwendung. Die Auswertung erfolgt über Cloudflare im Rahmen der Bereitstellung und Performanceüberwachung des Webangebots.
+Cloudflare Web Analytics ist für fbg.haak3.de in allen Regionen deaktiviert. Der Browser sendet keine Messdaten an diesen Analysedienst. Beim Aufruf der Website verarbeitet Cloudflare die in Abschnitt 2 beschriebenen Verbindungsdaten.
 
 ## 5. Lokale Verarbeitung von Eingaben
 
@@ -98,4 +96,4 @@ Außerdem haben Sie das Recht, Beschwerde bei einer Datenschutzaufsichtsbehörde
 
 Diese Datenschutzerklärung kann angepasst werden, wenn technische oder rechtliche Änderungen dies erforderlich machen. Es gilt jeweils die auf dieser Website veröffentlichte aktuelle Fassung.
 
-Stand: 9. November 2026
+Stand: 27. November 2026

@@ -11,7 +11,7 @@ Cloudflare Inc., 101 Townsend St., San Francisco, CA 94107, USA provides hosting
 
 ## Analytics and cookies
 
-The live site may load Cloudflare Web Analytics from static.cloudflareinsights.com for technical usage and performance metrics. The app creates no analytics storage entries or usage profiles and uses no advertising or tracking cookies. Technically necessary infrastructure cookies may be based on Article 6(1)(f) GDPR.
+Cloudflare Web Analytics is disabled for fbg.haak3.de in all regions. Your browser sends no measurements to this service. Cloudflare processes connection data to deliver the website. The app creates no analytics storage entries or usage profiles and uses no advertising or tracking cookies. Technically necessary infrastructure cookies may be based on Article 6(1)(f) GDPR.
 
 ## Your work
 

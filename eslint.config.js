@@ -33,5 +33,10 @@ export default [
       'no-undef': 'off'
     }
   },
+  {
+    // Shared files retain the import layout of their pinned Agent-Memory source.
+    files: ['src/creator/**/*.{ts,tsx}'],
+    rules: { 'import/order': 'off' }
+  },
   prettierConfig
 ];

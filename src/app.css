@@ -1763,3 +1763,17 @@ body {
     min-height: auto !important;
   }
 }
+
+dialog.product-format-modal {
+  max-inline-size: min(760px, calc(100vw - 32px));
+}
+dialog.product-format-modal > div:not([data-creator-dialog-actions]) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}

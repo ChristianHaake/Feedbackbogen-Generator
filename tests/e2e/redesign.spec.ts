@@ -1,11 +1,16 @@
 import { test, expect } from '@playwright/test';
 
+import { expectCreatorFooter } from '../creator/creator-footer-contract';
+import { expectCreatorDialogCancellation } from '../creator/creator-dialog-contract';
+import { creatorCopy } from '../../src/creator/creator-copy';
+
 for (const [lang, width] of [['de', 320], ['en', 360], ['fr', 390], ['es', 768], ['nl', 1440]] as const) {
   test(`Notenpunkte, Inhaltsseiten und PDF bei ${width}px (${lang})`, async ({ page }) => {
     await page.setViewportSize({ width, height: 850 });
     await page.goto('/');
     await page.locator('#language-switch').selectOption(lang);
     await expect(page.locator('html')).toHaveAttribute('lang', lang);
+    await expectCreatorFooter(page, creatorCopy[lang].moreApps);
     const editTab = page.locator('.mobile-tab[data-mobile-view="edit"]');
     const editLabel = (await editTab.textContent())!.trim();
     const startLabel = (await page.locator('#start-criteria').textContent())!.trim();
@@ -76,4 +81,14 @@ test('Suchtreffer sind ohne Aufklappen per Tastatur auswählbar', async ({ page 
   await expect(page.locator('.a4-item')).toContainText('Körpersprache');
   await search.fill('');
   await expect(page.locator('#acc-praesentation')).toHaveAttribute('aria-expanded', 'false');
+});
+
+
+test('Zurücksetzen lässt sich per Tastatur abbrechen und gibt den Fokus zurück', async ({page}) => {
+  await page.goto('/');
+  await page.locator('#language-switch').selectOption('de');
+  await page.locator('#acc-allgemeine').click();
+  await page.locator('label[for="cb-allgemeine-abgabe"]').click();
+  const trigger = page.locator('#config-reset');
+  await expectCreatorDialogCancellation(page, trigger, 'Konfiguration zurücksetzen?', 'Abbrechen');
 });

@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { createElement } from 'react';
 
-import { contentPages, renderContentPage, routeFromPath } from '@/content-pages';
-import { renderLayout } from '@/ui/templates';
+import { contentPages, routeFromPath, type ContentPageId } from '@/content-pages';
+import { ContentPage, GeneratorShell } from '@/ui/react-shell';
+import { renderView } from '@/ui/react-view';
+
+function renderLayout() {
+  const host = document.createElement('div');
+  renderView(host, createElement(GeneratorShell, { onLanguageChange: () => undefined }));
+  return host;
+}
+
+function renderContentPage(host: HTMLElement, pageId: ContentPageId, markdown: string) {
+  renderView(host, createElement(ContentPage, { pageId, markdown }));
+}
 
 describe('help content page', () => {
   it('renders localized safe external Markdown links without enabling script links', () => {

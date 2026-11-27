@@ -1708,33 +1708,31 @@ body {
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 @media screen and (max-width: 540px) {
-  .a4-scale-table { display: block; }
-  .a4-scale-table colgroup,
-  .a4-scale-table .a4-scale-criterion-head { display: none; }
-  .a4-scale-table thead,
-  .a4-scale-table tbody { display: block; }
-  .a4-scale-table thead tr,
-  .a4-scale-table tbody .a4-scale-row {
+  #workspace-preview .a4-scale-table { display: block; }
+  #workspace-preview .a4-scale-table colgroup,
+  #workspace-preview .a4-scale-table .a4-scale-criterion-head { display: none; }
+  #workspace-preview .a4-scale-table thead,
+  #workspace-preview .a4-scale-table tbody { display: block; }
+  #workspace-preview .a4-scale-table thead tr,
+  #workspace-preview .a4-scale-table tbody .a4-scale-row {
     display: grid;
     grid-template-columns: repeat(var(--a4-option-count), minmax(0, 1fr));
     gap: 0;
     padding: 0;
   }
-  .a4-scale-table .a4-scale-criterion-cell {
+  #workspace-preview .a4-scale-table .a4-scale-criterion-cell {
     grid-column: 1 / -1;
     padding: 6pt 4pt 2pt;
     border-bottom: 0;
   }
-  .a4-scale-table tbody .a4-scale-cell { padding: 2pt 0 5pt; }
-  .a4-scale-table thead .a4-scale-option-head {
+  #workspace-preview .a4-scale-table tbody .a4-scale-cell { padding: 2pt 0 5pt; }
+  #workspace-preview .a4-scale-table thead .a4-scale-option-head {
     padding-inline: 1px;
     overflow-wrap: anywhere;
     align-content: center;
   }
-  .a4-scale-table .a4-cbox { font-size: 10pt; }
+  #workspace-preview .a4-scale-table .a4-cbox { font-size: 10pt; }
 }
-
-.a4-print-criterion { display: none; }
 
 /* ═══════════════════════════════════════
    PRINT
@@ -1753,40 +1751,8 @@ body {
   .preview-pane { background: white; }
   .preview-pane-inner, .a4-page { padding: 0; }
   .a4-item { break-inside: avoid; }
-  /* Safari fragments table cells independently. Keep the complete criterion
-     in one atomic box while retaining the table header for page breaks. */
-  .a4-scale-row > .a4-scale-criterion-cell,
-  .a4-scale-row > .a4-scale-cell { display: none; }
-  .a4-scale-row > .a4-print-criterion { display: table-cell; padding: 0; }
-  .a4-print-row {
-    display: inline-grid;
-    width: 100%;
-    grid-template-columns: var(--a4-criterion-width) repeat(var(--a4-option-count), minmax(0, 1fr));
-    align-items: center;
-    vertical-align: middle;
-    break-inside: avoid;
-  }
-  .a4-print-row .a4-item-label { padding: 8pt; }
-  .a4-print-row .a4-cbox { text-align: center; }
-  /* Let the page fragment between rows in normal block flow. WebKit loses
-     the trailing content when it paginates an atomic box inside a table. */
-  @supports (-webkit-hyphens: auto) {
-    .a4-scale-table, .a4-scale-table thead, .a4-scale-table tbody,
-    .a4-scale-table tbody .a4-scale-row, .a4-scale-row > .a4-print-criterion {
-      display: block;
-    }
-    .a4-scale-table colgroup { display: none; }
-    .a4-scale-table thead tr {
-      display: grid;
-      grid-template-columns: var(--a4-criterion-width) repeat(var(--a4-option-count), minmax(0, 1fr));
-      break-after: avoid;
-    }
-    .a4-scale-table tbody .a4-scale-row { padding: 0; }
-  }
-  .a4-watermark { position: static; margin-top: 12pt; text-align: right; }
   .a4-cat-heading { break-after: avoid; }
   .a4-page {
-    position: static;
     display: block;
     box-shadow: none !important;
     border-radius: 0 !important;
@@ -1809,4 +1775,20 @@ dialog.product-format-modal > div:not([data-creator-dialog-actions]) {
 }
 dialog::backdrop {
   background: rgb(0 0 0 / 45%);
+}
+
+/* Match the A4 content box while Safari prepares its native print sheet. */
+.native-print-document { position: absolute; left: -100000px; top: 0; width: 182mm; visibility: hidden; }
+.native-print-document .a4-page {
+  display: flow-root; position: static; width: 182mm; min-height: 0; margin: 0;
+  padding: 0; transform: none; box-shadow: none; font-size: 10.5pt;
+}
+.native-print-document .a4-title { font-size: 21pt; }
+.native-print-document .a4-header-fields { grid-template-columns: 1fr 1fr; gap: 7pt 24pt; }
+.native-print-document .a4-watermark { position: static; text-align: right; margin-top: 12pt; }
+@media print {
+  body:has(> .native-print-document) > #app { display: none; }
+  .native-print-document { position: static; visibility: visible; }
+  .native-print-document .a4-page + .a4-page { break-before: page; }
+  .native-print-document .a4-page:not(:last-child) { min-height: 265mm !important; }
 }

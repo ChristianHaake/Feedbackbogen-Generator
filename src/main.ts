@@ -2,6 +2,7 @@ import './creator/creator.css';
 import './app.css';
 import { createElement } from 'react';
 
+import { installSafariPrintLayout } from './ui/safari-print';
 import { GeneratorShell, ContentPage, ContentMessage } from './ui/react-shell';
 import { renderView, unmountView } from './ui/react-view';
 import {
@@ -1812,5 +1813,6 @@ function setupSectionToggles(): void {
   }
 }
 
+installSafariPrintLayout();
 focusVisiblePolyfill();
 void bootstrap();

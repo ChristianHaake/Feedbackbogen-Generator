@@ -19,8 +19,9 @@ export function installSafariPrintLayout() {
       return page;
     };
     let page = newPage();
-    // Leave 3 mm for rounding of native font metrics and printer units.
-    const limit = 266 * 96 / 25.4;
+    // Safari also lays out the preview against the selected printer’s imageable
+    // area. Reserve space for its headers and footers within the A4 margins.
+    const limit = 240 * 96 / 25.4;
     const overflows = () => page.getBoundingClientRect().height > limit;
     const appendBlock = (block: Element) => {
       const previous = page.childElementCount;

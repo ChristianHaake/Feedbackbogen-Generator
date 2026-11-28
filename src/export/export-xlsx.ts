@@ -1,5 +1,6 @@
 import writeExcelFile from 'write-excel-file/universal';
 import type { Cell, SheetData } from 'write-excel-file/universal';
+import { appendMarkupInsideElement, findElement, prependMarkupInsideElement, sanitizeTextContent } from 'write-excel-file/utility';
 
 import {
   downloadBlob,
@@ -80,6 +81,28 @@ export async function createXLSXBlob(rows: ExportRow[]): Promise<Blob> {
     stickyRowsCount: 1,
     orientation: 'landscape',
     columns: [{ width: 28 }, { width: 14 }, { width: 72 }, { width: 40 }, { width: 18 }]
+  }, {
+    features: [{
+      files: {
+        transform: {
+          'xl/worksheets/sheet{id}.xml': {
+            transform: xml => prependMarkupInsideElement(
+              xml, findElement(xml, 'worksheet')!, '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>'
+            ),
+            transformElementAttributes: (tag, attributes) => tag === 'pageSetup'
+              ? { ...attributes, fitToWidth: 1, fitToHeight: 0 }
+              : attributes,
+          },
+          'xl/workbook.xml': {
+            transform: xml => {
+              const reference = "'" + strings.xlsx.sheetName.replace(/'/g, "''") + "'!$1:$1";
+              return appendMarkupInsideElement(xml, findElement(xml, 'definedNames')!,
+                `<definedName name="_xlnm.Print_Titles" localSheetId="0">${sanitizeTextContent(reference)}</definedName>`);
+            },
+          },
+        },
+      },
+    }],
   }).toBlob();
 }
 

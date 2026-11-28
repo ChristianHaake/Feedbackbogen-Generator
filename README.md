@@ -10,7 +10,7 @@ Die Anwendung läuft vollständig im Browser. Es gibt kein Backend, keine Anmeld
 - Skalenmodell: Skalen werden pro Kategorie vergeben; alle Kriterien einer Kategorie verwenden diese Skala.
 - Exporte lokal im Browser: PDF/Druck, ausfüllbares PDF, DOCX (`docx`), XLSX (`write-excel-file`), ODT (via ZIP+XML).
 - Barrierefreiheit: Tastaturbedienung, sichtbarer Fokus-Ring, `aria-live`-Status, Alt+S (Config herunterladen), Alt+E (Export-Menü öffnen), Strg/Cmd+Z (Undo), Strg/Cmd+Shift+Z (Redo), respektiert `prefers-reduced-motion`.
-- Build: Vite + TypeScript (Vanilla), ES Modules. App-Assets lokal gebundled; Cloudflare Web Analytics ist für fbg.haak3.de deaktiviert.
+- Build: Vite + React + TypeScript, ES Modules. App-Assets lokal gebundled; Cloudflare Web Analytics ist für fbg.haak3.de deaktiviert.
 
 Website: [https://fbg.haak3.de](https://fbg.haak3.de)
 
@@ -61,6 +61,8 @@ Im Mittelpunkt steht nicht nur die abschließende Bewertung, sondern Feedback al
 - Import und Export der Konfiguration als JSON
 - Export als PDF/Druckansicht, ausfüllbares PDF, DOCX, XLSX und ODT
 
+Die Seite unter `/agb` heißt in dieser App auf Betreiberwunsch „Hinweise zur Nutzung“. Sie enthält praktische Hinweise zur Arbeit mit dem Generator. Footer und Überschrift verwenden in jeder Sprache dieselbe Bezeichnung.
+
 ## Datenschutz
 
 Die eingegebenen Inhalte werden lokal im Browser verarbeitet. Sie werden nicht an den Betreiber übermittelt.
@@ -71,7 +73,7 @@ Konfigurationen werden im `localStorage` des Browsers automatisch gespeichert. S
 
 Die App ist eine clientseitige Vite/TypeScript-Anwendung ohne Backend.
 
-- Framework: Vanilla TypeScript mit Vite
+- Framework: React und TypeScript mit Vite
 - Datenquellen: lokalisierte JSON-Dateien im Ordner `content/<sprache>/`
 - Persistenz: `localStorage`, versionierter JSON-Import und -Export mit Migrationen und Import-Limits
 - Exporte: Browser-Druckfunktion, `pdf-lib`, `docx`, `write-excel-file`, `jszip`
@@ -273,3 +275,15 @@ Weiterführende Informationen stehen in der Anwendung unter „Über das Projekt
 ## Lizenz
 
 GPL-3.0-only, siehe `LICENSE`.
+
+
+## Gemeinsame Creator-Oberfläche
+
+Kopfbereich, Sprachwahl, Footer, Dialoge und Statusmeldungen liegen als lesbarer Quellcode unter `src/creator/`. Ihre Herkunft und Prüfsummen stehen in `creator-source.lock.json`. Für ein Update im App-Checkout ausführen:
+
+```sh
+node scripts/sync-creator.mjs /pfad/zu/Agent-Memory FREIGEGEBENER_VOLLSTAENDIGER_COMMIT
+npm run verify
+```
+
+Editor, Vorschau, Dokumentformate und Speicherung werden in diesem Repository gepflegt. CI und Cloudflare bauen ausschließlich aus dem App-Checkout mit `npm ci` und `npm run build`.

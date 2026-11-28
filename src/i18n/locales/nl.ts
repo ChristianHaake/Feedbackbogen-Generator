@@ -29,9 +29,10 @@ export const nl = {
     export: 'Alt+E: Exporteren',
   },
   columns: {
-    selected: 'Geselecteerd',
-    categories: 'Beoordelingscriteria',
-    productFormats: 'Productformaten',
+    addCriteria: 'Criteria toevoegen',
+    selected: 'Mijn formulier',
+    categories: 'Afzonderlijke criteria',
+    productFormats: 'Productvormen',
     export: 'Export',
   },
   kopfdaten: {
@@ -93,6 +94,8 @@ export const nl = {
     reorderSelection: 'Wijzig de volgorde via drag-and-drop of pijltjestoetsen',
     dragCategory: (category: string) =>
       `Verplaats categorie: ${category}. Gebruik pijltjes omhoog/omlaag.`,
+    moveCriterionUp: 'Criterium omhoog verplaatsen',
+    moveCriterionDown: 'Criterium omlaag verplaatsen',
     dragCriterion: (criterion: string) =>
       `Verplaats criterium: ${criterion}. Gebruik pijltjes omhoog/omlaag.`,
     dragHeaderField: (field: string) =>
@@ -145,7 +148,7 @@ export const nl = {
   },
   contentLinks: {
     examples: 'Voorbeelden',
-    terms: 'Gebruiksvoorwaarden',
+    terms: 'Toelichting bij het gebruik',
     openExample: 'Voorbeeld openen',
     help: 'Help',
     about: 'Over het project',

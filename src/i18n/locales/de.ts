@@ -29,9 +29,10 @@ export const de = {
     export: 'Alt+E: Export',
   },
   columns: {
-    selected: 'Ausgewählt',
-    categories: 'Bewertungskriterien',
-    productFormats: 'Produktebene',
+    addCriteria: 'Kriterien hinzufügen',
+    selected: 'Mein Bogen',
+    categories: 'Einzelkriterien',
+    productFormats: 'Produktformate',
     export: 'Export',
   },
   kopfdaten: {
@@ -93,6 +94,8 @@ export const de = {
     reorderSelection: 'Reihenfolge per Drag-and-drop oder Pfeiltasten ändern',
     dragCategory: (category: string) =>
       `Kategorie verschieben: ${category}. Mit Pfeiltasten nach oben oder unten bewegen.`,
+    moveCriterionUp: 'Kriterium nach oben verschieben',
+    moveCriterionDown: 'Kriterium nach unten verschieben',
     dragCriterion: (criterion: string) =>
       `Kriterium verschieben: ${criterion}. Mit Pfeiltasten nach oben oder unten bewegen.`,
     dragHeaderField: (field: string) =>
@@ -146,7 +149,7 @@ export const de = {
   },
   contentLinks: {
     examples: 'Beispiele',
-    terms: 'AGB',
+    terms: 'Hinweise zur Nutzung',
     openExample: 'Beispiel öffnen',
     help: 'Hilfe',
     about: 'Über das Projekt',

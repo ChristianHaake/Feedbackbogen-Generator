@@ -93,7 +93,6 @@ export function saveSectionState(state: SectionState): void {
 
 export type ConfigImportResult =
   | { status: 'success'; config: AppConfig }
-  | { status: 'cancelled' }
   | { status: 'error'; message: string; diagnostics?: ConfigDiagnostic[] };
 
 export type ConfigDiagnostic = {
@@ -1261,30 +1260,14 @@ export function validateImportedConfig(value: unknown, catalog?: ConfigCatalog):
 }
 
 export async function importConfigJSON(
+  file: File,
   catalog?: ConfigCatalog
 ): Promise<ConfigImportResult> {
-  return new Promise((resolve) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return resolve({ status: 'cancelled' });
-      if (file.size > MAX_IMPORT_BYTES)
-        return resolve({
-          status: 'error',
-          message: strings.messages.importTooLarge,
-        });
-      try {
-        resolve(validateImportedConfig(JSON.parse(await file.text()), catalog));
-      } catch {
-        resolve({
-          status: 'error',
-          message: strings.messages.importInvalidJson,
-        });
-      }
-    };
-    input.oncancel = () => resolve({ status: 'cancelled' });
-    input.click();
-  });
+  if (file.size > MAX_IMPORT_BYTES)
+    return { status: 'error', message: strings.messages.importTooLarge };
+  try {
+    return validateImportedConfig(JSON.parse(await file.text()), catalog);
+  } catch {
+    return { status: 'error', message: strings.messages.importInvalidJson };
+  }
 }

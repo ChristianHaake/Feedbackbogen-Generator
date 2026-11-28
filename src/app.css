@@ -158,34 +158,25 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  min-height: 80px;
-  padding: 12px clamp(16px, 4vw, 64px);
+  padding: 8px clamp(16px, 4vw, 64px);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 
 }
-.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
+.brand { display: inline-flex; align-items: center; min-height: 44px; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
 
 .brand__logo-wide {
   display: block;
-  height: 56px;
+  height: 48px;
   width: auto;
   object-fit: contain;
   border-radius: 8px;
 }
-.header-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.header-meta__top { display: flex; align-items: center; gap: 18px; }
-.local-badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 5px 12px; border-radius: 999px;
-  background: var(--success-soft); color: var(--success);
-  border: 1px solid var(--success-soft);
-  font-size: 0.76rem; font-weight: 650; white-space: nowrap;
+.app-header [data-creator-controls] {
+  justify-content: flex-end;
+  column-gap: var(--space-4);
 }
-.local-badge__dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--success); flex: 0 0 auto;
-}
+.app-header .language-switcher { flex-wrap: nowrap; }
 
 /* ─────── Action bar (workflow controls) ─────── */
 .action-bar {
@@ -400,31 +391,38 @@ body {
 
 .app-footer {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
   border-top: 1px solid var(--border);
-  background: #fff;
-  padding: 14px clamp(16px, 4vw, 64px);
+  background: var(--surface);
+  padding: 6px clamp(16px, 4vw, 64px);
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: .8125rem;
 }
-.app-footer-note { flex: 0 1 auto; }
 .app-footer-links {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
   flex-wrap: wrap;
-  justify-content: flex-end;
+  gap: 2px var(--space-2);
 }
-.app-footer-nav {
+.footer-identity {
   display: flex;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 180px;
 }
-.app-footer-nav a {
+.app-footer-note { max-width: 30ch; line-height: 1.35; }
+.app-footer .footer-brand {
+  flex: none;
+  padding-inline-end: var(--space-2);
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+}
+.app-footer .app-footer-nav {
+  gap: 2px var(--space-1);
+}
+.app-footer-nav a,
+.app-footer .creator-more-apps,
+.github-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -436,32 +434,18 @@ body {
   text-decoration: none;
   text-underline-offset: 3px;
 }
-.app-footer-nav a:hover,
+.app-footer a:hover,
 .app-footer-nav a[aria-current="page"] {
   color: var(--primary);
   text-decoration: underline;
 }
 .github-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  color: var(--text-muted);
-  font-weight: 700;
-  text-decoration: none;
+  flex: none;
+  position: relative;
+  border-radius: 50%;
 }
-.github-link svg {
-  display: block;
-  flex: 0 0 auto;
-}
-.github-link:hover {
-  background: var(--surface-subtle);
-  color: var(--text);
-}
+.github-link svg { display: block; flex: none; }
+.github-link:hover { background: var(--surface-subtle); }
 .bmc-link {
   display: inline-flex;
   align-items: center;
@@ -537,6 +521,22 @@ body {
 .section-toggle:hover { color: var(--text); }
 /* Tighten the divider when the panel is collapsed. */
 .editor-section:has(.section-toggle[aria-expanded="false"]) .editor-section-title { margin-bottom: 0; }
+
+.criteria-source + .criteria-source {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.criteria-source-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
 
 .search-wrap { display: flex; flex-direction: column; gap: 3px; margin-bottom: var(--space-3); }
 .criteria-search {
@@ -698,12 +698,6 @@ body {
 .choose-product-formats-btn {
   justify-content: center;
   width: 100%;
-}
-.product-format-empty {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.4;
 }
 .product-format-categories {
   margin-top: var(--space-2);
@@ -1247,6 +1241,43 @@ body {
 
 .a4-empty { color: #666; font-style: italic; padding: 20pt 0; text-align: center; }
 
+.a4-sheet-builder { margin: 16pt 0; }
+.a4-add-block {
+  min-height: 44px;
+  width: 100%;
+  border: 1px dashed var(--primary);
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font: 700 12px system-ui, sans-serif;
+  cursor: pointer;
+}
+.a4-block-dialog {
+  width: min(540px, calc(100vw - 24px));
+  max-height: min(80vh, 720px);
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  font: 14px system-ui, sans-serif;
+}
+.a4-block-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.a4-block-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.a4-block-dialog-head h2 { margin: 0; font-size: 18px; }
+.a4-block-dialog-head button { width: 44px; height: 44px; border: 0; background: transparent; font-size: 22px; cursor: pointer; }
+.a4-block-options { display: grid; gap: 6px; max-height: 50vh; overflow: auto; margin: 14px 0; }
+.a4-block-choice, .a4-block-item {
+  display: flex; align-items: center; min-height: 44px;
+  padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
+  background: white; color: var(--text); text-align: left; font: inherit;
+}
+.a4-block-choice { cursor: pointer; }
+.a4-block-choice:hover { border-color: var(--primary); }
+.a4-block-item { gap: 12px; cursor: pointer; }
+.a4-block-item input { width: 18px; height: 18px; flex: 0 0 auto; }
+.a4-block-back { min-height: 44px; border: 0; background: transparent; color: var(--primary); cursor: pointer; }
+.a4-block-done { min-height: 44px; }
+
 .a4-score-summary {
   margin: 16pt 0 18pt;
   padding: 8pt 9pt;
@@ -1402,17 +1433,12 @@ body {
   color: #666;
   font-weight: 400;
 }
-.grade-points-options {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 4pt 0;
-  font-size: 9pt;
-  text-align: center;
+.a4-grade-points thead .a4-scale-option-head,
+.a4-grade-points tbody .a4-scale-cell {
+  padding-inline: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
-.a4-item:has(.grade-points-options) {
-  display: block;
-}
-.a4-item .grade-points-options { margin-top: 5pt; }
 .a4-scale-cell {
   padding: 8pt 5pt;
   text-align: center;
@@ -1588,20 +1614,6 @@ body {
   .app-header { min-height: 0; padding: var(--space-3); gap: var(--space-2); }
   .brand__logo-wide { height: 48px; }
 
-  /* Keep the language switcher reachable on mobile; only drop the local-badge
-     (its note is still shown in the footer). */
-  .header-meta { gap: var(--space-2); }
-  .language-switcher {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    max-width: 100%;
-  }
-  .language-switcher__option {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0 8px;
-  }
-  .header-meta .local-badge { display: none; }
   .action-bar-inner { padding: var(--space-2) var(--space-3); }
   .action-bar--floating { display: none; } /* mobile uses the export tab's action buttons */
   .divider { display: none; }
@@ -1667,18 +1679,27 @@ body {
   .a4-footer-fields { grid-template-columns: 1fr; gap: 7pt; }
   .btn-label { display: none; }
   .menu-panel { right: 0; }
-  .app-footer {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-    padding: var(--space-3);
-  }
-  .app-footer-links { justify-content: flex-start; gap: var(--space-3); }
-  .app-footer-nav { gap: var(--space-3); }
-
+  .app-footer { padding: 6px var(--space-3); }
+  .footer-identity { flex-basis: 100%; }
+  .app-footer-note { max-width: none; }
 
 }
 
+@media screen and (max-width: 650px) {
+  .app-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-2);
+    padding-block: var(--space-1);
+  }
+  .app-header [data-creator-controls] { display: contents; }
+  .app-header .brand__logo-wide { height: 42px; max-width: 100%; }
+  .app-header .mode-switch {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+  .mode-tab { flex: 1; }
+}
 @media screen and (max-width: 360px) {
   .title-segment {
     display: grid;
@@ -1709,12 +1730,12 @@ body {
 }
 .app-footer-nav .bmc-link { color: white; }
 .app-footer-nav .bmc-link:hover { color: white; background: var(--primary-hover); }
-.github-link { position: relative; }
 .github-link-label {
   display: none;
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% + 2px);
   right: 0;
+  white-space: nowrap;
   padding: 5px 10px;
   background: var(--text);
   color: white;
@@ -1727,13 +1748,38 @@ body {
   .workspace { overflow: visible; grid-template-rows: auto 1fr; align-content: start; }
   .mobile-tabs { position: sticky; top: 0; z-index: 5; }
   .editor-pane, .mobile-export-pane, .preview-pane, .content-page { overflow: visible; }
-  .app-footer-nav { justify-content: flex-start; gap: 2px 8px; }
   .app-header { flex-wrap: wrap; }
-  .header-meta { align-items: flex-start; }
   .editor-pane { min-width: 0; }
   .content-page-card { overflow-wrap: anywhere; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+@media screen and (max-width: 540px) {
+  #workspace-preview .a4-scale-table { display: block; }
+  #workspace-preview .a4-scale-table colgroup,
+  #workspace-preview .a4-scale-table .a4-scale-criterion-head { display: none; }
+  #workspace-preview .a4-scale-table thead,
+  #workspace-preview .a4-scale-table tbody { display: block; }
+  #workspace-preview .a4-scale-table thead tr,
+  #workspace-preview .a4-scale-table tbody .a4-scale-row {
+    display: grid;
+    grid-template-columns: repeat(var(--a4-option-count), minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+  #workspace-preview .a4-scale-table .a4-scale-criterion-cell {
+    grid-column: 1 / -1;
+    padding: 6pt 4pt 2pt;
+    border-bottom: 0;
+  }
+  #workspace-preview .a4-scale-table tbody .a4-scale-cell { padding: 2pt 0 5pt; }
+  #workspace-preview .a4-scale-table thead .a4-scale-option-head {
+    padding-inline: 1px;
+    overflow-wrap: anywhere;
+    align-content: center;
+  }
+  #workspace-preview .a4-scale-table .a4-cbox { font-size: 10pt; }
+}
 
 /* ═══════════════════════════════════════
    PRINT
@@ -1742,7 +1788,7 @@ body {
   @page { size: A4; margin: 14mm; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .app-footer, .content-page, .mobile-tabs, .mobile-export-pane, .recovery-notice, .config-message, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
+  .app-header, .action-bar, .editor-pane, .app-footer, .content-page, .mobile-tabs, .mobile-export-pane, .recovery-notice, .config-message, #aria-live, #app-toast, .a4-item-remove, .a4-sheet-builder { display: none !important; }
   .app, .workspace, .preview-pane, .preview-pane-inner {
     display: block;
     height: auto;
@@ -1762,4 +1808,32 @@ body {
     width: 100% !important;
     min-height: auto !important;
   }
+}
+
+dialog.product-format-modal {
+  max-inline-size: min(760px, calc(100vw - 32px));
+}
+dialog.product-format-modal > div:not([data-creator-dialog-actions]) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+/* Match the A4 content box while Safari prepares its native print sheet. */
+body:has(> .native-print-document) > #app { display: none; }
+.native-print-document { width: 182mm; }
+.native-print-document .a4-page {
+  display: flow-root; position: static; width: 182mm; min-height: 0; margin: 0;
+  padding: 0; transform: none; box-shadow: none; font-size: 10.5pt;
+}
+.native-print-document .a4-title { font-size: 21pt; }
+.native-print-document .a4-header-fields { grid-template-columns: 1fr 1fr; gap: 7pt 24pt; }
+.native-print-document .a4-watermark { position: static; text-align: right; margin-top: 12pt; }
+@media print {
+  .native-print-document .a4-page + .a4-page { break-before: page; }
 }

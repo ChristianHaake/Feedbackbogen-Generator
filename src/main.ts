@@ -1,7 +1,12 @@
+import './creator/creator.css';
 import './app.css';
+import { createElement } from 'react';
+
+import { installSafariPrintLayout } from './ui/safari-print';
+import { GeneratorShell, ContentPage, ContentMessage } from './ui/react-shell';
+import { renderView, unmountView } from './ui/react-view';
 import {
   documentTitleText,
-  renderLayout,
   renderDocumentTitleForm,
   renderKopfdaten,
   renderCategories,
@@ -36,11 +41,11 @@ import {
   FALLBACK_PRODUCT_FORMATS,
   loadProductFormats,
   selectedProductFormatCategories,
+  productFormatToCategory,
 } from './product-formats';
 import {
   contentPages,
   loadContentMarkdown,
-  renderContentPage,
   routeFromPath,
   type AppRoute,
   type ContentPageId,
@@ -158,15 +163,12 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
   document.title = strings.appTitle;
 
   const root = document.getElementById('app')!;
-  const pending = document.createElement('p');
-  pending.setAttribute('role', 'status');
-  pending.textContent = strings.messages.contentPageLoading;
-  root.replaceChildren(pending);
+  renderView(root, createElement(ContentMessage));
 
   const configCatalog = loadedCatalog ?? await loadCatalog(currentLanguage);
   const { categories, scales, productFormats } = configCatalog;
-  const app = renderLayout();
-  root.replaceChildren(app);
+  renderView(root, createElement(GeneratorShell, { onLanguageChange: (lang: string) => handlers.onLanguageChange(lang) }));
+  const app = root.firstElementChild as HTMLElement;
   if (usesFallback(configCatalog)) {
     const warning = document.createElement('p');
     warning.className = 'recovery-notice';
@@ -424,25 +426,29 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
     onReorderItem: (
       categoryId: string,
       draggedItemId: string,
-      targetItemId: string
+      targetItemId: string,
+      source: 'editor' | 'preview' = 'editor'
     ) => {
+      const order = itemOrderByCategory[categoryId] ?? [];
+      const from = order.indexOf(draggedItemId);
+      const to = order.indexOf(targetItemId);
+      if (from < 0 || to < 0 || from === to) return;
+      const next = [...order];
+      if (source === 'preview') {
+        next.splice(from, 1);
+        next.splice(to, 0, draggedItemId);
+      } else {
+        [next[from], next[to]] = [next[to], next[from]];
+      }
       commitConfigChange(
-        () => {
-          itemOrderByCategory = {
-            ...itemOrderByCategory,
-            [categoryId]: swapOrder(
-              itemOrderByCategory[categoryId] ?? [],
-              draggedItemId,
-              targetItemId
-            ),
-          };
-        },
+        () => { itemOrderByCategory = { ...itemOrderByCategory, [categoryId]: next }; },
         true,
         strings.history.criterionReordered
       );
       announce(strings.messages.criterionReordered);
-      focusDragHandle(
-        `[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`
+      focusDragHandle(source === 'preview'
+        ? `.preview-order-handle[data-order-category="${cssEscape(categoryId)}"][data-order-item="${cssEscape(draggedItemId)}"]`
+        : `[data-category-id="${cssEscape(categoryId)}"] [data-item-id="${cssEscape(draggedItemId)}"] .drag-handle`
       );
     },
     onCategoryTitleChange: (categoryId: string, title: string) => {
@@ -730,6 +736,7 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
         mobileView, previewMode, search: searchQuery, openBeforeSearch, draftState: editorDrafts(),
       };
       listeners.abort();
+      for (const host of Array.from(app.querySelectorAll('*')).reverse()) unmountView(host);
       if (previewFrame !== undefined) cancelAnimationFrame(previewFrame);
       setLanguage(lang as LanguageCode);
       void bootstrap(nextSession, nextCatalog);
@@ -963,11 +970,7 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       closeResetConfirm,
       confirmResetConfig
     );
-    requestAnimationFrame(() =>
-      resetConfirmModalEl
-        .querySelector<HTMLButtonElement>('.reset-confirm-action')
-        ?.focus()
-    );
+
   }
 
   function closeResetConfirm() {
@@ -1266,12 +1269,12 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       handlers,
       searchQuery,
       true,
-      categoryWeights
+      categoryWeights,
+      openCats
     );
     const currentProductCategories = productCategories();
     renderProductFormatControls(
       productFormatControlsEl,
-      currentProductCategories,
       handlers
     );
     if (currentProductCategories.length > 0) {
@@ -1286,10 +1289,10 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
         defaultScaleId,
         itemOrderByCategory,
         handlers,
-        searchQuery
+        searchQuery, false, {}, openCats
       );
     } else {
-      productFormatCategoriesEl.innerHTML = '';
+      renderView(productFormatCategoriesEl, null);
     }
     renderProductFormatModal(
       productFormatModalEl,
@@ -1300,29 +1303,14 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       handlers
     );
     const showProductMatches = Boolean(searchQuery.trim() && productFormatCategoriesEl.querySelector('.accordion-header'));
-    if (showProductMatches) {
-      categoriesEl.after(productFormatCategoriesEl);
-      const empty = categoriesEl.querySelector<HTMLElement>('.search-empty');
-      if (empty) empty.hidden = true;
-    } else {
-      productFormatControlsEl.after(productFormatCategoriesEl);
-    }
+    const empty = categoriesEl.querySelector<HTMLElement>('.search-empty');
+    if (empty) empty.hidden = showProductMatches;
     criteriaSearchEl.value = searchQuery;
     clearSelectionEl.disabled = selected.length === 0;
 
     drafts.forEach(([id, value]) => {
       const input = document.getElementById(id);
       if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) input.value = value;
-    });
-    // Restore accordion state
-    openCats.forEach((catId) => {
-      const header = document.getElementById(`acc-${catId}`);
-      const panel = document.getElementById(`acc-${catId}-panel`);
-      if (header && panel) {
-        header.setAttribute('aria-expanded', 'true');
-        panel.classList.add('open');
-        (panel as HTMLDivElement).hidden = false;
-      }
     });
     if (focused && !focused.isConnected) {
       const controls = focusContainer?.id ? document.getElementById(focusContainer.id)?.querySelectorAll<HTMLElement>('input, button, select, textarea, a[href]') : null;
@@ -1376,7 +1364,23 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       header,
       footerFields,
       previewMode,
-      handlers.onRemoveSelected
+      handlers.onRemoveSelected,
+      (category, from, to) => handlers.onReorderItem(category, from, to, 'preview'),
+      [
+        ...editorCategories().map(category => ({
+          id: category.id,
+          title: category.title,
+          items: flattenedCategoryItems(category),
+          product: false,
+        })),
+        ...productFormats.groups.flatMap(group => group.formats.map(format => {
+          const category = productFormatToCategory(group, format);
+          return { id: category.id, title: category.title, items: flattenedCategoryItems(category), product: true };
+        })),
+      ],
+      selected,
+      id => handlers.onToggleProductFormat(id, true),
+      (categoryId, itemId, checked) => handlers.onToggle(categoryId, itemId, checked)
     );
   }
 
@@ -1401,40 +1405,21 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       return;
     }
 
-    contentPageEl.innerHTML = '';
-    contentPageEl.append(
-      simpleContentMessage(strings.messages.contentPageLoading)
-    );
+    renderView(contentPageEl, createElement(ContentMessage));
     try {
       const markdown =
         contentMarkdownCache[route] ?? (await loadContentMarkdown(route));
       contentMarkdownCache[route] = markdown;
       if (signal.aborted || renderId !== routeRenderId) return;
-      renderContentPage(contentPageEl, route, markdown);
+      renderView(contentPageEl, createElement(ContentPage, { pageId: route, markdown }));
       const heading = contentPageEl.querySelector<HTMLElement>('h1');
       if (heading) { heading.tabIndex = -1; heading.focus(); }
       contentPageEl.scrollTo({ top: 0 });
     } catch {
       if (signal.aborted || renderId !== routeRenderId) return;
-      contentPageEl.innerHTML = '';
-      const error = simpleContentMessage(strings.messages.contentPageLoadError);
-      const back = document.createElement('a');
-      back.href = '/';
-      back.dataset.appRoute = 'generator';
-      back.textContent = strings.footer.backToApp(strings.appTitle);
-      error.append(back);
-      contentPageEl.append(error);
-      back.focus();
+      renderView(contentPageEl, createElement(ContentMessage, { error: true }));
+      contentPageEl.querySelector<HTMLAnchorElement>('a')?.focus();
     }
-  }
-
-  function simpleContentMessage(message: string): HTMLElement {
-    const wrap = document.createElement('article');
-    wrap.className = 'content-page-card';
-    const p = document.createElement('p');
-    p.textContent = message;
-    wrap.append(p);
-    return wrap;
   }
 
   function updateFooterNav(route: AppRoute) {
@@ -1578,17 +1563,29 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
     .forEach((btn) => {
       btn.addEventListener('click', exportJson);
     });
+  const configFile = requireById<HTMLInputElement>('config-file');
+  let importTrigger: HTMLButtonElement;
+  let latestFileSelection = 0;
+  configFile.addEventListener('change', async () => {
+    const file = configFile.files?.[0];
+    if (!file) return;
+    configFile.value = ''; // Allow selecting the same project again.
+    const selection = ++latestFileSelection;
+    const trigger = importTrigger;
+    const result = await importConfigJSON(file, configCatalog);
+    if (signal.aborted || selection !== latestFileSelection) return;
+    applyImport(result);
+    if (!configMessageEl.classList.contains('config-message--errors')) {
+      (trigger?.closest('[hidden]') ? requireById('sec-selected-btn') : trigger)?.focus();
+    }
+  }, { signal });
   document
     .querySelectorAll<HTMLButtonElement>('#config-load, #config-load-mobile, #config-load-start')
     .forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        const result = await importConfigJSON(configCatalog);
-        if (signal.aborted) return;
-        applyImport(result);
-        if (!configMessageEl.classList.contains('config-message--errors')) {
-          (btn.closest('[hidden]') ? requireById('sec-selected-btn') : btn).focus();
-        }
-      });
+      btn.addEventListener('click', () => {
+        importTrigger = btn;
+        configFile.click();
+      }, { signal });
     });
   document
     .querySelectorAll<HTMLButtonElement>('#history-undo, #history-undo-mobile')
@@ -1639,7 +1636,6 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
   });
   const languageSwitch = requireById<HTMLSelectElement>('language-switch');
   languageSwitch.disabled = false;
-  languageSwitch.addEventListener('change', () => handlers.onLanguageChange(languageSwitch.value));
 
   window.addEventListener('popstate', renderRoute, { signal });
 
@@ -1797,7 +1793,7 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
 const DEFAULT_OPEN_SECTIONS = ['criteria', 'selected'];
 
 // Wires the collapse/expand toggles on the editor blocks. Sections are built
-// once in renderLayout, so this is a one-time DOM-state setup: child re-renders
+// once in GeneratorShell, so this is a one-time DOM-state setup: child re-renders
 // happen inside the panels and never touch the toggle state. State persists to
 // localStorage (bbk:sections) and is restored here on load.
 function setupSectionToggles(): void {
@@ -1827,5 +1823,6 @@ function setupSectionToggles(): void {
   }
 }
 
+installSafariPrintLayout();
 focusVisiblePolyfill();
 void bootstrap();

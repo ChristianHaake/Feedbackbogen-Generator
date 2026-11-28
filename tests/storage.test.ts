@@ -587,17 +587,9 @@ describe('config storage', () => {
   });
 
   it('loads and normalizes a config from an uploaded JSON file', async () => {
-    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (
-      this: HTMLInputElement
-    ) {
-      Object.defineProperty(this, 'files', {
-        configurable: true,
-        value: [{ text: async () => JSON.stringify(config) }],
-      });
-      this.onchange?.(new Event('change'));
-    });
+    const file = new File([JSON.stringify(config)], 'project.json');
 
-    await expect(importConfigJSON()).resolves.toEqual({
+    await expect(importConfigJSON(file)).resolves.toEqual({
       status: 'success',
       config,
     });
@@ -652,30 +644,14 @@ describe('config storage', () => {
   });
 
   it('rejects an uploaded file that exceeds the size limit before reading it', async () => {
-    let read = false;
-    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (
-      this: HTMLInputElement
-    ) {
-      Object.defineProperty(this, 'files', {
-        configurable: true,
-        value: [
-          {
-            size: 10_000_000,
-            text: async () => {
-              read = true;
-              return '{}';
-            },
-          },
-        ],
-      });
-      this.onchange?.(new Event('change'));
-    });
+    const file = new File([new Uint8Array(10_000_000)], 'large.json');
+    const read = vi.spyOn(file, 'text');
 
-    await expect(importConfigJSON()).resolves.toEqual({
+    await expect(importConfigJSON(file)).resolves.toEqual({
       status: 'error',
       message: 'Die Datei ist zu groß für eine Feedbackbogen-Konfiguration.',
     });
-    expect(read).toBe(false);
+    expect(read).not.toHaveBeenCalled();
   });
 
   it('rejects imported configs with excessive entry counts', () => {
@@ -695,17 +671,9 @@ describe('config storage', () => {
   });
 
   it('rejects an uploaded file with invalid JSON', async () => {
-    vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (
-      this: HTMLInputElement
-    ) {
-      Object.defineProperty(this, 'files', {
-        configurable: true,
-        value: [{ text: async () => '{invalid' }],
-      });
-      this.onchange?.(new Event('change'));
-    });
+    const file = new File(['{invalid'], 'broken.json');
 
-    await expect(importConfigJSON()).resolves.toEqual({
+    await expect(importConfigJSON(file)).resolves.toEqual({
       status: 'error',
       message: 'Die Datei enthält kein gültiges JSON.',
     });

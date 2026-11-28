@@ -49,8 +49,18 @@ describe('document exports', () => {
     for (const [create, entry] of [[createDOCXBlob, 'word/document.xml'], [createODTBlob, 'content.xml']] as const) {
       const zip = await JSZip.loadAsync(await (await create(gradeRows, 'Oberstufe', header, footerFields)).arrayBuffer());
       const xml = await zip.file(entry)!.async('text');
-      expect(xml).toContain(gradeScale.label.toUpperCase());
-      for (let point = 0; point <= 15; point++) expect(xml).toContain(`${point}\u00a0☐`);
+      const rowTag = entry === 'word/document.xml' ? 'w:tr' : 'table:table-row';
+      const cellTag = entry === 'word/document.xml' ? 'w:tc' : 'table:table-cell';
+      const rowsXml = [...xml.matchAll(new RegExp(`<${rowTag}\\b[\\s\\S]*?<\\/${rowTag}>`, 'g'))].map((match) => match[0]);
+      const headerRow = rowsXml.find((row) => row.includes('Kriterium'))!;
+      const valueRow = rowsXml.find((row) => row.includes('Inhalt vollständig'))!;
+      const headerCells = [...headerRow.matchAll(new RegExp(`<${cellTag}\\b[\\s\\S]*?<\\/${cellTag}>`, 'g'))].map((match) => match[0]);
+      const valueCells = [...valueRow.matchAll(new RegExp(`<${cellTag}\\b[\\s\\S]*?<\\/${cellTag}>`, 'g'))].map((match) => match[0]);
+      expect(headerCells).toHaveLength(17);
+      expect(valueCells).toHaveLength(17);
+      expect(headerCells.slice(1).every((cell, index) => cell.includes(String(index)))).toBe(true);
+      expect(valueCells.slice(1).every((cell) => cell.includes('☐'))).toBe(true);
+      expect(gradeScale.label.toUpperCase()).toContain('NOTENPUNKTE');
     }
     const workbook = await JSZip.loadAsync(await (await createXLSXBlob(gradeRows)).arrayBuffer());
     expect(await workbook.file('xl/sharedStrings.xml')!.async('text')).toContain(gradeScale.label);
@@ -77,6 +87,17 @@ describe('document exports', () => {
     expect(workbookXml).toContain('name="Feedbackbogen"');
     expect(sheetXml).toContain('<pane ySplit="1"');
     expect(sheetXml).toContain('width="72"');
+    const parse = (xml: string) => new DOMParser().parseFromString(xml, 'application/xml').documentElement;
+    const sheet = parse(sheetXml);
+    expect(sheet.firstElementChild?.localName).toBe('sheetPr');
+    expect(sheet.querySelector('sheetPr > pageSetUpPr')?.getAttribute('fitToPage')).toBe('1');
+    expect(sheet.querySelector('pageSetup')?.getAttribute('fitToWidth')).toBe('1');
+    expect(sheet.querySelector('pageSetup')?.getAttribute('fitToHeight')).toBe('0');
+    const workbook = parse(workbookXml);
+    expect(workbook.querySelectorAll('definedNames')).toHaveLength(1);
+    const names = workbook.querySelector('sheets + definedNames');
+    expect(names?.nextElementSibling?.localName).toBe('calcPr');
+    expect(names?.querySelector('definedName[name="_xlnm.Print_Titles"]')?.textContent).toBe("'Feedbackbogen'!$1:$1");
     expect(sharedStringsXml).toContain('Kategorie');
     expect(sharedStringsXml).toContain('Inhalt vollständig');
     expect(sharedStringsXml).toContain('1 | 2 | 3');

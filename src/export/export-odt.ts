@@ -8,7 +8,7 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
-import { compactRatingLines } from '@/scale-utils';
+import { criterionWidthPercent } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -67,13 +67,16 @@ function metadataTable(header: HeaderData) {
 function categoryColumnStyles(rows: ExportRow[], mode: PrintMode) {
   return groupRows(rows)
     .map((group, index) => {
-      const optionCount =
-        mode === 'full'
-          ? scaleOptions(group.items[0]?.scale ?? null).length
-          : 0;
-      const criterionWeight = mode === 'full' && compactRatingLines(group.scale) ? 1 : optionCount || 5;
-      return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="${criterionWeight}*"/></style:style>
-    <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties style:rel-column-width="1*"/></style:style>`;
+      const scale = group.items[0]?.scale ?? null;
+      const options = mode === 'full' ? scaleOptions(scale) : [];
+      // Relative widths in fixed-width tables are ignored by some ODT readers.
+      const tableWidth = 17;
+      const criterionWidth = options.length
+        ? tableWidth * criterionWidthPercent(scale) / 100
+        : tableWidth * 5 / 6;
+      const optionWidth = (tableWidth - criterionWidth) / (options.length || 1);
+      return `<style:style style:name="CriterionColumn${index + 1}" style:family="table-column"><style:table-column-properties style:column-width="${criterionWidth.toFixed(4)}cm"/></style:style>
+    <style:style style:name="RatingColumn${index + 1}" style:family="table-column"><style:table-column-properties style:column-width="${optionWidth.toFixed(4)}cm"/></style:style>`;
     })
     .join('');
 }
@@ -85,8 +88,8 @@ function categoryTable(
   index: number
 ) {
   const scale = items[0]?.scale ?? null;
-  const compact = mode === 'full' ? compactRatingLines(scale) : null;
-  const options = mode === 'full' && !compact ? scaleOptions(scale) : [];
+  const fixedGradeScale = mode === 'full' && scale?.kind === 'numeric' && scale.fixedRange;
+  const options = mode === 'full' ? scaleOptions(scale) : [];
   const columns = options.length > 0 ? 1 + options.length : 2;
   const headerLabel =
     mode === 'checklist'
@@ -96,7 +99,7 @@ function categoryTable(
     tableCell(strings.documentExport.criterion, 'HeaderCell', 'HeaderText'),
     ...(options.length > 0
       ? options.map((option) =>
-          tableCell(option, 'HeaderCell', 'HeaderTextCenter')
+          tableCell(option, fixedGradeScale ? 'ScaleHeaderCell' : 'HeaderCell', fixedGradeScale ? 'ScaleHeaderTextCenter' : 'HeaderTextCenter')
         )
       : [tableCell(headerLabel, 'HeaderCell', 'HeaderTextCenter')]),
   ];
@@ -110,24 +113,22 @@ function categoryTable(
         ? options.map(() =>
             tableCell(
               '☐',
-              rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell',
-              'Center'
+              fixedGradeScale
+                ? rowIndex % 2 === 1 ? 'ScaleShadedCell' : 'ScaleBodyCell'
+                : rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell',
+              fixedGradeScale ? 'ScaleCenter' : 'Center'
             )
           )
-        : [
-            tableCell(
-              compact ?? '☐',
-              rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell',
-              'Center'
-            ),
-          ]),
+        : [tableCell('☐', rowIndex % 2 === 1 ? 'ShadedCell' : 'BodyCell', 'Center')]),
     ])
   );
   return `${paragraph(category.toUpperCase(), 'Category')}
   <table:table table:name="Kategorie-${index + 1}" table:style-name="CriteriaTable">
     <table:table-column table:style-name="CriterionColumn${index + 1}"/>
     <table:table-column table:style-name="RatingColumn${index + 1}" table:number-columns-repeated="${columns - 1}"/>
-    ${tableRow(headerCells, 'HeaderRow')}
+    <table:table-header-rows>
+      ${tableRow(headerCells, 'HeaderRow')}
+    </table:table-header-rows>
     ${rows.join('')}
   </table:table>${paragraph('', 'Spacer')}`;
 }
@@ -230,7 +231,7 @@ function contentXml(
     <style:style style:name="HeaderText" style:family="paragraph"><style:text-properties fo:font-size="10pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="HeaderTextCenter" style:family="paragraph"><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:font-size="10pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="Spacer" style:family="paragraph"><style:paragraph-properties fo:margin-bottom="0.15cm"/></style:style>
-    <style:style style:name="Category" style:family="paragraph"><style:paragraph-properties fo:margin-top="0.12cm" fo:margin-bottom="0.08cm"/><style:text-properties fo:font-size="11pt" fo:font-weight="bold"/></style:style>
+    <style:style style:name="Category" style:family="paragraph"><style:paragraph-properties fo:margin-top="0.12cm" fo:margin-bottom="0.08cm" fo:keep-with-next="always"/><style:text-properties fo:font-size="11pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="FeedbackHeading" style:family="paragraph"><style:paragraph-properties fo:margin-top="0.12cm" fo:margin-bottom="0.08cm"/><style:text-properties fo:font-size="14pt" fo:font-weight="bold"/></style:style>
     <style:style style:name="MetadataTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
     <style:style style:name="CriteriaTable" style:family="table"><style:table-properties table:align="margins" style:width="17cm"/></style:style>
@@ -248,6 +249,11 @@ function contentXml(
     <style:style style:name="BodyCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.14cm"/></style:style>
     <style:style style:name="ShadedCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.14cm" fo:background-color="#fbfbfc"/></style:style>
     <style:style style:name="HeaderCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.14cm" fo:background-color="#f7f8fa"/></style:style>
+    <style:style style:name="ScaleBodyCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.03cm"/></style:style>
+    <style:style style:name="ScaleShadedCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.03cm" fo:background-color="#fbfbfc"/></style:style>
+    <style:style style:name="ScaleHeaderCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.03cm" fo:background-color="#f7f8fa"/></style:style>
+    <style:style style:name="ScaleHeaderTextCenter" style:family="paragraph"><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:font-size="8pt" fo:font-weight="bold"/></style:style>
+    <style:style style:name="ScaleCenter" style:family="paragraph"><style:paragraph-properties fo:text-align="center"/><style:text-properties fo:font-size="9pt"/></style:style>
     <style:style style:name="FeedbackCell" style:family="table-cell"><style:table-cell-properties fo:border="0.03cm solid #d5d9e0" fo:padding="0.18cm"/></style:style>
   </office:automatic-styles>
   <office:body>

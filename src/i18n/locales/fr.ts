@@ -29,9 +29,10 @@ export const fr = {
     export: 'Alt+E : Exporter',
   },
   columns: {
-    selected: 'Sélectionné',
-    categories: "Critères d'évaluation",
-    productFormats: 'Formats de produit',
+    addCriteria: 'Ajouter des critères',
+    selected: 'Ma grille',
+    categories: 'Critères individuels',
+    productFormats: 'Formats de production',
     export: 'Export',
   },
   kopfdaten: {
@@ -95,6 +96,8 @@ export const fr = {
       "Modifier l'ordre par glisser-déposer ou avec les flèches",
     dragCategory: (category: string) =>
       `Déplacer la catégorie : ${category}. Utilisez les flèches haut/bas.`,
+    moveCriterionUp: 'Monter le critère',
+    moveCriterionDown: 'Descendre le critère',
     dragCriterion: (criterion: string) =>
       `Déplacer le critère : ${criterion}. Utilisez les flèches haut/bas.`,
     dragHeaderField: (field: string) =>
@@ -147,7 +150,7 @@ export const fr = {
   },
   contentLinks: {
     examples: 'Exemples',
-    terms: 'Conditions d’utilisation',
+    terms: 'Conseils d’utilisation',
     openExample: 'Ouvrir l’exemple',
     help: 'Aide',
     about: 'À propos du projet',

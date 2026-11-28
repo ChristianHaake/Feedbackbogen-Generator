@@ -11,6 +11,7 @@ import {
   scaleOptions,
   weightedScoreSummary,
 } from '@/export/export-utils';
+import { criterionWidthPercent } from '@/scale-utils';
 import { strings } from '@/strings';
 import type {
   ExportRow,
@@ -211,7 +212,7 @@ export async function createPDFBlob(
     );
     const scaleHeight =
       mode === 'full' && group.scale ? scaleHeaderHeight(ctx, group.scale) : 0;
-    const drawHeading = () => {
+    const drawHeading = (firstRowHeight = 34) => {
       const maximum = Math.max(
         1,
         Math.floor((bottomY - marginTop - scaleHeight - 46) / 12)
@@ -219,14 +220,14 @@ export async function createPDFBlob(
       for (let index = 0; index < headingLines.length; index += maximum) {
         const chunk = headingLines.slice(index, index + maximum);
         const height = Math.max(25, chunk.length * 12 + 12);
-        if (y + height + scaleHeight + 34 > bottomY) y = addPage();
+        const roomForRow = Math.min(firstRowHeight, bottomY - marginTop - height - scaleHeight);
+        if (y + height + scaleHeight + roomForRow > bottomY) y = addPage();
         y = drawCategoryHeading(ctx, chunk, y);
         if (index + maximum < headingLines.length) y = addPage();
       }
       if (mode === 'full' && group.scale)
         y = drawScaleHeader(ctx, group.scale, y);
     };
-    drawHeading();
     group.items.forEach((row, index) => {
       const width =
         mode === 'checklist'
@@ -239,6 +240,12 @@ export async function createPDFBlob(
         10,
         mode === 'checklist' ? regular : bold
       );
+      const rowHeight = Math.max(34, lines.length * 13 + 16);
+      if (index === 0) drawHeading(rowHeight);
+      else if (y + rowHeight > bottomY) {
+        y = addPage();
+        drawHeading();
+      }
       let offset = 0;
       while (offset < lines.length) {
         if (y + 34 > bottomY) {
@@ -936,10 +943,9 @@ function scaleLayout(scale: Scale | null): {
   gap: number;
 } {
   const gap = scale?.kind === 'numeric' ? 9 : 14;
-  const labelWidth =
-    scale?.kind === 'numeric' ? contentWidth * 0.46 : contentWidth * 0.42;
-  const scaleX = marginX + labelWidth + gap;
-  const scaleWidth = contentWidth - labelWidth - gap - 8;
+  const labelWidth = contentWidth * criterionWidthPercent(scale) / 100;
+  const scaleX = marginX + labelWidth;
+  const scaleWidth = contentWidth - labelWidth;
   return { labelWidth, scaleX, scaleWidth, gap };
 }
 

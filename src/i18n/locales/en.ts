@@ -29,9 +29,10 @@ export const en = {
     export: 'Alt+E: Export',
   },
   columns: {
-    selected: 'Selected',
-    categories: 'Assessment Criteria',
-    productFormats: 'Product Formats',
+    addCriteria: 'Add criteria',
+    selected: 'My form',
+    categories: 'Individual criteria',
+    productFormats: 'Product formats',
     export: 'Export',
   },
   kopfdaten: {
@@ -92,6 +93,8 @@ export const en = {
     reorderSelection: 'Change order via drag-and-drop or arrow keys',
     dragCategory: (category: string) =>
       `Move category: ${category}. Use up/down arrow keys.`,
+    moveCriterionUp: 'Move criterion up',
+    moveCriterionDown: 'Move criterion down',
     dragCriterion: (criterion: string) =>
       `Move criterion: ${criterion}. Use up/down arrow keys.`,
     dragHeaderField: (field: string) =>
@@ -145,7 +148,7 @@ export const en = {
   },
   contentLinks: {
     examples: 'Examples',
-    terms: 'Terms of use',
+    terms: 'Usage notes',
     openExample: 'Open example',
     help: 'Help',
     about: 'About the project',

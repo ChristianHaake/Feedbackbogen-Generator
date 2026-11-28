@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { createElement } from 'react';
 
-import { contentPages, renderContentPage, routeFromPath } from '@/content-pages';
-import { renderLayout } from '@/ui/templates';
+import { contentPages, routeFromPath, type ContentPageId } from '@/content-pages';
+import { ContentPage, GeneratorShell } from '@/ui/react-shell';
+import { renderView } from '@/ui/react-view';
+
+function renderLayout() {
+  const host = document.createElement('div');
+  renderView(host, createElement(GeneratorShell, { onLanguageChange: () => undefined }));
+  return host;
+}
+
+function renderContentPage(host: HTMLElement, pageId: ContentPageId, markdown: string) {
+  renderView(host, createElement(ContentPage, { pageId, markdown }));
+}
 
 describe('help content page', () => {
   it('renders localized safe external Markdown links without enabling script links', () => {
@@ -36,7 +48,7 @@ describe('help content page', () => {
       'Beispiele',
       'Unterstützen',
       'Über das Projekt',
-      'AGB',
+      'Hinweise zur Nutzung',
       'Impressum',
       'Datenschutz'
     ]);
@@ -96,7 +108,7 @@ describe('collapsible editor sections', () => {
     const sections = Array.from(layout.querySelectorAll<HTMLElement>('.editor-pane [data-section-id]'));
 
     expect(sections.map((s) => s.dataset.sectionId)).toEqual([
-      'criteria', 'formats', 'selected', 'kopfdaten', 'footer'
+      'criteria', 'selected', 'kopfdaten', 'footer'
     ]);
 
     for (const section of sections) {

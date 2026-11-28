@@ -1,9 +1,17 @@
-# Condiciones de uso
+# Indicaciones de uso
 
 Esta traducción al español se ha generado con inteligencia artificial. Solo la versión alemana es jurídicamente vinculante.
 
-El generador permite crear y editar fichas de evaluación de forma gratuita y sin cuenta. El apoyo económico es voluntario.
+Puedes crear fichas de evaluación gratis y sin registrarte. El apoyo económico es voluntario.
 
-Cada usuario es responsable de los criterios, las valoraciones y los permisos necesarios para los contenidos que introduce o comparte. Descarga los proyectos importantes en JSON. Borrar los datos del sitio elimina el trabajo guardado localmente.
+## Elegir criterios y añadir contenido propio
 
-El código fuente se distribuye bajo GPL-3.0-only. Contacto: [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback).
+Comprueba que los criterios propuestos sean adecuados para tu clase y tu alumnado. Si incluyes textos de otras personas, asegúrate de que puedes utilizarlos para la actividad prevista y compartirlos si vas a distribuir la ficha.
+
+## Guardar tu trabajo
+
+La ficha se guarda localmente en tu navegador. Exporta las fichas importantes como archivos de proyecto en formato JSON. Así podrás volver a abrirlas y editarlas incluso después de borrar los datos del sitio.
+
+## Software y contacto
+
+El código fuente del generador se distribuye bajo la licencia [GPL-3.0-only](https://github.com/ChristianHaake/Feedbackbogen-Generator/blob/master/LICENSE). Si tienes preguntas sobre su uso, escribe a [apps@haak3.de](mailto:apps@haak3.de?subject=Feedbackbogen-Generator%20Feedback).

@@ -32,6 +32,12 @@ export function numericScaleLabel(scale: NumericScale): string {
   return `${min}–${max}`;
 }
 
+/** Share of each rating table reserved for the criterion on A4. */
+export function criterionWidthPercent(scale: Scale | null): number {
+  if (scale?.kind === 'numeric') return scale.fixedRange ? 40 : 46;
+  return 42;
+}
+
 export function scaleOptionLabels(scale: Scale): string[] {
   switch (scale.kind) {
     case 'verbal': return scale.labels;
@@ -45,13 +51,6 @@ export function scaleOptionLabels(scale: Scale): string[] {
     case 'traffic': return [...strings.scales.trafficLabels];
     case 'percent': return ['0 %', '25 %', '50 %', '75 %', '100 %'];
   }
-}
-
-/** Print long scales in two labeled lines per criterion, left to right. */
-export function compactRatingLines(scale: Scale | null): string[] | null {
-  if (scale?.kind !== 'numeric' || !scale.fixedRange) return null;
-  const labels = scaleOptionLabels(scale).map(label => `${label}\u00a0☐`);
-  return [labels.slice(0, 8).join('  '), labels.slice(8).join('  ')];
 }
 
 export function sanitizeNumericScaleSettings(

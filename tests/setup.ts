@@ -19,3 +19,10 @@ try {
 } catch {
   // ignore — environments without localStorage
 }
+
+// jsdom does not implement native dialog presentation. Browser tests exercise
+// focus trapping, backdrop dismissal and the native top layer.
+if (!HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+  HTMLDialogElement.prototype.close = function () { this.open = false; };
+}

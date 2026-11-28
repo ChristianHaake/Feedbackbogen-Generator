@@ -32,7 +32,7 @@ export const fr = {
     addCriteria: 'Ajouter des critères',
     selected: 'Ma grille',
     categories: 'Critères individuels',
-    productFormats: 'Choisir un format de production',
+    productFormats: 'Formats de production',
     export: 'Export',
   },
   kopfdaten: {

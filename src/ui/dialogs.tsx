@@ -7,11 +7,10 @@ import { Icon } from './editor-fields';
 import { CreatorDialog } from '@/creator/CreatorShell';
 import { strings } from '@/strings';
 import { productFormatCategoryId } from '@/product-formats';
-import type { Category, ProductFormatData } from '@/types';
+import type { ProductFormatData } from '@/types';
 
 export function renderProductFormatControls(
   host: HTMLElement,
-  formats: Category[],
   h: Pick<RenderHandlers, 'onOpenProductFormatModal'>
 ) {
   renderView(
@@ -25,11 +24,6 @@ export function renderProductFormatControls(
         <Icon id="plus" />
         <span>{strings.labels.chooseProductFormats}</span>
       </button>
-      {!formats.length && (
-        <p className="product-format-empty">
-          {strings.labels.selectedProductFormatsEmpty}
-        </p>
-      )}
     </>
   );
 }

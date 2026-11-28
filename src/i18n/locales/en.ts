@@ -32,7 +32,7 @@ export const en = {
     addCriteria: 'Add criteria',
     selected: 'My form',
     categories: 'Individual criteria',
-    productFormats: 'Choose a product format',
+    productFormats: 'Product formats',
     export: 'Export',
   },
   kopfdaten: {

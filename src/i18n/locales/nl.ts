@@ -32,7 +32,7 @@ export const nl = {
     addCriteria: 'Criteria toevoegen',
     selected: 'Mijn formulier',
     categories: 'Afzonderlijke criteria',
-    productFormats: 'Kies een productvorm',
+    productFormats: 'Productvormen',
     export: 'Export',
   },
   kopfdaten: {

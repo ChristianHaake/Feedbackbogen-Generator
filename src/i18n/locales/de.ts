@@ -32,7 +32,7 @@ export const de = {
     addCriteria: 'Kriterien hinzufügen',
     selected: 'Mein Bogen',
     categories: 'Einzelkriterien',
-    productFormats: 'Produktformat wählen',
+    productFormats: 'Produktformate',
     export: 'Export',
   },
   kopfdaten: {

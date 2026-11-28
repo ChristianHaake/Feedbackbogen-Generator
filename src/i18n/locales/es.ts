@@ -32,7 +32,7 @@ export const es = {
     addCriteria: 'Añadir criterios',
     selected: 'Mi ficha',
     categories: 'Criterios individuales',
-    productFormats: 'Elegir un formato de producto',
+    productFormats: 'Formatos de producto',
     export: 'Exportación',
   },
   kopfdaten: {

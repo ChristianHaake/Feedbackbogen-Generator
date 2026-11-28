@@ -1287,7 +1287,6 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
     const currentProductCategories = productCategories();
     renderProductFormatControls(
       productFormatControlsEl,
-      currentProductCategories,
       handlers
     );
     if (currentProductCategories.length > 0) {

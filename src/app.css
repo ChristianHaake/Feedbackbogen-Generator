@@ -1241,6 +1241,43 @@ body {
 
 .a4-empty { color: #666; font-style: italic; padding: 20pt 0; text-align: center; }
 
+.a4-sheet-builder { margin: 16pt 0; }
+.a4-add-block {
+  min-height: 44px;
+  width: 100%;
+  border: 1px dashed var(--primary);
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font: 700 12px system-ui, sans-serif;
+  cursor: pointer;
+}
+.a4-block-dialog {
+  width: min(540px, calc(100vw - 24px));
+  max-height: min(80vh, 720px);
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  font: 14px system-ui, sans-serif;
+}
+.a4-block-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.a4-block-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.a4-block-dialog-head h2 { margin: 0; font-size: 18px; }
+.a4-block-dialog-head button { width: 44px; height: 44px; border: 0; background: transparent; font-size: 22px; cursor: pointer; }
+.a4-block-options { display: grid; gap: 6px; max-height: 50vh; overflow: auto; margin: 14px 0; }
+.a4-block-choice, .a4-block-item {
+  display: flex; align-items: center; min-height: 44px;
+  padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
+  background: white; color: var(--text); text-align: left; font: inherit;
+}
+.a4-block-choice { cursor: pointer; }
+.a4-block-choice:hover { border-color: var(--primary); }
+.a4-block-item { gap: 12px; cursor: pointer; }
+.a4-block-item input { width: 18px; height: 18px; flex: 0 0 auto; }
+.a4-block-back { min-height: 44px; border: 0; background: transparent; color: var(--primary); cursor: pointer; }
+.a4-block-done { min-height: 44px; }
+
 .a4-score-summary {
   margin: 16pt 0 18pt;
   padding: 8pt 9pt;
@@ -1751,7 +1788,7 @@ body {
   @page { size: A4; margin: 14mm; }
   html, body, #app { height: auto; overflow: visible; }
   body { background: white; }
-  .app-header, .action-bar, .editor-pane, .app-footer, .content-page, .mobile-tabs, .mobile-export-pane, .recovery-notice, .config-message, #aria-live, #app-toast, .a4-item-remove { display: none !important; }
+  .app-header, .action-bar, .editor-pane, .app-footer, .content-page, .mobile-tabs, .mobile-export-pane, .recovery-notice, .config-message, #aria-live, #app-toast, .a4-item-remove, .a4-sheet-builder { display: none !important; }
   .app, .workspace, .preview-pane, .preview-pane-inner {
     display: block;
     height: auto;

@@ -20,6 +20,24 @@ async function expectOrder(page: Page, order: string[]) {
     .toEqual(order);
 }
 
+test('Plus auf dem Blatt führt über Bewertungsblock zu einzelnen Kriterien', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('.a4-add-block').click();
+  const dialog = page.locator('.a4-block-dialog');
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Allgemein', exact: true }).click();
+  await dialog.locator('.a4-block-item').first().click();
+  await expect(rows(page)).toHaveCount(1);
+  await dialog.getByRole('button', { name: 'Fertig' }).click();
+  await page.locator('.a4-add-block').click();
+  await dialog.getByRole('button', { name: 'Podcast', exact: true }).click();
+  await expect(rows(page)).toHaveCount(1);
+  await dialog.locator('.a4-block-item').first().click();
+  await expect(rows(page)).toHaveCount(2);
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('.a4-add-block')).toBeHidden();
+});
+
 test('Kriterien direkt auf dem Blatt ziehen, per Tastatur bewegen und rückgängig machen', async ({
   page,
 }) => {

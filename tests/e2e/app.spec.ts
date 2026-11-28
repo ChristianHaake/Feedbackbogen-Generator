@@ -254,13 +254,12 @@ test.describe('Feedbackbogen-Generator E2E Click Test Suite', () => {
     await expect(podcastAccordion).toBeVisible();
     await podcastAccordion.click();
 
-    // The format contributes its criteria immediately. A criterion remains removable.
+    // Choosing a format exposes its criteria for selection.
     const tempoCheckbox = page.locator('#cb-podcast-tempo');
     await expect(tempoCheckbox).toBeVisible();
-    await expect(tempoCheckbox).toBeChecked();
-    await expect(page.locator('#selected-list')).toContainText('Tempo');
-    await page.locator('label[for="cb-podcast-tempo"]').click();
     await expect(tempoCheckbox).not.toBeChecked();
+    await page.locator('label[for="cb-podcast-tempo"]').click();
+    await expect(tempoCheckbox).toBeChecked();
   });
 
   test('Footer Toggles & Preview Modes', async ({ page }) => {

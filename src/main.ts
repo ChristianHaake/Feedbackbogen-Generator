@@ -41,6 +41,7 @@ import {
   FALLBACK_PRODUCT_FORMATS,
   loadProductFormats,
   selectedProductFormatCategories,
+  productFormatToCategory,
 } from './product-formats';
 import {
   contentPages,
@@ -585,19 +586,6 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
         () => {
           if (isSelected && !selectedProductFormats.includes(categoryId)) {
             selectedProductFormats = [...selectedProductFormats, categoryId];
-            const formatCategory = selectedProductFormatCategories(
-              productFormats,
-              [categoryId]
-            )[0];
-            if (formatCategory) {
-              selected = [
-                ...selected,
-                ...(formatCategory.items ?? []).map((item) => ({
-                  categoryId,
-                  itemId: item.id,
-                })),
-              ];
-            }
             announce(strings.messages.productFormatAdded);
           } else if (!isSelected) {
             selectedProductFormats = selectedProductFormats.filter(
@@ -1377,7 +1365,22 @@ async function bootstrap(session?: EditorSession, loadedCatalog?: ConfigCatalog)
       footerFields,
       previewMode,
       handlers.onRemoveSelected,
-      (category, from, to) => handlers.onReorderItem(category, from, to, 'preview')
+      (category, from, to) => handlers.onReorderItem(category, from, to, 'preview'),
+      [
+        ...editorCategories().map(category => ({
+          id: category.id,
+          title: category.title,
+          items: flattenedCategoryItems(category),
+          product: false,
+        })),
+        ...productFormats.groups.flatMap(group => group.formats.map(format => {
+          const category = productFormatToCategory(group, format);
+          return { id: category.id, title: category.title, items: flattenedCategoryItems(category), product: true };
+        })),
+      ],
+      selected,
+      id => handlers.onToggleProductFormat(id, true),
+      (categoryId, itemId, checked) => handlers.onToggle(categoryId, itemId, checked)
     );
   }
 

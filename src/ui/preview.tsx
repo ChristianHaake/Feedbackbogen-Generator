@@ -24,6 +24,7 @@ import type {
   HeaderData,
   PrintMode,
   Scale,
+  SelectedItemRef,
 } from '@/types';
 
 export function documentTitleText(config: DocumentTitleConfig) {
@@ -38,6 +39,54 @@ type Remove = (categoryId: string, itemId: string) => void;
 
 type Move = (categoryId: string, itemId: string, destinationId: string) => void;
 type RowActions = (index: number) => ReactNode;
+
+export type SheetBlock = {
+  id: string;
+  title: string;
+  items: { id: string; label: string }[];
+  product: boolean;
+};
+
+function SheetBuilder({ blocks, selected, addProduct, toggle }: {
+  blocks: SheetBlock[];
+  selected: SelectedItemRef[];
+  addProduct: (id: string) => void;
+  toggle: (categoryId: string, itemId: string, checked: boolean) => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const [block, setBlock] = useState<SheetBlock | null>(null);
+  const close = () => dialog.current?.close();
+  return <div className="a4-sheet-builder">
+    <button ref={trigger} type="button" className="a4-add-block" onClick={() => dialog.current?.showModal()}>
+      + {strings.labels.addCategory}
+    </button>
+    <dialog ref={dialog} className="a4-block-dialog" onClose={() => { setBlock(null); trigger.current?.focus(); }}>
+      <div className="a4-block-dialog-head">
+        <h2>{block ? block.title : strings.labels.selectCategory}</h2>
+        <button type="button" onClick={close} aria-label={strings.labels.close}>×</button>
+      </div>
+      {block ? <>
+        <button type="button" className="a4-block-back" onClick={() => setBlock(null)}>← {strings.labels.selectCategory}</button>
+        <div className="a4-block-options">
+          {block.items.map(item => {
+            const checked = selected.some(value => value.categoryId === block.id && value.itemId === item.id);
+            return <label key={item.id} className="a4-block-item">
+              <input type="checkbox" checked={checked} onChange={event => toggle(block.id, item.id, event.target.checked)} />
+              <span>{item.label}</span>
+            </label>;
+          })}
+        </div>
+      </> : <div className="a4-block-options">
+        {blocks.map(candidate => <button key={candidate.id} type="button" className="a4-block-choice" onClick={() => {
+          if (candidate.product) addProduct(candidate.id);
+          setBlock(candidate);
+        }}>{candidate.title}</button>)}
+      </div>}
+      <button type="button" className="btn btn-primary a4-block-done" onClick={close}>{strings.labels.productFormatDone}</button>
+    </dialog>
+  </div>;
+}
 
 function RowControls({
   rows,
@@ -411,7 +460,11 @@ export function renderPreview(
   footer: FooterFields,
   mode: PrintMode,
   remove?: Remove,
-  move?: Move
+  move?: Move,
+  blocks?: SheetBlock[],
+  selected?: SelectedItemRef[],
+  addProduct?: (id: string) => void,
+  toggle?: (categoryId: string, itemId: string, checked: boolean) => void
 ) {
   const groups = new Map<string, ExportRow[]>();
   for (const row of rows) {
@@ -465,6 +518,7 @@ export function renderPreview(
           <p className="a4-score-hint">{strings.labels.scoreTotalHint}</p>
         </section>
       )}
+      {blocks && selected && addProduct && toggle && <SheetBuilder blocks={blocks} selected={selected} addProduct={addProduct} toggle={toggle} />}
       <div className="a4-feedback">
         <h2 className="a4-feedback-title">{strings.kopfdaten.feedback}</h2>
         {Array.from({ length: 5 }, (_, i) => (
